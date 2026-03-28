@@ -8,7 +8,7 @@
 
 const Config = {
   // 🔧 TROQUE pela URL do seu backend no Railway:
-  API_BASE: 'https://SUA-URL-AQUI.up.railway.app/api',
+  API_BASE: 'https://folium-jqh4.onrender.com',
 
   // Mantido automaticamente para dev local
   // Se o frontend for aberto direto do arquivo, usa localhost
