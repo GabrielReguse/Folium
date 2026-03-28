@@ -10,9 +10,9 @@
       const PREFIX = 'folium_';
       try {
         const user = localStorage.getItem(PREFIX + 'user');
-        window.location.replace(user ? 'html/home.html' : 'html/login.html');
+        window.location.replace(user ? 'FOLIUM/html/home.html' : 'FOLIUM/html/login.html');
       } catch(e) {
-        window.location.replace('html/login.html');
+        window.location.replace('FOLIUM/html/login.html');
       }
     })();
   </script>
