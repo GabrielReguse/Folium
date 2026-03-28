@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folium — Resumos Inteligentes</title>
+  <script>
+    /* Redireciona para home se tiver sessão válida (user + token), senão para login */
+    (function() {
+      const PREFIX = 'folium_';
+      try {
+        const user  = localStorage.getItem(PREFIX + 'user');
+        const token = localStorage.getItem(PREFIX + 'token');
+        window.location.replace((user && token) ? 'html/home.html' : 'html/login.html');
+      } catch(e) {
+        window.location.replace('html/login.html');
+      }
+    })();
+  </script>
+</head>
+<body></body>
+</html>

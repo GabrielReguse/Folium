@@ -10,12 +10,14 @@ const Navbar = {
    *   - backLabel  {string}  texto do botão voltar (null = sem botão)
    *   - backRoute  {string}  rota ao clicar em voltar
    *   - title      {string}  título central (HTML permitido)
+   *   - showLogout {bool}    exibe botão de sair (padrão: false)
    */
   renderTop(opts = {}) {
     const {
-      backLabel = '‹ Voltar',
-      backRoute = null,
-      title = '<em>Folha</em>'
+      backLabel  = '‹ Voltar',
+      backRoute  = null,
+      title      = '<em>Folium</em>',
+      showLogout = false,
     } = opts;
 
     const nav = document.createElement('nav');
@@ -27,14 +29,18 @@ const Navbar = {
           : ''}
       </div>
       <div class="logo-nav">${title}</div>
-      <div style="width:80px"></div>`;
+      <div style="width:80px;text-align:right">
+        ${showLogout
+          ? `<button class="nav-logout" onclick="Router.logout()" title="Sair">↩ Sair</button>`
+          : ''}
+      </div>`;
 
     const page = document.querySelector('.page');
     if (page) page.insertBefore(nav, page.firstChild);
   },
 
   /**
-   * Injeta a bottom navbar (apenas na home)
+   * Injeta a bottom navbar
    * @param {string} active - rota ativa
    */
   renderBottom(active = 'home') {

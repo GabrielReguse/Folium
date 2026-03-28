@@ -1,0 +1,5 @@
+node_modules/
+.env
+folium.db
+folium.db-wal
+folium.db-shm

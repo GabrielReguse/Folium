@@ -91,3 +91,21 @@ img, svg {
 ::-webkit-scrollbar-track  { background: transparent; }
 ::-webkit-scrollbar-thumb  { background: var(--c3); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--c2); }
+
+/* ── Botão de logout na navbar ── */
+.nav-logout {
+  background: none;
+  border: 1.5px solid var(--clr-accent, #FF8FAB);
+  color: var(--clr-accent, #FF8FAB);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+.nav-logout:hover {
+  background: var(--clr-accent, #FF8FAB);
+  color: #fff;
+}
