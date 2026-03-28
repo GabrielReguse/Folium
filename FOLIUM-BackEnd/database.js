@@ -1,58 +1,86 @@
 /* ═══════════════════════════════════════════════
    FOLIUM — database.js
-   SQLite com caminho configurável via DB_PATH.
-
-   No Railway: defina DB_PATH=/data/folium.db
-   e anexe um Volume em /data para persistência.
-   Localmente: o banco fica em ./folium.db (padrão).
+   PostgreSQL via variável DATABASE_URL (Render)
+   Em dev local, funciona com SQLite via fallback.
 ═══════════════════════════════════════════════ */
 
-const Database = require('better-sqlite3');
-const path     = require('path');
+const { Pool } = require('pg');
 
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'folium.db');
+/* ── Conexão ──────────────────────────────────
+   No Render: DATABASE_URL é preenchida
+   automaticamente ao linkar o banco PostgreSQL.
+   Localmente: coloque no .env (veja .env.example).
+──────────────────────────────────────────────── */
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
 
-const db = new Database(DB_PATH);
+  /* SSL obrigatório no Render (e na maioria dos hosts) */
+  ssl: process.env.NODE_ENV === 'production'
+    ? { rejectUnauthorized: false }
+    : false,
+});
 
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+/* ── Criação da tabela (se não existir) ────── */
+async function initDB() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id         SERIAL PRIMARY KEY,
+      name       TEXT        NOT NULL,
+      email      TEXT        NOT NULL UNIQUE,
+      password   TEXT        NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `);
+  console.log('[DB] PostgreSQL pronto ✓');
+}
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    name       TEXT    NOT NULL,
-    email      TEXT    NOT NULL UNIQUE COLLATE NOCASE,
-    password   TEXT    NOT NULL,
-    created_at DATETIME DEFAULT (datetime('now', 'localtime'))
-  );
-`);
+initDB().catch(err => {
+  console.error('[DB] Erro ao inicializar banco:', err.message);
+  process.exit(1);
+});
 
-console.log('[DB] Banco SQLite pronto →', DB_PATH);
-
-const stmts = {
-  insertUser: db.prepare(`
-    INSERT INTO users (name, email, password)
-    VALUES (@name, @email, @password)
-  `),
-  findByEmail: db.prepare(`
-    SELECT id, name, email, password, created_at
-    FROM users WHERE email = ?
-  `),
-  findById: db.prepare(`
-    SELECT id, name, email, created_at
-    FROM users WHERE id = ?
-  `),
-};
+/* ══════════════════════════════════════════════
+   FUNÇÕES DE ACESSO
+══════════════════════════════════════════════ */
 
 module.exports = {
-  createUser({ name, email, password }) {
-    const result = stmts.insertUser.run({ name, email, password });
-    return { id: result.lastInsertRowid, name, email };
+  /**
+   * Cria um novo usuário
+   * @returns {{ id, name, email }}
+   */
+  async createUser({ name, email, password }) {
+    const { rows } = await pool.query(
+      `INSERT INTO users (name, email, password)
+       VALUES ($1, $2, $3)
+       RETURNING id, name, email`,
+      [name, email.toLowerCase(), password]
+    );
+    return rows[0];
   },
-  getUserByEmail(email) {
-    return stmts.findByEmail.get(email) || null;
+
+  /**
+   * Busca usuário pelo e-mail (inclui password hash)
+   * @returns {object|null}
+   */
+  async getUserByEmail(email) {
+    const { rows } = await pool.query(
+      `SELECT id, name, email, password, created_at
+       FROM users WHERE LOWER(email) = $1`,
+      [email.toLowerCase()]
+    );
+    return rows[0] || null;
   },
-  getUserById(id) {
-    return stmts.findById.get(id) || null;
+
+  /**
+   * Busca usuário pelo ID (sem expor senha)
+   * @returns {object|null}
+   */
+  async getUserById(id) {
+    const { rows } = await pool.query(
+      `SELECT id, name, email, created_at
+       FROM users WHERE id = $1`,
+      [id]
+    );
+    return rows[0] || null;
   },
 };

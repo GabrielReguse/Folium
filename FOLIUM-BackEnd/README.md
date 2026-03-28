@@ -1,70 +1,81 @@
 # 🍃 FOLIUM — Backend
 
-API de autenticação do Folium, construída com **Node.js**, **Express**, **SQLite** e **bcrypt**.
+API de autenticação do Folium com **Node.js + Express + PostgreSQL + bcrypt + JWT**.
 
 ---
 
-## 🚀 Como rodar
+## 🚀 Deploy no Render (gratuito)
 
-### 1. Pré-requisito
-Instale o [Node.js](https://nodejs.org/) (versão 18+ recomendada).
+### 1. Banco de dados PostgreSQL
 
-### 2. Instale as dependências
-Abra o terminal **dentro da pasta `FOLIUM-BackEnd`** e rode:
+1. Acesse [render.com](https://render.com) → **New → PostgreSQL**
+2. Preencha:
+   - **Name:** `folium-db`
+   - **Plan:** Free
+3. Clique em **Create Database**
+4. Copie a **Internal Database URL** — você vai precisar logo abaixo
+
+---
+
+### 2. Web Service (o servidor)
+
+1. **New → Web Service** → conecte seu repositório GitHub
+2. Configure:
+   - **Root Directory:** `FOLIUM-BackEnd` (se o repo tiver as duas pastas)
+   - **Runtime:** Node
+   - **Build Command:** `npm install`
+   - **Start Command:** `node server.js`
+   - **Plan:** Free
+3. Em **Environment Variables**, adicione:
+
+| Variável | Valor |
+|---|---|
+| `NODE_ENV` | `production` |
+| `JWT_SECRET` | Uma frase longa e aleatória (ex: `folium_xK9#mP2...`) |
+| `JWT_EXPIRES_IN` | `7d` |
+| `ALLOWED_ORIGIN` | `https://seu-projeto.vercel.app` |
+| `DATABASE_URL` | A URL que você copiou do PostgreSQL |
+
+4. Clique em **Create Web Service**
+
+✅ Após o deploy, copie a URL do serviço (ex: `https://folium-api.onrender.com`).
+
+---
+
+## ▲ Frontend no Vercel
+
+1. Abra `FOLIUM/js/config.js` e substitua a URL:
+```js
+API_BASE: 'https://folium-api.onrender.com/api',
+```
+2. Suba o frontend no Vercel apontando para a pasta `FOLIUM/`
+
+---
+
+## 💻 Dev local
 
 ```bash
 npm install
-```
-
-### 3. Inicie o servidor
-
-```bash
+# Crie um .env com base no .env.example
+# (você precisa de um PostgreSQL local OU pode usar o do Render no .env)
 npm start
-```
-
-Você verá:
-```
-  🍃  FOLIUM Backend rodando!
-  🌐  http://localhost:3001
-  📡  API: http://localhost:3001/api/health
-```
-
-### 4. Abra o front-end
-Abra o arquivo `FOLIUM/index.html` no navegador **ou** acesse `http://localhost:3001`.
-
-> ⚠️ **O servidor precisa estar rodando** para o login/cadastro funcionarem.
-
----
-
-## 📁 Estrutura
-
-```
-FOLIUM-BackEnd/
-├── server.js       ← Servidor principal
-├── database.js     ← Configuração do SQLite
-├── routes/
-│   └── auth.js     ← Rotas /api/auth/register e /api/auth/login
-├── .env            ← Configurações (porta, chave JWT)
-├── folium.db       ← Banco de dados (criado automaticamente)
-└── package.json
 ```
 
 ---
 
 ## 🔑 Endpoints
 
-| Método | Rota                  | Descrição              |
-|--------|-----------------------|------------------------|
-| GET    | `/api/health`         | Status da API          |
-| POST   | `/api/auth/register`  | Cadastro de usuário    |
-| POST   | `/api/auth/login`     | Login de usuário       |
-| GET    | `/api/auth/me`        | Dados do usuário atual |
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/api/health` | Status da API |
+| `POST` | `/api/auth/register` | Cadastro |
+| `POST` | `/api/auth/login` | Login |
+| `GET` | `/api/auth/me` | Dados do usuário (requer token) |
 
 ---
 
-## 🔒 Segurança
+## ⚠️ Sobre o plano gratuito do Render
 
-- Senhas criptografadas com **bcrypt** (12 rounds)
-- Autenticação via **JWT** (7 dias de validade)
-- E-mail duplicado bloqueado com erro 409
-- Mensagens de erro genéricas no login (não revelam se o e-mail existe)
+- O serviço **"dorme"** após 15 min sem uso → primeira requisição demora ~30s para acordar
+- O banco PostgreSQL gratuito **expira após 90 dias** (Render envia e-mail de aviso)
+- Para produção real, considere o plano pago ($7/mês)
