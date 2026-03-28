@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folha — Resumos Inteligentes</title>
+  <script>
+    /* Redireciona automaticamente para login ou home */
+    (function() {
+      const PREFIX = 'folium_';
+      try {
+        const user = localStorage.getItem(PREFIX + 'user');
+        window.location.replace(user ? 'html/home.html' : 'html/login.html');
+      } catch(e) {
+        window.location.replace('html/login.html');
+      }
+    })();
+  </script>
+</head>
+<body></body>
+</html>

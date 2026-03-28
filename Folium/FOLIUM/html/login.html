@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folha — Entrar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <!-- CSS -->
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/pages/login.css">
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div id="loading-overlay">
+  <div class="loading-box">
+    <div class="loader loader-lg"></div>
+    <h3 id="ld-title">Processando...</h3>
+    <p  id="ld-sub">Aguarde um momento</p>
+  </div>
+</div>
+
+<div class="login-page">
+  <div class="login-card scale-in">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="logo-mark">📄</div>
+      <h1><em>Folha</em></h1>
+      <p>Seus resumos inteligentes</p>
+    </div>
+
+    <!-- Formulário de Login -->
+    <div class="lform" id="f-login">
+      <div class="inp-group">
+        <label class="inp-label">E-mail</label>
+        <input type="email" class="inp" id="l-email" placeholder="seu@email.com">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">Senha</label>
+        <input type="password" class="inp" id="l-pass" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary btn-full btn-lg" onclick="doAuth()">Entrar</button>
+      <div class="divider">ou</div>
+      <button class="btn btn-secondary btn-full" onclick="swapForm('register')">Criar conta gratuita</button>
+    </div>
+
+    <!-- Formulário de Cadastro -->
+    <div class="lform" id="f-register" style="display:none">
+      <div class="inp-group">
+        <label class="inp-label">Nome completo</label>
+        <input type="text" class="inp" id="r-name" placeholder="Ana Clara">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">E-mail</label>
+        <input type="email" class="inp" id="r-email" placeholder="seu@email.com">
+      </div>
+      <div class="inp-group">
+        <label class="inp-label">Senha</label>
+        <input type="password" class="inp" id="r-pass" placeholder="Mínimo 4 caracteres">
+      </div>
+      <button class="btn btn-primary btn-full btn-lg" onclick="doAuth()">Criar conta</button>
+    </div>
+
+    <div class="lswitch" id="sw-login">Não tem conta? <a onclick="swapForm('register')">Cadastre-se</a></div>
+    <div class="lswitch" id="sw-register" style="display:none">Já tem conta? <a onclick="swapForm('login')">Entrar</a></div>
+
+  </div>
+</div>
+
+<!-- JS: utilitários e dependências primeiro -->
+<script src="../js/utils/dom.js"></script>
+<script src="../js/utils/storage.js"></script>
+<script src="../js/utils/helpers.js"></script>
+<script src="../js/mock.js"></script>
+<script src="../js/router.js"></script>
+<script src="../js/components/modal.js"></script>
+<!-- JS: página -->
+<script src="../js/app.js"></script>
+<script src="../js/pages/login.js"></script>
+
+</body>
+</html>
