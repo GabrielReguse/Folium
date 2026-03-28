@@ -1,0 +1,88 @@
+/* ═══════════════════════════════════════
+   FOLIUM — pages/suporte.css
+═══════════════════════════════════════ */
+
+.suporte-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 26px 22px;
+  max-width: 540px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── FAQ ── */
+.faq-group {
+  margin-bottom: 8px;
+}
+
+.faq-group-label {
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+.faq-group-label:first-child { margin-top: 0; }
+
+.faq-item {
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  margin-bottom: 10px;
+  background: var(--white);
+  box-shadow: var(--sh-sm);
+  transition: box-shadow var(--t-fast);
+}
+.faq-item:hover { box-shadow: var(--sh); }
+
+.faq-q {
+  padding: 18px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  user-select: none;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-sans);
+  transition: background var(--t-fast);
+}
+.faq-q:hover { background: var(--c5); }
+
+.faq-arr {
+  font-size: 12px;
+  color: var(--text-light);
+  transition: transform 0.30s var(--ease);
+  flex-shrink: 0;
+}
+.faq-item.open .faq-arr { transform: rotate(180deg); }
+
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.38s var(--ease), padding 0.28s ease;
+  padding: 0 20px;
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.72;
+}
+.faq-item.open .faq-a {
+  max-height: 400px;
+  padding: 0 20px 20px;
+}
+
+/* ── Bloco de contato ── */
+.contact-card {
+  background: var(--c4);
+  border-radius: var(--r);
+  padding: 28px;
+  text-align: center;
+  margin-top: 28px;
+  margin-bottom: 40px;
+}
+.contact-card .ci   { font-size: 40px; margin-bottom: 12px; }
+.contact-card p     { font-size: 14px; color: var(--text-mid); line-height: 1.65; }
+.contact-card strong { color: var(--c1); }
