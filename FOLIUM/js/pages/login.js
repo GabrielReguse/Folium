@@ -111,4 +111,4 @@ const LoginPage = {
   }
 };
 
-document.addEventListener('DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => LoginPage.init());
