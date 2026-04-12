@@ -22,6 +22,22 @@ const LoginPage = {
     this.currentForm === 'register' ? await this._register() : await this._login();
   },
 
+  /* ── Acorda o servidor antes de fazer a requisição real ── */
+  async _wakeServer() {
+    const MAX_WAIT = 90000; // 90 segundos
+    const INTERVAL = 3000;  // tenta a cada 3s
+    const start = Date.now();
+
+    while (Date.now() - start < MAX_WAIT) {
+      try {
+        const res = await fetch(`${Config.API}/health`, { method: 'GET' });
+        if (res.ok) return true;
+      } catch (_) {}
+      await new Promise(r => setTimeout(r, INTERVAL));
+    }
+    return false;
+  },
+
   async _register() {
     const nameEl  = DOM.$('#r-name');
     const emailEl = DOM.$('#r-email');
@@ -30,6 +46,15 @@ const LoginPage = {
     if (!nameEl.value.trim())                 { DOM.markError(nameEl);  this._showError('Por favor, informe seu nome.');            return; }
     if (!Helpers.isValidEmail(emailEl.value)) { DOM.markError(emailEl); this._showError('E-mail inválido.');                        return; }
     if (passEl.value.length < 4)              { DOM.markError(passEl);  this._showError('Senha deve ter pelo menos 4 caracteres.'); return; }
+
+    Modal.showLoading('Conectando ao servidor…', 'Isso pode levar até 1 minuto na primeira vez');
+
+    const online = await this._wakeServer();
+    if (!online) {
+      Modal.hideLoading();
+      this._showError('Servidor indisponível. Tente novamente em instantes.');
+      return;
+    }
 
     Modal.showLoading('Criando sua conta...', 'Configurando seu espaço pessoal');
 
@@ -67,6 +92,15 @@ const LoginPage = {
 
     if (!emailEl.value.trim()) { DOM.markError(emailEl); return; }
     if (!passEl.value.trim())  { DOM.markError(passEl);  return; }
+
+    Modal.showLoading('Conectando ao servidor…', 'Isso pode levar até 1 minuto na primeira vez');
+
+    const online = await this._wakeServer();
+    if (!online) {
+      Modal.hideLoading();
+      this._showError('Servidor indisponível. Tente novamente em instantes.');
+      return;
+    }
 
     Modal.showLoading('Entrando...', 'Verificando suas credenciais');
 
