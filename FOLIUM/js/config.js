@@ -7,11 +7,8 @@
 ═══════════════════════════════════════ */
 
 const Config = {
-  // 🔧 TROQUE pela URL do seu backend no Railway:
-  API_BASE: 'https://folium-py.onrender.com',
+  API_BASE: 'https://folium-py.onrender.com/api',
 
-  // Mantido automaticamente para dev local
-  // Se o frontend for aberto direto do arquivo, usa localhost
   get API() {
     const isLocal =
       window.location.hostname === 'localhost' ||
