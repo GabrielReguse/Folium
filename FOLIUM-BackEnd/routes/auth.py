@@ -91,3 +91,15 @@ def me(authorization: str = Header(default="")):
         return {"user": user}
     except JWTError:
         raise HTTPException(401, "Token inválido ou expirado.")
+    
+
+@router.delete("/admin/reset-user")
+def reset_user(email: str):
+    conn = db.get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM users WHERE LOWER(email) = %s", (email.lower(),))
+        conn.commit()
+        return {"message": f"Usuário {email} removido."}
+    finally:
+        conn.close()
