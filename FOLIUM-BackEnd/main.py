@@ -1,8 +1,3 @@
-# ═══════════════════════════════════════════════
-#  FOLIUM — main.py
-#  Servidor FastAPI — substitui o server.js
-# ═══════════════════════════════════════════════
-
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -15,18 +10,14 @@ load_dotenv()
 
 app = FastAPI(title="Folium API", version="1.0.0")
 
-# ── CORS ──────────────────────────────────────
-allowed_origin = os.getenv("ALLOWED_ORIGIN", "*")
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[allowed_origin] if allowed_origin != "*" else ["*"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ── Rotas ─────────────────────────────────────
 app.include_router(auth_router, prefix="/api/auth")
 app.include_router(ai_router,   prefix="/api/ai")
 
