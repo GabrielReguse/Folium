@@ -15,17 +15,20 @@ const App = {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    const N = 36, CONNECT_DIST = 120;
+    /* Menos partículas no mobile — melhor performance */
+    const isMobile = window.innerWidth < 640;
+    const N = isMobile ? 18 : 36;
+    const CONNECT_DIST = 120;
 
-    /* Paleta rosa conforme especificação do projeto */
     const COLORS = [
-      [244, 194, 194],   /* #F4C2C2 primário */
-      [255, 217, 232],   /* #FFD9E8 secundário */
-      [255, 143, 171],   /* #FF8FAB destaque */
-      [255, 182, 210],   /* rosa médio */
+      [244, 194, 194],
+      [255, 217, 232],
+      [255, 143, 171],
+      [255, 182, 210],
     ];
 
     let pts = [];
+    let animId = null;
 
     function resize() {
       canvas.width  = window.innerWidth;
@@ -42,7 +45,6 @@ const App = {
         vy: (Math.random() - 0.5) * 0.25,
         a:  Math.random() * 0.4 + 0.1,
         col,
-        /* coração ou círculo */
         heart: Math.random() > 0.65,
       };
     }
@@ -82,7 +84,6 @@ const App = {
           ctx.fill();
         }
 
-        /* Linhas de conexão suaves */
         for (let j = i + 1; j < pts.length; j++) {
           const q  = pts[j];
           const dx = p.x - q.x, dy = p.y - q.y;
@@ -97,13 +98,27 @@ const App = {
           }
         }
       }
-      requestAnimationFrame(draw);
+      animId = requestAnimationFrame(draw);
     }
 
     resize();
     init();
     draw();
-    window.addEventListener('resize', () => { resize(); init(); });
+
+    /*
+     * Debounce no resize: evita recriar partículas quando o teclado
+     * virtual do mobile abre (o que redimensiona a janela).
+     * Apenas redimensiona o canvas sem recriar as partículas.
+     */
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        resize();
+        /* Só recria partículas se a largura mudou (rotação de tela),
+           não quando apenas a altura muda (teclado mobile) */
+      }, 300);
+    });
   }
 };
 

@@ -20,6 +20,7 @@ const MateriaPage = {
 
     if (viewSheet && sheetId) {
       this.sheet = Mock.getSheet(subjectId, sheetId);
+      if (!this.sheet) { this._renderSheetList(); return; }
       this._renderSheetView();
     } else {
       this._renderSheetList();
@@ -28,6 +29,10 @@ const MateriaPage = {
 
   /* ── Lista de folhas da matéria ── */
   _renderSheetList() {
+    /* Limpa o contexto de folha ao voltar pra lista */
+    Storage.clearContext('sheetId');
+    Storage.clearContext('viewSheet');
+
     Navbar.renderTop({
       backRoute: 'folhas',
       backLabel: '‹ Matérias',
@@ -37,19 +42,19 @@ const MateriaPage = {
     const body = DOM.$('#materia-body');
     if (!body) return;
 
-    /* Label de contagem */
     const lbl = document.createElement('p');
     lbl.className = 't-label mb-16';
     lbl.textContent = `${this.subject.sheets.length} folha${this.subject.sheets.length !== 1 ? 's' : ''}`;
     body.appendChild(lbl);
 
     if (!this.subject.sheets.length) {
-      body.innerHTML += `
-        <div class="empty-state">
-          <div class="ei">📄</div>
-          <h3>Nenhuma folha aqui</h3>
-          <p>Crie uma folha para esta matéria.</p>
-        </div>`;
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.innerHTML = `
+        <div class="ei">📄</div>
+        <h3>Nenhuma folha aqui</h3>
+        <p>Crie uma folha para esta matéria.</p>`;
+      body.appendChild(empty);
       return;
     }
 
@@ -69,22 +74,28 @@ const MateriaPage = {
       title: `<em>${this.subject.name}</em>`
     });
 
-    /* Botão voltar manual para a lista */
+    /*
+     * Injeta o botão de voltar DENTRO do primeiro wrapper da nav
+     * (não substitui o wrapper em si, mantendo o layout flex da navbar)
+     */
     const nav = DOM.$('.top-nav');
     if (nav) {
-      const backBtn = document.createElement('button');
-      backBtn.className = 'nav-back';
-      backBtn.textContent = `‹ ${this.subject.name}`;
-      backBtn.addEventListener('click', () =>
-        Router.go('materia', { subjectId: this.subject.id })
-      );
-      nav.replaceChild(backBtn, nav.firstElementChild);
+      const wrapper = nav.firstElementChild;
+      if (wrapper) {
+        const backBtn = document.createElement('button');
+        backBtn.className = 'nav-back';
+        backBtn.textContent = `‹ ${this.subject.name}`;
+        backBtn.addEventListener('click', () =>
+          Router.go('materia', { subjectId: this.subject.id })
+        );
+        DOM.clear(wrapper);
+        wrapper.appendChild(backBtn);
+      }
     }
 
     const body = DOM.$('#materia-body');
     if (!body) return;
 
-    /* Cabeçalho */
     const header = document.createElement('div');
     header.className = 'sheet-view-header';
     header.innerHTML = `
@@ -93,12 +104,10 @@ const MateriaPage = {
       <p class="t-sub">Criada em ${this.sheet.date} · ${this.sheet.topics.length} tópicos</p>`;
     body.appendChild(header);
 
-    /* Seções de conteúdo */
     this.sheet.topics.forEach(tp => {
       body.appendChild(Card.sheetSection({ topic: tp, subject: this.subject.name }));
     });
 
-    /* Resumo final */
     body.appendChild(Card.sheetSummary({
       title:   this.sheet.title,
       subject: this.subject.name

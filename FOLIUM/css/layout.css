@@ -9,6 +9,8 @@
   inset: 0;
   z-index: var(--z-canvas);
   pointer-events: none;
+  /* Garante que não capture eventos de toque no mobile */
+  touch-action: none;
 }
 
 /* ── Wrapper de página ── */
@@ -20,11 +22,13 @@
   flex-direction: column;
 }
 
-/* ── Área de scroll principal ── */
+/* ── Área de conteúdo principal ──
+   Scroll é feito pelo body/documento naturalmente.
+   overflow-y: auto dentro de flex sem altura fixa não funciona
+   no mobile — deixamos o documento crescer e rolar. ── */
 .page-body {
   flex: 1;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  /* sem overflow-y: auto aqui */
 }
 
 /* ── Container centralizado ── */
