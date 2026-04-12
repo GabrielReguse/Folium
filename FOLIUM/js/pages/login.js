@@ -33,31 +33,32 @@ const LoginPage = {
 
     Modal.showLoading('Criando sua conta...', 'Configurando seu espaço pessoal');
 
-    // ── MOCK: simula delay de rede ──
-    await new Promise(r => setTimeout(r, 1200));
+    try {
+      const res = await fetch(`${Config.API}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name:     nameEl.value.trim(),
+          email:    emailEl.value.trim(),
+          password: passEl.value,
+        }),
+      });
 
-    // Verifica se e-mail já existe no "banco" local
-    const users = JSON.parse(localStorage.getItem('folium_users') || '[]');
-    if (users.find(u => u.email === emailEl.value.trim())) {
+      const data = await res.json();
       Modal.hideLoading();
-      this._showError('Este e-mail já está cadastrado.');
-      return;
+
+      if (!res.ok) {
+        this._showError(data.detail || 'Erro ao criar conta.');
+        return;
+      }
+
+      Storage.setAuth({ id: data.user.id, name: data.user.name, email: data.user.email }, data.token);
+      Router.go('home');
+
+    } catch (err) {
+      Modal.hideLoading();
+      this._showError('Erro de conexão. Tente novamente.');
     }
-
-    // Salva novo usuário
-    const newUser = {
-      id:       crypto.randomUUID(),
-      name:     nameEl.value.trim(),
-      email:    emailEl.value.trim(),
-      password: passEl.value,
-    };
-    users.push(newUser);
-    localStorage.setItem('folium_users', JSON.stringify(users));
-
-    const mockToken = `mock_token_${newUser.id}`;
-    Modal.hideLoading();
-    Storage.setAuth({ id: newUser.id, name: newUser.name, email: newUser.email }, mockToken);
-    Router.go('home');
   },
 
   async _login() {
@@ -69,26 +70,33 @@ const LoginPage = {
 
     Modal.showLoading('Entrando...', 'Verificando suas credenciais');
 
-    // ── MOCK: simula delay de rede ──
-    await new Promise(r => setTimeout(r, 1000));
+    try {
+      const res = await fetch(`${Config.API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email:    emailEl.value.trim(),
+          password: passEl.value,
+        }),
+      });
 
-    const users = JSON.parse(localStorage.getItem('folium_users') || '[]');
-    const user  = users.find(
-      u => u.email === emailEl.value.trim() && u.password === passEl.value
-    );
+      const data = await res.json();
+      Modal.hideLoading();
 
-    Modal.hideLoading();
+      if (!res.ok) {
+        DOM.markError(emailEl);
+        DOM.markError(passEl);
+        this._showError(data.detail || 'E-mail ou senha incorretos.');
+        return;
+      }
 
-    if (!user) {
-      DOM.markError(emailEl);
-      DOM.markError(passEl);
-      this._showError('E-mail ou senha incorretos.');
-      return;
+      Storage.setAuth({ id: data.user.id, name: data.user.name, email: data.user.email }, data.token);
+      Router.go('home');
+
+    } catch (err) {
+      Modal.hideLoading();
+      this._showError('Erro de conexão. Tente novamente.');
     }
-
-    const mockToken = `mock_token_${user.id}`;
-    Storage.setAuth({ id: user.id, name: user.name, email: user.email }, mockToken);
-    Router.go('home');
   },
 
   _showError(msg) {
