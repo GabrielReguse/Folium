@@ -1,24 +1,17 @@
-# ═══════════════════════════════════════════════
-#  FOLIUM — render.yaml
-#  Configuração de deploy no Render
-#  Docs: https://render.com/docs/infrastructure-as-code
-# ═══════════════════════════════════════════════
-
 services:
   - type: web
     name: folium-api
-    runtime: node
-    buildCommand: npm install
-    startCommand: node server.js
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     plan: free
-
-    # Variáveis de ambiente — os valores SECRETOS você preenche
-    # direto no painel do Render (não aqui, pra não subir no git)
     envVars:
+      - key: JWT_EXPIRES_DAYS
+        value: "7"
       - key: NODE_ENV
         value: production
-      - key: JWT_EXPIRES_IN
-        value: 7d
       # Preencha no painel do Render:
-      # JWT_SECRET      → uma frase longa e aleatória
-      # ALLOWED_ORIGIN  → https://seu-projeto.vercel.app
+      # JWT_SECRET       → frase longa e aleatória
+      # ALLOWED_ORIGIN   → https://seu-projeto.vercel.app
+      # DATABASE_URL     → preenchido automaticamente pelo Render
+      # ANTHROPIC_API_KEY → sua chave sk-ant-...
