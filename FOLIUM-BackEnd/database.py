@@ -15,8 +15,7 @@ def get_conn():
     url = os.getenv("DATABASE_URL")
     if not url:
         raise RuntimeError("DATABASE_URL não configurada.")
-    # SSL obrigatório no Render
-    return psycopg.connect(url, row_factory=dict_row, sslmode="require" if os.getenv("NODE_ENV") == "production" else "prefer")
+    return psycopg.connect(url, row_factory=dict_row)
 
 def init_db():
     """Cria a tabela de usuários se não existir."""
@@ -81,4 +80,5 @@ def get_user_by_id(user_id: int) -> dict | None:
 try:
     init_db()
 except Exception as e:
-    print(f"[DB] Aviso ao inicializar: {e}")
+    print(f"[DB] ERRO ao inicializar banco: {e}")
+    raise  # agora vai aparecer no log do Render
