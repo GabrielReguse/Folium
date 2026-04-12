@@ -4,8 +4,8 @@
 # ═══════════════════════════════════════════════
 
 import os
-import psycopg2
-import psycopg2.extras
+import psycopg
+from psycopg.rows import dict_row
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,7 +16,7 @@ def get_conn():
     if not url:
         raise RuntimeError("DATABASE_URL não configurada.")
     # SSL obrigatório no Render
-    return psycopg2.connect(url, sslmode="require" if os.getenv("NODE_ENV") == "production" else "prefer")
+    return psycopg.connect(url, row_factory=dict_row, sslmode="require" if os.getenv("NODE_ENV") == "production" else "prefer")
 
 def init_db():
     """Cria a tabela de usuários se não existir."""
@@ -40,7 +40,7 @@ def init_db():
 def create_user(name: str, email: str, password: str) -> dict:
     conn = get_conn()
     try:
-        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        with conn.cursor() as cur:
             cur.execute(
                 "INSERT INTO users (name, email, password) VALUES (%s, %s, %s) RETURNING id, name, email",
                 (name, email.lower(), password)
@@ -54,7 +54,7 @@ def create_user(name: str, email: str, password: str) -> dict:
 def get_user_by_email(email: str) -> dict | None:
     conn = get_conn()
     try:
-        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        with conn.cursor() as cur:
             cur.execute(
                 "SELECT id, name, email, password, created_at FROM users WHERE LOWER(email) = %s",
                 (email.lower(),)
@@ -67,7 +67,7 @@ def get_user_by_email(email: str) -> dict | None:
 def get_user_by_id(user_id: int) -> dict | None:
     conn = get_conn()
     try:
-        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        with conn.cursor() as cur:
             cur.execute(
                 "SELECT id, name, email, created_at FROM users WHERE id = %s",
                 (user_id,)
