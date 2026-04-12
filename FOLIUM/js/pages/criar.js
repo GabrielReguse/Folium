@@ -5,9 +5,16 @@
 
 const CriarPage = {
   currentStep: 1,
-  topicList:   [],     /* [{ txt, on }] */
-  materia:     '',
-  tema:        '',
+
+  /*
+   * Cada item da lista:
+   * { txt: string, on: boolean, plano_pesquisa: object|null, aviso: string|null }
+   *
+   * plano_pesquisa é preparado pela IA 1 e consumido futuramente pela IA 2.
+   */
+  topicList: [],
+  materia:   '',
+  tema:      '',
 
   init() {
     if (!Router.requireAuth()) return;
@@ -15,9 +22,7 @@ const CriarPage = {
     this.goStep(1);
   },
 
-  /* ═══════════
-     STEP BAR
-  ════════════ */
+  /* ─── STEP BAR ─────────────────────────────────────────── */
   goStep(n) {
     this.currentStep = n;
 
@@ -25,7 +30,7 @@ const CriarPage = {
       const dot  = DOM.$(`#dot${i}`);
       const pane = DOM.$(`#pane${i}`);
       dot.classList.remove('active', 'done');
-      if (i < n)       dot.classList.add('done');
+      if (i < n)        dot.classList.add('done');
       else if (i === n) dot.classList.add('active');
       pane.classList.toggle('active', i === n);
     }
@@ -35,9 +40,7 @@ const CriarPage = {
     DOM.scrollTop();
   },
 
-  /* ═══════════
-     ETAPA 1 — Entrada
-  ════════════ */
+  /* ─── ETAPA 1 — Entrada ────────────────────────────────── */
   async gerarSugestoes() {
     const materiaEl = DOM.$('#inp-materia');
     const temaEl    = DOM.$('#inp-tema');
@@ -47,21 +50,32 @@ const CriarPage = {
     this.materia = Helpers.titleCase(materiaEl.value.trim());
     this.tema    = temaEl.value.trim();
 
-    await Modal.simulate(
-      'Analisando tema...',
-      'A IA está mapeando os melhores tópicos',
-      1900,
-      () => {
-        this.topicList = Mock.topicSuggestions.map((txt, i) => ({ txt, on: i < 5 }));
-        this._renderTopics();
-        this.goStep(2);
-      }
+    Modal.showLoading(
+      'IA analisando o tema…',
+      'Mapeando os melhores tópicos para seu estudo'
     );
+
+    try {
+      /* ── IA 1: gerar tópicos reais ── */
+      this.topicList = await AI1.gerarTopicos(this.materia, this.tema);
+    } catch (err) {
+      console.error('[AI1] gerarTopicos falhou:', err);
+      /* Fallback para mock caso a API falhe */
+      this.topicList = Mock.topicSuggestions.map((txt, i) => ({
+        txt,
+        on:             i < 5,
+        plano_pesquisa: null,
+        aviso:          null,
+      }));
+    } finally {
+      Modal.hideLoading();
+    }
+
+    this._renderTopics();
+    this.goStep(2);
   },
 
-  /* ═══════════
-     ETAPA 2 — Edição de tópicos
-  ════════════ */
+  /* ─── ETAPA 2 — Edição de tópicos ─────────────────────── */
   _renderTopics() {
     const list = DOM.$('#topics-list');
     DOM.clear(list);
@@ -71,6 +85,7 @@ const CriarPage = {
         txt:      t.txt,
         on:       t.on,
         index:    i,
+        aviso:    t.aviso,
         onToggle: (idx, chkEl) => this._toggleTopic(idx, chkEl),
         onRemove: (idx)        => this._removeTopic(idx),
       });
@@ -89,21 +104,53 @@ const CriarPage = {
     this._renderTopics();
   },
 
+  /* ─── ADICIONAR TÓPICO MANUAL (com verificação da IA 1) ── */
   async addTopic() {
     const inp = DOM.$('#inp-new-topic');
     const txt = inp.value.trim();
     if (!txt) { DOM.markError(inp); return; }
 
-    await Modal.simulate('Pesquisando...', 'Verificando o novo tópico', 900, () => {
-      this.topicList.push({ txt, on: true });
-      this._renderTopics();
-      inp.value = '';
+    const btn = DOM.$('#btn-add-topic');
+    if (btn) btn.disabled = true;
+
+    Modal.showLoading(
+      'IA verificando compatibilidade…',
+      `Analisando "${txt}" com os temas de ${this.materia}`
+    );
+
+    let resultado = { compativel: true, aviso: null, plano_pesquisa: null };
+
+    try {
+      /* ── IA 1: verificar se o novo tópico faz sentido ── */
+      resultado = await AI1.verificarTopico(
+        txt,
+        this.materia,
+        this.tema,
+        this.topicList
+      );
+    } catch (err) {
+      console.error('[AI1] verificarTopico falhou:', err);
+    } finally {
+      Modal.hideLoading();
+      if (btn) btn.disabled = false;
+    }
+
+    /* Sempre adiciona — nunca bloqueia o usuário */
+    this.topicList.push({
+      txt,
+      on:             true,
+      plano_pesquisa: resultado.plano_pesquisa,
+      aviso:          resultado.compativel
+        ? resultado.aviso
+        : (resultado.aviso ||
+           `"${txt}" pode estar fora do tema principal de ${this.materia}. Você pode mantê-lo se quiser.`),
     });
+
+    this._renderTopics();
+    inp.value = '';
   },
 
-  /* ═══════════
-     ETAPA 3 — Folha gerada
-  ════════════ */
+  /* ─── ETAPA 3 — Folha gerada ────────────────────────────── */
   async gerarFolha() {
     const selecionados = this.topicList.filter(t => t.on);
     if (!selecionados.length) {
@@ -111,10 +158,22 @@ const CriarPage = {
       return;
     }
 
+    /*
+     * Exporta o plano de pesquisa para a IA 2.
+     * Salvo em sessionStorage — a próxima IA lê este objeto.
+     */
+    const plano = AI1.exportarPlano(this.topicList);
+    sessionStorage.setItem('folium_plano_ia2', JSON.stringify({
+      materia:  this.materia,
+      tema:     this.tema,
+      topicos:  plano,
+      geradoEm: new Date().toISOString(),
+    }));
+
     await Modal.simulate(
-      'Gerando sua folha...',
-      'A IA está criando seu resumo personalizado',
-      2400,
+      'Preparando sua folha…',
+      'Organizando os tópicos selecionados',
+      1800,
       () => {
         this._renderSheetOutput(selecionados);
         this.goStep(3);
@@ -126,7 +185,6 @@ const CriarPage = {
     const out = DOM.$('#sheet-out');
     DOM.clear(out);
 
-    /* Cabeçalho */
     const header = document.createElement('div');
     header.className = 'sheet-header';
     header.innerHTML = `
@@ -135,17 +193,16 @@ const CriarPage = {
       <p class="t-sub">${topics.length} tópico${topics.length !== 1 ? 's' : ''} · ${Helpers.formatDate(new Date())}</p>`;
     out.appendChild(header);
 
-    /* Seções por tópico */
+    /* Conteúdo ainda mockado — IA 2 preencherá com base no plano_pesquisa */
     topics.forEach(t => {
       out.appendChild(Card.sheetSection({ topic: t.txt, subject: this.materia }));
     });
 
-    /* Resumo geral */
     out.appendChild(Card.sheetSummary({ title: this.tema || this.materia, subject: this.materia }));
   },
 
   async salvarFolha() {
-    await Modal.simulate('Salvando...', 'Adicionando à sua coleção', 900, () => {
+    await Modal.simulate('Salvando…', 'Adicionando à sua coleção', 900, () => {
       Router.go('folhas');
     });
   },

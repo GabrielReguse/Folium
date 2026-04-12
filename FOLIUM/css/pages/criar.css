@@ -136,3 +136,27 @@
 .sheet-footer {
   padding-bottom: 48px;
 }
+
+/* ── Aviso de compatibilidade (IA 1) ── */
+.topic-row--warn {
+  flex-wrap: wrap;
+  background: #fffbf0;
+  border-color: #f5c842;
+}
+
+.topic-warn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: #fef9e7;
+  border-left: 3px solid #f5c842;
+  border-radius: 0 6px 6px 0;
+  font-size: 12px;
+  color: #7a6a00;
+  line-height: 1.4;
+  animation: au 0.3s ease both;
+}
+
+.topic-warn-icon {
+  margin-right: 4px;
+}

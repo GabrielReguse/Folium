@@ -62,14 +62,24 @@ const Card = {
   /**
    * Linha de tópico na criação de folha
    */
-  topicRow({ txt, on = true, index, onToggle, onRemove }) {
+  topicRow({ txt, on = true, index, aviso = null, onToggle, onRemove }) {
     const row = document.createElement('div');
-    row.className = 'topic-row';
+    row.className = 'topic-row' + (aviso ? ' topic-row--warn' : '');
     row.style.animationDelay = `${index * 0.06}s`;
+
+    /* Linha principal: checkbox + texto + botão remover */
     row.innerHTML = `
       <div class="tchk ${on ? 'on' : ''}">${on ? '✓' : ''}</div>
       <span class="ttxt">${txt}</span>
       <button class="trem" title="Remover">×</button>`;
+
+    /* Aviso de compatibilidade (adicionado pelo usuário manualmente) */
+    if (aviso) {
+      const warn = document.createElement('div');
+      warn.className = 'topic-warn';
+      warn.innerHTML = `<span class="topic-warn-icon">⚠️</span> ${aviso}`;
+      row.appendChild(warn);
+    }
 
     const chk = row.querySelector('.tchk');
     chk.addEventListener('click', () => onToggle && onToggle(index, chk));
