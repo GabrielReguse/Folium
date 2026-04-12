@@ -9,6 +9,7 @@ const express = require('express');
 const cors    = require('cors');
 
 const authRoutes = require('./routes/auth');
+const aiRoutes   = require('./routes/ai');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -36,6 +37,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/ai',   aiRoutes);
 
 app.use('/api/*', (req, res) => {
   res.status(404).json({ error: 'Rota não encontrada.' });

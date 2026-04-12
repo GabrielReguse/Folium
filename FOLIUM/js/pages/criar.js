@@ -8,9 +8,7 @@ const CriarPage = {
 
   /*
    * Cada item da lista:
-   * { txt: string, on: boolean, plano_pesquisa: object|null, aviso: string|null }
-   *
-   * plano_pesquisa é preparado pela IA 1 e consumido futuramente pela IA 2.
+   * { txt, on, plano_pesquisa, aviso }
    */
   topicList: [],
   materia:   '',
@@ -25,7 +23,6 @@ const CriarPage = {
   /* ─── STEP BAR ─────────────────────────────────────────── */
   goStep(n) {
     this.currentStep = n;
-
     for (let i = 1; i <= 3; i++) {
       const dot  = DOM.$(`#dot${i}`);
       const pane = DOM.$(`#pane${i}`);
@@ -50,17 +47,23 @@ const CriarPage = {
     this.materia = Helpers.titleCase(materiaEl.value.trim());
     this.tema    = temaEl.value.trim();
 
+    /* Desabilita botão durante a chamada */
+    const btn = DOM.$('#btn-gerar');
+    if (btn) btn.disabled = true;
+
     Modal.showLoading(
       'IA analisando o tema…',
       'Mapeando os melhores tópicos para seu estudo'
     );
 
+    let usouFallback = false;
+
     try {
-      /* ── IA 1: gerar tópicos reais ── */
       this.topicList = await AI1.gerarTopicos(this.materia, this.tema);
     } catch (err) {
-      console.error('[AI1] gerarTopicos falhou:', err);
-      /* Fallback para mock caso a API falhe */
+      console.error('[AI1] gerarTopicos falhou:', err.message);
+      usouFallback = true;
+      /* Fallback: mock genérico para não travar o fluxo */
       this.topicList = Mock.topicSuggestions.map((txt, i) => ({
         txt,
         on:             i < 5,
@@ -69,9 +72,20 @@ const CriarPage = {
       }));
     } finally {
       Modal.hideLoading();
+      if (btn) btn.disabled = false;
     }
 
     this._renderTopics();
+
+    /* Avisa o usuário se caiu no fallback */
+    if (usouFallback) {
+      this._showStepMsg(
+        'pane2-msg',
+        '⚠️ IA indisponível no momento — exibindo sugestões genéricas. Edite à vontade.',
+        'warn'
+      );
+    }
+
     this.goStep(2);
   },
 
@@ -115,27 +129,23 @@ const CriarPage = {
 
     Modal.showLoading(
       'IA verificando compatibilidade…',
-      `Analisando "${txt}" com os temas de ${this.materia}`
+      `Analisando "${txt}" no contexto de ${this.materia}`
     );
 
     let resultado = { compativel: true, aviso: null, plano_pesquisa: null };
 
     try {
-      /* ── IA 1: verificar se o novo tópico faz sentido ── */
       resultado = await AI1.verificarTopico(
-        txt,
-        this.materia,
-        this.tema,
-        this.topicList
+        txt, this.materia, this.tema, this.topicList
       );
     } catch (err) {
-      console.error('[AI1] verificarTopico falhou:', err);
+      console.error('[AI1] verificarTopico falhou:', err.message);
+      /* Se a verificação falhar, adiciona sem aviso — nunca bloqueia */
     } finally {
       Modal.hideLoading();
       if (btn) btn.disabled = false;
     }
 
-    /* Sempre adiciona — nunca bloqueia o usuário */
     this.topicList.push({
       txt,
       on:             true,
@@ -143,11 +153,24 @@ const CriarPage = {
       aviso:          resultado.compativel
         ? resultado.aviso
         : (resultado.aviso ||
-           `"${txt}" pode estar fora do tema principal de ${this.materia}. Você pode mantê-lo se quiser.`),
+           `"${txt}" pode estar fora do tema de ${this.materia}. Você pode mantê-lo.`),
     });
 
     this._renderTopics();
     inp.value = '';
+  },
+
+  /* ─── HELPER: mensagem contextual dentro do pane ────────── */
+  _showStepMsg(id, texto, tipo = 'info') {
+    let el = DOM.$(`#${id}`);
+    if (!el) {
+      el = document.createElement('div');
+      el.id = id;
+      const pane2 = DOM.$('#pane2');
+      if (pane2) pane2.insertBefore(el, pane2.firstChild);
+    }
+    el.className = `step-msg step-msg--${tipo}`;
+    el.textContent = texto;
   },
 
   /* ─── ETAPA 3 — Folha gerada ────────────────────────────── */
@@ -158,10 +181,7 @@ const CriarPage = {
       return;
     }
 
-    /*
-     * Exporta o plano de pesquisa para a IA 2.
-     * Salvo em sessionStorage — a próxima IA lê este objeto.
-     */
+    /* Salva o plano para a futura IA 2 */
     const plano = AI1.exportarPlano(this.topicList);
     sessionStorage.setItem('folium_plano_ia2', JSON.stringify({
       materia:  this.materia,
@@ -173,7 +193,7 @@ const CriarPage = {
     await Modal.simulate(
       'Preparando sua folha…',
       'Organizando os tópicos selecionados',
-      1800,
+      1400,
       () => {
         this._renderSheetOutput(selecionados);
         this.goStep(3);
@@ -193,7 +213,6 @@ const CriarPage = {
       <p class="t-sub">${topics.length} tópico${topics.length !== 1 ? 's' : ''} · ${Helpers.formatDate(new Date())}</p>`;
     out.appendChild(header);
 
-    /* Conteúdo ainda mockado — IA 2 preencherá com base no plano_pesquisa */
     topics.forEach(t => {
       out.appendChild(Card.sheetSection({ topic: t.txt, subject: this.materia }));
     });
