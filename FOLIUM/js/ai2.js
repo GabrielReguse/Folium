@@ -1,14 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════
    FOLIUM — js/ai2.js
    IA 2: Geradora da Folha de Estudos
-
-   Rota usada:
-     POST /api/ai2/sheet → gera a folha completa com blocos
 ═══════════════════════════════════════════════════════════════ */
 
 const AI2 = {
 
-  /* ─── Chama o backend ──────────────────────────────────── */
   async gerarFolha(materia, tema, topicos) {
     const token = Storage.getToken();
     if (!token) throw new Error('Usuário não autenticado.');
@@ -28,10 +24,9 @@ const AI2 = {
 
     if (!res.ok) throw new Error(data.detail || `Erro ${res.status} no servidor.`);
 
-    return data; // { blocos: [...], resumo_geral: "..." }
+    return data;
   },
 
-  /* ─── Renderiza a folha no elemento #sheet-out ─────────── */
   renderFolha(container, materia, tema, resultado) {
     container.innerHTML = '';
 
@@ -44,12 +39,10 @@ const AI2 = {
       <p class="t-sub">${tema ? tema + ' · ' : ''}${resultado.blocos.length} tópico${resultado.blocos.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('pt-BR')}</p>`;
     container.appendChild(header);
 
-    /* Blocos de tópicos */
     resultado.blocos.forEach(bloco => {
       container.appendChild(AI2._renderBloco(bloco));
     });
 
-    /* Resumo geral */
     if (resultado.resumo_geral) {
       const summary = document.createElement('div');
       summary.className = 'sh-summary';
@@ -60,7 +53,6 @@ const AI2 = {
     }
   },
 
-  /* ─── Renderiza um bloco individual ───────────────────── */
   _renderBloco(bloco) {
     const sec = document.createElement('div');
     sec.className = 'sh-section';
@@ -83,10 +75,15 @@ const AI2 = {
       exHTML = `<p class="ex-pratico">💡 ${ex.texto}</p>`;
     }
 
+    const dicaHTML = bloco.dica_prova
+      ? `<div class="sh-dica">🎯 ${bloco.dica_prova}</div>`
+      : '';
+
     sec.innerHTML = `
       <h3 class="t-topic">${bloco.titulo}</h3>
       <p class="sh-explain">${bloco.explicacao}</p>
-      ${exHTML ? `<div class="sh-ex"><div class="sh-ex-lbl">📌 Exemplo</div>${exHTML}</div>` : ''}`;
+      ${exHTML ? `<div class="sh-ex"><div class="sh-ex-lbl">📌 Exemplo</div>${exHTML}</div>` : ''}
+      ${dicaHTML}`;
 
     return sec;
   },
