@@ -3,11 +3,22 @@
    Fluxo de 3 etapas para criação de folha
 ═══════════════════════════════════════ */
 
+const NIVEL_LABELS = {
+  fundamental_1: 'Fundamental I (1º–5º ano)',
+  fundamental_2: 'Fundamental II (6º–9º ano)',
+  medio:         'Ensino Médio',
+  vestibular:    'Vestibular / ENEM',
+  tecnico:       'Ensino Técnico',
+  superior:      'Ensino Superior',
+  pos:           'Pós-graduação',
+};
+
 const CriarPage = {
   currentStep: 1,
   topicList: [],
   materia:   '',
   tema:      '',
+  nivel:     '',
 
   init() {
     if (!Router.requireAuth()) return;
@@ -36,11 +47,14 @@ const CriarPage = {
   async gerarSugestoes() {
     const materiaEl = DOM.$('#inp-materia');
     const temaEl    = DOM.$('#inp-tema');
+    const nivelEl   = DOM.$('#inp-nivel');
 
     if (!materiaEl.value.trim()) { DOM.markError(materiaEl); return; }
+    if (!nivelEl.value)          { DOM.markError(nivelEl);   return; }
 
     this.materia = Helpers.titleCase(materiaEl.value.trim());
     this.tema    = temaEl.value.trim();
+    this.nivel   = nivelEl.value;
 
     const btn = DOM.$('#btn-gerar');
     if (btn) btn.disabled = true;
@@ -50,7 +64,7 @@ const CriarPage = {
     let usouFallback = false;
 
     try {
-      this.topicList = await AI1.gerarTopicos(this.materia, this.tema);
+      this.topicList = await AI1.gerarTopicos(this.materia, this.tema, this.nivel);
     } catch (err) {
       console.error('[AI1] gerarTopicos falhou:', err.message);
       usouFallback = true;
@@ -121,7 +135,7 @@ const CriarPage = {
     let resultado = { compativel: true, aviso: null, plano_pesquisa: null };
 
     try {
-      resultado = await AI1.verificarTopico(txt, this.materia, this.tema, this.topicList);
+      resultado = await AI1.verificarTopico(txt, this.materia, this.tema, this.topicList, this.nivel);
     } catch (err) {
       console.error('[AI1] verificarTopico falhou:', err.message);
     } finally {
@@ -172,16 +186,17 @@ const CriarPage = {
       const resultado = await AI2.gerarFolha(
         this.materia,
         this.tema,
+        this.nivel,
         selecionados.map(t => t.txt)
       );
 
       Modal.hideLoading();
-      AI2.renderFolha(out, this.materia, this.tema, resultado);
+      AI2.renderFolha(out, this.materia, this.tema, this.nivel, resultado);
 
-      /* Salva para uso futuro */
       sessionStorage.setItem('folium_plano_ia2', JSON.stringify({
         materia:   this.materia,
         tema:      this.tema,
+        nivel:     this.nivel,
         topicos:   selecionados.map(t => t.txt),
         resultado,
         geradoEm:  new Date().toISOString(),
@@ -190,8 +205,6 @@ const CriarPage = {
     } catch (err) {
       Modal.hideLoading();
       console.error('[AI2] gerarFolha falhou:', err.message);
-
-      /* Fallback: renderiza com mock */
       this._showStepMsg('pane3-msg', '⚠️ IA indisponível — exibindo folha genérica.', 'warn');
       this._renderSheetFallback(selecionados);
     }
@@ -199,7 +212,6 @@ const CriarPage = {
     this.goStep(3);
   },
 
-  /* ─── Fallback caso a IA2 falhe ────────────────────────── */
   _renderSheetFallback(topics) {
     const out = DOM.$('#sheet-out');
     DOM.clear(out);

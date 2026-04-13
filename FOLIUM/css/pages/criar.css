@@ -266,3 +266,122 @@
   border-width: 2px;
   flex-shrink: 0;
 }
+
+/* ── Select de nível escolar ── */
+.inp-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A0795A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  cursor: pointer;
+  color: var(--text);
+}
+.inp-select option { color: var(--text); background: #fff; }
+
+/* ── Badge de nível ── */
+.badge-nivel {
+  background: var(--c2);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* ── Melhorias de visibilidade na folha ── */
+.sh-section {
+  background: #fff;
+  border-radius: var(--r-sm);
+  padding: 20px 20px 18px;
+  margin-bottom: 16px;
+  border: 1.5px solid var(--c4);
+  box-shadow: var(--sh-sm);
+}
+.sh-section:last-of-type { border-bottom: 1.5px solid var(--c4); }
+
+.t-topic {
+  color: var(--c1) !important;
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-family: var(--font-serif);
+}
+
+.sh-explain {
+  color: var(--text) !important;
+  font-size: 14px;
+  line-height: 1.78;
+  margin-bottom: 14px;
+}
+
+.sh-ex {
+  background: var(--c5);
+  border-radius: var(--r-sm);
+  padding: 14px 16px;
+  border-left: 3px solid var(--c1);
+}
+
+.sh-ex-lbl {
+  color: var(--c1) !important;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.ex-table th {
+  background: var(--c1);
+  color: #fff !important;
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ex-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--c4);
+  color: var(--text) !important;
+  font-size: 13px;
+}
+
+.ex-table tr:nth-child(even) td { background: var(--c5); }
+
+.ex-list li {
+  color: var(--text) !important;
+  font-size: 14px;
+}
+
+.ex-pratico {
+  color: var(--text) !important;
+  font-size: 14px;
+  line-height: 1.7;
+  background: #fffbf2;
+  border-radius: var(--r-xs);
+  padding: 10px 14px;
+  border-left: 3px solid var(--c2);
+}
+
+.sh-dica {
+  margin-top: 12px;
+  padding: 9px 14px;
+  background: #fff8e8;
+  border-left: 3px solid var(--c1);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text) !important;
+  font-weight: 500;
+}
+
+.sh-summary {
+  background: linear-gradient(140deg, var(--c1), var(--c1-dark));
+  border-radius: var(--r);
+  padding: 24px;
+  color: #fff !important;
+  margin-top: 10px;
+}
+.sh-summary h3 { color: #fff !important; }
+.sh-summary p  { color: rgba(255,255,255,0.92) !important; font-size: 14px; line-height: 1.72; }

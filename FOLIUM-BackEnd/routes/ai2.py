@@ -16,6 +16,16 @@ router = APIRouter()
 GROQ_MODEL = "llama-3.3-70b-versatile"
 GROQ_API   = "https://api.groq.com/openai/v1/chat/completions"
 
+NIVEL_MAP = {
+  "fundamental_1": "Ensino Fundamental I — linguagem extremamente simples, analogias do cotidiano, sem fórmulas complexas, frases curtas",
+  "fundamental_2": "Ensino Fundamental II — linguagem acessível, conceitos introdutórios, exemplos concretos e visuais",
+  "medio":         "Ensino Médio — linguagem clara, inclui fórmulas básicas, exemplos numéricos simples",
+  "vestibular":    "Vestibular/ENEM — foco no que cai em prova, fórmulas completas, exemplos resolvidos, dicas de pegadinhas",
+  "tecnico":       "Ensino Técnico — linguagem técnica aplicada, foco prático, procedimentos passo a passo",
+  "superior":      "Ensino Superior — linguagem acadêmica, teoria aprofundada, notação formal, referências a modelos teóricos",
+  "pos":           "Pós-graduação — nível especialista, terminologia avançada, discussão crítica, profundidade máxima",
+}
+
 # ── Auth Dependency ───────────────────────────
 def require_auth(authorization: str = Header(default="")) -> dict:
     if not authorization.startswith("Bearer "):
@@ -29,99 +39,51 @@ def require_auth(authorization: str = Header(default="")) -> dict:
     except JWTError:
         raise HTTPException(401, "Token inválido ou expirado.")
 
-# ── System Prompt ─────────────────────────────
 SYS_SHEET = """
 Você é um professor experiente criando uma folha de estudos para prova. Seu padrão é o de um bom cursinho — direto, denso, sem enrolação.
 
 MISSÃO: o estudante deve bater o olho na folha e conseguir resolver exercícios. Não é pra entender o mundo — é pra passar na prova.
 
-PROIBIÇÕES ABSOLUTAS (se usar qualquer uma dessas, a folha falhou):
-- NUNCA escreva: "é fundamental", "é essencial", "é importante", "é um conceito", "permite compreender", "é amplamente utilizado"
-- NUNCA repita conteúdo que já foi explicado em outro tópico da mesma folha
-- NUNCA use placeholders ou exemplos vagos como "valor X" ou "contexto prático"
+O NÍVEL ESCOLAR define TUDO: vocabulário, profundidade, tipo de exemplo, complexidade das fórmulas.
+Fundamental I = analogias simples do dia a dia. Vestibular = fórmulas completas e exemplos resolvidos. Superior = linguagem acadêmica e teoria.
+
+PROIBIÇÕES ABSOLUTAS:
+- NUNCA escreva: "é fundamental", "é essencial", "é importante", "é um conceito", "permite compreender"
+- NUNCA repita conteúdo já explicado em outro tópico
+- NUNCA use placeholders como "valor X" ou "contexto prático"
 
 REGRAS DE CONTEÚDO:
-- Explicação: 6 a 8 linhas. Defina, dê a fórmula se existir, explique quando usar. Nada além disso.
-- Todo exemplo deve ter NÚMEROS REAIS e resultado final calculado
-- Se o tópico tem fórmula → mostre a fórmula E um exemplo numérico resolvido
-- Se o tópico é comparativo → use tabela com dados reais, não descrições
-- Se o tópico é processo/sequência → use lista com passos concretos e objetivos
-- Ao final de cada bloco, adicione "dica_prova": uma frase curta do tipo "Cai muito em: [tipo de questão]" ou "Atenção: [erro comum]"
-
-REGRAS DO CAMPO VISUAL (opcional por bloco):
-Inclua "visual" APENAS quando ele realmente ajuda o aluno a visualizar o conteúdo. Não force.
-
-Tipos disponíveis e quando usar:
-1. "grafico_funcao" → Matemática/Física com função de x: sen, cos, tan, raiz, polinômios, etc.
-   Formato: {"tipo": "grafico_funcao", "dados": {"label": "f(x) = sen(x)", "funcao": "Math.sin(x)", "dominio": [-6.28, 6.28]}}
-   - funcao DEVE ser uma expressão JavaScript válida em x. Use: Math.sin, Math.cos, Math.sqrt, Math.abs, Math.pow, Math.log, Math.PI, Math.E
-   - dominio DEVE ter dois números reais: [x_minimo, x_maximo]
-
-2. "grafico_barras" → comparar valores numéricos entre categorias (triângulos especiais, tabelas de seno/cosseno, velocidade x tempo, etc.)
-   Formato: {"tipo": "grafico_barras", "dados": {"titulo": "Título", "labels": ["A","B","C"], "datasets": [{"label": "Série", "valores": [1.0, 2.0, 3.0]}]}}
-   - valores DEVEM ser arrays de números reais
-
-3. "grafico_pizza" → proporções ou composição percentual (composição do ar, macronutrientes, etc.)
-   Formato: {"tipo": "grafico_pizza", "dados": {"titulo": "Título", "labels": ["X","Y"], "valores": [70, 30]}}
-   - valores DEVEM somar 100 (ou ser proporcionais)
-
-4. "svg" → diagramas geométricos SIMPLES: triângulos com ângulos, circunferências, vetores, células básicas
-   Formato: {"tipo": "svg", "codigo": "<svg viewBox=\"0 0 200 150\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>"}
-   - Use APENAS: rect, circle, ellipse, line, path, polygon, polyline, text, g
-   - Coordenadas EXATAS — sem aproximações. Triângulo reto: calcule os vértices.
-   - cores: stroke="#964B00" fill="#F9F5F0" ou fill="none"
-   - NÃO use SVG se não tiver certeza das coordenadas — prefira omitir
-
-5. "imagem_wiki" → Biologia, Química (estruturas), História, Geografia — quando existe uma imagem real e clara no Wikipedia
-   Formato: {"tipo": "imagem_wiki", "busca": "termo de busca em português ou inglês, específico"}
-   - Use termos específicos: "mitose celular fases" em vez de "célula"
-   - NÃO use para conceitos abstratos sem representação visual clara
-
-QUANDO NÃO INCLUIR VISUAL:
-- Tópicos puramente conceituais (definições, história)
-- Quando o exemplo textual já é suficiente
-- Quando não tem certeza qual tipo usar → OMITA o campo "visual"
+- Explicação: 6 a 8 linhas densas adaptadas ao nível escolar
+- Todo exemplo deve ter dados/números REAIS com resultado calculado
+- Se o tópico tem fórmula → mostre a fórmula E um exemplo resolvido
+- Se comparativo → tabela com dados reais
+- Se processo → lista com passos concretos
+- Adicione "dica_prova" por tópico: uma frase curta tipo "Cai muito em: X" ou "Atenção: erro comum Y"
 
 REGRAS DE FORMATO:
-- Responda APENAS com JSON válido — sem texto antes, sem depois, sem markdown
-- O campo "visual" é opcional. Se não se aplicar, simplesmente não inclua no bloco.
+- Responda APENAS com JSON válido
+- Tipos de exemplo:
+  * "tabela": "colunas" e "linhas" com dados reais
+  * "lista": "itens" com conteúdo específico e real
+  * "pratico": "texto" com exemplo resolvido passo a passo com números reais
 
 FORMATO EXATO:
 {
   "blocos": [
     {
       "titulo": "Nome do tópico",
-      "explicacao": "Definição precisa + fórmula se existir + quando usar. 6-8 linhas sem enrolação.",
-      "dica_prova": "Cai muito em: cálculo direto com valores dados. Atenção: não confundir cateto com hipotenusa.",
+      "explicacao": "Explicação densa adaptada ao nível, 6-8 linhas.",
+      "dica_prova": "Cai muito em: X. Atenção: erro comum Y.",
       "exemplo": {
         "tipo": "pratico",
-        "texto": "Dados: cateto oposto = 3, hipotenusa = 5. sen(θ) = 3/5 = 0,6 → θ = arcsen(0,6) ≈ 36,87°"
-      },
-      "visual": {
-        "tipo": "grafico_funcao",
-        "dados": {
-          "label": "f(x) = sen(x)",
-          "funcao": "Math.sin(x)",
-          "dominio": [-6.28, 6.28]
-        }
-      }
-    },
-    {
-      "titulo": "Tópico sem visual",
-      "explicacao": "...",
-      "dica_prova": "Atenção: ...",
-      "exemplo": {
-        "tipo": "tabela",
-        "colunas": ["Coluna A", "Coluna B"],
-        "linhas": [["valor 1", "valor 2"]]
+        "texto": "Dados concretos → cálculo → resultado final."
       }
     }
   ],
-  "resumo_geral": "Visão macro conectando os tópicos. Como eles se relacionam e em que ordem aparecem nas provas. 4-5 linhas, sem repetir o que já foi dito nos blocos."
+  "resumo_geral": "Visão macro conectando os tópicos, 4-5 linhas, sem repetir o que já foi dito."
 }
 """.strip()
 
-# ── Helper: chama o Groq ──────────────────────
 async def call_groq(system: str, user: str) -> Any:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
@@ -163,13 +125,12 @@ async def call_groq(system: str, user: str) -> Any:
         print(f"[AI2] JSON inválido: {clean[:200]}")
         raise HTTPException(502, "IA retornou resposta inválida. Tente novamente.")
 
-# ── Schema ────────────────────────────────────
 class SheetBody(BaseModel):
     materia: str
     tema:    str = ""
+    nivel:   str = ""
     topicos: list[str]
 
-# ── POST /api/ai2/sheet ───────────────────────
 @router.post("/sheet")
 async def generate_sheet(body: SheetBody, user=Depends(require_auth)):
     if not body.materia.strip():
@@ -177,15 +138,17 @@ async def generate_sheet(body: SheetBody, user=Depends(require_auth)):
     if not body.topicos:
         raise HTTPException(400, 'Lista de tópicos não pode estar vazia.')
 
+    nivel_desc = NIVEL_MAP.get(body.nivel, "Ensino Médio — nível padrão")
     topicos_str = "\n".join(f"- {t}" for t in body.topicos)
+
     prompt = (
         f"Matéria: {body.materia.strip()}\n"
         f"Tema: {body.tema.strip() or 'geral'}\n"
-        f"Nível escolar: identifique pelo conteúdo (ensino médio, vestibular ou faculdade)\n"
+        f"Nível escolar: {nivel_desc}\n"
         f"Tópicos:\n{topicos_str}"
     )
 
-    print(f"[AI2] /sheet — user:{user.get('id')} materia:\"{body.materia}\" topicos:{len(body.topicos)}")
+    print(f"[AI2] /sheet — user:{user.get('id')} materia:\"{body.materia}\" nivel:\"{body.nivel}\" topicos:{len(body.topicos)}")
 
     result = await call_groq(SYS_SHEET, prompt)
 

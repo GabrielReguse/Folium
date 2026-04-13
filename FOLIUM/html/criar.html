@@ -6,7 +6,6 @@
   <title>Folium — Criar Folha</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
-  <!-- CSS -->
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/global.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -55,7 +54,20 @@
           <label class="inp-label">Tema(s)</label>
           <input type="text" class="inp" id="inp-tema" placeholder="ex: Citologia, Fotossíntese...">
         </div>
-        <button class="btn btn-primary btn-full" onclick="CriarPage.gerarSugestoes()">
+        <div class="inp-group">
+          <label class="inp-label">Nível escolar</label>
+          <select class="inp inp-select" id="inp-nivel">
+            <option value="">Selecione seu nível...</option>
+            <option value="fundamental_1">Ensino Fundamental I (1º ao 5º ano)</option>
+            <option value="fundamental_2">Ensino Fundamental II (6º ao 9º ano)</option>
+            <option value="medio">Ensino Médio</option>
+            <option value="vestibular">Vestibular / ENEM</option>
+            <option value="tecnico">Ensino Técnico</option>
+            <option value="superior">Ensino Superior</option>
+            <option value="pos">Pós-graduação</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-full" id="btn-gerar" onclick="CriarPage.gerarSugestoes()">
           ✨ Gerar sugestões
         </button>
       </div>

@@ -1,7 +1,6 @@
 # ═══════════════════════════════════════════════
 #  FOLIUM — routes/ai.py
 #  IA 1: Curadoria de tópicos e verificação
-#  Usando Groq (gratuito)
 # ═══════════════════════════════════════════════
 
 import os, json
@@ -16,6 +15,16 @@ router = APIRouter()
 
 GROQ_MODEL = "llama-3.3-70b-versatile"
 GROQ_API   = "https://api.groq.com/openai/v1/chat/completions"
+
+NIVEL_MAP = {
+  "fundamental_1": "Ensino Fundamental I (1º ao 5º ano) — linguagem simples, conceitos básicos, sem abstrações",
+  "fundamental_2": "Ensino Fundamental II (6º ao 9º ano) — conceitos intermediários, linguagem acessível",
+  "medio":         "Ensino Médio — nível padrão vestibular, conteúdo completo da grade curricular",
+  "vestibular":    "Vestibular/ENEM — foco no que mais cai, profundidade média-alta, atenção a pegadinhas",
+  "tecnico":       "Ensino Técnico — foco aplicado e prático, linguagem técnica moderada",
+  "superior":      "Ensino Superior — linguagem acadêmica, profundidade alta, pode incluir teoria avançada",
+  "pos":           "Pós-graduação — nível especialista, terminologia técnica, profundidade máxima",
+}
 
 # ── Auth Dependency ───────────────────────────
 def require_auth(authorization: str = Header(default="")) -> dict:
@@ -34,16 +43,14 @@ def require_auth(authorization: str = Header(default="")) -> dict:
 SYS_GENERATE = """
 Você é a IA 1 do Folium — um curador inteligente de tópicos de estudo para estudantes brasileiros.
 
-Analise a matéria e os temas fornecidos e retorne uma lista de tópicos relevantes para estudo,
-priorizando o que realmente cai em provas, vestibulares e concursos.
-
-Para cada tópico, elabore um plano de pesquisa que a IA 2 (geradora de resumos) usará.
+Analise a matéria, os temas e o NÍVEL ESCOLAR fornecidos e retorne uma lista de tópicos relevantes para estudo.
+O nível escolar deve definir TANTO a complexidade dos tópicos QUANTO a profundidade esperada.
 
 REGRAS OBRIGATÓRIAS:
 - Responda APENAS com JSON válido — sem texto antes, sem texto depois, sem markdown
 - Entre 5 e 8 tópicos por resposta
 - Nomes de tópicos: concisos, máximo 6 palavras, em português
-- O campo "foco" do plano deve guiar uma explicação didática de 6 a 8 linhas
+- Adapte os tópicos ao nível escolar: fundamental = básico/concreto, vestibular = completo, superior = aprofundado
 
 FORMATO EXATO DE SAÍDA:
 {
@@ -51,7 +58,7 @@ FORMATO EXATO DE SAÍDA:
     {
       "txt": "Nome do tópico",
       "plano_pesquisa": {
-        "foco": "O que explicar de forma clara e didática sobre este tópico",
+        "foco": "O que explicar para este nível escolar específico",
         "profundidade": "basico",
         "formato_exemplo": "tabela_comparativa",
         "palavras_chave": ["termo1", "termo2", "termo3"]
@@ -139,11 +146,13 @@ async def call_groq(system: str, user: str) -> Any:
 class TopicsBody(BaseModel):
     materia: str
     tema:    str = ""
+    nivel:   str = ""
 
 class CheckBody(BaseModel):
     novoTopico:        str
     materia:           str
     tema:              str = ""
+    nivel:             str = ""
     topicosExistentes: list[str] = []
 
 # ── POST /api/ai/topics ───────────────────────
@@ -152,12 +161,15 @@ async def topics(body: TopicsBody, user=Depends(require_auth)):
     if not body.materia.strip():
         raise HTTPException(400, 'Campo "materia" é obrigatório.')
 
+    nivel_desc = NIVEL_MAP.get(body.nivel, "Ensino Médio — nível padrão")
+
     prompt = (
         f"Matéria: {body.materia.strip()}\n"
-        f"Tema(s): {body.tema.strip() or 'geral — aborde os principais tópicos da matéria'}"
+        f"Tema(s): {body.tema.strip() or 'geral — aborde os principais tópicos da matéria'}\n"
+        f"Nível escolar: {nivel_desc}"
     )
 
-    print(f"[AI1] /topics — user:{user.get('id')} materia:\"{body.materia}\" tema:\"{body.tema}\"")
+    print(f"[AI1] /topics — user:{user.get('id')} materia:\"{body.materia}\" nivel:\"{body.nivel}\"")
 
     result = await call_groq(SYS_GENERATE, prompt)
 
@@ -186,9 +198,12 @@ async def check_topic(body: CheckBody, user=Depends(require_auth)):
         raise HTTPException(400, 'Campo "materia" é obrigatório.')
 
     existentes = ", ".join(body.topicosExistentes) or "nenhum ainda"
+    nivel_desc = NIVEL_MAP.get(body.nivel, "Ensino Médio")
+
     prompt = (
         f"Matéria: {body.materia.strip()}\n"
         f"Tema(s): {body.tema.strip() or 'geral'}\n"
+        f"Nível escolar: {nivel_desc}\n"
         f"Tópicos já na lista: {existentes}\n"
         f'Novo tópico adicionado pelo usuário: "{body.novoTopico.strip()}"'
     )

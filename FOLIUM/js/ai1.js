@@ -49,7 +49,7 @@ const AI1 = {
      MÉTODO 1 — Gerar lista inicial de tópicos
      Retorna: Array de { txt, on, plano_pesquisa, aviso }
   ═══════════════════════════════════════════════════════════ */
-  async gerarTopicos(materia, tema) {
+  async gerarTopicos(materia, tema, nivel = "") {
     const data = await this._post('topics', { materia, tema });
 
     /* O backend já valida e normaliza — apenas garantimos o shape */
@@ -65,7 +65,7 @@ const AI1 = {
      MÉTODO 2 — Verificar compatibilidade de tópico manual
      Retorna: { compativel, aviso, plano_pesquisa }
   ═══════════════════════════════════════════════════════════ */
-  async verificarTopico(novoTopico, materia, tema, topicosExistentes) {
+  async verificarTopico(novoTopico, materia, tema, topicosExistentes, nivel = "") {
     const data = await this._post('check-topic', {
       novoTopico,
       materia,
