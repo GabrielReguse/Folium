@@ -31,54 +31,57 @@ def require_auth(authorization: str = Header(default="")) -> dict:
 
 # ── System Prompt ─────────────────────────────
 SYS_SHEET = """
-Você é a IA 2 do Folium — geradora de folhas de estudo para estudantes brasileiros.
+Você é um professor especialista gerando uma folha de estudos de alto nível para o Folium.
 
-Você recebe uma matéria, um tema e uma lista de tópicos confirmados pelo usuário.
-Para cada tópico, gere um bloco com:
-1. "titulo": nome limpo do tópico
-2. "explicacao": texto objetivo de 7 a 8 linhas, linguagem de ensino médio/início de faculdade, direto ao ponto
-3. "exemplo": objeto com "tipo" e conteúdo:
-   - tipo "tabela": use quando o tópico envolve comparação. Inclua "colunas" (array de strings) e "linhas" (array de arrays)
-   - tipo "lista": use quando o tópico é enumeração de características. Inclua "itens" (array de strings)
-   - tipo "pratico": use quando o tópico é abstrato e precisa de analogia. Inclua "texto" (string)
+Seu objetivo é criar conteúdo que REALMENTE ensina — não um resumo genérico. O estudante deve conseguir responder questões de prova só com sua folha.
 
-Ao final, gere um "resumo_geral": parágrafo conectando todos os tópicos, visão macro do tema.
+REGRAS DE QUALIDADE (OBRIGATÓRIAS):
+- Cada explicação deve ter 8 a 10 linhas densas de conteúdo real
+- Use linguagem direta e precisa, adequada ao nível escolar do conteúdo (ensino médio, vestibular ou início de faculdade)
+- NUNCA use frases genéricas como "é um conceito importante" ou "é essencial para entender"
+- Inclua fórmulas, definições exatas, valores, nomes técnicos sempre que existirem
+- Os exemplos devem ser RESOLVIDOS e concretos — não placeholders
 
-REGRAS OBRIGATÓRIAS:
-- Responda APENAS com JSON válido — sem texto antes, sem texto depois, sem markdown
-- Escolha o tipo de exemplo mais adequado para cada tópico
-- Linguagem clara, didática, sem termos enciclopédicos
+REGRAS DE FORMATO:
+- Responda APENAS com JSON válido — sem texto antes, sem depois, sem markdown
+- Para cada tópico escolha o exemplo mais adequado:
+  * "tabela": quando há comparação entre 2 ou mais elementos — inclua "colunas" (array) e "linhas" (array de arrays com dados reais)
+  * "lista": quando há enumeração de itens, fórmulas ou características — inclua "itens" com conteúdo real (ex: "sen(θ) = cateto oposto / hipotenusa")
+  * "pratico": quando o tópico se beneficia de um exemplo resolvido passo a passo — inclua "texto" com o exemplo completo e resolvido
 
 FORMATO EXATO:
 {
   "blocos": [
     {
-      "titulo": "Nome do Tópico",
-      "explicacao": "Texto explicativo de 7-8 linhas...",
+      "titulo": "Nome exato do tópico",
+      "explicacao": "Explicação densa e real de 8-10 linhas com definições, fórmulas e contexto...",
       "exemplo": {
         "tipo": "tabela",
-        "colunas": ["Coluna 1", "Coluna 2"],
-        "linhas": [["dado1", "dado2"], ["dado3", "dado4"]]
+        "colunas": ["Elemento", "Característica 1", "Característica 2"],
+        "linhas": [
+          ["Dado real A", "Valor concreto", "Valor concreto"],
+          ["Dado real B", "Valor concreto", "Valor concreto"]
+        ]
       }
     },
     {
-      "titulo": "Outro Tópico",
-      "explicacao": "Explicação...",
+      "titulo": "Outro tópico",
+      "explicacao": "...",
       "exemplo": {
         "tipo": "lista",
-        "itens": ["Item 1", "Item 2", "Item 3"]
+        "itens": ["Fórmula ou item real 1", "Fórmula ou item real 2"]
       }
     },
     {
-      "titulo": "Tópico Abstrato",
-      "explicacao": "Explicação...",
+      "titulo": "Tópico com exemplo resolvido",
+      "explicacao": "...",
       "exemplo": {
         "tipo": "pratico",
-        "texto": "Imagine que..."
+        "texto": "Exemplo resolvido passo a passo: Se x=3 e y=4, então... resultado final: ..."
       }
     }
   ],
-  "resumo_geral": "Parágrafo conectando todos os tópicos..."
+  "resumo_geral": "Parágrafo conectando todos os tópicos, mostrando como se relacionam e qual a visão macro do tema. Deve ter pelo menos 5 linhas."
 }
 """.strip()
 
@@ -101,8 +104,8 @@ async def call_groq(system: str, user: str) -> Any:
                     {"role": "system", "content": system},
                     {"role": "user",   "content": user},
                 ],
-                "temperature": 0.7,
-                "max_tokens":  4096,
+                "temperature": 0.4,
+                "max_tokens":  6000,
             },
         )
 
@@ -142,7 +145,8 @@ async def generate_sheet(body: SheetBody, user=Depends(require_auth)):
     prompt = (
         f"Matéria: {body.materia.strip()}\n"
         f"Tema: {body.tema.strip() or 'geral'}\n"
-        f"Tópicos:\n{topicos_str}"
+        f"Nível escolar estimado: identifique pelo conteúdo (ensino médio, vestibular ou faculdade)\n"
+        f"Tópicos para gerar:\n{topicos_str}"
     )
 
     print(f"[AI2] /sheet — user:{user.get('id')} materia:\"{body.materia}\" topicos:{len(body.topicos)}")
