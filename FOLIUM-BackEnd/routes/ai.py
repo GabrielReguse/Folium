@@ -14,7 +14,7 @@ from jose import jwt, JWTError
 
 router = APIRouter()
 
-GEMINI_MODEL = "gemini-1.5-flash"
+GEMINI_MODEL = "gemini-2.0-flash"
 GEMINI_API   = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
 # ── Auth Dependency ───────────────────────────
