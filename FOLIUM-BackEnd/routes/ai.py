@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════
 #  FOLIUM — routes/ai.py
 #  IA 1: Curadoria de tópicos e verificação
-#  Usando Google Gemini (gratuito)
+#  Usando Groq (gratuito)
 # ═══════════════════════════════════════════════
 
 import os, json
@@ -14,8 +14,8 @@ from jose import jwt, JWTError
 
 router = APIRouter()
 
-GEMINI_MODEL = "gemini-2.0-flash"
-GEMINI_API   = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_API   = "https://api.groq.com/openai/v1/chat/completions"
 
 # ── Auth Dependency ───────────────────────────
 def require_auth(authorization: str = Header(default="")) -> dict:
@@ -93,34 +93,37 @@ FORMATO EXATO DE SAÍDA:
 }
 """.strip()
 
-# ── Helper: chama o Gemini ────────────────────
-async def call_gemini(system: str, user: str) -> Any:
-    api_key = os.getenv("GEMINI_API_KEY")
+# ── Helper: chama o Groq ──────────────────────
+async def call_groq(system: str, user: str) -> Any:
+    api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise HTTPException(503, "Serviço de IA não configurado no servidor.")
 
-    prompt = f"{system}\n\n{user}"
-
     async with httpx.AsyncClient(timeout=60.0) as client:
         resp = await client.post(
-            f"{GEMINI_API}?key={api_key}",
-            headers={"Content-Type": "application/json"},
+            GROQ_API,
+            headers={
+                "Content-Type":  "application/json",
+                "Authorization": f"Bearer {api_key}",
+            },
             json={
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {
-                    "temperature": 0.7,
-                    "maxOutputTokens": 1024,
-                },
+                "model": GROQ_MODEL,
+                "messages": [
+                    {"role": "system", "content": system},
+                    {"role": "user",   "content": user},
+                ],
+                "temperature": 0.7,
+                "max_tokens":  1024,
             },
         )
 
     if resp.status_code != 200:
-        print(f"[AI] Gemini error {resp.status_code}: {resp.text[:200]}")
-        raise HTTPException(502, f"Gemini retornou {resp.status_code}.")
+        print(f"[AI] Groq error {resp.status_code}: {resp.text[:200]}")
+        raise HTTPException(502, f"Groq retornou {resp.status_code}.")
 
     data = resp.json()
     try:
-        raw = data["candidates"][0]["content"]["parts"][0]["text"]
+        raw = data["choices"][0]["message"]["content"]
     except (KeyError, IndexError):
         raise HTTPException(502, "IA retornou resposta inválida.")
 
@@ -156,7 +159,7 @@ async def topics(body: TopicsBody, user=Depends(require_auth)):
 
     print(f"[AI1] /topics — user:{user.get('id')} materia:\"{body.materia}\" tema:\"{body.tema}\"")
 
-    result = await call_gemini(SYS_GENERATE, prompt)
+    result = await call_groq(SYS_GENERATE, prompt)
 
     topicos = [
         {
@@ -193,7 +196,7 @@ async def check_topic(body: CheckBody, user=Depends(require_auth)):
     print(f"[AI1] /check-topic — user:{user.get('id')} topico:\"{body.novoTopico}\"")
 
     try:
-        result = await call_gemini(SYS_CHECK, prompt)
+        result = await call_groq(SYS_CHECK, prompt)
         return {
             "compativel":     result.get("compativel", True),
             "aviso":          result.get("aviso"),
