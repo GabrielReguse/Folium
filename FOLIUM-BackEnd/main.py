@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routes.auth import router as auth_router
 from routes.ai   import router as ai_router
+from routes.ai2 import router as ai2_router
 
 load_dotenv()
 
@@ -20,6 +21,7 @@ app.add_middleware(
 
 app.include_router(auth_router, prefix="/api/auth")
 app.include_router(ai_router,   prefix="/api/ai")
+app.include_router(ai2_router, prefix="/api/ai2")
 
 @app.get("/api/health")
 def health():
