@@ -1,9 +1,7 @@
 # ═══════════════════════════════════════════════
 #  FOLIUM — routes/ai.py
 #  IA 1: Curadoria de tópicos e verificação
-#
-#  SEGURANÇA: ANTHROPIC_API_KEY só existe aqui,
-#  no servidor. O frontend nunca toca nela.
+#  Usando Google Gemini (gratuito)
 # ═══════════════════════════════════════════════
 
 import os, json
@@ -16,9 +14,8 @@ from jose import jwt, JWTError
 
 router = APIRouter()
 
-ANTHROPIC_API     = "https://api.anthropic.com/v1/messages"
-ANTHROPIC_MODEL   = "claude-sonnet-4-20250514"
-ANTHROPIC_VERSION = "2023-06-01"
+GEMINI_MODEL = "gemini-1.5-flash"
+GEMINI_API   = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
 # ── Auth Dependency ───────────────────────────
 def require_auth(authorization: str = Header(default="")) -> dict:
@@ -96,36 +93,37 @@ FORMATO EXATO DE SAÍDA:
 }
 """.strip()
 
-# ── Helper: chama a Anthropic ─────────────────
-async def call_claude(system: str, user: str) -> Any:
-    api_key = os.getenv("ANTHROPIC_API_KEY")
+# ── Helper: chama o Gemini ────────────────────
+async def call_gemini(system: str, user: str) -> Any:
+    api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise HTTPException(503, "Serviço de IA não configurado no servidor.")
 
+    prompt = f"{system}\n\n{user}"
+
     async with httpx.AsyncClient(timeout=60.0) as client:
         resp = await client.post(
-            ANTHROPIC_API,
-            headers={
-                "Content-Type":      "application/json",
-                "x-api-key":         api_key,
-                "anthropic-version": ANTHROPIC_VERSION,
-            },
+            f"{GEMINI_API}?key={api_key}",
+            headers={"Content-Type": "application/json"},
             json={
-                "model":      ANTHROPIC_MODEL,
-                "max_tokens": 1024,
-                "system":     system,
-                "messages":   [{"role": "user", "content": user}],
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {
+                    "temperature": 0.7,
+                    "maxOutputTokens": 1024,
+                },
             },
         )
 
     if resp.status_code != 200:
-        print(f"[AI] Anthropic error {resp.status_code}: {resp.text[:200]}")
-        raise HTTPException(502, f"Anthropic retornou {resp.status_code}.")
+        print(f"[AI] Gemini error {resp.status_code}: {resp.text[:200]}")
+        raise HTTPException(502, f"Gemini retornou {resp.status_code}.")
 
     data = resp.json()
-    raw  = next((b["text"] for b in data.get("content", []) if b["type"] == "text"), "")
+    try:
+        raw = data["candidates"][0]["content"]["parts"][0]["text"]
+    except (KeyError, IndexError):
+        raise HTTPException(502, "IA retornou resposta inválida.")
 
-    # Remove possíveis fences markdown
     clean = raw.replace("```json", "").replace("```", "").strip()
 
     try:
@@ -140,10 +138,10 @@ class TopicsBody(BaseModel):
     tema:    str = ""
 
 class CheckBody(BaseModel):
-    novoTopico:         str
-    materia:            str
-    tema:               str = ""
-    topicosExistentes:  list[str] = []
+    novoTopico:        str
+    materia:           str
+    tema:              str = ""
+    topicosExistentes: list[str] = []
 
 # ── POST /api/ai/topics ───────────────────────
 @router.post("/topics")
@@ -158,7 +156,7 @@ async def topics(body: TopicsBody, user=Depends(require_auth)):
 
     print(f"[AI1] /topics — user:{user.get('id')} materia:\"{body.materia}\" tema:\"{body.tema}\"")
 
-    result = await call_claude(SYS_GENERATE, prompt)
+    result = await call_gemini(SYS_GENERATE, prompt)
 
     topicos = [
         {
@@ -195,12 +193,11 @@ async def check_topic(body: CheckBody, user=Depends(require_auth)):
     print(f"[AI1] /check-topic — user:{user.get('id')} topico:\"{body.novoTopico}\"")
 
     try:
-        result = await call_claude(SYS_CHECK, prompt)
+        result = await call_gemini(SYS_CHECK, prompt)
         return {
             "compativel":     result.get("compativel", True),
             "aviso":          result.get("aviso"),
             "plano_pesquisa": result.get("plano_pesquisa"),
         }
     except HTTPException:
-        # Se a IA falhar na verificação, aceita o tópico sem bloquear
         return {"compativel": True, "aviso": None, "plano_pesquisa": None}
