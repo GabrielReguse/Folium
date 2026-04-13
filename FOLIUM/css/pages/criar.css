@@ -171,3 +171,98 @@
   color: #7a5c1e;
   font-weight: 500;
 }
+/* ═══════════════════════════════════════
+   VISUAL BLOCK (Chart.js / SVG / Wiki)
+═══════════════════════════════════════ */
+
+.sh-visual {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--c5);
+  border: 1.5px solid var(--c4);
+  border-radius: var(--r-sm);
+  animation: fadeUp 0.35s var(--ease) both;
+}
+
+.sh-visual-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+
+/* ── Canvas (Chart.js) ── */
+.visual-canvas {
+  width: 100% !important;
+  max-height: 280px;
+  border-radius: var(--r-xs);
+}
+
+.visual-canvas--sm {
+  max-height: 220px;
+  max-width: 280px;
+  margin: 0 auto;
+  display: block !important;
+}
+
+/* ── SVG ── */
+.visual-svg {
+  width: 100%;
+  border-radius: var(--r-xs);
+  overflow: hidden;
+  background: #fff;
+  padding: 8px;
+}
+
+.visual-svg svg {
+  max-height: 260px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* ── Wikimedia ── */
+.visual-wiki {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.visual-wiki-img {
+  width: 100%;
+  max-width: 420px;
+  max-height: 280px;
+  object-fit: contain;
+  border-radius: var(--r-xs);
+  background: #fff;
+  display: block;
+  margin: 0 auto;
+  transition: opacity 0.3s ease;
+}
+
+.visual-wiki-cap {
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: center;
+  font-style: italic;
+}
+
+/* ── Loading state (Wiki placeholder) ── */
+.visual-wiki-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-light);
+  font-size: 13px;
+  padding: 8px 0;
+}
+
+.loader-sm {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+  flex-shrink: 0;
+}

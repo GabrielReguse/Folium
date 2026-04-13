@@ -48,12 +48,43 @@ REGRAS DE CONTEÚDO:
 - Se o tópico é processo/sequência → use lista com passos concretos e objetivos
 - Ao final de cada bloco, adicione "dica_prova": uma frase curta do tipo "Cai muito em: [tipo de questão]" ou "Atenção: [erro comum]"
 
+REGRAS DO CAMPO VISUAL (opcional por bloco):
+Inclua "visual" APENAS quando ele realmente ajuda o aluno a visualizar o conteúdo. Não force.
+
+Tipos disponíveis e quando usar:
+1. "grafico_funcao" → Matemática/Física com função de x: sen, cos, tan, raiz, polinômios, etc.
+   Formato: {"tipo": "grafico_funcao", "dados": {"label": "f(x) = sen(x)", "funcao": "Math.sin(x)", "dominio": [-6.28, 6.28]}}
+   - funcao DEVE ser uma expressão JavaScript válida em x. Use: Math.sin, Math.cos, Math.sqrt, Math.abs, Math.pow, Math.log, Math.PI, Math.E
+   - dominio DEVE ter dois números reais: [x_minimo, x_maximo]
+
+2. "grafico_barras" → comparar valores numéricos entre categorias (triângulos especiais, tabelas de seno/cosseno, velocidade x tempo, etc.)
+   Formato: {"tipo": "grafico_barras", "dados": {"titulo": "Título", "labels": ["A","B","C"], "datasets": [{"label": "Série", "valores": [1.0, 2.0, 3.0]}]}}
+   - valores DEVEM ser arrays de números reais
+
+3. "grafico_pizza" → proporções ou composição percentual (composição do ar, macronutrientes, etc.)
+   Formato: {"tipo": "grafico_pizza", "dados": {"titulo": "Título", "labels": ["X","Y"], "valores": [70, 30]}}
+   - valores DEVEM somar 100 (ou ser proporcionais)
+
+4. "svg" → diagramas geométricos SIMPLES: triângulos com ângulos, circunferências, vetores, células básicas
+   Formato: {"tipo": "svg", "codigo": "<svg viewBox=\"0 0 200 150\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>"}
+   - Use APENAS: rect, circle, ellipse, line, path, polygon, polyline, text, g
+   - Coordenadas EXATAS — sem aproximações. Triângulo reto: calcule os vértices.
+   - cores: stroke="#964B00" fill="#F9F5F0" ou fill="none"
+   - NÃO use SVG se não tiver certeza das coordenadas — prefira omitir
+
+5. "imagem_wiki" → Biologia, Química (estruturas), História, Geografia — quando existe uma imagem real e clara no Wikipedia
+   Formato: {"tipo": "imagem_wiki", "busca": "termo de busca em português ou inglês, específico"}
+   - Use termos específicos: "mitose celular fases" em vez de "célula"
+   - NÃO use para conceitos abstratos sem representação visual clara
+
+QUANDO NÃO INCLUIR VISUAL:
+- Tópicos puramente conceituais (definições, história)
+- Quando o exemplo textual já é suficiente
+- Quando não tem certeza qual tipo usar → OMITA o campo "visual"
+
 REGRAS DE FORMATO:
 - Responda APENAS com JSON válido — sem texto antes, sem depois, sem markdown
-- Escolha o tipo de exemplo mais adequado para cada tópico:
-  * "tabela": comparação real com dados concretos — "colunas" e "linhas" preenchidos com valores reais
-  * "lista": fórmulas, passos ou características — "itens" com conteúdo real e específico
-  * "pratico": exemplo resolvido passo a passo — "texto" com números reais e resultado final
+- O campo "visual" é opcional. Se não se aplicar, simplesmente não inclua no bloco.
 
 FORMATO EXATO:
 {
@@ -65,20 +96,24 @@ FORMATO EXATO:
       "exemplo": {
         "tipo": "pratico",
         "texto": "Dados: cateto oposto = 3, hipotenusa = 5. sen(θ) = 3/5 = 0,6 → θ = arcsen(0,6) ≈ 36,87°"
+      },
+      "visual": {
+        "tipo": "grafico_funcao",
+        "dados": {
+          "label": "f(x) = sen(x)",
+          "funcao": "Math.sin(x)",
+          "dominio": [-6.28, 6.28]
+        }
       }
     },
     {
-      "titulo": "Outro tópico",
+      "titulo": "Tópico sem visual",
       "explicacao": "...",
       "dica_prova": "Atenção: ...",
       "exemplo": {
         "tipo": "tabela",
-        "colunas": ["Ângulo", "seno", "cosseno", "tangente"],
-        "linhas": [
-          ["30°", "0,5", "√3/2 ≈ 0,87", "1/√3 ≈ 0,58"],
-          ["45°", "√2/2 ≈ 0,71", "√2/2 ≈ 0,71", "1"],
-          ["60°", "√3/2 ≈ 0,87", "0,5", "√3 ≈ 1,73"]
-        ]
+        "colunas": ["Coluna A", "Coluna B"],
+        "linhas": [["valor 1", "valor 2"]]
       }
     }
   ],
