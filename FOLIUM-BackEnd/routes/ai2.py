@@ -71,16 +71,24 @@ Adaptado ao nível escolar fornecido.
 CAMPO "exemplo" — OBRIGATÓRIO, ESCOLHA O TIPO MAIS ADEQUADO
 ══════════════════════════════════
 
+CAMPO "rotulo" — OBRIGATÓRIO dentro de "exemplo". Escolha o mais adequado:
+- "💡 Exemplo Resolvido" → quando tem cálculo ou processo passo a passo
+- "📋 Tabela Comparativa" → quando é uma tabela de comparação
+- "🔢 Fórmulas-chave" → quando a lista contém fórmulas ou equações
+- "📝 Passo a Passo" → quando a lista mostra etapas de um processo
+- "📌 Características" → quando a lista enumera propriedades ou atributos
+- "📊 Dados e Valores" → quando a tabela mostra dados numéricos/estatísticos
+
 TIPO "pratico" → use para tópicos com fórmula ou processo calculável.
 FORMATO EXATO:
-  "exemplo": {"tipo": "pratico", "texto": "string com dados reais → cálculo passo a passo → resultado numérico"}
+  "exemplo": {"tipo": "pratico", "rotulo": "💡 Exemplo Resolvido", "texto": "string com dados reais → cálculo passo a passo → resultado numérico"}
 REGRA: "texto" NÃO pode ser vazio, genérico ou placeholder.
 EXEMPLO CORRETO: "texto": "Triângulo com cateto oposto = 4 e hipotenusa = 5. sen(θ) = 4/5 = 0,8 → θ = arcsen(0,8) ≈ 53,13°"
 EXEMPLO ERRADO: "texto": "Contexto prático de aplicação do conceito"
 
 TIPO "tabela" → use para tópicos comparativos ou com múltiplos atributos.
 FORMATO EXATO:
-  "exemplo": {"tipo": "tabela", "colunas": ["Col A", "Col B", "Col C"], "linhas": [["v1","v2","v3"], ["v4","v5","v6"]]}
+  "exemplo": {"tipo": "tabela", "rotulo": "📋 Tabela Comparativa", "colunas": ["Col A", "Col B", "Col C"], "linhas": [["v1","v2","v3"], ["v4","v5","v6"]]}
 REGRA: "colunas" = array de strings. "linhas" = array de arrays de strings. Valores REAIS e específicos.
 EXEMPLO CORRETO de colunas: ["Ângulo", "seno", "cosseno", "tangente"]
 EXEMPLO CORRETO de linhas: [["30°","0,50","0,87","0,58"],["45°","0,71","0,71","1,00"],["60°","0,87","0,50","1,73"]]
@@ -88,7 +96,7 @@ EXEMPLO ERRADO de itens: ["Contexto prático de aplicação", "Relação com out
 
 TIPO "lista" → use para enumerações, passos, fórmulas derivadas.
 FORMATO EXATO:
-  "exemplo": {"tipo": "lista", "itens": ["item 1 com dado real", "item 2 com dado real"]}
+  "exemplo": {"tipo": "lista", "rotulo": "🔢 Fórmulas-chave", "itens": ["item 1 com dado real", "item 2 com dado real"]}
 REGRA: cada item = string com conteúdo real e específico. NUNCA genérico.
 EXEMPLO CORRETO: "itens": ["sen²(x) + cos²(x) = 1", "1 + tan²(x) = sec²(x)", "1 + cot²(x) = csc²(x)"]
 EXEMPLO ERRADO: "itens": ["Contexto prático de aplicação do conceito", "Relação com outros temas da área"]
@@ -127,9 +135,10 @@ FORMATO FINAL — JSON VÁLIDO, SEM MARKDOWN
     {
       "titulo": "Nome exato do tópico",
       "explicacao": "Explicação densa e específica. 6-8 linhas adaptadas ao nível. Com fórmula se existir.",
-      "dica_prova": "Cai muito em: [tipo de questão]. Atenção: [erro comum específico].",
+      "dica_prova": "frase ESPECÍFICA ao tópico — formato: Cai em: [questão concreta]. Cuidado: [erro real]. EXEMPLOS: 'Cai em: calcular hipotenusa dados 2 catetos. Cuidado: esquecer de tirar raiz.' ou 'Cai em: identificar a fase da mitose por imagem. Cuidado: confundir prófase com telófase.'",
       "exemplo": {
         "tipo": "pratico",
+        "rotulo": "💡 Exemplo Resolvido",
         "texto": "Dado: cateto oposto = 3, hipotenusa = 5. Cálculo: sen(θ) = 3/5 = 0,6. Resultado: θ ≈ 36,87°."
       },
       "visual": {
