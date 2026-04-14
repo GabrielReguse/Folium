@@ -1,20 +1,22 @@
 /* ═══════════════════════════════════════════════════════════════
    FOLIUM — js/ai2.js
    IA 2: Geradora da Folha de Estudos
-   Visual: Chart.js · SVG inline · Wikimedia Commons
+   Sistema visual: Chart.js · SVG inline · Wikimedia Commons
 ═══════════════════════════════════════════════════════════════ */
 
 const AI2 = {
 
   /* ─── API ──────────────────────────────────────────────────── */
+
   async gerarFolha(materia, tema, nivel, topicos) {
+    // topicos deve ser array de { txt, plano_pesquisa }
     const token = Storage.getToken();
     if (!token) throw new Error('Usuário não autenticado.');
 
     const res = await fetch(`${Config.API}/ai2/sheet`, {
-      method:  'POST',
+      method: 'POST',
       headers: {
-        'Content-Type':  'application/json',
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ materia, tema, nivel, topicos }),
@@ -29,13 +31,18 @@ const AI2 = {
   },
 
   /* ─── RENDER PRINCIPAL ─────────────────────────────────────── */
+
   renderFolha(container, materia, tema, nivel, resultado) {
     container.innerHTML = '';
 
     const nivelLabel = {
-      fundamental_1: '📚 Fund. I', fundamental_2: '📚 Fund. II',
-      medio: '🎓 Ensino Médio', vestibular: '🏆 Vestibular/ENEM',
-      tecnico: '🔧 Técnico', superior: '🏛️ Superior', pos: '🔬 Pós-graduação',
+      fundamental_1: '📚 Fund. I',
+      fundamental_2: '📚 Fund. II',
+      medio: '🎓 Ensino Médio',
+      vestibular: '🏆 Vestibular/ENEM',
+      tecnico: '🔧 Técnico',
+      superior: '🏛️ Superior',
+      pos: '🔬 Pós-graduação',
     }[nivel] || '';
 
     const header = document.createElement('div');
@@ -57,12 +64,13 @@ const AI2 = {
     }
   },
 
-  /* ─── BLOCO DE TÓPICO ──────────────────────────────────────── */
+  /* ─── BLOCO ────────────────────────────────────────────────── */
+
   _renderBloco(bloco) {
     const sec = document.createElement('div');
     sec.className = 'sh-section';
 
-    const exHTML  = AI2._renderExemplo(bloco.exemplo);
+    const exHTML = AI2._renderExemplo(bloco.exemplo);
     const dicaHTML = bloco.dica_prova
       ? `<div class="sh-dica">🎯 ${bloco.dica_prova}</div>`
       : '';
@@ -73,7 +81,7 @@ const AI2 = {
       ${exHTML ? `<div class="sh-ex"><div class="sh-ex-lbl">📌 Exemplo</div>${exHTML}</div>` : ''}
       ${dicaHTML}`;
 
-    /* Visual após o conteúdo — pode ser async para Wikimedia */
+    // Visual adicionado programaticamente (suporta async Wikimedia)
     if (bloco.visual) {
       const el = AI2._renderVisual(bloco.visual);
       if (el) sec.appendChild(el);
@@ -82,20 +90,22 @@ const AI2 = {
     return sec;
   },
 
-  /* ─── EXEMPLO ──────────────────────────────────────────────── */
+  /* ─── EXEMPLO (validação defensiva) ───────────────────────── */
+
   _renderExemplo(ex) {
     if (!ex || !ex.tipo) return '';
 
     if (ex.tipo === 'tabela') {
       const cols = Array.isArray(ex.colunas) ? ex.colunas : [];
-      const rows = Array.isArray(ex.linhas)  ? ex.linhas  : [];
+      const rows = Array.isArray(ex.linhas) ? ex.linhas : [];
       if (!cols.length || !rows.length) return '';
-      const thead = `<tr>${cols.map(h => `<th>${h}</th>`).join('')}</tr>`;
-      const tbody = rows.map(r => {
-        const cells = Array.isArray(r) ? r : [];
+
+      const head = `<tr>${cols.map(h => `<th>${h}</th>`).join('')}</tr>`;
+      const body = rows.map(r => {
+        const cells = Array.isArray(r) ? r : [r];
         return `<tr>${cells.map(c => `<td>${c ?? ''}</td>`).join('')}</tr>`;
       }).join('');
-      return `<table class="ex-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+      return `<table class="ex-table">${head}${body}</table>`;
     }
 
     if (ex.tipo === 'lista') {
@@ -113,7 +123,8 @@ const AI2 = {
     return '';
   },
 
-  /* ─── DISPATCHER DE VISUAL ─────────────────────────────────── */
+  /* ─── DISPATCHER VISUAL ────────────────────────────────────── */
+
   _renderVisual(visual) {
     if (!visual?.tipo) return null;
 
@@ -121,11 +132,11 @@ const AI2 = {
     wrap.className = 'sh-visual';
 
     const icons = {
-      grafico_funcao:  '📈 Gráfico',
-      grafico_barras:  '📊 Gráfico',
-      grafico_pizza:   '🥧 Gráfico',
-      svg:             '📐 Diagrama',
-      imagem_wiki:     '🖼️ Ilustração',
+      grafico_funcao: '📈 Gráfico',
+      grafico_barras: '📊 Gráfico',
+      grafico_pizza: '🥧 Gráfico',
+      svg: '📐 Diagrama',
+      imagem_wiki: '🖼️ Ilustração',
     };
     const lbl = document.createElement('div');
     lbl.className = 'sh-visual-lbl';
@@ -137,9 +148,9 @@ const AI2 = {
       switch (visual.tipo) {
         case 'grafico_funcao': el = AI2._chartFuncao(visual.dados); break;
         case 'grafico_barras': el = AI2._chartBarras(visual.dados); break;
-        case 'grafico_pizza':  el = AI2._chartPizza(visual.dados);  break;
-        case 'svg':            el = AI2._renderSVG(visual.codigo);  break;
-        case 'imagem_wiki':    el = AI2._renderWiki(visual.busca);  break;
+        case 'grafico_pizza': el = AI2._chartPizza(visual.dados); break;
+        case 'svg': el = AI2._renderSVG(visual.codigo); break;
+        case 'imagem_wiki': el = AI2._renderWiki(visual.busca); break;
         default: return null;
       }
       if (!el) return null;
@@ -153,178 +164,252 @@ const AI2 = {
   },
 
   /* ─── CHART.JS: FUNÇÃO ─────────────────────────────────────── */
+
   _chartFuncao(d) {
     if (!d?.funcao) throw new Error('funcao ausente');
+
     const canvas = document.createElement('canvas');
     canvas.className = 'visual-canvas';
 
-    const n    = d.passos || 100;
+    const n = d.passos ?? 80;
     const xMin = d.dominio?.[0] ?? -10;
     const xMax = d.dominio?.[1] ?? 10;
     const step = (xMax - xMin) / n;
+
     let fn;
-    try { fn = new Function('x', `"use strict";return (${d.funcao});`); }
-    catch { throw new Error('Expressão inválida'); }
+    try { fn = new Function('x', `"use strict"; return (${d.funcao});`); }
+    catch { throw new Error('Expressão de função inválida.'); }
 
     const labels = [], values = [];
     for (let i = 0; i <= n; i++) {
       const x = xMin + i * step;
       const y = fn(x);
-      labels.push(parseFloat(x.toFixed(2)));
-      values.push(isFinite(y) ? parseFloat(y.toFixed(4)) : null);
+      labels.push(parseFloat(x.toFixed(3)));
+      values.push(isFinite(y) ? parseFloat(y.toFixed(5)) : null);
     }
 
-    requestAnimationFrame(() => new Chart(canvas, {
-      type: 'line',
-      data: { labels, datasets: [{
-        label: d.label || 'f(x)', data: values,
-        borderColor: '#964B00', backgroundColor: 'rgba(150,75,0,0.08)',
-        borderWidth: 2.5, pointRadius: 0, tension: 0.4, fill: true, spanGaps: false,
-      }]},
-      options: AI2._chartOpts(d.label || ''),
-    }));
+    requestAnimationFrame(() => {
+      new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: d.label || 'f(x)',
+            data: values,
+            borderColor: '#964B00',
+            backgroundColor: 'rgba(150,75,0,0.08)',
+            borderWidth: 2.5,
+            pointRadius: 0,
+            tension: 0.35,
+            fill: true,
+            spanGaps: false,
+          }],
+        },
+        options: AI2._chartOpts(d.label || ''),
+      });
+    });
+
     return canvas;
   },
 
   /* ─── CHART.JS: BARRAS ─────────────────────────────────────── */
+
   _chartBarras(d) {
-    if (!d?.labels || !d?.datasets) throw new Error('dados inválidos');
+    if (!d?.labels || !d?.datasets) throw new Error('dados inválidos para barras');
+
     const canvas = document.createElement('canvas');
     canvas.className = 'visual-canvas';
-    const palette = ['#964B00','#BE8F61','#D6B99C','#7D3E00'];
+    const pal = ['#964B00', '#BE8F61', '#D6B99C', '#7D3E00'];
 
-    requestAnimationFrame(() => new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: d.labels,
-        datasets: d.datasets.map((ds, i) => ({
-          label: ds.label, data: ds.valores,
-          backgroundColor: palette[i % palette.length] + 'BB',
-          borderColor:     palette[i % palette.length],
-          borderWidth: 1.5, borderRadius: 6,
-        }))
-      },
-      options: AI2._chartOpts(d.titulo || ''),
-    }));
+    requestAnimationFrame(() => {
+      new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: d.labels,
+          datasets: d.datasets.map((ds, i) => ({
+            label: ds.label,
+            data: ds.valores,
+            backgroundColor: pal[i % pal.length] + 'BB',
+            borderColor: pal[i % pal.length],
+            borderWidth: 1.5,
+            borderRadius: 6,
+          })),
+        },
+        options: AI2._chartOpts(d.titulo || ''),
+      });
+    });
+
     return canvas;
   },
 
-  /* ─── CHART.JS: PIZZA ──────────────────────────────────────── */
+  /* ─── CHART.JS: PIZZA / DONUT ──────────────────────────────── */
+
   _chartPizza(d) {
-    if (!d?.labels || !d?.valores) throw new Error('dados inválidos');
+    if (!d?.labels || !d?.valores) throw new Error('dados inválidos para pizza');
+
     const canvas = document.createElement('canvas');
     canvas.className = 'visual-canvas visual-canvas--sm';
-    const palette = ['#964B00','#BE8F61','#D6B99C','#E9DACA','#7D3E00','#A0795A'];
+    const pal = ['#964B00', '#BE8F61', '#D6B99C', '#E9DACA', '#7D3E00'];
 
-    requestAnimationFrame(() => new Chart(canvas, {
-      type: 'doughnut',
-      data: {
-        labels: d.labels,
-        datasets: [{
-          data: d.valores,
-          backgroundColor: palette.map(c => c + 'CC'),
-          borderColor: '#fff', borderWidth: 3, hoverOffset: 6,
-        }]
-      },
-      options: { ...AI2._chartOpts(d.titulo || ''), cutout: '52%', scales: {} },
-    }));
+    requestAnimationFrame(() => {
+      new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          labels: d.labels,
+          datasets: [{
+            data: d.valores,
+            backgroundColor: pal.map(c => c + 'CC'),
+            borderColor: '#ffffff',
+            borderWidth: 3,
+            hoverOffset: 6,
+          }],
+        },
+        options: {
+          ...AI2._chartOpts(d.titulo || ''),
+          cutout: '52%',
+          scales: {},
+        },
+      });
+    });
+
     return canvas;
   },
 
   /* ─── SVG INLINE ───────────────────────────────────────────── */
+
   _renderSVG(codigo) {
-    if (!codigo?.trim().toLowerCase().startsWith('<svg')) throw new Error('SVG inválido');
+    if (typeof codigo !== 'string' || !codigo.trim().toLowerCase().startsWith('<svg')) {
+      throw new Error('SVG inválido ou ausente.');
+    }
     const wrap = document.createElement('div');
     wrap.className = 'visual-svg';
     wrap.innerHTML = codigo.trim();
+
     const svg = wrap.querySelector('svg');
     if (svg) {
       svg.removeAttribute('width');
       svg.removeAttribute('height');
-      svg.style.cssText = 'width:100%;height:auto;display:block;max-height:260px';
+      svg.style.cssText = 'width:100%;height:auto;display:block;';
     }
     return wrap;
   },
 
   /* ─── WIKIMEDIA COMMONS ────────────────────────────────────── */
+
   _renderWiki(busca) {
-    if (!busca?.trim()) return null;
+    if (!busca) return null;
 
     const ph = document.createElement('div');
     ph.className = 'visual-wiki-loading';
     ph.innerHTML = `<span class="loader loader-sm"></span><span>Buscando ilustração…</span>`;
 
-    AI2._fetchWiki(busca).then(result => {
-      if (!result) { ph.remove(); return; }
-      const fig = document.createElement('figure');
-      fig.className = 'visual-wiki';
-      const img = document.createElement('img');
-      img.src = result.url;
-      img.alt = busca;
-      img.className = 'visual-wiki-img';
-      img.loading = 'lazy';
-      img.onerror = () => fig.remove();
-      const cap = document.createElement('figcaption');
-      cap.className = 'visual-wiki-cap';
-      cap.textContent = result.title ? `${result.title} · Wikimedia Commons` : `Wikimedia Commons · "${busca}"`;
-      fig.appendChild(img);
-      fig.appendChild(cap);
-      ph.replaceWith(fig);
-    }).catch(() => ph.remove());
+    AI2._fetchWiki(busca)
+      .then(url => {
+        if (!url) { ph.remove(); return; }
+
+        const fig = document.createElement('figure');
+        fig.className = 'visual-wiki';
+
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = busca;
+        img.className = 'visual-wiki-img';
+        img.loading = 'lazy';
+        img.onerror = () => fig.remove();
+
+        const cap = document.createElement('figcaption');
+        cap.className = 'visual-wiki-cap';
+        cap.textContent = `Wikimedia Commons · ${busca}`;
+
+        fig.appendChild(img);
+        fig.appendChild(cap);
+        ph.replaceWith(fig);
+      })
+      .catch(() => ph.remove());
 
     return ph;
   },
 
   async _fetchWiki(busca) {
     const q = encodeURIComponent(busca);
+
     for (const lang of ['pt', 'en']) {
       try {
-        const url = `https://${lang}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${q}&gsrlimit=10&prop=pageimages|info&pithumbsize=640&inprop=url&format=json&origin=*`;
-        const res  = await fetch(url, { signal: AbortSignal.timeout(8000) });
+        const url =
+          `https://${lang}.wikipedia.org/w/api.php` +
+          `?action=query&generator=search&gsrsearch=${q}&gsrlimit=10` +
+          `&prop=pageimages&pithumbsize=700&format=json&origin=*`;
+
+        const res = await fetch(url, { signal: AbortSignal.timeout(7000) });
         if (!res.ok) continue;
-        const data  = await res.json();
+
+        const data = await res.json();
         const pages = Object.values(data?.query?.pages || {});
-        const sorted = pages
+
+        // Prioriza imagens de maior resolução
+        const withImg = pages
           .filter(p => p.thumbnail?.source)
-          .sort((a, b) => (b.thumbnail?.width || 0) - (a.thumbnail?.width || 0));
-        if (sorted.length) return {
-          url:   sorted[0].thumbnail.source,
-          title: sorted[0].title,
-        };
-      } catch { /* tenta próximo */ }
+          .sort((a, b) => (b.thumbnail?.width ?? 0) - (a.thumbnail?.width ?? 0));
+
+        if (withImg.length) return withImg[0].thumbnail.source;
+      } catch {
+        // tenta próximo idioma
+      }
     }
+
     return null;
   },
 
   /* ─── OPÇÕES CHART.JS ──────────────────────────────────────── */
+
   _chartOpts(titulo) {
     return {
-      responsive: true, maintainAspectRatio: true,
+      responsive: true,
+      maintainAspectRatio: true,
       animation: { duration: 500 },
       plugins: {
         legend: {
           labels: {
             color: '#2C1A0E',
-            font: { family: "'DM Sans',sans-serif", size: 12 },
-            boxWidth: 12, padding: 14,
-          }
+            font: { family: "'DM Sans', sans-serif", size: 12 },
+            boxWidth: 12,
+            padding: 14,
+          },
         },
-        title: titulo
-          ? { display: true, text: titulo, color: '#964B00', font: { family: "'Playfair Display',serif", size: 13, weight: '600' }, padding: { bottom: 10 } }
-          : { display: false },
+        title: titulo ? {
+          display: true,
+          text: titulo,
+          color: '#964B00',
+          font: { family: "'Playfair Display', serif", size: 13, weight: '600' },
+          padding: { bottom: 10 },
+        } : { display: false },
         tooltip: {
-          backgroundColor: '#fff', titleColor: '#964B00', bodyColor: '#2C1A0E',
-          borderColor: '#D6B99C', borderWidth: 1, cornerRadius: 8, padding: 10,
+          backgroundColor: '#ffffff',
+          titleColor: '#964B00',
+          bodyColor: '#2C1A0E',
+          borderColor: '#D6B99C',
+          borderWidth: 1,
+          cornerRadius: 8,
+          padding: 10,
+          titleFont: { family: "'DM Sans', sans-serif", weight: '600' },
+          bodyFont: { family: "'DM Sans', sans-serif" },
         },
       },
       scales: {
         x: {
-          ticks: { color: '#6B4C32', font: { family: "'DM Sans',sans-serif", size: 11 }, maxTicksLimit: 8 },
-          grid:  { color: 'rgba(150,75,0,0.07)' },
+          ticks: {
+            color: '#6B4C32',
+            font: { family: "'DM Sans', sans-serif", size: 11 },
+            maxTicksLimit: 8,
+          },
+          grid: { color: 'rgba(150,75,0,0.07)' },
         },
         y: {
-          ticks: { color: '#6B4C32', font: { family: "'DM Sans',sans-serif", size: 11 } },
-          grid:  { color: 'rgba(150,75,0,0.07)' },
+          ticks: {
+            color: '#6B4C32',
+            font: { family: "'DM Sans', sans-serif", size: 11 },
+          },
+          grid: { color: 'rgba(150,75,0,0.07)' },
         },
       },
     };

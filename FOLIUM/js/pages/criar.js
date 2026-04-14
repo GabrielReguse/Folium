@@ -187,7 +187,10 @@ const CriarPage = {
         this.materia,
         this.tema,
         this.nivel,
-        selecionados.map(t => t.txt)
+        selecionados.map(t => ({
+          txt:            t.txt,
+          plano_pesquisa: t.plano_pesquisa || null,
+        }))
       );
 
       Modal.hideLoading();
