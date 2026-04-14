@@ -17,16 +17,15 @@ GROQ_MODEL = "llama-3.3-70b-versatile"
 GROQ_API   = "https://api.groq.com/openai/v1/chat/completions"
 
 NIVEL_MAP = {
-  "fundamental_1": "Ensino Fundamental I — linguagem extremamente simples, analogias do cotidiano, sem fórmulas complexas, frases curtas",
-  "fundamental_2": "Ensino Fundamental II — linguagem acessível, conceitos introdutórios, exemplos concretos e visuais",
-  "medio":         "Ensino Médio — linguagem clara, inclui fórmulas básicas, exemplos numéricos simples",
-  "vestibular":    "Vestibular/ENEM — foco no que cai em prova, fórmulas completas, exemplos resolvidos, dicas de pegadinhas",
+  "fundamental_1": "Ensino Fundamental I — linguagem muito simples, analogias do cotidiano, sem fórmulas",
+  "fundamental_2": "Ensino Fundamental II — linguagem acessível, conceitos introdutórios, exemplos concretos",
+  "medio":         "Ensino Médio — linguagem clara, inclui fórmulas básicas, exemplos numéricos",
+  "vestibular":    "Vestibular/ENEM — fórmulas completas, exemplos resolvidos, foco em questões de prova",
   "tecnico":       "Ensino Técnico — linguagem técnica aplicada, foco prático, procedimentos passo a passo",
-  "superior":      "Ensino Superior — linguagem acadêmica, teoria aprofundada, notação formal, referências a modelos teóricos",
-  "pos":           "Pós-graduação — nível especialista, terminologia avançada, discussão crítica, profundidade máxima",
+  "superior":      "Ensino Superior — linguagem acadêmica, teoria aprofundada, notação formal",
+  "pos":           "Pós-graduação — nível especialista, terminologia avançada, profundidade máxima",
 }
 
-# ── Auth Dependency ───────────────────────────
 def require_auth(authorization: str = Header(default="")) -> dict:
     if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Token não fornecido.")
@@ -40,47 +39,91 @@ def require_auth(authorization: str = Header(default="")) -> dict:
         raise HTTPException(401, "Token inválido ou expirado.")
 
 SYS_SHEET = """
-Você é um professor experiente criando uma folha de estudos para prova. Seu padrão é o de um bom cursinho — direto, denso, sem enrolação.
+Você é um professor de cursinho criando uma folha de estudos. Direto, denso, sem enrolação.
 
-MISSÃO: o estudante deve bater o olho na folha e conseguir resolver exercícios. Não é pra entender o mundo — é pra passar na prova.
+MISSÃO: o aluno deve conseguir resolver exercícios olhando só para esta folha.
 
-O NÍVEL ESCOLAR define TUDO: vocabulário, profundidade, tipo de exemplo, complexidade das fórmulas.
-Fundamental I = analogias simples do dia a dia. Vestibular = fórmulas completas e exemplos resolvidos. Superior = linguagem acadêmica e teoria.
+═══════════════════════════════════════
+REGRA #1 — CADA TÓPICO É ÚNICO
+═══════════════════════════════════════
+Cada bloco fala sobre SEU tópico específico. Exemplos:
+- Tópico "Teorema de Pitágoras" → exemplo com a² + b² = c², com números reais (ex: a=3, b=4, c=5)
+- Tópico "Mitose" → exemplo com as fases (prófase, metáfase, anáfase, telófase) e o que ocorre em cada uma
+- Tópico "Segunda Guerra Mundial" → exemplo com datas e eventos reais (1939-1945, invasão da Polônia, etc.)
+NÃO repita o mesmo exemplo para tópicos diferentes. Cada exemplo deve ser 100% específico ao seu tópico.
 
-PROIBIÇÕES ABSOLUTAS:
-- NUNCA escreva: "é fundamental", "é essencial", "é importante", "é um conceito", "permite compreender"
-- NUNCA repita conteúdo já explicado em outro tópico
-- NUNCA use placeholders como "valor X" ou "contexto prático"
+═══════════════════════════════════════
+REGRA #2 — EXEMPLOS COM DADOS REAIS
+═══════════════════════════════════════
+PROIBIDO: "valor X", "dado A", "contexto prático", "exemplo real", textos genéricos
+OBRIGATÓRIO: números, nomes, datas, fórmulas reais específicas ao tópico
 
-REGRAS DE CONTEÚDO:
-- Explicação: 6 a 8 linhas densas adaptadas ao nível escolar
-- Todo exemplo deve ter dados/números REAIS com resultado calculado
-- Se o tópico tem fórmula → mostre a fórmula E um exemplo resolvido
-- Se comparativo → tabela com dados reais
-- Se processo → lista com passos concretos
-- Adicione "dica_prova" por tópico: uma frase curta tipo "Cai muito em: X" ou "Atenção: erro comum Y"
+EXEMPLOS DE COMO FAZER CERTO:
 
-REGRAS DE FORMATO:
-- Responda APENAS com JSON válido
-- Tipos de exemplo:
-  * "tabela": "colunas" e "linhas" com dados reais
-  * "lista": "itens" com conteúdo específico e real
-  * "pratico": "texto" com exemplo resolvido passo a passo com números reais
+Tópico "Seno e Cosseno" → tipo "lista":
+  itens: ["sen(30°) = 0,5", "cos(30°) = √3/2 ≈ 0,866", "sen(45°) = cos(45°) = √2/2 ≈ 0,707", "sen(60°) = √3/2, cos(60°) = 0,5"]
 
-FORMATO EXATO:
+Tópico "Célula Procariótica vs Eucariótica" → tipo "tabela":
+  colunas: ["Característica", "Procariótica", "Eucariótica"]
+  linhas: [["Núcleo", "Ausente (nucleoide)", "Presente com membrana"], ["Organelas", "Ausentes", "Ribossomos, mitocôndrias, etc."], ["Exemplos", "Bactérias, arqueas", "Fungos, plantas, animais"], ["Tamanho", "1–10 μm", "10–100 μm"]]
+
+Tópico "Lei de Newton" → tipo "pratico":
+  texto: "Carro de 1000 kg acelera a 2 m/s². F = m × a → F = 1000 × 2 = 2000 N. Se dobrar a força (4000 N), a aceleração dobra: a = F/m = 4000/1000 = 4 m/s²."
+
+EXEMPLOS DE COMO NÃO FAZER (ERRADO):
+  texto: "Considere um valor X aplicado a um contexto prático desta área de estudo."
+  itens: ["Contexto prático de aplicação do conceito", "Relação com outros temas da área"]
+
+═══════════════════════════════════════
+REGRA #3 — VISUAL ADEQUADO
+═══════════════════════════════════════
+Inclua "visual" quando realmente ajuda. Tipos:
+
+"grafico_funcao" → funções matemáticas (seno, polinômios, exponenciais)
+  {"tipo":"grafico_funcao","dados":{"label":"f(x) = sen(x)","funcao":"Math.sin(x)","dominio":[-6.28,6.28]}}
+  REGRA: "funcao" é expressão JS válida com x. Use Math.sin, Math.cos, Math.sqrt, Math.pow, Math.log, Math.PI
+
+"grafico_barras" → comparações numéricas
+  {"tipo":"grafico_barras","dados":{"titulo":"Título","labels":["A","B","C"],"datasets":[{"label":"Série","valores":[10,25,15]}]}}
+
+"grafico_pizza" → proporções/percentuais
+  {"tipo":"grafico_pizza","dados":{"titulo":"Título","labels":["X","Y"],"valores":[70,30]}}
+
+"svg" → geometria SIMPLES (triângulos, círculos, vetores — apenas rect, circle, line, polygon, text)
+  {"tipo":"svg","codigo":"<svg viewBox=\"0 0 200 160\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>"}
+
+"imagem_wiki" → Biologia, Química, História, Geografia — imagens reais do Wikipedia
+  {"tipo":"imagem_wiki","busca":"termo específico"}
+  USE PARA: organelas, animais, mapas, estruturas químicas, eventos históricos, anatomia
+  NÃO USE PARA: conceitos abstratos, matemática pura
+
+═══════════════════════════════════════
+REGRA #4 — PROIBIÇÕES
+═══════════════════════════════════════
+NUNCA escreva: "é fundamental", "é essencial", "é importante", "é um conceito", "permite compreender"
+NUNCA repita conteúdo já explicado em outro bloco
+NUNCA use "visual" para conceitos que não têm representação visual clara
+
+═══════════════════════════════════════
+FORMATO JSON (sem markdown, sem texto fora)
+═══════════════════════════════════════
 {
   "blocos": [
     {
-      "titulo": "Nome do tópico",
-      "explicacao": "Explicação densa adaptada ao nível, 6-8 linhas.",
-      "dica_prova": "Cai muito em: X. Atenção: erro comum Y.",
+      "titulo": "Nome exato do tópico",
+      "explicacao": "6-8 linhas densas e específicas ao tópico. Definição + fórmula se existir + quando usar.",
+      "dica_prova": "Cai muito em: [tipo específico de questão]. Atenção: [erro comum específico deste tópico].",
       "exemplo": {
-        "tipo": "pratico",
-        "texto": "Dados concretos → cálculo → resultado final."
-      }
+        "tipo": "pratico|lista|tabela",
+        "texto": "...",
+        "itens": [...],
+        "colunas": [...],
+        "linhas": [...]
+      },
+      "visual": { "tipo": "...", "dados": {...} }
     }
   ],
-  "resumo_geral": "Visão macro conectando os tópicos, 4-5 linhas, sem repetir o que já foi dito."
+  "resumo_geral": "4-5 linhas conectando os tópicos. Como se relacionam e em que ordem aparecem nas provas."
 }
 """.strip()
 
@@ -102,8 +145,8 @@ async def call_groq(system: str, user: str) -> Any:
                     {"role": "system", "content": system},
                     {"role": "user",   "content": user},
                 ],
-                "temperature": 0.3,
-                "max_tokens":  6000,
+                "temperature": 0.2,
+                "max_tokens":  7000,
             },
         )
 
@@ -122,14 +165,18 @@ async def call_groq(system: str, user: str) -> Any:
     try:
         return json.loads(clean)
     except json.JSONDecodeError:
-        print(f"[AI2] JSON inválido: {clean[:200]}")
+        print(f"[AI2] JSON inválido: {clean[:300]}")
         raise HTTPException(502, "IA retornou resposta inválida. Tente novamente.")
+
+class TopicItem(BaseModel):
+    txt:            str
+    plano_pesquisa: dict | None = None
 
 class SheetBody(BaseModel):
     materia: str
     tema:    str = ""
     nivel:   str = ""
-    topicos: list[str]
+    topicos: list[TopicItem]
 
 @router.post("/sheet")
 async def generate_sheet(body: SheetBody, user=Depends(require_auth)):
@@ -139,13 +186,27 @@ async def generate_sheet(body: SheetBody, user=Depends(require_auth)):
         raise HTTPException(400, 'Lista de tópicos não pode estar vazia.')
 
     nivel_desc = NIVEL_MAP.get(body.nivel, "Ensino Médio — nível padrão")
-    topicos_str = "\n".join(f"- {t}" for t in body.topicos)
+
+    topicos_lines = []
+    for t in body.topicos:
+        line = f"- {t.txt}"
+        if t.plano_pesquisa:
+            p = t.plano_pesquisa
+            foco     = p.get("foco", "")
+            palavras = ", ".join(p.get("palavras_chave", []))
+            if foco:     line += f"  [foco: {foco}]"
+            if palavras: line += f"  [palavras-chave: {palavras}]"
+        topicos_lines.append(line)
+
+    topicos_str = "\n".join(topicos_lines)
 
     prompt = (
-        f"Matéria: {body.materia.strip()}\n"
-        f"Tema: {body.tema.strip() or 'geral'}\n"
         f"Nível escolar: {nivel_desc}\n"
-        f"Tópicos:\n{topicos_str}"
+        f"Matéria: {body.materia.strip()}\n"
+        f"Tema: {body.tema.strip() or 'geral'}\n\n"
+        f"Tópicos (gere um bloco ESPECÍFICO para cada um):\n{topicos_str}\n\n"
+        f"LEMBRE: cada exemplo deve usar dados REAIS e ESPECÍFICOS do seu próprio tópico. "
+        f"Nunca use o mesmo texto de exemplo para tópicos diferentes."
     )
 
     print(f"[AI2] /sheet — user:{user.get('id')} materia:\"{body.materia}\" nivel:\"{body.nivel}\" topicos:{len(body.topicos)}")
