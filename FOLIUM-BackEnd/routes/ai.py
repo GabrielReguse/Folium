@@ -26,7 +26,6 @@ NIVEL_MAP = {
   "pos":           "Pós-graduação — nível especialista, terminologia técnica, profundidade máxima",
 }
 
-# ── Auth Dependency ───────────────────────────
 def require_auth(authorization: str = Header(default="")) -> dict:
     if not authorization.startswith("Bearer "):
         raise HTTPException(401, "Token não fornecido.")
@@ -39,26 +38,25 @@ def require_auth(authorization: str = Header(default="")) -> dict:
     except JWTError:
         raise HTTPException(401, "Token inválido ou expirado.")
 
-# ── System Prompts ────────────────────────────
 SYS_GENERATE = """
-Você é a IA 1 do Folium — um curador inteligente de tópicos de estudo para estudantes brasileiros.
+Você é a IA 1 do Folium — curador de tópicos de estudo para estudantes brasileiros.
 
-Analise a matéria, os temas e o NÍVEL ESCOLAR fornecidos e retorne uma lista de tópicos relevantes para estudo.
-O nível escolar deve definir TANTO a complexidade dos tópicos QUANTO a profundidade esperada.
+Recebe matéria, tema e nível escolar. Retorna tópicos relevantes adaptados ao nível.
 
-REGRAS OBRIGATÓRIAS:
-- Responda APENAS com JSON válido — sem texto antes, sem texto depois, sem markdown
-- Entre 5 e 8 tópicos por resposta
-- Nomes de tópicos: concisos, máximo 6 palavras, em português
-- Adapte os tópicos ao nível escolar: fundamental = básico/concreto, vestibular = completo, superior = aprofundado
+REGRAS:
+- Responda APENAS com JSON válido — sem texto antes, sem depois, sem markdown
+- Entre 5 e 8 tópicos
+- Nomes concisos, máximo 6 palavras, em português
+- Adapte profundidade ao nível: fundamental = concreto/básico, médio = completo, superior = aprofundado
+- O campo "foco" deve descrever EXATAMENTE o que explicar sobre AQUELE tópico específico, não uma frase genérica
 
-FORMATO EXATO DE SAÍDA:
+FORMATO:
 {
   "topicos": [
     {
       "txt": "Nome do tópico",
       "plano_pesquisa": {
-        "foco": "O que explicar para este nível escolar específico",
+        "foco": "Descrição específica do que explicar sobre este tópico concreto",
         "profundidade": "basico",
         "formato_exemplo": "tabela_comparativa",
         "palavras_chave": ["termo1", "termo2", "termo3"]
@@ -67,41 +65,43 @@ FORMATO EXATO DE SAÍDA:
   ]
 }
 
-Valores possíveis para profundidade: basico | intermediario | avancado
-Valores possíveis para formato_exemplo: tabela_comparativa | lista_numerada | caso_pratico | formula
+Valores para profundidade: basico | intermediario | avancado
+Valores para formato_exemplo: tabela_comparativa | lista_numerada | caso_pratico | formula
 """.strip()
 
 SYS_CHECK = """
-Você é a IA 1 do Folium — avaliador de compatibilidade de tópicos de estudo.
+Você é a IA 1 do Folium — avaliador de compatibilidade de tópicos.
 
-Analise se o novo tópico inserido pelo usuário é compatível com a matéria,
-o tema e os tópicos já existentes na lista.
+O usuário adicionou manualmente um tópico à lista. Sua tarefa é:
+1. Verificar se é compatível com a matéria/tema
+2. Gerar um plano de pesquisa REAL sobre o que aquele tópico realmente é
 
-CRITÉRIOS:
-- compativel: true  → tópico dentro do escopo da matéria/tema
-- compativel: false → tópico claramente fora do escopo
-- Em caso de dúvida, prefira compativel: true com aviso em português
+REGRA CRÍTICA SOBRE plano_pesquisa:
+- O plano deve ser sobre o TÓPICO ADICIONADO, não sobre a matéria principal
+- Se o usuário adicionou "Fotossíntese" numa lista de Trigonometria, o plano deve explicar fotossíntese de verdade, não tentar encaixar no tema de trigonometria
+- NÃO force o tópico para se encaixar no tema. Explique o que ele realmente é.
+- O campo "foco" deve ser específico: "Como a fotossíntese converte luz em glicose" — NUNCA "O tópico no contexto da matéria"
 
-REGRAS:
-- Responda APENAS com JSON válido — sem texto antes, sem texto depois, sem markdown
-- aviso: null quando compatível sem ressalvas
-- Mesmo incompatível, gere plano_pesquisa
+CRITÉRIOS DE COMPATIBILIDADE:
+- compativel: true → tópico relacionado à matéria/tema
+- compativel: false → tópico claramente de outra área
+- aviso: null se compatível sem ressalvas
+- aviso: mensagem curta se incompatível (ex: "Fotossíntese pertence à Biologia, não à Trigonometria. A IA 2 vai explicar o tópico como ele é.")
 
-FORMATO EXATO DE SAÍDA:
+FORMATO (JSON válido, sem markdown):
 {
   "compativel": true,
   "aviso": null,
   "plano_pesquisa": {
-    "foco": "O que explicar sobre este tópico",
+    "foco": "Descrição específica e real do que este tópico aborda",
     "profundidade": "basico",
     "formato_exemplo": "lista_numerada",
-    "palavras_chave": ["termo1", "termo2"]
+    "palavras_chave": ["termo real 1", "termo real 2"]
   }
 }
 """.strip()
 
-# ── Helper: chama o Groq ──────────────────────
-async def call_groq(system: str, user: str) -> Any:
+async def call_groq(system: str, user: str, max_tokens: int = 1024) -> Any:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise HTTPException(503, "Serviço de IA não configurado no servidor.")
@@ -119,8 +119,8 @@ async def call_groq(system: str, user: str) -> Any:
                     {"role": "system", "content": system},
                     {"role": "user",   "content": user},
                 ],
-                "temperature": 0.7,
-                "max_tokens":  1024,
+                "temperature": 0.5,
+                "max_tokens":  max_tokens,
             },
         )
 
@@ -142,7 +142,6 @@ async def call_groq(system: str, user: str) -> Any:
         print(f"[AI] JSON inválido: {clean[:200]}")
         raise HTTPException(502, "IA retornou resposta inválida. Tente novamente.")
 
-# ── Schemas ───────────────────────────────────
 class TopicsBody(BaseModel):
     materia: str
     tema:    str = ""
@@ -155,7 +154,6 @@ class CheckBody(BaseModel):
     nivel:             str = ""
     topicosExistentes: list[str] = []
 
-# ── POST /api/ai/topics ───────────────────────
 @router.post("/topics")
 async def topics(body: TopicsBody, user=Depends(require_auth)):
     if not body.materia.strip():
@@ -165,13 +163,13 @@ async def topics(body: TopicsBody, user=Depends(require_auth)):
 
     prompt = (
         f"Matéria: {body.materia.strip()}\n"
-        f"Tema(s): {body.tema.strip() or 'geral — aborde os principais tópicos da matéria'}\n"
+        f"Tema(s): {body.tema.strip() or 'geral — principais tópicos da matéria'}\n"
         f"Nível escolar: {nivel_desc}"
     )
 
     print(f"[AI1] /topics — user:{user.get('id')} materia:\"{body.materia}\" nivel:\"{body.nivel}\"")
 
-    result = await call_groq(SYS_GENERATE, prompt)
+    result = await call_groq(SYS_GENERATE, prompt, max_tokens=1500)
 
     topicos = [
         {
@@ -189,7 +187,6 @@ async def topics(body: TopicsBody, user=Depends(require_auth)):
 
     return {"topicos": topicos}
 
-# ── POST /api/ai/check-topic ──────────────────
 @router.post("/check-topic")
 async def check_topic(body: CheckBody, user=Depends(require_auth)):
     if not body.novoTopico.strip():
@@ -201,17 +198,18 @@ async def check_topic(body: CheckBody, user=Depends(require_auth)):
     nivel_desc = NIVEL_MAP.get(body.nivel, "Ensino Médio")
 
     prompt = (
-        f"Matéria: {body.materia.strip()}\n"
-        f"Tema(s): {body.tema.strip() or 'geral'}\n"
+        f"Matéria da folha: {body.materia.strip()}\n"
+        f"Tema da folha: {body.tema.strip() or 'geral'}\n"
         f"Nível escolar: {nivel_desc}\n"
         f"Tópicos já na lista: {existentes}\n"
-        f'Novo tópico adicionado pelo usuário: "{body.novoTopico.strip()}"'
+        f"Novo tópico adicionado pelo usuário: \"{body.novoTopico.strip()}\"\n\n"
+        f"Gere o plano_pesquisa sobre o que \"{body.novoTopico.strip()}\" REALMENTE é, independentemente de ser compatível ou não com o tema."
     )
 
     print(f"[AI1] /check-topic — user:{user.get('id')} topico:\"{body.novoTopico}\"")
 
     try:
-        result = await call_groq(SYS_CHECK, prompt)
+        result = await call_groq(SYS_CHECK, prompt, max_tokens=600)
         return {
             "compativel":     result.get("compativel", True),
             "aviso":          result.get("aviso"),
