@@ -12,9 +12,9 @@ const AI2 = {
     if (!token) throw new Error('Usuário não autenticado.');
 
     const res = await fetch(`${Config.API}/ai2/sheet`, {
-      method:  'POST',
+      method: 'POST',
       headers: {
-        'Content-Type':  'application/json',
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ materia, tema, nivel, topicos }),
@@ -62,7 +62,7 @@ const AI2 = {
     const sec = document.createElement('div');
     sec.className = 'sh-section';
 
-    const exHTML  = AI2._renderExemplo(bloco.exemplo);
+    const exHTML = AI2._renderExemplo(bloco.exemplo);
     const dicaHTML = bloco.dica_prova
       ? `<div class="sh-dica">🎯 ${bloco.dica_prova}</div>`
       : '';
@@ -88,8 +88,8 @@ const AI2 = {
     /* Rótulo definido pela IA, com fallbacks por tipo */
     const defaultLabels = {
       pratico: '💡 Exemplo Resolvido',
-      tabela:  '📋 Tabela Comparativa',
-      lista:   '📌 Resumo',
+      tabela: '📋 Tabela Comparativa',
+      lista: '📌 Resumo',
     };
     const rotulo = ex.rotulo || defaultLabels[ex.tipo] || '📌 Conteúdo';
 
@@ -97,7 +97,7 @@ const AI2 = {
 
     if (ex.tipo === 'tabela') {
       const cols = Array.isArray(ex.colunas) ? ex.colunas : [];
-      const rows = Array.isArray(ex.linhas)  ? ex.linhas  : [];
+      const rows = Array.isArray(ex.linhas) ? ex.linhas : [];
       if (!cols.length || !rows.length) return '';
       const thead = `<tr>${cols.map(h => `<th>${h}</th>`).join('')}</tr>`;
       const tbody = rows.map(r => {
@@ -131,9 +131,9 @@ const AI2 = {
     const icons = {
       grafico_funcao: '📈 Gráfico',
       grafico_barras: '📊 Gráfico',
-      grafico_pizza:  '🥧 Gráfico',
-      svg:            '📐 Diagrama',
-      imagem_wiki:    '🖼️ Ilustração',
+      grafico_pizza: '🥧 Gráfico',
+      svg: '📐 Diagrama',
+      imagem_wiki: '🖼️ Ilustração',
     };
     const lbl = document.createElement('div');
     lbl.className = 'sh-visual-lbl';
@@ -145,9 +145,9 @@ const AI2 = {
       switch (visual.tipo) {
         case 'grafico_funcao': el = AI2._chartFuncao(visual.dados); break;
         case 'grafico_barras': el = AI2._chartBarras(visual.dados); break;
-        case 'grafico_pizza':  el = AI2._chartPizza(visual.dados);  break;
-        case 'svg':            el = AI2._renderSVG(visual.codigo);  break;
-        case 'imagem_wiki':    el = AI2._renderWiki(visual.busca);  break;
+        case 'grafico_pizza': el = AI2._chartPizza(visual.dados); break;
+        case 'svg': el = AI2._renderSVG(visual.codigo); break;
+        case 'imagem_wiki': el = AI2._renderWiki(visual.busca); break;
         default: return null;
       }
       if (!el) return null;
@@ -166,7 +166,7 @@ const AI2 = {
     const canvas = document.createElement('canvas');
     canvas.className = 'visual-canvas';
 
-    const n    = d.passos || 100;
+    const n = d.passos || 100;
     const xMin = d.dominio?.[0] ?? -10;
     const xMax = d.dominio?.[1] ?? 10;
     const step = (xMax - xMin) / n;
@@ -184,11 +184,13 @@ const AI2 = {
 
     requestAnimationFrame(() => new Chart(canvas, {
       type: 'line',
-      data: { labels, datasets: [{
-        label: d.label || 'f(x)', data: values,
-        borderColor: '#964B00', backgroundColor: 'rgba(150,75,0,0.08)',
-        borderWidth: 2.5, pointRadius: 0, tension: 0.4, fill: true, spanGaps: false,
-      }]},
+      data: {
+        labels, datasets: [{
+          label: d.label || 'f(x)', data: values,
+          borderColor: '#964B00', backgroundColor: 'rgba(150,75,0,0.08)',
+          borderWidth: 2.5, pointRadius: 0, tension: 0.4, fill: true, spanGaps: false,
+        }]
+      },
       options: AI2._chartOpts(d.label || ''),
     }));
     return canvas;
@@ -199,7 +201,7 @@ const AI2 = {
     if (!d?.labels || !d?.datasets) throw new Error('dados inválidos');
     const canvas = document.createElement('canvas');
     canvas.className = 'visual-canvas';
-    const palette = ['#964B00','#BE8F61','#D6B99C','#7D3E00'];
+    const palette = ['#964B00', '#BE8F61', '#D6B99C', '#7D3E00'];
 
     requestAnimationFrame(() => new Chart(canvas, {
       type: 'bar',
@@ -208,7 +210,7 @@ const AI2 = {
         datasets: d.datasets.map((ds, i) => ({
           label: ds.label, data: ds.valores,
           backgroundColor: palette[i % palette.length] + 'BB',
-          borderColor:     palette[i % palette.length],
+          borderColor: palette[i % palette.length],
           borderWidth: 1.5, borderRadius: 6,
         }))
       },
@@ -222,7 +224,7 @@ const AI2 = {
     if (!d?.labels || !d?.valores) throw new Error('dados inválidos');
     const canvas = document.createElement('canvas');
     canvas.className = 'visual-canvas visual-canvas--sm';
-    const palette = ['#964B00','#BE8F61','#D6B99C','#E9DACA','#7D3E00','#A0795A'];
+    const palette = ['#964B00', '#BE8F61', '#D6B99C', '#E9DACA', '#7D3E00', '#A0795A'];
 
     requestAnimationFrame(() => new Chart(canvas, {
       type: 'doughnut',
@@ -288,7 +290,7 @@ const AI2 = {
   async _fetchWiki(busca) {
     const q = encodeURIComponent(busca);
 
-    /* ── 1. Wikimedia Commons (repositório de imagens educacionais) ── */
+    /* 1. Wikimedia Commons */
     try {
       const url =
         `https://commons.wikimedia.org/w/api.php` +
@@ -297,7 +299,7 @@ const AI2 = {
 
       const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (res.ok) {
-        const data  = await res.json();
+        const data = await res.json();
         const pages = Object.values(data?.query?.pages || {});
 
         const images = pages
@@ -307,8 +309,8 @@ const AI2 = {
             const mime = info.mime || '';
             /* Aceita jpg/png/webp, rejeita svg/ogg/pdf */
             return mime.startsWith('image/') &&
-                   !mime.includes('svg') &&
-                   !mime.includes('gif');
+              !mime.includes('svg') &&
+              !mime.includes('gif');
           })
           .sort((a, b) => {
             const wa = a.imageinfo?.[0]?.width ?? 0;
@@ -319,7 +321,7 @@ const AI2 = {
         if (images.length) {
           const best = images[0];
           return {
-            url:   best.imageinfo[0].thumburl,
+            url: best.imageinfo[0].thumburl,
             title: (best.title || '').replace('File:', '').replace(/\.[^.]+$/, ''),
           };
         }
@@ -337,14 +339,14 @@ const AI2 = {
         const res = await fetch(url, { signal: AbortSignal.timeout(7000) });
         if (!res.ok) continue;
 
-        const data  = await res.json();
+        const data = await res.json();
         const pages = Object.values(data?.query?.pages || {});
         const sorted = pages
           .filter(p => p.thumbnail?.source)
           .sort((a, b) => (b.thumbnail?.width ?? 0) - (a.thumbnail?.width ?? 0));
 
         if (sorted.length) return {
-          url:   sorted[0].thumbnail.source,
+          url: sorted[0].thumbnail.source,
           title: sorted[0].title,
         };
       } catch { /* tenta próximo */ }
@@ -367,9 +369,11 @@ const AI2 = {
           }
         },
         title: titulo
-          ? { display: true, text: titulo, color: '#964B00',
-              font: { family: "'Playfair Display',serif", size: 13, weight: '600' },
-              padding: { bottom: 10 } }
+          ? {
+            display: true, text: titulo, color: '#964B00',
+            font: { family: "'Playfair Display',serif", size: 13, weight: '600' },
+            padding: { bottom: 10 }
+          }
           : { display: false },
         tooltip: {
           backgroundColor: '#fff', titleColor: '#964B00', bodyColor: '#2C1A0E',
@@ -379,11 +383,11 @@ const AI2 = {
       scales: {
         x: {
           ticks: { color: '#6B4C32', font: { family: "'DM Sans',sans-serif", size: 11 }, maxTicksLimit: 8 },
-          grid:  { color: 'rgba(150,75,0,0.07)' },
+          grid: { color: 'rgba(150,75,0,0.07)' },
         },
         y: {
           ticks: { color: '#6B4C32', font: { family: "'DM Sans',sans-serif", size: 11 } },
-          grid:  { color: 'rgba(150,75,0,0.07)' },
+          grid: { color: 'rgba(150,75,0,0.07)' },
         },
       },
     };

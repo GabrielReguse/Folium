@@ -102,30 +102,45 @@ EXEMPLO CORRETO: "itens": ["sen²(x) + cos²(x) = 1", "1 + tan²(x) = sec²(x)",
 EXEMPLO ERRADO: "itens": ["Contexto prático de aplicação do conceito", "Relação com outros temas da área"]
 
 ══════════════════════════════════
-CAMPO "visual" — OPCIONAL, USE QUANDO AJUDA
+CAMPO "visual" — OBRIGATÓRIO quando o tópico se encaixa nos gatilhos abaixo
 ══════════════════════════════════
-Inclua APENAS quando o visual realmente auxilia a compreensão.
+REGRA GERAL: se o tópico tem uma representação visual óbvia e útil, o campo "visual" é OBRIGATÓRIO.
+Se não houver nenhum gatilho aplicável (ex: tópico puramente histórico ou definitório sem dados), omita.
 
-TIPO "grafico_funcao" → funções matemáticas de x (seno, cosseno, polinômios, log, exp).
+━━ GATILHOS — quando o tópico for sobre: ━━
+
+GRÁFICO DE PIZZA / CIRCULAR / PROPORÇÕES / PORCENTAGENS / COMPOSIÇÃO
+  → OBRIGATÓRIO "grafico_pizza" com dados reais do tópico
+  → Exemplos de gatilho: "gráfico circular", "gráfico de pizza", "composição do ar", "macronutrientes", "distribuição percentual"
+  "visual": {"tipo": "grafico_pizza", "dados": {"titulo": "Título descritivo", "labels": ["Cat A","Cat B","Cat C"], "valores": [45, 30, 25]}}
+  REGRA: valores representam proporção real. Use dados do próprio exemplo ou dados clássicos do tema.
+
+GRÁFICO DE BARRAS / COMPARAÇÃO ENTRE CATEGORIAS / HISTOGRAMA
+  → OBRIGATÓRIO "grafico_barras" com categorias e valores reais
+  → Exemplos de gatilho: "gráfico de barras", "histograma", "comparação de frequências", "dados estatísticos"
+  "visual": {"tipo": "grafico_barras", "dados": {"titulo": "Título", "labels": ["A","B","C"], "datasets": [{"label": "Série", "valores": [10, 25, 15]}]}}
+
+FUNÇÕES MATEMÁTICAS / TRIGONOMETRIA / CURVAS / GRÁFICOS CARTESIANOS
+  → OBRIGATÓRIO "grafico_funcao" com expressão JS válida
+  → Exemplos de gatilho: seno, cosseno, tangente, parábola, função linear, exponencial, logarítmica, módulo
   "visual": {"tipo": "grafico_funcao", "dados": {"label": "f(x) = sen(x)", "funcao": "Math.sin(x)", "dominio": [-6.28, 6.28]}}
-  REGRA: "funcao" deve ser expressão JavaScript válida usando x.
-  Use: Math.sin, Math.cos, Math.tan, Math.sqrt, Math.pow, Math.log, Math.abs, Math.PI, Math.E
+  FUNÇÕES JS VÁLIDAS: Math.sin(x), Math.cos(x), Math.tan(x), Math.sqrt(x), Math.pow(x,2),
+                      Math.log(x), Math.abs(x), Math.exp(x), x*x, 2*x+1, Math.PI, Math.E
 
-TIPO "grafico_barras" → comparações numéricas entre categorias.
-  "visual": {"tipo": "grafico_barras", "dados": {"titulo": "Título", "labels": ["A","B"], "datasets": [{"label": "Série", "valores": [1.5, 2.0]}]}}
+GEOMETRIA / TRIÂNGULOS / ÂNGULOS / VETORES / FIGURAS PLANAS
+  → OBRIGATÓRIO "svg" com diagrama preciso e coordenadas exatas
+  → Exemplos de gatilho: triângulo retângulo, ângulos, circunferência, polígono, vetor
+  "visual": {"tipo": "svg", "codigo": "<svg viewBox=\"0 0 220 170\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>"}
+  Use APENAS: line, polygon, circle, rect, text. stroke="#964B00" fill="#F9F5F0" ou fill="none"
+  COORDENADAS EXATAS — calcule os vértices matematicamente antes de escrever.
 
-TIPO "grafico_pizza" → proporções ou composição percentual.
-  "visual": {"tipo": "grafico_pizza", "dados": {"titulo": "Título", "labels": ["X","Y"], "valores": [78, 22]}}
-
-TIPO "imagem_wiki" → Biologia, Química, História, Geografia — quando existe imagem clara no Wikipedia.
-  "visual": {"tipo": "imagem_wiki", "busca": "termo específico em português ou inglês"}
-  USE PARA: organelas, estruturas celulares, animais, plantas, mapas, eventos históricos, anatomia, estruturas químicas.
-  TERMO ESPECÍFICO: "mitose celular fases diagrama" e não apenas "célula".
-  NÃO USE PARA: conceitos puramente matemáticos ou abstratos sem imagem visual clara.
-
-TIPO "svg" → diagramas geométricos SIMPLES (triângulos, vetores, ângulos).
-  "visual": {"tipo": "svg", "codigo": "<svg viewBox=\"0 0 200 160\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>"}
-  Use APENAS: line, polygon, circle, rect, text. Coordenadas exatas. NÃO use para estruturas complexas.
+BIOLOGIA / ANATOMIA / ORGANISMOS / ESTRUTURAS CELULARES / MAPAS / QUÍMICA ESTRUTURAL / EVENTOS HISTÓRICOS
+  → OBRIGATÓRIO "imagem_wiki" com termo de busca específico
+  → Exemplos de gatilho: mitose, organelas, fotossíntese, sistema digestório, mapa geográfico, estrutura molecular
+  "visual": {"tipo": "imagem_wiki", "busca": "termo específico de 3-5 palavras em português ou inglês"}
+  TERMO BOM: "mitose celular fases diagrama", "cloroplasto estrutura", "sistema digestório humano"
+  TERMO RUIM: "célula", "biologia", "organismo"
+  NÃO USE para: conceitos abstratos sem imagem visual clara (ex: "homeostase", "evolução")
 
 ══════════════════════════════════
 FORMATO FINAL — JSON VÁLIDO, SEM MARKDOWN
