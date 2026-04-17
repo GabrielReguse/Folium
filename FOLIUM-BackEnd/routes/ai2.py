@@ -13,9 +13,20 @@ from jose import jwt, JWTError
 
 router = APIRouter()
 
-GROQ_MODEL          = "llama-3.3-70b-versatile"
-GROQ_MODEL_FALLBACK = "llama-3.1-8b-instant"
-GROQ_API            = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_API = "https://api.groq.com/openai/v1/chat/completions"
+
+# Cadeia de modelos: tenta na ordem, passa pro próximo se der 429 ou 413
+# llama-3.3-70b-versatile → qualidade máxima (principal)
+# gemma2-9b-it           → ~15k TPM no plano free, bom fallback de qualidade
+# llama-3.1-8b-instant   → último recurso, bem mais rápido mas menos preciso
+MODEL_CHAIN = [
+    {"model": "llama-3.3-70b-versatile", "max_tokens": 4500},
+    {"model": "gemma2-9b-it",            "max_tokens": 3500},
+    {"model": "llama-3.1-8b-instant",    "max_tokens": 2500},
+]
+
+# Alias pra compatibilidade com partes do código que referenciam GROQ_MODEL
+GROQ_MODEL = MODEL_CHAIN[0]["model"]
 
 NIVEL_MAP = {
   "fundamental_1": "Fundamental I — linguagem simples, sem fórmulas, analogias do cotidiano",
@@ -99,23 +110,32 @@ async def call_groq(system: str, user: str, max_tokens: int = 4500, model: str =
     if not api_key:
         raise HTTPException(503, "Serviço de IA não configurado no servidor.")
 
-    payload = {
-        "model":    model,
-        "messages": [
-            {"role": "system", "content": system},
-            {"role": "user",   "content": user},
-        ],
-        "temperature": 0.25,
-        "max_tokens":  max_tokens,
-    }
+    # Monta a cadeia a partir do modelo solicitado
+    # Se pediram o principal, tenta toda a cadeia. Se pediram outro específico, começa dele.
+    start_index = next((i for i, m in enumerate(MODEL_CHAIN) if m["model"] == model), 0)
+    chain = MODEL_CHAIN[start_index:]
 
-    # Tentativa 1: modelo principal
-    # Tentativa 2: modelo fallback (após 15s de espera)
-    for attempt, current_model in enumerate([model, GROQ_MODEL_FALLBACK]):
+    resp = None
+    last_error = None
+
+    for attempt, entry in enumerate(chain):
+        current_model      = entry["model"]
+        current_max_tokens = entry["max_tokens"]
+
         if attempt > 0:
-            print(f"[AI2] Rate limit. Aguardando 15s → tentando {current_model}...")
-            await asyncio.sleep(15)
-            payload["model"] = current_model
+            print(f"[AI2] Modelo {chain[attempt-1]['model']} falhou ({last_error}). "
+                  f"Aguardando 8s → tentando: {current_model} (max_tokens={current_max_tokens})...")
+            await asyncio.sleep(8)
+
+        payload = {
+            "model":    current_model,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user",   "content": user},
+            ],
+            "temperature": 0.25,
+            "max_tokens":  current_max_tokens,
+        }
 
         async with httpx.AsyncClient(timeout=90.0) as client:
             resp = await client.post(
@@ -127,19 +147,30 @@ async def call_groq(system: str, user: str, max_tokens: int = 4500, model: str =
                 json=payload,
             )
 
+        # ── 200: sucesso ──────────────────────────────────────────
+        if resp.status_code == 200:
+            print(f"[AI2] ✓ Sucesso com: {current_model}")
+            break
+
+        # ── 429: rate limit → próximo modelo da cadeia ────────────
         if resp.status_code == 429:
-            if attempt == 0:
-                continue  # tenta fallback
-            raise HTTPException(
-                429,
-                "Limite de uso da IA atingido. Aguarde cerca de 1 minuto e tente novamente."
-            )
+            last_error = "429 rate-limit"
+            print(f"[AI2] Rate limit em {current_model}.")
+            if attempt < len(chain) - 1:
+                continue
+            raise HTTPException(429, "Limite de uso da IA atingido. Aguarde cerca de 1 minuto e tente novamente.")
 
-        if resp.status_code != 200:
-            print(f"[AI2] Groq error {resp.status_code}: {resp.text[:300]}")
-            raise HTTPException(502, f"Groq retornou {resp.status_code}.")
+        # ── 413: request muito grande → próximo modelo usa menos tokens ──
+        if resp.status_code == 413:
+            last_error = "413 request-too-large"
+            print(f"[AI2] Request muito grande em {current_model} (max_tokens={current_max_tokens}).")
+            if attempt < len(chain) - 1:
+                continue
+            raise HTTPException(413, "Conteúdo muito extenso para a IA processar. Reduza o número de tópicos e tente novamente.")
 
-        break  # sucesso — sai do loop
+        # ── qualquer outro erro → para imediatamente ──────────────
+        print(f"[AI2] Erro inesperado {resp.status_code} em {current_model}: {resp.text[:300]}")
+        raise HTTPException(502, f"Erro ao comunicar com a IA (código {resp.status_code}).")
 
     data = resp.json()
     try:
