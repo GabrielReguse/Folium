@@ -3,7 +3,7 @@
 #  IA 1: Curadoria de tópicos e verificação
 # ═══════════════════════════════════════════════
 
-import os, json
+import os, json, asyncio
 from typing import Any
 
 import httpx
@@ -101,32 +101,49 @@ FORMATO (JSON válido, sem markdown):
 }
 """.strip()
 
+GROQ_MODEL_FALLBACK = "llama-3.1-8b-instant"
+
 async def call_groq(system: str, user: str, max_tokens: int = 1024) -> Any:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise HTTPException(503, "Serviço de IA não configurado no servidor.")
 
-    async with httpx.AsyncClient(timeout=60.0) as client:
-        resp = await client.post(
-            GROQ_API,
-            headers={
-                "Content-Type":  "application/json",
-                "Authorization": f"Bearer {api_key}",
-            },
-            json={
-                "model": GROQ_MODEL,
-                "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user",   "content": user},
-                ],
-                "temperature": 0.5,
-                "max_tokens":  max_tokens,
-            },
-        )
+    payload = {
+        "model": GROQ_MODEL,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user",   "content": user},
+        ],
+        "temperature": 0.5,
+        "max_tokens":  max_tokens,
+    }
 
-    if resp.status_code != 200:
-        print(f"[AI] Groq error {resp.status_code}: {resp.text[:200]}")
-        raise HTTPException(502, f"Groq retornou {resp.status_code}.")
+    for attempt, current_model in enumerate([GROQ_MODEL, GROQ_MODEL_FALLBACK]):
+        if attempt > 0:
+            print(f"[AI1] Rate limit. Aguardando 15s → tentando {current_model}...")
+            await asyncio.sleep(15)
+            payload["model"] = current_model
+
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.post(
+                GROQ_API,
+                headers={
+                    "Content-Type":  "application/json",
+                    "Authorization": f"Bearer {api_key}",
+                },
+                json=payload,
+            )
+
+        if resp.status_code == 429:
+            if attempt == 0:
+                continue
+            raise HTTPException(429, "Limite de uso da IA atingido. Aguarde cerca de 1 minuto e tente novamente.")
+
+        if resp.status_code != 200:
+            print(f"[AI1] Groq error {resp.status_code}: {resp.text[:200]}")
+            raise HTTPException(502, f"Groq retornou {resp.status_code}.")
+
+        break
 
     data = resp.json()
     try:
@@ -139,7 +156,7 @@ async def call_groq(system: str, user: str, max_tokens: int = 1024) -> Any:
     try:
         return json.loads(clean)
     except json.JSONDecodeError:
-        print(f"[AI] JSON inválido: {clean[:200]}")
+        print(f"[AI1] JSON inválido: {clean[:200]}")
         raise HTTPException(502, "IA retornou resposta inválida. Tente novamente.")
 
 class TopicsBody(BaseModel):
