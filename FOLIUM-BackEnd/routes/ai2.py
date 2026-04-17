@@ -101,46 +101,68 @@ REGRA: cada item = string com conteúdo real e específico. NUNCA genérico.
 EXEMPLO CORRETO: "itens": ["sen²(x) + cos²(x) = 1", "1 + tan²(x) = sec²(x)", "1 + cot²(x) = csc²(x)"]
 EXEMPLO ERRADO: "itens": ["Contexto prático de aplicação do conceito", "Relação com outros temas da área"]
 
-══════════════════════════════════
-CAMPO "visual" — OBRIGATÓRIO quando o tópico se encaixa nos gatilhos abaixo
-══════════════════════════════════
-REGRA GERAL: se o tópico tem uma representação visual óbvia e útil, o campo "visual" é OBRIGATÓRIO.
-Se não houver nenhum gatilho aplicável (ex: tópico puramente histórico ou definitório sem dados), omita.
+══════════════════════════════════════════════════════
+CAMPO "visual" — USE QUANDO O TÓPICO TEM REPRESENTAÇÃO VISUAL CLARA
+══════════════════════════════════════════════════════
 
-━━ GATILHOS — quando o tópico for sobre: ━━
+REGRA DE OURO ANTES DE ESCOLHER O TIPO:
+  Pergunte: "consigo desenhar isso com precisão usando apenas linhas, polígonos e círculos?"
+  → SIM (triângulo retângulo, vetor, ângulo simples) → use "svg"
+  → NÃO (molécula, estrutura química, organela, animal, mapa) → use "imagem_wiki"
+  Em caso de dúvida entre svg e imagem_wiki → SEMPRE prefira imagem_wiki.
 
-GRÁFICO DE PIZZA / CIRCULAR / PROPORÇÕES / PORCENTAGENS / COMPOSIÇÃO
-  → OBRIGATÓRIO "grafico_pizza" com dados reais do tópico
-  → Exemplos de gatilho: "gráfico circular", "gráfico de pizza", "composição do ar", "macronutrientes", "distribuição percentual"
-  "visual": {"tipo": "grafico_pizza", "dados": {"titulo": "Título descritivo", "labels": ["Cat A","Cat B","Cat C"], "valores": [45, 30, 25]}}
-  REGRA: valores representam proporção real. Use dados do próprio exemplo ou dados clássicos do tema.
-
-GRÁFICO DE BARRAS / COMPARAÇÃO ENTRE CATEGORIAS / HISTOGRAMA
-  → OBRIGATÓRIO "grafico_barras" com categorias e valores reais
-  → Exemplos de gatilho: "gráfico de barras", "histograma", "comparação de frequências", "dados estatísticos"
-  "visual": {"tipo": "grafico_barras", "dados": {"titulo": "Título", "labels": ["A","B","C"], "datasets": [{"label": "Série", "valores": [10, 25, 15]}]}}
-
-FUNÇÕES MATEMÁTICAS / TRIGONOMETRIA / CURVAS / GRÁFICOS CARTESIANOS
-  → OBRIGATÓRIO "grafico_funcao" com expressão JS válida
-  → Exemplos de gatilho: seno, cosseno, tangente, parábola, função linear, exponencial, logarítmica, módulo
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TIPO "grafico_funcao" → SOMENTE quando o tópico É uma função matemática de x.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  USE: seno, cosseno, tangente, parábola, reta, exponencial, logarítmica, módulo, raiz.
   "visual": {"tipo": "grafico_funcao", "dados": {"label": "f(x) = sen(x)", "funcao": "Math.sin(x)", "dominio": [-6.28, 6.28]}}
-  FUNÇÕES JS VÁLIDAS: Math.sin(x), Math.cos(x), Math.tan(x), Math.sqrt(x), Math.pow(x,2),
-                      Math.log(x), Math.abs(x), Math.exp(x), x*x, 2*x+1, Math.PI, Math.E
+  FUNÇÕES JS VÁLIDAS: Math.sin(x), Math.cos(x), Math.tan(x), Math.sqrt(x),
+                      Math.pow(x,2), Math.log(x), Math.abs(x), Math.exp(x), 2*x+1, x*x-4
 
-GEOMETRIA / TRIÂNGULOS / ÂNGULOS / VETORES / FIGURAS PLANAS
-  → OBRIGATÓRIO "svg" com diagrama preciso e coordenadas exatas
-  → Exemplos de gatilho: triângulo retângulo, ângulos, circunferência, polígono, vetor
+  ⛔ NÃO USE "grafico_funcao" para:
+    - Reações químicas (CH₄ + 2O₂ → CO₂ + 2H₂O não é função de x)
+    - Processos biológicos, históricos ou descritivos
+    - Qualquer coisa que não seja literalmente "y = f(x)"
+    Se não existe uma expressão f(x) clara → use outro tipo ou omita o visual.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TIPO "grafico_barras" → comparações numéricas reais entre categorias.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  USE: histogramas, frequências, comparação de grupos, dados estatísticos.
+  "visual": {"tipo": "grafico_barras", "dados": {"titulo": "Título", "labels": ["A","B","C"], "datasets": [{"label": "Série", "valores": [10, 25, 15]}]}}
+  REGRA: "valores" devem ser números reais do conteúdo — nunca inventados aleatoriamente.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TIPO "grafico_pizza" → proporções, porcentagens, composição.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  USE: composição do ar, macronutrientes, distribuição percentual, gráficos circulares.
+  "visual": {"tipo": "grafico_pizza", "dados": {"titulo": "Título", "labels": ["X","Y","Z"], "valores": [78, 21, 1]}}
+  REGRA: valores são proporcionais a dados reais do tema. Use os dados do próprio exemplo.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TIPO "imagem_wiki" → qualquer estrutura visual que SVG não consegue reproduzir com precisão.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  USE PARA: moléculas e cadeias carbônicas, organelas, células, anatomia, mapas,
+            estruturas químicas, animais, plantas, eventos históricos, fases da mitose.
+  "visual": {"tipo": "imagem_wiki", "busca": "termo específico de 3-5 palavras"}
+  TERMOS BONS:  "cadeia de carbono propano estrutura", "mitocôndria estrutura interna",
+                "sistema nervoso central diagrama", "mapa brasil regiões"
+  TERMOS RUINS: "carbono", "célula", "química", "biologia"
+
+  ⚠️ QUÍMICA ORGÂNICA: estruturas de moléculas (metano, propano, glicose, benzeno etc.)
+     NUNCA use svg para desenhar moléculas. SEMPRE use imagem_wiki.
+     ERRADO → svg com círculo solto
+     CERTO  → imagem_wiki com "propano estrutura molecular" ou "metano molécula 3D"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TIPO "svg" → SOMENTE geometria plana simples com coordenadas calculáveis.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  USE PARA: triângulo retângulo com lados e ângulos, vetor com direção, circunferência com raio.
   "visual": {"tipo": "svg", "codigo": "<svg viewBox=\"0 0 220 170\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>"}
-  Use APENAS: line, polygon, circle, rect, text. stroke="#964B00" fill="#F9F5F0" ou fill="none"
-  COORDENADAS EXATAS — calcule os vértices matematicamente antes de escrever.
-
-BIOLOGIA / ANATOMIA / ORGANISMOS / ESTRUTURAS CELULARES / MAPAS / QUÍMICA ESTRUTURAL / EVENTOS HISTÓRICOS
-  → OBRIGATÓRIO "imagem_wiki" com termo de busca específico
-  → Exemplos de gatilho: mitose, organelas, fotossíntese, sistema digestório, mapa geográfico, estrutura molecular
-  "visual": {"tipo": "imagem_wiki", "busca": "termo específico de 3-5 palavras em português ou inglês"}
-  TERMO BOM: "mitose celular fases diagrama", "cloroplasto estrutura", "sistema digestório humano"
-  TERMO RUIM: "célula", "biologia", "organismo"
-  NÃO USE para: conceitos abstratos sem imagem visual clara (ex: "homeostase", "evolução")
+  ELEMENTOS PERMITIDOS: line, polygon, circle, rect, text — com stroke="#964B00" fill="#F9F5F0"
+  ANTES DE USAR: calcule as coordenadas exatas matematicamente.
+  NÃO USE svg para: qualquer estrutura química, qualquer ser vivo, qualquer coisa que você não consegue
+                    representar apenas com linhas e polígonos básicos.
 
 ══════════════════════════════════
 FORMATO FINAL — JSON VÁLIDO, SEM MARKDOWN
