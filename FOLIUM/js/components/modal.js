@@ -34,6 +34,18 @@ const Modal = {
     overlay.classList.add('show');
   },
 
+  /**
+   * Atualiza título/subtítulo do loading já visível (sem fechar e reabrir)
+   * @param {string} title
+   * @param {string} subtitle
+   */
+  updateLoading(title, subtitle) {
+    const t = document.getElementById('ld-title');
+    const s = document.getElementById('ld-sub');
+    if (t && title    !== undefined) t.textContent = title;
+    if (s && subtitle !== undefined) s.textContent = subtitle;
+  },
+
   /** Oculta o loading overlay */
   hideLoading() {
     const overlay = document.getElementById('loading-overlay');

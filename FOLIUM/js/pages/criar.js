@@ -14,16 +14,56 @@ const NIVEL_LABELS = {
 };
 
 const CriarPage = {
-  currentStep: 1,
-  topicList: [],
-  materia:   '',
-  tema:      '',
-  nivel:     '',
+  currentStep:     1,
+  topicList:       [],
+  materia:         '',
+  tema:            '',
+  nivel:           '',
+  _queuePollTimer: null,
 
   init() {
     if (!Router.requireAuth()) return;
     Navbar.renderTop({ backRoute: 'home', backLabel: '‹ Voltar' });
     this.goStep(1);
+  },
+
+  /* ─── POLLING DA FILA ──────────────────────────────────────
+     Enquanto o loading está aberto, consulta /api/ai2/queue
+     a cada 2s e atualiza o modal com posição na fila.
+  ─────────────────────────────────────────────────────────── */
+  _startQueuePolling(actionLabel) {
+    this._stopQueuePolling();
+    const token = Storage.getToken();
+    let   tick  = 0;
+    const DOTS  = ['', '.', '..', '...'];
+
+    this._queuePollTimer = setInterval(async () => {
+      try {
+        const res = await fetch(`${Config.API}/ai2/queue`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+
+        const { waiting } = await res.json();
+        tick = (tick + 1) % DOTS.length;
+
+        if (waiting > 0) {
+          Modal.updateLoading(
+            `⏳ Aguardando na fila${DOTS[tick]}`,
+            `${waiting} pessoa${waiting > 1 ? 's' : ''} na sua frente — ${actionLabel} logo`
+          );
+        } else {
+          Modal.updateLoading(actionLabel, 'Processando agora…');
+        }
+      } catch { /* silencioso */ }
+    }, 2000);
+  },
+
+  _stopQueuePolling() {
+    if (this._queuePollTimer) {
+      clearInterval(this._queuePollTimer);
+      this._queuePollTimer = null;
+    }
   },
 
   /* ─── STEP BAR ─────────────────────────────────────────── */
@@ -60,6 +100,7 @@ const CriarPage = {
     if (btn) btn.disabled = true;
 
     Modal.showLoading('IA analisando o tema…', 'Mapeando os melhores tópicos para seu estudo');
+    this._startQueuePolling('IA analisando o tema');
 
     let usouFallback = false;
 
@@ -67,6 +108,17 @@ const CriarPage = {
       this.topicList = await AI1.gerarTopicos(this.materia, this.tema, this.nivel);
     } catch (err) {
       console.error('[AI1] gerarTopicos falhou:', err.message);
+
+      if (err.message.includes('429') || err.message.toLowerCase().includes('limite')) {
+        Modal.hideLoading();
+        if (btn) btn.disabled = false;
+        this._showStepMsg('pane1-msg',
+          '⏳ Muitos usuários agora. Aguarde alguns segundos e tente novamente.',
+          'warn'
+        );
+        return;
+      }
+
       usouFallback = true;
       this.topicList = Mock.topicSuggestions.map((txt, i) => ({
         txt,
@@ -178,6 +230,7 @@ const CriarPage = {
     }
 
     Modal.showLoading('IA gerando sua folha…', 'Isso pode levar alguns segundos');
+    this._startQueuePolling('Gerando sua folha');
 
     const out = DOM.$('#sheet-out');
     DOM.clear(out);
@@ -193,6 +246,7 @@ const CriarPage = {
         }))
       );
 
+      this._stopQueuePolling();
       Modal.hideLoading();
       AI2.renderFolha(out, this.materia, this.tema, this.nivel, resultado);
 
@@ -206,8 +260,19 @@ const CriarPage = {
       }));
 
     } catch (err) {
+      this._stopQueuePolling();
       Modal.hideLoading();
       console.error('[AI2] gerarFolha falhou:', err.message);
+
+      const is429 = err.message.includes('429') || err.message.toLowerCase().includes('limite') || err.message.toLowerCase().includes('aguarde');
+      if (is429) {
+        this._showStepMsg('pane2-msg',
+          '⏳ ' + (err.message.includes('Aguarde') ? err.message : 'Muitos usuários agora. Aguarde alguns segundos e tente novamente.'),
+          'warn'
+        );
+        return;
+      }
+
       this._showStepMsg('pane3-msg', '⚠️ IA indisponível — exibindo folha genérica.', 'warn');
       this._renderSheetFallback(selecionados);
     }

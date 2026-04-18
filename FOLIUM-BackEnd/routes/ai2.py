@@ -11,6 +11,9 @@ from fastapi import APIRouter, HTTPException, Header, Depends
 from pydantic import BaseModel
 from jose import jwt, JWTError
 
+from fastapi.responses import JSONResponse
+from limiter import groq_call_with_queue, queue_position, MAX_CONCURRENT
+
 router = APIRouter()
 
 GROQ_API = "https://api.groq.com/openai/v1/chat/completions"
@@ -203,6 +206,21 @@ class SheetBody(BaseModel):
     topicos: list[TopicItem]
 
 
+@router.get("/queue")
+async def get_queue_status(_=Depends(require_auth)):
+    """
+    Retorna quantas requisições estão na fila agora.
+    O frontend faz polling desse endpoint enquanto o loading está ativo.
+    """
+    waiting  = await queue_position()
+    occupied = MAX_CONCURRENT - (MAX_CONCURRENT - waiting)  # slots em uso
+    return {
+        "waiting":      waiting,
+        "max_slots":    MAX_CONCURRENT,
+        "busy":         waiting > 0,
+    }
+
+
 @router.post("/sheet")
 async def generate_sheet(body: SheetBody, user=Depends(require_auth)):
     if not body.materia.strip():
@@ -236,7 +254,12 @@ async def generate_sheet(body: SheetBody, user=Depends(require_auth)):
 
     print(f"[AI2] /sheet — user:{user.get('id')} materia:\"{body.materia}\" nivel:\"{body.nivel}\" topicos:{len(body.topicos)}")
 
-    result = await call_groq(SYS_SHEET, prompt)
+    # Entra na fila global — no máximo MAX_CONCURRENT chamadas simultâneas ao Groq
+    # e cooldown de 45s por usuário para não monopolizar a cota
+    result = await groq_call_with_queue(
+        user.get("id", "anon"),
+        call_groq(SYS_SHEET, prompt),
+    )
 
     if not result.get("blocos"):
         raise HTTPException(502, "IA não gerou conteúdo válido. Tente novamente.")
