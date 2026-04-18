@@ -46,6 +46,11 @@ const Storage = {
     return !!(token && user);
   },
 
+  /* ── Matérias e folhas (estrutura principal) ── */
+  getSubjects: () => Storage.get('subjects', []),
+  setSubjects: (s) => Storage.set('subjects', s),
+
+  /* ── Legado (mantido por compatibilidade) ── */
   getSheets:   () => Storage.get('sheets', []),
   setSheets:   (s) => Storage.set('sheets', s),
 

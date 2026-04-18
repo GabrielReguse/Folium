@@ -23,38 +23,76 @@ const Card = {
 
   /**
    * Card de matéria (lista de folhas)
+   * Suporta tanto estrutura nova (nomeNormalizado/folhas) quanto legada (name/sheets)
    */
-  subject({ id, name, emoji, sheets }) {
+  subject(s) {
+    // Compatibilidade: nova estrutura tem nomeNormalizado + folhas; legada tem name + sheets
+    const nome   = s.nomeNormalizado || s.name || 'Matéria';
+    const emoji  = s.emoji || '📖';
+    const count  = Array.isArray(s.folhas) ? s.folhas.length
+                 : Array.isArray(s.sheets) ? s.sheets.length
+                 : 0;
+
     const btn = document.createElement('button');
     btn.className = 'subj-card';
     btn.innerHTML = `
       <div class="subj-emoji">${emoji}</div>
       <div class="subj-info">
-        <div class="subj-name">${name}</div>
-        <div class="subj-count">${sheets.length} folha${sheets.length !== 1 ? 's' : ''}</div>
+        <div class="subj-name">${nome}</div>
+        <div class="subj-count">${count} folha${count !== 1 ? 's' : ''}</div>
       </div>
       <span class="subj-arr">›</span>`;
     btn.addEventListener('click', () =>
-      Router.go('materia', { subjectId: id })
+      Router.go('materia', { subjectId: s.id })
     );
     return btn;
   },
 
   /**
    * Card de folha individual
+   * Suporta nova estrutura (titulo/dataFormatada/topicos/nivelLabel/favorita)
+   * e legada (title/date/topics)
    */
-  sheet({ id, subjectId, title, date, topics }) {
+  sheet(sh) {
+    const titulo     = sh.titulo  || sh.title  || 'Folha';
+    const data       = sh.dataFormatada || sh.date || '';
+    const topicos    = Array.isArray(sh.topicos) ? sh.topicos
+                     : Array.isArray(sh.topics)  ? sh.topics
+                     : [];
+    const nivelLabel = sh.nivelLabel || '';
+    const isFav      = !!sh.favorita;
+    const subjectId  = sh.subjectId;
+    const onFavorite = sh.onFavorite;
+
     const btn = document.createElement('button');
     btn.className = 'sheet-card-item';
     btn.innerHTML = `
       <div class="sc-icon">📄</div>
       <div class="sc-info">
-        <div class="sc-title">${title}</div>
-        <div class="sc-date">${date} · ${topics.length} tópico${topics.length !== 1 ? 's' : ''}</div>
+        <div class="sc-title">${titulo}</div>
+        <div class="sc-meta">
+          ${data ? `<span class="sc-date">${data}</span>` : ''}
+          ${topicos.length ? `<span class="sc-topics">${topicos.length} tópico${topicos.length !== 1 ? 's' : ''}</span>` : ''}
+          ${nivelLabel ? `<span class="sc-nivel">${nivelLabel}</span>` : ''}
+        </div>
       </div>
-      <span class="sc-arr">›</span>`;
+      <div class="sc-actions">
+        <button class="fav-btn ${isFav ? 'on' : ''}" title="${isFav ? 'Remover favorito' : 'Favoritar'}">${isFav ? '⭐' : '☆'}</button>
+        <span class="sc-arr">›</span>
+      </div>`;
+
+    // Botão de favoritar — para propagação para não abrir a folha
+    const favBtn = btn.querySelector('.fav-btn');
+    if (favBtn && onFavorite) {
+      favBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onFavorite();
+      });
+    }
+
+    // Clique no card abre a folha
     btn.addEventListener('click', () =>
-      Router.go('materia', { subjectId, sheetId: id, viewSheet: true })
+      Router.go('materia', { subjectId, sheetId: sh.id, viewSheet: true })
     );
     return btn;
   },
@@ -67,13 +105,11 @@ const Card = {
     row.className = 'topic-row' + (aviso ? ' topic-row--warn' : '');
     row.style.animationDelay = `${index * 0.06}s`;
 
-    /* Linha principal: checkbox + texto + botão remover */
     row.innerHTML = `
       <div class="tchk ${on ? 'on' : ''}">${on ? '✓' : ''}</div>
       <span class="ttxt">${txt}</span>
       <button class="trem" title="Remover">×</button>`;
 
-    /* Aviso de compatibilidade (adicionado pelo usuário manualmente) */
     if (aviso) {
       const warn = document.createElement('div');
       warn.className = 'topic-warn';
@@ -89,49 +125,4 @@ const Card = {
 
     return row;
   },
-
-  /**
-   * Seção de conteúdo de uma folha gerada
-   */
-  sheetSection({ topic, subject }) {
-    const explain = Mock.getExplain(topic, subject);
-    const example = Mock.getExample(topic);
-
-    let exHTML = '';
-    if (example.type === 'table') {
-      exHTML = `
-        <table class="ex-table">
-          <tr>${example.headers.map(h => `<th>${h}</th>`).join('')}</tr>
-          ${example.rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}
-        </table>`;
-    } else {
-      exHTML = `
-        <ul class="ex-list">
-          ${example.items.map(i => `<li>${i}</li>`).join('')}
-        </ul>`;
-    }
-
-    const sec = document.createElement('div');
-    sec.className = 'sh-section';
-    sec.innerHTML = `
-      <h3 class="t-topic">${topic}</h3>
-      <p class="sh-explain">${explain}</p>
-      <div class="sh-ex">
-        <div class="sh-ex-lbl">📌 Exemplo</div>
-        ${exHTML}
-      </div>`;
-    return sec;
-  },
-
-  /**
-   * Bloco de resumo final da folha
-   */
-  sheetSummary({ title, subject }) {
-    const div = document.createElement('div');
-    div.className = 'sh-summary';
-    div.innerHTML = `
-      <h3>📝 Resumo Geral</h3>
-      <p>${Mock.getSummary(title, subject)}</p>`;
-    return div;
-  }
 };

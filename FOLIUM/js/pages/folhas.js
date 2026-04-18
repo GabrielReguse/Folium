@@ -14,7 +14,9 @@ const FolhasPage = {
     const container = DOM.$('#subj-list');
     if (!container) return;
 
-    if (!Mock.subjects.length) {
+    const subjects = Storage.getSubjects();
+
+    if (!subjects.length) {
       container.innerHTML = `
         <div class="empty-state">
           <div class="ei">📭</div>
@@ -24,7 +26,7 @@ const FolhasPage = {
       return;
     }
 
-    Mock.subjects.forEach((s, i) => {
+    subjects.forEach((s, i) => {
       const card = Card.subject(s);
       card.style.animationDelay = `${i * 0.07}s`;
       card.classList.add('au');

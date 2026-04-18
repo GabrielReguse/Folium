@@ -4,13 +4,13 @@
 ═══════════════════════════════════════ */
 
 const NIVEL_LABELS = {
-  fundamental_1: 'Fundamental I (1º–5º ano)',
-  fundamental_2: 'Fundamental II (6º–9º ano)',
-  medio:         'Ensino Médio',
-  vestibular:    'Vestibular / ENEM',
-  tecnico:       'Ensino Técnico',
-  superior:      'Ensino Superior',
-  pos:           'Pós-graduação',
+  fundamental_1: '📚 Fund. I',
+  fundamental_2: '📚 Fund. II',
+  medio:         '🎓 Ensino Médio',
+  vestibular:    '🏆 Vestibular/ENEM',
+  tecnico:       '🔧 Técnico',
+  superior:      '🏛️ Superior',
+  pos:           '🔬 Pós-graduação',
 };
 
 const CriarPage = {
@@ -38,7 +38,7 @@ const CriarPage = {
     let   tick       = 0;
     let   errorCount = 0;
     const DOTS       = ['', '.', '..', '...'];
-    const MAX_ERRORS = 3;   // para de tentar após 3 falhas seguidas
+    const MAX_ERRORS = 3;
 
     this._queuePollTimer = setInterval(async () => {
       try {
@@ -48,7 +48,7 @@ const CriarPage = {
 
         if (!res.ok) { errorCount++; if (errorCount >= MAX_ERRORS) this._stopQueuePolling(); return; }
 
-        errorCount = 0;   // reseta contador de erros em caso de sucesso
+        errorCount = 0;
         const { waiting } = await res.json();
         tick = (tick + 1) % DOTS.length;
 
@@ -77,7 +77,6 @@ const CriarPage = {
   /* ─── STEP BAR ─────────────────────────────────────────── */
   goStep(n) {
     this.currentStep = n;
-    // Limpa timer de cooldown ao trocar de etapa
     if (this._cooldownTimer) { clearInterval(this._cooldownTimer); this._cooldownTimer = null; }
     for (let i = 1; i <= 3; i++) {
       const dot  = DOM.$(`#dot${i}`);
@@ -276,7 +275,6 @@ const CriarPage = {
 
       const is429 = err.message.includes('429') || err.message.toLowerCase().includes('limite') || err.message.toLowerCase().includes('aguarde');
       if (is429) {
-        // Extrai os segundos da mensagem ("Aguarde 9s antes de...")
         const match = err.message.match(/(\d+)s/);
         let remaining = match ? parseInt(match[1]) : 45;
 
@@ -304,36 +302,82 @@ const CriarPage = {
         return;
       }
 
-      this._showStepMsg('pane3-msg', '⚠️ IA indisponível — exibindo folha genérica.', 'warn');
-      this._renderSheetFallback(selecionados);
+      this._showStepMsg('pane3-msg', '⚠️ IA indisponível — não foi possível gerar a folha. Tente novamente.', 'warn');
+      return; // sem fallback mock — não existe mais conteúdo fake
     }
 
     this.goStep(3);
   },
 
-  _renderSheetFallback(topics) {
-    const out = DOM.$('#sheet-out');
-    DOM.clear(out);
-
-    const header = document.createElement('div');
-    header.className = 'sheet-header';
-    header.innerHTML = `
-      <span class="badge badge-accent">📄 Folha de Estudos</span>
-      <h2 class="t-section" style="margin-top:10px;margin-bottom:5px">${this.materia}</h2>
-      <p class="t-sub">${topics.length} tópico${topics.length !== 1 ? 's' : ''} · ${Helpers.formatDate(new Date())}</p>`;
-    out.appendChild(header);
-
-    topics.forEach(t => {
-      out.appendChild(Card.sheetSection({ topic: t.txt, subject: this.materia }));
-    });
-
-    out.appendChild(Card.sheetSummary({ title: this.tema || this.materia, subject: this.materia }));
-  },
-
+  /* ─── SALVAR FOLHA ──────────────────────────────────────── */
   async salvarFolha() {
-    await Modal.simulate('Salvando…', 'Adicionando à sua coleção', 900, () => {
-      Router.go('folhas');
-    });
+    Modal.showLoading('Salvando…', 'Adicionando à sua coleção');
+
+    try {
+      // 1. Lê o JSON completo gerado pela IA 2 do sessionStorage
+      const raw = sessionStorage.getItem('folium_plano_ia2');
+      if (!raw) {
+        Modal.hideLoading();
+        alert('Nenhuma folha para salvar. Gere uma folha primeiro.');
+        return;
+      }
+
+      const plano = JSON.parse(raw);
+      const { materia: materiaRaw, tema, nivel, topicos, resultado } = plano;
+
+      // 2. Normaliza e localiza/cria a matéria
+      const nomeNormalizado = Helpers.normalizeSubjectName(materiaRaw);
+      const emoji           = Helpers.getSubjectEmoji(nomeNormalizado);
+
+      const subjects = Storage.getSubjects();
+      let subject = subjects.find(
+        s => s.nomeNormalizado.toLowerCase() === nomeNormalizado.toLowerCase()
+      );
+
+      if (!subject) {
+        subject = {
+          id:              `bio_${Date.now()}`,
+          nomeOriginal:    materiaRaw,
+          nomeNormalizado,
+          emoji,
+          favorita:        false,
+          criadaEm:        new Date().toISOString(),
+          folhas:          [],
+        };
+        subjects.push(subject);
+      }
+
+      // 3. Monta o objeto da folha
+      const nivelLabel = NIVEL_LABELS[nivel] || nivel || '';
+      const novaFolha = {
+        id:            `sh_${Date.now()}`,
+        titulo:        `${nomeNormalizado} — ${tema || 'Geral'}`,
+        tema:          tema || '',
+        nivel:         nivel || '',
+        nivelLabel,
+        topicos:       Array.isArray(topicos) ? topicos : [],
+        resultado:     resultado || null,
+        favorita:      false,
+        criadaEm:      new Date().toISOString(),
+        dataFormatada: new Date().toLocaleDateString('pt-BR'),
+      };
+
+      // 4. Insere (mais recente primeiro) e persiste
+      subject.folhas.unshift(novaFolha);
+      Storage.setSubjects(subjects);
+      sessionStorage.removeItem('folium_plano_ia2');
+
+      await Helpers.wait(600);
+      Modal.hideLoading();
+
+      // 5. Navega para a matéria recém-criada
+      Router.go('materia', { subjectId: subject.id });
+
+    } catch (err) {
+      Modal.hideLoading();
+      console.error('[salvarFolha] Erro:', err);
+      alert('Erro ao salvar a folha. Tente novamente.');
+    }
   },
 };
 

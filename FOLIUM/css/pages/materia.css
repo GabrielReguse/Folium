@@ -47,10 +47,77 @@
   font-size: 20px;
   flex-shrink: 0;
 }
-.sc-info { flex: 1; }
-.sc-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-.sc-date  { font-size: 12px; color: var(--text-light); }
-.sc-arr   { font-size: 18px; color: var(--c3); }
+
+.sc-info { flex: 1; min-width: 0; }
+.sc-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Meta row: data · tópicos · nível */
+.sc-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-light);
+}
+.sc-date::after,
+.sc-topics::after {
+  content: '·';
+  margin-left: 6px;
+}
+.sc-nivel {
+  font-size: 11px;
+  background: var(--c4);
+  color: var(--text-mid);
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+
+/* ── Actions: fav + seta ── */
+.sc-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.sc-arr { font-size: 18px; color: var(--c3); }
+
+/* ── Botão de favoritar nos cards ── */
+.fav-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+  line-height: 1;
+  color: var(--text-light);
+  transition: transform var(--t-fast), background var(--t-fast);
+}
+.fav-btn:hover { background: var(--c4); transform: scale(1.2); }
+.fav-btn.on    { color: #f5a623; }
+
+/* ── Botão de favoritar no header da folha ── */
+.fav-btn-header {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 10px;
+  line-height: 1;
+  transition: transform var(--t-fast), background var(--t-fast);
+}
+.fav-btn-header:hover { background: var(--c4); transform: scale(1.15); }
+.fav-btn-header.on    { filter: drop-shadow(0 0 4px rgba(245,166,35,0.6)); }
 
 /* ── View da folha ── */
 .sheet-view-header {
