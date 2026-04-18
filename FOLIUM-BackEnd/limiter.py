@@ -48,14 +48,15 @@ def get_semaphore() -> asyncio.Semaphore:
 
 def check_user_cooldown(user_id: str) -> None:
     """
-    Lança HTTPException 429 se o usuário chamou a IA há menos de COOLDOWN_SECONDS.
-    Não bloqueia — rejeita imediatamente com mensagem clara.
+    Lança HTTPException 429 se o usuário gerou folha há menos de COOLDOWN_SECONDS.
+    Não registra timestamp — isso é feito só dentro do semáforo (mark_user_call),
+    para não penalizar o usuário se a chamada nem chegou a ser executada.
     """
-    now = time.time()
+    now  = time.time()
     last = _user_last_call.get(str(user_id))
 
     if last is not None:
-        elapsed = now - last
+        elapsed   = now - last
         remaining = int(COOLDOWN_SECONDS - elapsed)
         if remaining > 0:
             raise HTTPException(
@@ -64,44 +65,37 @@ def check_user_cooldown(user_id: str) -> None:
                 f"(Limite: 1 folha a cada {COOLDOWN_SECONDS}s por usuário)"
             )
 
-    _user_last_call[str(user_id)] = now
-
 
 def mark_user_call(user_id: str) -> None:
-    """Registra o timestamp da chamada (chamar após verificar cooldown)."""
+    """Registra o timestamp da chamada (só chamado após entrar no semáforo)."""
     _user_last_call[str(user_id)] = time.time()
 
 
 async def queue_position() -> int:
     """Retorna quantas chamadas estão esperando no semáforo agora."""
-    sem = get_semaphore()
-    # _waiters começa como None e só vira deque quando o 1º waiter entra
-    # len(None) explode — checar antes
+    sem     = get_semaphore()
     waiters = getattr(sem, '_waiters', None)
     return len(waiters) if waiters else 0
 
 
 async def groq_call_with_queue(user_id: str, coro):
     """
-    Wrapper que:
-    1. Verifica cooldown do usuário
-    2. Entra na fila do semáforo (aguarda sua vez)
-    3. Executa a corrotina que chama o Groq
-    4. Registra timestamp do usuário ao terminar
-
-    Uso:
-        result = await groq_call_with_queue(user_id, call_groq(system, prompt))
+    Para a IA 2 (geração de folha) — aplica cooldown + semáforo.
+    Verifica cooldown ANTES de entrar na fila para rejeitar rápido.
+    Registra timestamp DENTRO do semáforo, só após garantir execução.
     """
     check_user_cooldown(user_id)
 
-    sem = get_semaphore()
-    pos = await queue_position()
-
-    if pos >= MAX_CONCURRENT:
-        # Informa ao usuário que há fila — não rejeita, apenas avisa
-        # O cliente pode mostrar "aguardando na fila..."
-        pass  # segue normalmente, asyncio.Semaphore cuida da espera
-
-    async with sem:
+    async with get_semaphore():
         mark_user_call(user_id)
+        return await coro
+
+
+async def groq_topics_call(coro):
+    """
+    Para a IA 1 (sugestão de tópicos) — SEM cooldown por usuário.
+    A IA 1 é leve (~2k tokens) e faz parte do fluxo normal antes da IA 2.
+    Ainda usa o semáforo global para não sobrecarregar o Groq.
+    """
+    async with get_semaphore():
         return await coro

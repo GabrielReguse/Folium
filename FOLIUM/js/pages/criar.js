@@ -20,6 +20,7 @@ const CriarPage = {
   tema:            '',
   nivel:           '',
   _queuePollTimer: null,
+  _cooldownTimer:  null,
 
   init() {
     if (!Router.requireAuth()) return;
@@ -76,6 +77,8 @@ const CriarPage = {
   /* ─── STEP BAR ─────────────────────────────────────────── */
   goStep(n) {
     this.currentStep = n;
+    // Limpa timer de cooldown ao trocar de etapa
+    if (this._cooldownTimer) { clearInterval(this._cooldownTimer); this._cooldownTimer = null; }
     for (let i = 1; i <= 3; i++) {
       const dot  = DOM.$(`#dot${i}`);
       const pane = DOM.$(`#pane${i}`);
@@ -273,10 +276,31 @@ const CriarPage = {
 
       const is429 = err.message.includes('429') || err.message.toLowerCase().includes('limite') || err.message.toLowerCase().includes('aguarde');
       if (is429) {
-        this._showStepMsg('pane2-msg',
-          '⏳ ' + (err.message.includes('Aguarde') ? err.message : 'Muitos usuários agora. Aguarde alguns segundos e tente novamente.'),
-          'warn'
-        );
+        // Extrai os segundos da mensagem ("Aguarde 9s antes de...")
+        const match = err.message.match(/(\d+)s/);
+        let remaining = match ? parseInt(match[1]) : 45;
+
+        const updateMsg = () => {
+          this._showStepMsg('pane2-msg',
+            `⏳ Aguarde ${remaining}s antes de gerar outra folha. (Limite: 1 folha a cada 45s por usuário)`,
+            'warn'
+          );
+        };
+
+        updateMsg();
+
+        if (this._cooldownTimer) clearInterval(this._cooldownTimer);
+        this._cooldownTimer = setInterval(() => {
+          remaining--;
+          if (remaining <= 0) {
+            clearInterval(this._cooldownTimer);
+            this._cooldownTimer = null;
+            this._showStepMsg('pane2-msg', '✅ Pronto! Você já pode gerar sua folha.', 'info');
+          } else {
+            updateMsg();
+          }
+        }, 1000);
+
         return;
       }
 

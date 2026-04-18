@@ -11,7 +11,7 @@ from fastapi import APIRouter, HTTPException, Header, Depends
 from pydantic import BaseModel
 from jose import jwt, JWTError
 
-from limiter import groq_call_with_queue
+from limiter import groq_topics_call
 
 router = APIRouter()
 
@@ -188,8 +188,7 @@ async def topics(body: TopicsBody, user=Depends(require_auth)):
 
     print(f"[AI1] /topics — user:{user.get('id')} materia:\"{body.materia}\" nivel:\"{body.nivel}\"")
 
-    result = await groq_call_with_queue(
-        user.get("id", "anon"),
+    result = await groq_topics_call(
         call_groq(SYS_GENERATE, prompt, max_tokens=1500),
     )
 
