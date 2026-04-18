@@ -34,16 +34,20 @@ const CriarPage = {
   _startQueuePolling(actionLabel) {
     this._stopQueuePolling();
     const token = Storage.getToken();
-    let   tick  = 0;
-    const DOTS  = ['', '.', '..', '...'];
+    let   tick       = 0;
+    let   errorCount = 0;
+    const DOTS       = ['', '.', '..', '...'];
+    const MAX_ERRORS = 3;   // para de tentar após 3 falhas seguidas
 
     this._queuePollTimer = setInterval(async () => {
       try {
         const res = await fetch(`${Config.API}/ai2/queue`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
-        if (!res.ok) return;
 
+        if (!res.ok) { errorCount++; if (errorCount >= MAX_ERRORS) this._stopQueuePolling(); return; }
+
+        errorCount = 0;   // reseta contador de erros em caso de sucesso
         const { waiting } = await res.json();
         tick = (tick + 1) % DOTS.length;
 
@@ -55,7 +59,10 @@ const CriarPage = {
         } else {
           Modal.updateLoading(actionLabel, 'Processando agora…');
         }
-      } catch { /* silencioso */ }
+      } catch {
+        errorCount++;
+        if (errorCount >= MAX_ERRORS) this._stopQueuePolling();
+      }
     }, 2000);
   },
 

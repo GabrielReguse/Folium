@@ -75,9 +75,10 @@ def mark_user_call(user_id: str) -> None:
 async def queue_position() -> int:
     """Retorna quantas chamadas estão esperando no semáforo agora."""
     sem = get_semaphore()
-    # _value = slots livres; MAX_CONCURRENT - _value = slots ocupados
-    waiting = len(sem._waiters) if hasattr(sem, '_waiters') else 0
-    return waiting
+    # _waiters começa como None e só vira deque quando o 1º waiter entra
+    # len(None) explode — checar antes
+    waiters = getattr(sem, '_waiters', None)
+    return len(waiters) if waiters else 0
 
 
 async def groq_call_with_queue(user_id: str, coro):
