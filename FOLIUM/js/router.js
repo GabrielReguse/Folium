@@ -15,14 +15,12 @@ const Router = {
   go(route, ctx = {}) {
     Object.entries(ctx).forEach(([k, v]) => Storage.setContext(k, v));
     const dest = this.routes[route] || route;
-    /* Fade out rápido — 150ms é suficiente e não parece lento */
     document.body.style.transition = 'opacity 0.15s ease';
     document.body.style.opacity    = '0';
     setTimeout(() => { window.location.href = dest; }, 160);
   },
 
   back() {
-    /* Sem delay: a página de destino já tem seu próprio fade-in */
     document.body.style.transition = 'opacity 0.15s ease';
     document.body.style.opacity    = '0';
     setTimeout(() => window.history.back(), 160);
@@ -47,17 +45,25 @@ const Router = {
 
   initFade() {
     /*
-     * Começa invisível mas usa DOMContentLoaded — não espera fontes/imagens.
-     * Isso elimina o delay causado pelo evento 'load' que aguardava o Google Fonts.
+     * Começa invisível, faz fade-in no DOMContentLoaded.
+     * Duplo rAF garante que o paint acontece antes da transição.
      */
     document.body.style.opacity = '0';
+
     document.addEventListener('DOMContentLoaded', () => {
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {           /* duplo rAF: garante paint */
+        requestAnimationFrame(() => {
           document.body.style.transition = 'opacity 0.22s ease';
           document.body.style.opacity    = '1';
         });
       });
+    });
+    
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) {
+        document.body.style.transition = 'none';
+        document.body.style.opacity    = '1';
+      }
     });
   }
 };
