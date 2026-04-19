@@ -1,11 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 72'>
+  <rect width='56' height='72' rx='15' fill='%23964B00'/>
+  <path d='M28 6 C13 17 9 34 10 47 C11 59 19 67 28 69 C37 67 45 59 46 47 C47 34 43 17 28 6Z' fill='%23F9F5F0'/>
+  <line x1='28' y1='10' x2='28' y2='66' stroke='%23964B00' stroke-width='1.6' stroke-linecap='round'/>
+  <line x1='28' y1='23' x2='14' y2='33' stroke='%23964B00' stroke-width='1' stroke-linecap='round' opacity='.7'/>
+  <line x1='28' y1='23' x2='42' y2='33' stroke='%23964B00' stroke-width='1' stroke-linecap='round' opacity='.7'/>
+  <line x1='28' y1='38' x2='11' y2='46' stroke='%23964B00' stroke-width='.9' stroke-linecap='round' opacity='.6'/>
+  <line x1='28' y1='38' x2='45' y2='46' stroke='%23964B00' stroke-width='.9' stroke-linecap='round' opacity='.6'/>
+  <line x1='28' y1='52' x2='15' y2='58' stroke='%23964B00' stroke-width='.8' stroke-linecap='round' opacity='.5'/>
+  <line x1='28' y1='52' x2='41' y2='58' stroke='%23964B00' stroke-width='.8' stroke-linecap='round' opacity='.5'/>
+</svg>">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Folium — Criar Folha</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/global.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -13,112 +29,114 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/pages/criar.css">
 </head>
+
 <body>
 
-<canvas id="bg-canvas"></canvas>
+  <canvas id="bg-canvas"></canvas>
 
-<div id="loading-overlay">
-  <div class="loading-box">
-    <div class="loader loader-lg"></div>
-    <h3 id="ld-title">Processando...</h3>
-    <p  id="ld-sub">Aguarde um momento</p>
+  <div id="loading-overlay">
+    <div class="loading-box">
+      <div class="loader loader-lg"></div>
+      <h3 id="ld-title">Processando...</h3>
+      <p id="ld-sub">Aguarde um momento</p>
+    </div>
   </div>
-</div>
 
-<div class="page">
+  <div class="page">
 
-  <!-- Top nav injetada pelo criar.js -->
+    <!-- Top nav injetada pelo criar.js -->
 
-  <div class="criar-body page-body">
+    <div class="criar-body page-body">
 
-    <!-- Step bar -->
-    <div class="step-bar">
-      <div class="sdot" id="dot1">1</div>
-      <div class="sline" id="ln1"></div>
-      <div class="sdot" id="dot2">2</div>
-      <div class="sline" id="ln2"></div>
-      <div class="sdot" id="dot3">3</div>
-    </div>
+      <!-- Step bar -->
+      <div class="step-bar">
+        <div class="sdot" id="dot1">1</div>
+        <div class="sline" id="ln1"></div>
+        <div class="sdot" id="dot2">2</div>
+        <div class="sline" id="ln2"></div>
+        <div class="sdot" id="dot3">3</div>
+      </div>
 
-    <!-- ── PANE 1: Entrada ── -->
-    <div class="step-pane" id="pane1">
-      <h2 class="t-section mb-8">Nova folha</h2>
-      <p class="t-sub mb-24">Informe a matéria e o tema — a IA cuida do resto</p>
+      <!-- PANE 1: Entrada -->
+      <div class="step-pane" id="pane1">
+        <h2 class="t-section mb-8">Nova folha</h2>
+        <p class="t-sub mb-24">Informe a matéria e o tema — a IA cuida do resto</p>
 
-      <div style="display:flex;flex-direction:column;gap:18px">
-        <div class="inp-group">
-          <label class="inp-label">Matéria</label>
-          <input type="text" class="inp" id="inp-materia" placeholder="ex: Biologia, Matemática, Física...">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="inp-group">
+            <label class="inp-label">Matéria</label>
+            <input type="text" class="inp" id="inp-materia" placeholder="ex: Biologia, Matemática, Física...">
+          </div>
+          <div class="inp-group">
+            <label class="inp-label">Tema(s)</label>
+            <input type="text" class="inp" id="inp-tema" placeholder="ex: Citologia, Fotossíntese...">
+          </div>
+          <div class="inp-group">
+            <label class="inp-label">Nível escolar</label>
+            <select class="inp inp-select" id="inp-nivel">
+              <option value="">Selecione seu nível...</option>
+              <option value="fundamental_1">Ensino Fundamental I (1º ao 5º ano)</option>
+              <option value="fundamental_2">Ensino Fundamental II (6º ao 9º ano)</option>
+              <option value="medio">Ensino Médio</option>
+              <option value="vestibular">Vestibular / ENEM</option>
+              <option value="tecnico">Ensino Técnico</option>
+              <option value="superior">Ensino Superior</option>
+              <option value="pos">Pós-graduação</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-full" id="btn-gerar" onclick="CriarPage.gerarSugestoes()">
+            ✨ Gerar sugestões
+          </button>
         </div>
-        <div class="inp-group">
-          <label class="inp-label">Tema(s)</label>
-          <input type="text" class="inp" id="inp-tema" placeholder="ex: Citologia, Fotossíntese...">
+      </div>
+
+      <!-- PANE 2: Tópicos -->
+      <div class="step-pane" id="pane2">
+        <h2 class="t-section mb-8">Tópicos sugeridos</h2>
+        <p class="t-sub mb-20">Selecione, remova ou adicione antes de gerar</p>
+
+        <div id="topics-list"></div>
+
+        <div class="add-row">
+          <input type="text" class="inp" id="inp-new-topic" placeholder="Adicionar tópico...">
+          <button class="btn btn-secondary" id="btn-add-topic" onclick="CriarPage.addTopic()">+ Add</button>
         </div>
-        <div class="inp-group">
-          <label class="inp-label">Nível escolar</label>
-          <select class="inp inp-select" id="inp-nivel">
-            <option value="">Selecione seu nível...</option>
-            <option value="fundamental_1">Ensino Fundamental I (1º ao 5º ano)</option>
-            <option value="fundamental_2">Ensino Fundamental II (6º ao 9º ano)</option>
-            <option value="medio">Ensino Médio</option>
-            <option value="vestibular">Vestibular / ENEM</option>
-            <option value="tecnico">Ensino Técnico</option>
-            <option value="superior">Ensino Superior</option>
-            <option value="pos">Pós-graduação</option>
-          </select>
+
+        <div class="step-actions">
+          <button class="btn btn-ghost btn-back" onclick="CriarPage.goStep(1)">‹ Voltar</button>
+          <button class="btn btn-primary btn-next" onclick="CriarPage.gerarFolha()">📄 Gerar folha</button>
         </div>
-        <button class="btn btn-primary btn-full" id="btn-gerar" onclick="CriarPage.gerarSugestoes()">
-          ✨ Gerar sugestões
-        </button>
       </div>
+
+      <!-- PANE 3: Folha gerada -->
+      <div class="step-pane" id="pane3">
+        <div id="sheet-out"></div>
+
+        <div class="step-actions sheet-footer">
+          <button class="btn btn-ghost btn-back" onclick="CriarPage.goStep(2)">‹ Editar</button>
+          <button class="btn btn-primary btn-next" onclick="CriarPage.salvarFolha()">✅ Salvar folha</button>
+        </div>
+      </div>
+
     </div>
-
-    <!-- ── PANE 2: Tópicos ── -->
-    <div class="step-pane" id="pane2">
-      <h2 class="t-section mb-8">Tópicos sugeridos</h2>
-      <p class="t-sub mb-20">Selecione, remova ou adicione antes de gerar</p>
-
-      <div id="topics-list"></div>
-
-      <div class="add-row">
-        <input type="text" class="inp" id="inp-new-topic" placeholder="Adicionar tópico...">
-        <button class="btn btn-secondary" id="btn-add-topic" onclick="CriarPage.addTopic()">+ Add</button>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn btn-ghost btn-back" onclick="CriarPage.goStep(1)">‹ Voltar</button>
-        <button class="btn btn-primary btn-next" onclick="CriarPage.gerarFolha()">📄 Gerar folha</button>
-      </div>
-    </div>
-
-    <!-- ── PANE 3: Folha gerada ── -->
-    <div class="step-pane" id="pane3">
-      <div id="sheet-out"></div>
-
-      <div class="step-actions sheet-footer">
-        <button class="btn btn-ghost btn-back" onclick="CriarPage.goStep(2)">‹ Editar</button>
-        <button class="btn btn-primary btn-next" onclick="CriarPage.salvarFolha()">✅ Salvar folha</button>
-      </div>
-    </div>
-
   </div>
-</div>
 
-<!-- JS -->
-<script src="../js/config.js"></script>
-<script src="../js/utils/dom.js"></script>
-<script src="../js/utils/storage.js"></script>
-<script src="../js/utils/helpers.js"></script>
-<script src="../js/mock.js"></script>
-<script src="../js/router.js"></script>
-<script src="../js/components/modal.js"></script>
-<script src="../js/components/navbar.js"></script>
-<script src="../js/components/card.js"></script>
-<script src="../js/components/button.js"></script>
-<script src="../js/app.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="../js/ai1.js"></script>
-<script src="../js/ai2.js"></script>
-<script src="../js/pages/criar.js"></script>
+  <!-- JS -->
+  <script src="../js/config.js"></script>
+  <script src="../js/utils/dom.js"></script>
+  <script src="../js/utils/storage.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/mock.js"></script>
+  <script src="../js/router.js"></script>
+  <script src="../js/components/modal.js"></script>
+  <script src="../js/components/navbar.js"></script>
+  <script src="../js/components/card.js"></script>
+  <script src="../js/components/button.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="../js/ai1.js"></script>
+  <script src="../js/ai2.js"></script>
+  <script src="../js/pages/criar.js"></script>
 </body>
+
 </html>

@@ -1,11 +1,27 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 72'>
+  <rect width='56' height='72' rx='15' fill='%23964B00'/>
+  <path d='M28 6 C13 17 9 34 10 47 C11 59 19 67 28 69 C37 67 45 59 46 47 C47 34 43 17 28 6Z' fill='%23F9F5F0'/>
+  <line x1='28' y1='10' x2='28' y2='66' stroke='%23964B00' stroke-width='1.6' stroke-linecap='round'/>
+  <line x1='28' y1='23' x2='14' y2='33' stroke='%23964B00' stroke-width='1' stroke-linecap='round' opacity='.7'/>
+  <line x1='28' y1='23' x2='42' y2='33' stroke='%23964B00' stroke-width='1' stroke-linecap='round' opacity='.7'/>
+  <line x1='28' y1='38' x2='11' y2='46' stroke='%23964B00' stroke-width='.9' stroke-linecap='round' opacity='.6'/>
+  <line x1='28' y1='38' x2='45' y2='46' stroke='%23964B00' stroke-width='.9' stroke-linecap='round' opacity='.6'/>
+  <line x1='28' y1='52' x2='15' y2='58' stroke='%23964B00' stroke-width='.8' stroke-linecap='round' opacity='.5'/>
+  <line x1='28' y1='52' x2='41' y2='58' stroke='%23964B00' stroke-width='.8' stroke-linecap='round' opacity='.5'/>
+</svg>">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Folium — Início</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap"
+    rel="stylesheet">
   <!-- CSS -->
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/global.css">
@@ -14,64 +30,66 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/pages/home.css">
 </head>
+
 <body>
 
-<canvas id="bg-canvas"></canvas>
+  <canvas id="bg-canvas"></canvas>
 
-<div id="loading-overlay">
-  <div class="loading-box">
-    <div class="loader loader-lg"></div>
-    <h3 id="ld-title">Processando...</h3>
-    <p  id="ld-sub">Aguarde um momento</p>
-  </div>
-</div>
-
-<div class="page">
-
-  <!-- Hero -->
-  <div class="dash-hero">
-    <p class="hero-greeting" id="hero-greeting">Bom estudo! 👋</p>
-    <h2 class="hero-name" id="hero-name">…</h2>
-    <p class="hero-sub">O que você vai resumir hoje?</p>
-    <div class="hero-stats">
-      <div class="hstat">
-        <div class="hstat-num" id="stat-sheets">—</div>
-        <div class="hstat-lbl">Folhas</div>
-      </div>
-      <div class="hstat">
-        <div class="hstat-num" id="stat-subjects">—</div>
-        <div class="hstat-lbl">Matérias</div>
-      </div>
-      <div class="hstat">
-        <div class="hstat-num" id="stat-topics">—</div>
-        <div class="hstat-lbl">Tópicos</div>
-      </div>
+  <div id="loading-overlay">
+    <div class="loading-box">
+      <div class="loader loader-lg"></div>
+      <h3 id="ld-title">Processando...</h3>
+      <p id="ld-sub">Aguarde um momento</p>
     </div>
   </div>
 
-  <!-- Corpo -->
-  <div class="dash-body page-body">
-    <p class="t-label mb-16">O que deseja fazer?</p>
-    <div id="dash-actions"></div>
+  <div class="page">
+
+    <!-- Hero -->
+    <div class="dash-hero">
+      <p class="hero-greeting" id="hero-greeting">Bom estudo! 👋</p>
+      <h2 class="hero-name" id="hero-name">…</h2>
+      <p class="hero-sub">O que você vai resumir hoje?</p>
+      <div class="hero-stats">
+        <div class="hstat">
+          <div class="hstat-num" id="stat-sheets">—</div>
+          <div class="hstat-lbl">Folhas</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num" id="stat-subjects">—</div>
+          <div class="hstat-lbl">Matérias</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num" id="stat-topics">—</div>
+          <div class="hstat-lbl">Tópicos</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Corpo -->
+    <div class="dash-body page-body">
+      <p class="t-label mb-16">O que deseja fazer?</p>
+      <div id="dash-actions"></div>
+    </div>
+
+    <!-- Bottom nav injetada pelo home.js -->
+
   </div>
 
-  <!-- Bottom nav injetada pelo home.js -->
-
-</div>
-
-<!-- JS -->
-<script src="../js/config.js"></script>
-<script src="../js/utils/dom.js"></script>
-<script src="../js/utils/storage.js"></script>
-<script src="../js/utils/helpers.js"></script>
-<script src="../js/mock.js"></script>
-<script src="../js/router.js"></script>
-<script src="../js/components/modal.js"></script>
-<script src="../js/components/navbar.js"></script>
-<script src="../js/components/card.js"></script>
-<script src="../js/components/button.js"></script>
-<script src="../js/app.js"></script>
-<script src="../js/pages/home.js"></script>
+  <!-- JS -->
+  <script src="../js/config.js"></script>
+  <script src="../js/utils/dom.js"></script>
+  <script src="../js/utils/storage.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/mock.js"></script>
+  <script src="../js/router.js"></script>
+  <script src="../js/components/modal.js"></script>
+  <script src="../js/components/navbar.js"></script>
+  <script src="../js/components/card.js"></script>
+  <script src="../js/components/button.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/pages/home.js"></script>
 
 </body>
+
 </html>
