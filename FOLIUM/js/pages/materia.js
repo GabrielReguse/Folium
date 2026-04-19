@@ -98,6 +98,7 @@ const MateriaPage = {
 
   /* ── Visualização completa da folha ── */
   _renderSheetView() {
+    history.pushState({ foliumSheet: true }, '', window.location.href);
     Navbar.renderTop({
       backRoute: null,
       backLabel: null,
@@ -129,14 +130,6 @@ const MateriaPage = {
     /* FIX: limpa antes de renderizar */
     DOM.clear(body);
 
-    /* ── Header com badges + botão de favoritar ──
-     *
-     * FIX CRÍTICO: AI2.renderFolha(container) faz container.innerHTML = ''
-     * Se passarmos body diretamente, o header seria apagado.
-     * Solução: appendamos o header em body, criamos um contentDiv filho
-     * separado e passamos ESSE div para AI2.renderFolha. Assim o header
-     * permanece intacto.
-     */
     const isFav = !!this.sheet.favorita;
 
     const header = document.createElement('div');
@@ -185,7 +178,8 @@ const MateriaPage = {
         this.subject.nomeNormalizado,
         this.sheet.tema,
         this.sheet.nivel,
-        this.sheet.resultado
+        this.sheet.resultado,
+        false   /* showHeader=false — header já renderizado acima */
       );
     } else {
       /* Folha antiga sem resultado estruturado */

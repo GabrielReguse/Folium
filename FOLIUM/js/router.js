@@ -44,10 +44,6 @@ const Router = {
   },
 
   initFade() {
-    /*
-     * Começa invisível, faz fade-in no DOMContentLoaded.
-     * Duplo rAF garante que o paint acontece antes da transição.
-     */
     document.body.style.opacity = '0';
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -58,9 +54,20 @@ const Router = {
         });
       });
     });
-    
+
+    /* Quando o usuário usa o botão VOLTAR do browser/celular enquanto está
+     * dentro de uma folha, limpa os contextos de folha para que materia.js
+     * abra a lista e não a folha novamente. */
+    window.addEventListener('popstate', () => {
+      Storage.clearContext('sheetId');
+      Storage.clearContext('viewSheet');
+    });
+
     window.addEventListener('pageshow', (e) => {
       if (e.persisted) {
+        /* Página restaurada do cache bfcache — limpa contexto de folha */
+        Storage.clearContext('sheetId');
+        Storage.clearContext('viewSheet');
         document.body.style.transition = 'none';
         document.body.style.opacity    = '1';
       }

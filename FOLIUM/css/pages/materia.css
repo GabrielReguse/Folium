@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════
-   FOLIUM — pages/materia.css
-   Lista de folhas da matéria + visualização
-═══════════════════════════════════════ */
+/* FOLIUM — pages/materia.css */
 
 .materia-body {
   flex: 1;
@@ -12,12 +9,12 @@
   width: 100%;
 }
 
-/* ── Card de folha individual ── */
+/* Card de folha individual */
 .sheet-card-item {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 18px;
+  padding: 16px 18px;
   background: var(--white);
   border-radius: var(--r);
   box-shadow: var(--sh-sm);
@@ -29,8 +26,9 @@
   text-decoration: none;
   color: inherit;
   transition: box-shadow var(--t-mid), transform var(--t-mid);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
+
 .sheet-card-item:hover {
   box-shadow: var(--sh);
   transform: translateY(-2px);
@@ -48,7 +46,11 @@
   flex-shrink: 0;
 }
 
-.sc-info { flex: 1; min-width: 0; }
+.sc-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .sc-title {
   font-size: 15px;
   font-weight: 600;
@@ -59,7 +61,7 @@
   text-overflow: ellipsis;
 }
 
-/* Meta row: data · tópicos · nível */
+/* Meta row: data, tópicos, nível */
 .sc-meta {
   display: flex;
   align-items: center;
@@ -68,11 +70,13 @@
   font-size: 11.5px;
   color: var(--text-light);
 }
+
 .sc-date::after,
 .sc-topics::after {
   content: '·';
   margin-left: 6px;
 }
+
 .sc-nivel {
   font-size: 11px;
   background: var(--c4);
@@ -81,16 +85,20 @@
   border-radius: 20px;
 }
 
-/* ── Actions: fav + seta ── */
+/* Actions: fav + seta */
 .sc-actions {
   display: flex;
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
 }
-.sc-arr { font-size: 18px; color: var(--c3); }
 
-/* ── Botão de favoritar nos cards ── */
+.sc-arr {
+  font-size: 18px;
+  color: var(--c3);
+}
+
+/* Botão de favoritar nos cards */
 .fav-btn {
   background: none;
   border: none;
@@ -102,10 +110,17 @@
   color: var(--text-light);
   transition: transform var(--t-fast), background var(--t-fast);
 }
-.fav-btn:hover { background: var(--c4); transform: scale(1.2); }
-.fav-btn.on    { color: #f5a623; }
 
-/* ── Botão de favoritar no header da folha ── */
+.fav-btn:hover {
+  background: var(--c4);
+  transform: scale(1.2);
+}
+
+.fav-btn.on {
+  color: #f5a623;
+}
+
+/* Botão de favoritar no header da folha */
 .fav-btn-header {
   background: none;
   border: none;
@@ -116,16 +131,35 @@
   line-height: 1;
   transition: transform var(--t-fast), background var(--t-fast);
 }
-.fav-btn-header:hover { background: var(--c4); transform: scale(1.15); }
-.fav-btn-header.on    { filter: drop-shadow(0 0 4px rgba(245,166,35,0.6)); }
 
-/* ── View da folha ── */
+.fav-btn-header:hover {
+  background: var(--c4);
+  transform: scale(1.15);
+}
+
+.fav-btn-header.on {
+  filter: drop-shadow(0 0 4px rgba(245, 166, 35, 0.6));
+}
+
+/* View da folha */
 .sheet-view-header {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--c4);
 }
-.sheet-view-header .badge { margin-bottom: 10px; }
+
+.shv-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.sheet-view-header h2 {
+  margin-top: 0;
+  margin-bottom: 6px;
+}
 
 .sheet-view-body {
   padding-bottom: 48px;

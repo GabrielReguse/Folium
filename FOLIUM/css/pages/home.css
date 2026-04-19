@@ -1,8 +1,6 @@
-/* ═══════════════════════════════════════
-   FOLIUM — pages/home.css
-═══════════════════════════════════════ */
+/* FOLIUM — pages/home.css */
 
-/* ── Hero do dashboard ── */
+/* Hero do dashboard */
 .dash-hero {
   padding: 36px 26px 28px;
   background: linear-gradient(140deg, var(--c1) 0%, var(--c1-dark) 100%);
@@ -71,7 +69,7 @@
 }
 .hstat-lbl { font-size: 11px; opacity: 0.68; margin-top: 2px; }
 
-/* ── Ações do dashboard ── */
+/* Ações do dashboard */
 .dash-body {
   padding: 26px 22px;
   flex: 1;

@@ -29,23 +29,25 @@ const AI2 = {
   },
 
   /* ─── RENDER PRINCIPAL ─────────────────────────────────────── */
-  renderFolha(container, materia, tema, nivel, resultado) {
+  renderFolha(container, materia, tema, nivel, resultado, showHeader = true) {
     container.innerHTML = '';
 
-    const nivelLabel = {
-      fundamental_1: '📚 Fund. I', fundamental_2: '📚 Fund. II',
-      medio: '🎓 Ensino Médio', vestibular: '🏆 Vestibular/ENEM',
-      tecnico: '🔧 Técnico', superior: '🏛️ Superior', pos: '🔬 Pós-graduação',
-    }[nivel] || '';
+    if (showHeader) {
+      const nivelLabel = {
+        fundamental_1: '📚 Fund. I', fundamental_2: '📚 Fund. II',
+        medio: '🎓 Ensino Médio', vestibular: '🏆 Vestibular/ENEM',
+        tecnico: '🔧 Técnico', superior: '🏛️ Superior', pos: '🔬 Pós-graduação',
+      }[nivel] || '';
 
-    const header = document.createElement('div');
-    header.className = 'sheet-header';
-    header.innerHTML = `
-      <span class="badge badge-accent">✨ Gerada por IA</span>
-      ${nivelLabel ? `<span class="badge badge-nivel">${nivelLabel}</span>` : ''}
-      <h2 class="t-section" style="margin-top:10px;margin-bottom:5px">${materia}</h2>
-      <p class="t-sub">${tema ? tema + ' · ' : ''}${resultado.blocos.length} tópico${resultado.blocos.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('pt-BR')}</p>`;
-    container.appendChild(header);
+      const header = document.createElement('div');
+      header.className = 'sheet-header';
+      header.innerHTML = `
+        <span class="badge badge-accent">✨ Gerada por IA</span>
+        ${nivelLabel ? `<span class="badge badge-nivel">${nivelLabel}</span>` : ''}
+        <h2 class="t-section" style="margin-top:10px;margin-bottom:5px">${materia}</h2>
+        <p class="t-sub">${tema ? tema + ' · ' : ''}${resultado.blocos.length} tópico${resultado.blocos.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('pt-BR')}</p>`;
+      container.appendChild(header);
+    }
 
     resultado.blocos.forEach(bloco => container.appendChild(AI2._renderBloco(bloco)));
 

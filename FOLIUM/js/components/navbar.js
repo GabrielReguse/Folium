@@ -36,7 +36,13 @@ const Navbar = {
       </div>`;
 
     const page = document.querySelector('.page');
-    if (page) page.insertBefore(nav, page.firstChild);
+    if (!page) return;
+
+    /* Remove navbar anterior se existir — evita multiplicação ao re-renderizar */
+    const existing = page.querySelector('.top-nav');
+    if (existing) existing.remove();
+
+    page.insertBefore(nav, page.firstChild);
   },
 
   /**

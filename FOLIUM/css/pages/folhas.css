@@ -1,6 +1,4 @@
-/* ═══════════════════════════════════════
-   FOLIUM — pages/folhas.css
-═══════════════════════════════════════ */
+/* FOLIUM — pages/folhas.css */
 
 .folhas-body {
   flex: 1;
@@ -11,7 +9,7 @@
   width: 100%;
 }
 
-/* ── Card de matéria ── */
+/* Card de matéria */
 .subj-card {
   display: flex;
   align-items: center;

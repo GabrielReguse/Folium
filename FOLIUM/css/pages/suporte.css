@@ -1,6 +1,4 @@
-/* ═══════════════════════════════════════
-   FOLIUM — pages/suporte.css
-═══════════════════════════════════════ */
+/* FOLIUM — pages/suporte.css */
 
 .suporte-body {
   flex: 1;
@@ -11,7 +9,7 @@
   width: 100%;
 }
 
-/* ── FAQ ── */
+/* FAQ */
 .faq-group {
   margin-bottom: 8px;
 }
@@ -74,7 +72,7 @@
   padding: 0 20px 20px;
 }
 
-/* ── Bloco de contato ── */
+/* Bloco de contato */
 .contact-card {
   background: var(--c4);
   border-radius: var(--r);

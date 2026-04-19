@@ -1,6 +1,4 @@
-/* ═══════════════════════════════════════
-   FOLIUM — pages/criar.css
-═══════════════════════════════════════ */
+/* FOLIUM — pages/criar.css */
 
 .criar-body {
   flex: 1;
@@ -11,7 +9,7 @@
   width: 100%;
 }
 
-/* ── Barra de etapas ── */
+/* Barra de etapas */
 .step-bar {
   display: flex;
   align-items: center;
@@ -50,11 +48,11 @@
 }
 .sline.done { background: var(--c2); }
 
-/* ── Painéis de etapa ── */
+/* Painéis de etapa */
 .step-pane { display: none; }
 .step-pane.active { display: block; animation: fadeUp 0.30s var(--ease) both; }
 
-/* ── Lista de tópicos ── */
+/* Lista de tópicos */
 .topic-row {
   display: flex;
   align-items: center;
@@ -110,7 +108,7 @@
 }
 .trem:hover { background: #fde8e8; color: #c0392b; }
 
-/* ── Campo de adicionar tópico ── */
+/* Campo de adicionar tópico */
 .add-row {
   display: flex;
   gap: 8px;
@@ -119,7 +117,7 @@
 .add-row .inp   { padding: 12px 16px; font-size: 14px; flex: 1; }
 .add-row .btn   { padding: 12px 18px; border-radius: var(--r-sm); flex-shrink: 0; }
 
-/* ── Ações de navegação entre etapas ── */
+/* Ações de navegação entre etapas */
 .step-actions {
   display: flex;
   gap: 10px;
@@ -128,7 +126,7 @@
 .step-actions .btn-back { flex: 0.45; }
 .step-actions .btn-next { flex: 1; }
 
-/* ── Output da folha ── */
+/* Output da folha */
 .sheet-header {
   margin-bottom: 24px;
 }
@@ -137,7 +135,7 @@
   padding-bottom: 48px;
 }
 
-/* ── Aviso de compatibilidade (IA 1) ── */
+/* Aviso de compatibilidade (IA 1) */
 .topic-row--warn {
   flex-wrap: wrap;
   background: #fffbf0;
@@ -171,9 +169,7 @@
   color: #7a5c1e;
   font-weight: 500;
 }
-/* ═══════════════════════════════════════
-   VISUAL BLOCK (Chart.js / SVG / Wiki)
-═══════════════════════════════════════ */
+/* VISUAL BLOCK (Chart.js / SVG / Wiki) */
 
 .sh-visual {
   margin-top: 16px;
@@ -193,7 +189,7 @@
   margin-bottom: 12px;
 }
 
-/* ── Canvas (Chart.js) ── */
+/* Canvas (Chart.js) */
 .visual-canvas {
   width: 100% !important;
   max-height: 280px;
@@ -207,7 +203,7 @@
   display: block !important;
 }
 
-/* ── SVG ── */
+/* SVG */
 .visual-svg {
   width: 100%;
   border-radius: var(--r-xs);
@@ -222,7 +218,7 @@
   margin: 0 auto;
 }
 
-/* ── Wikimedia ── */
+/* Wikimedia */
 .visual-wiki {
   margin: 0;
   display: flex;
@@ -250,7 +246,7 @@
   font-style: italic;
 }
 
-/* ── Loading state (Wiki placeholder) ── */
+/* Loading state (Wiki placeholder) */
 .visual-wiki-loading {
   display: flex;
   align-items: center;
@@ -267,7 +263,7 @@
   flex-shrink: 0;
 }
 
-/* ── Select de nível escolar ── */
+/* Select de nível escolar */
 .inp-select {
   appearance: none;
   -webkit-appearance: none;
@@ -279,7 +275,7 @@
 }
 .inp-select option { color: var(--text); background: #fff; }
 
-/* ── Badge de nível ── */
+/* Badge de nível */
 .badge-nivel {
   background: var(--c2);
   color: var(--white);
@@ -291,7 +287,7 @@
   vertical-align: middle;
 }
 
-/* ── Melhorias de visibilidade na folha ── */
+/* Melhorias de visibilidade na folha */
 .sh-section {
   background: #fff;
   border-radius: var(--r-sm);
