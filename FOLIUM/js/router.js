@@ -1,13 +1,11 @@
-/* ═══════════════════════════════════════
-   FOLIUM — router.js
-═══════════════════════════════════════ */
+/* FOLIUM — router.js */
 
 const Router = {
   routes: {
-    login:   '../html/login.html',
-    home:    '../html/home.html',
-    criar:   '../html/criar.html',
-    folhas:  '../html/folhas.html',
+    login: '../html/login.html',
+    home: '../html/home.html',
+    criar: '../html/criar.html',
+    folhas: '../html/folhas.html',
     materia: '../html/materia.html',
     suporte: '../html/suporte.html',
   },
@@ -16,13 +14,13 @@ const Router = {
     Object.entries(ctx).forEach(([k, v]) => Storage.setContext(k, v));
     const dest = this.routes[route] || route;
     document.body.style.transition = 'opacity 0.15s ease';
-    document.body.style.opacity    = '0';
+    document.body.style.opacity = '0';
     setTimeout(() => { window.location.href = dest; }, 160);
   },
 
   back() {
     document.body.style.transition = 'opacity 0.15s ease';
-    document.body.style.opacity    = '0';
+    document.body.style.opacity = '0';
     setTimeout(() => window.history.back(), 160);
   },
 
@@ -50,14 +48,11 @@ const Router = {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           document.body.style.transition = 'opacity 0.22s ease';
-          document.body.style.opacity    = '1';
+          document.body.style.opacity = '1';
         });
       });
     });
 
-    /* Quando o usuário usa o botão VOLTAR do browser/celular enquanto está
-     * dentro de uma folha, limpa os contextos de folha para que materia.js
-     * abra a lista e não a folha novamente. */
     window.addEventListener('popstate', () => {
       Storage.clearContext('sheetId');
       Storage.clearContext('viewSheet');
@@ -65,11 +60,10 @@ const Router = {
 
     window.addEventListener('pageshow', (e) => {
       if (e.persisted) {
-        /* Página restaurada do cache bfcache — limpa contexto de folha */
         Storage.clearContext('sheetId');
         Storage.clearContext('viewSheet');
         document.body.style.transition = 'none';
-        document.body.style.opacity    = '1';
+        document.body.style.opacity = '1';
       }
     });
   }

@@ -1,19 +1,8 @@
-/* ═══════════════════════════════════════════════════════════════
-   FOLIUM — js/ai1.js
-   IA 1: Curadora de Tópicos & Planejadora de Pesquisa
-
-   IMPORTANTE: Este arquivo NÃO chama a Anthropic diretamente.
-   Todas as chamadas vão para o backend do Folium, que guarda a
-   chave de API com segurança no servidor.
-
-   Rotas usadas:
-     POST /api/ai/topics       → gera tópicos iniciais
-     POST /api/ai/check-topic  → verifica novo tópico manual
-═══════════════════════════════════════════════════════════════ */
+/*  FOLIUM — js/ai1.js */
 
 const AI1 = {
 
-  /* ─── HELPER: chama o backend com o token do usuário ──────── */
+  /* HELPER: chama o backend com o token do usuário */
   async _post(endpoint, body) {
     const token = Storage.getToken();
 
@@ -22,9 +11,9 @@ const AI1 = {
     }
 
     const res = await fetch(`${Config.API}/ai/${endpoint}`, {
-      method:  'POST',
+      method: 'POST',
       headers: {
-        'Content-Type':  'application/json',
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify(body),
@@ -45,26 +34,20 @@ const AI1 = {
     return data;
   },
 
-  /* ═══════════════════════════════════════════════════════════
-     MÉTODO 1 — Gerar lista inicial de tópicos
-     Retorna: Array de { txt, on, plano_pesquisa, aviso }
-  ═══════════════════════════════════════════════════════════ */
+  /* MÉTODO 1 — Gerar lista inicial de tópicos */
   async gerarTopicos(materia, tema, nivel = "") {
     const data = await this._post('topics', { materia, tema });
 
-    /* O backend já valida e normaliza — apenas garantimos o shape */
+    /* O backend já valida e normaliza - apenas garantimos o shape */
     return (data.topicos ?? []).map(t => ({
-      txt:            t.txt,
-      on:             true,
+      txt: t.txt,
+      on: true,
       plano_pesquisa: t.plano_pesquisa ?? null,
-      aviso:          null,
+      aviso: null,
     }));
   },
 
-  /* ═══════════════════════════════════════════════════════════
-     MÉTODO 2 — Verificar compatibilidade de tópico manual
-     Retorna: { compativel, aviso, plano_pesquisa }
-  ═══════════════════════════════════════════════════════════ */
+  /* MÉTODO 2 — Verificar compatibilidade de tópico manual */
   async verificarTopico(novoTopico, materia, tema, topicosExistentes, nivel = "") {
     const data = await this._post('check-topic', {
       novoTopico,
@@ -74,21 +57,18 @@ const AI1 = {
     });
 
     return {
-      compativel:     data.compativel !== false,
-      aviso:          data.aviso ?? null,
+      compativel: data.compativel !== false,
+      aviso: data.aviso ?? null,
       plano_pesquisa: data.plano_pesquisa ?? null,
     };
   },
 
-  /* ═══════════════════════════════════════════════════════════
-     MÉTODO 3 — Exportar plano de pesquisa para a IA 2
-     Filtra só os tópicos ativos e serializa para sessionStorage.
-  ═══════════════════════════════════════════════════════════ */
+  /* MÉTODO 3 — Exportar plano de pesquisa para a IA 2 */
   exportarPlano(topicList) {
     return topicList
       .filter(t => t.on)
       .map(t => ({
-        txt:            t.txt,
+        txt: t.txt,
         plano_pesquisa: t.plano_pesquisa,
       }));
   },

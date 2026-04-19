@@ -1,10 +1,4 @@
-/* ═══════════════════════════════════════
-   FOLIUM — js/config.js
-   ⚙️  ÚNICO lugar onde você muda a URL da API
-
-   Após subir o backend no Railway, cole aqui
-   a URL gerada (ex: https://folium-api.up.railway.app)
-═══════════════════════════════════════ */
+/* FOLIUM — js/config.js */
 
 const Config = {
   API_BASE: 'https://folium-py.onrender.com/api',

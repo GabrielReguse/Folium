@@ -1,66 +1,137 @@
-/* ═══════════════════════════════════════
-   FOLIUM — animations.css
-   Keyframes e classes de animação
-═══════════════════════════════════════ */
+/* FOLIUM — animations.css */
 
-/* ── Keyframes ── */
+/* Keyframes */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-16px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(16px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.94); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
-/* ── Classes utilitárias de entrada ── */
-.au  { animation: fadeUp 0.40s var(--ease) both; }
-.au1 { animation-delay: 0.06s; }
-.au2 { animation-delay: 0.12s; }
-.au3 { animation-delay: 0.18s; }
-.au4 { animation-delay: 0.24s; }
-.au5 { animation-delay: 0.30s; }
-.au6 { animation-delay: 0.36s; }
+/* Classes utilitárias de entrada */
+.au {
+  animation: fadeUp 0.40s var(--ease) both;
+}
 
-.fade-in    { animation: fadeIn    0.35s ease both; }
-.slide-in-l { animation: slideInLeft  0.35s var(--ease) both; }
-.slide-in-r { animation: slideInRight 0.35s var(--ease) both; }
-.scale-in   { animation: scaleIn   0.35s var(--ease) both; }
+.au1 {
+  animation-delay: 0.06s;
+}
 
-/* ── Transição de página ── */
+.au2 {
+  animation-delay: 0.12s;
+}
+
+.au3 {
+  animation-delay: 0.18s;
+}
+
+.au4 {
+  animation-delay: 0.24s;
+}
+
+.au5 {
+  animation-delay: 0.30s;
+}
+
+.au6 {
+  animation-delay: 0.36s;
+}
+
+.fade-in {
+  animation: fadeIn 0.35s ease both;
+}
+
+.slide-in-l {
+  animation: slideInLeft 0.35s var(--ease) both;
+}
+
+.slide-in-r {
+  animation: slideInRight 0.35s var(--ease) both;
+}
+
+.scale-in {
+  animation: scaleIn 0.35s var(--ease) both;
+}
+
+/* Transição de página */
 .page-enter {
   animation: fadeUp 0.30s var(--ease) both;
 }
 
-/* ── Micro-interações ── */
+/* Micro-interações */
 .hover-lift {
   transition: transform var(--t-mid), box-shadow var(--t-mid);
 }
+
 .hover-lift:hover {
   transform: translateY(-2px);
   box-shadow: var(--sh);
@@ -69,19 +140,27 @@
 .hover-scale {
   transition: transform var(--t-fast);
 }
-.hover-scale:hover { transform: scale(1.03); }
 
-/* ── Shimmer / skeleton ── */
-@keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
+.hover-scale:hover {
+  transform: scale(1.03);
 }
+
+/* Shimmer / skeleton */
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+
+  100% {
+    background-position: 400px 0;
+  }
+}
+
 .skeleton {
   background: linear-gradient(90deg,
-    var(--c4) 25%,
-    var(--c5) 37%,
-    var(--c4) 63%
-  );
+      var(--c4) 25%,
+      var(--c5) 37%,
+      var(--c4) 63%);
   background-size: 800px 100%;
   animation: shimmer 1.4s infinite linear;
   border-radius: var(--r-sm);

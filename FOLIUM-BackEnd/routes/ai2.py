@@ -81,7 +81,19 @@ ERRADO: "itens":["Contexto prático","Relação com outros temas"]
 "Cai em: [questão concreta]. Cuidado: [erro real específico]."
 
 ─── CAMPO "visual" ───
-REGRA: "consigo desenhar com precisão usando só linhas/polígonos?" → sim=svg, não=imagem_wiki. Em dúvida → imagem_wiki.
+REGRA DE OURO: antes de escolher svg, faça o TESTE ABAIXO.
+
+TESTE DO SVG (execute mentalmente antes de usar svg):
+  1. O que eu vou desenhar tem valores NUMÉRICOS para posicionar? (ângulos, comprimentos, coordenadas)
+  2. O resultado vai parecer um DIAGRAMA GEOMÉTRICO, não uma ilustração com texto descritivo?
+  3. Se eu apagar todos os textos do SVG, ainda resta um desenho útil?
+  Se NÃO para qualquer uma: USE imagem_wiki, não svg.
+
+SINAL DE ALERTA — se o seu SVG fosse conter qualquer uma dessas coisas, PARE e use imagem_wiki:
+  ✗ Um rect ou circle com o nome do conceito escrito dentro (ex: "Cromossomo X", "Mitocôndria")
+  ✗ Texto descritivo sendo o conteúdo principal (o texto não é rótulo, é o "desenho")
+  ✗ Qualquer estrutura biológica, anatômica, química ou molecular
+  ✗ Qualquer coisa que exige gradiente, curvas de Bézier complexas ou múltiplas camadas
 
 grafico_funcao → SOMENTE tópicos que SÃO f(x): seno, cosseno, parábola, reta, log, exp.
 {"tipo":"grafico_funcao","dados":{"label":"sen(x)","funcao":"Math.sin(x)","dominio":[-6.28,6.28]}}
@@ -93,15 +105,19 @@ grafico_barras → comparações numéricas reais.
 grafico_pizza → proporções/porcentagens com dados reais.
 {"tipo":"grafico_pizza","dados":{"titulo":"Título","labels":["X","Y"],"valores":[78,22]}}
 
-imagem_wiki → estruturas que SVG não reproduz: moléculas, organelas, anatomia, mapas, eventos históricos.
+imagem_wiki → USE PARA TUDO que envolve: biologia, anatomia, química, estruturas moleculares,
+  organismos, células, órgãos, mapas, eventos históricos, processos naturais, qualquer ser vivo.
 {"tipo":"imagem_wiki","busca":"termo específico 3-5 palavras"}
-⚠️ QUÍMICA ORGÂNICA: NUNCA svg para moléculas. SEMPRE imagem_wiki com termo específico.
-BONS: "propano estrutura molecular", "mitocôndria estrutura interna"
-RUINS: "carbono", "célula"
+⚠️ GENÉTICA/BIOLOGIA: cromossomos, DNA, herança, células → SEMPRE imagem_wiki. NUNCA svg.
+BONS: "cromossomo X estrutura", "herança ligada sexo diagrama", "mitocôndria estrutura"
+RUINS: "cromossomo", "célula", "herança"
 
-svg → SOMENTE geometria simples: triângulo com ângulos, vetor, circunferência.
+svg → SOMENTE geometria pura com valores numéricos: triângulo retângulo com medidas,
+  vetor com ângulo e magnitude, circunferência com raio marcado, eixos cartesianos.
 {"tipo":"svg","codigo":"<svg viewBox=\"0 0 220 170\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>"}
 Elementos: line, polygon, circle, rect, text. stroke="#964B00" fill="#F9F5F0". Coordenadas calculadas.
+EXEMPLO VÁLIDO: triângulo retângulo com lados 3, 4, 5 marcados e ângulo θ indicado.
+EXEMPLO INVÁLIDO: retângulo com "Cromossomo X" escrito — isso é imagem_wiki.
 
 ─── FORMATO FINAL (JSON sem markdown) ───
 {"blocos":[{"titulo":"Nome","explicacao":"6-8 linhas","dica_prova":"Cai em: X. Cuidado: Y.","exemplo":{"tipo":"pratico","rotulo":"💡 Exemplo Resolvido","texto":"dados → resultado"},"visual":{"tipo":"grafico_funcao","dados":{"label":"sen(x)","funcao":"Math.sin(x)","dominio":[-6.28,6.28]}}}],"resumo_geral":"4-5 linhas conectando tópicos. Sem repetir o que já foi dito."}

@@ -1,9 +1,8 @@
-/* ═══════════════════════════════════════
-   FOLIUM — global.css
-   Reset, base e tipografia
-═══════════════════════════════════════ */
+/* FOLIUM — global.css */
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -19,14 +18,8 @@ body {
   background: var(--c5);
   color: var(--text);
   min-height: 100dvh;
-  /*
-   * overflow-x: hidden bloqueia scroll por toque no Safari/iOS.
-   * overflow-x: clip faz o mesmo sem criar um scroll container,
-   * preservando o comportamento de scroll nativo do mobile.
-   */
   overflow-x: clip;
   overflow-y: auto;
-  /* Habilita scroll por momentum (bounce) no iOS */
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   line-height: 1.5;
@@ -46,16 +39,19 @@ button {
   background: none;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   font-family: var(--font-sans);
 }
 
-img, svg {
+img,
+svg {
   display: block;
   max-width: 100%;
 }
 
-/* ── Tipografia utilitária ── */
+/* Tipografia utilitária */
 .t-display {
   font-family: var(--font-serif);
   font-size: clamp(26px, 5.5vw, 38px);
@@ -63,7 +59,11 @@ img, svg {
   line-height: 1.2;
   color: var(--text);
 }
-.t-display em { font-style: italic; color: var(--c1); }
+
+.t-display em {
+  font-style: italic;
+  color: var(--c1);
+}
 
 .t-section {
   font-family: var(--font-serif);
@@ -95,13 +95,25 @@ img, svg {
   color: var(--text-light);
 }
 
-/* ── Scrollbar customizada ── */
-::-webkit-scrollbar        { width: 4px; }
-::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: var(--c3); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--c2); }
+/* Scrollbar customizada */
+::-webkit-scrollbar {
+  width: 4px;
+}
 
-/* ── Botão de logout na navbar ── */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--c3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--c2);
+}
+
+/* Botão de logout na navbar */
 .nav-logout {
   background: none;
   border: 1.5px solid var(--clr-accent, #FF8FAB);
@@ -114,6 +126,7 @@ img, svg {
   transition: background 0.18s, color 0.18s;
   white-space: nowrap;
 }
+
 .nav-logout:hover {
   background: var(--clr-accent, #FF8FAB);
   color: #fff;

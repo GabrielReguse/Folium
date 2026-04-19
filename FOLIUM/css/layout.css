@@ -1,19 +1,15 @@
-/* ═══════════════════════════════════════
-   FOLIUM — layout.css
-   Estrutura de página, containers e grid
-═══════════════════════════════════════ */
+/* FOLIUM — layout.css */
 
-/* ── Canvas de fundo ── */
+/* Canvas de fundo */
 #bg-canvas {
   position: fixed;
   inset: 0;
   z-index: var(--z-canvas);
   pointer-events: none;
-  /* Garante que não capture eventos de toque no mobile */
   touch-action: none;
 }
 
-/* ── Wrapper de página ── */
+/* Wrapper de página */
 .page {
   position: relative;
   z-index: var(--z-base);
@@ -22,16 +18,11 @@
   flex-direction: column;
 }
 
-/* ── Área de conteúdo principal ──
-   Scroll é feito pelo body/documento naturalmente.
-   overflow-y: auto dentro de flex sem altura fixa não funciona
-   no mobile — deixamos o documento crescer e rolar. ── */
 .page-body {
   flex: 1;
-  /* sem overflow-y: auto aqui */
 }
 
-/* ── Container centralizado ── */
+/* Container centralizado */
 .container {
   width: 100%;
   max-width: 560px;
@@ -40,39 +31,109 @@
   padding-left: 22px;
   padding-right: 22px;
 }
-.container-lg { max-width: 640px; }
-.container-sm { max-width: 440px; }
 
-/* ── Seção com padding padrão ── */
+.container-lg {
+  max-width: 640px;
+}
+
+.container-sm {
+  max-width: 440px;
+}
+
+/* Seção com padding padrão */
 .section {
   padding: 26px 22px;
 }
 
-/* ── Utilitários de flex ── */
-.flex        { display: flex; }
-.flex-col    { display: flex; flex-direction: column; }
-.flex-center { display: flex; align-items: center; justify-content: center; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.gap-8  { gap: 8px; }
-.gap-12 { gap: 12px; }
-.gap-16 { gap: 16px; }
-.gap-20 { gap: 20px; }
+/* Utilitários de flex */
+.flex {
+  display: flex;
+}
 
-/* ── Espaçamento utilitário ── */
-.mb-4  { margin-bottom: 4px; }
-.mb-8  { margin-bottom: 8px; }
-.mb-12 { margin-bottom: 12px; }
-.mb-16 { margin-bottom: 16px; }
-.mb-20 { margin-bottom: 20px; }
-.mb-24 { margin-bottom: 24px; }
-.mb-32 { margin-bottom: 32px; }
-.mt-8  { margin-top: 8px; }
-.mt-16 { margin-top: 16px; }
-.mt-24 { margin-top: 24px; }
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
 
-/* ── Responsivo ── */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-8 {
+  gap: 8px;
+}
+
+.gap-12 {
+  gap: 12px;
+}
+
+.gap-16 {
+  gap: 16px;
+}
+
+.gap-20 {
+  gap: 20px;
+}
+
+/* Espaçamento utilitário */
+.mb-4 {
+  margin-bottom: 4px;
+}
+
+.mb-8 {
+  margin-bottom: 8px;
+}
+
+.mb-12 {
+  margin-bottom: 12px;
+}
+
+.mb-16 {
+  margin-bottom: 16px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.mb-24 {
+  margin-bottom: 24px;
+}
+
+.mb-32 {
+  margin-bottom: 32px;
+}
+
+.mt-8 {
+  margin-top: 8px;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.mt-24 {
+  margin-top: 24px;
+}
+
+/* Responsivo */
 @media (min-width: 640px) {
-  .container { padding-left: 32px; padding-right: 32px; }
-  .section   { padding: 32px 32px; }
+  .container {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  .section {
+    padding: 32px 32px;
+  }
 }

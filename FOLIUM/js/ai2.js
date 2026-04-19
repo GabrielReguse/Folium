@@ -1,12 +1,8 @@
-/* ═══════════════════════════════════════════════════════════════
-   FOLIUM — js/ai2.js
-   IA 2: Geradora da Folha de Estudos
-   Visual: Chart.js · SVG inline · Wikimedia Commons
-═══════════════════════════════════════════════════════════════ */
+/* FOLIUM — js/ai2.js */
 
 const AI2 = {
 
-  /* ─── API ──────────────────────────────────────────────────── */
+  /* API */
   async gerarFolha(materia, tema, nivel, topicos) {
     const token = Storage.getToken();
     if (!token) throw new Error('Usuário não autenticado.');
@@ -28,26 +24,24 @@ const AI2 = {
     return data;
   },
 
-  /* ─── RENDER PRINCIPAL ─────────────────────────────────────── */
-  renderFolha(container, materia, tema, nivel, resultado, showHeader = true) {
+  /* RENDER PRINCIPAL */
+  renderFolha(container, materia, tema, nivel, resultado) {
     container.innerHTML = '';
 
-    if (showHeader) {
-      const nivelLabel = {
-        fundamental_1: '📚 Fund. I', fundamental_2: '📚 Fund. II',
-        medio: '🎓 Ensino Médio', vestibular: '🏆 Vestibular/ENEM',
-        tecnico: '🔧 Técnico', superior: '🏛️ Superior', pos: '🔬 Pós-graduação',
-      }[nivel] || '';
+    const nivelLabel = {
+      fundamental_1: '📚 Fund. I', fundamental_2: '📚 Fund. II',
+      medio: '🎓 Ensino Médio', vestibular: '🏆 Vestibular/ENEM',
+      tecnico: '🔧 Técnico', superior: '🏛️ Superior', pos: '🔬 Pós-graduação',
+    }[nivel] || '';
 
-      const header = document.createElement('div');
-      header.className = 'sheet-header';
-      header.innerHTML = `
-        <span class="badge badge-accent">✨ Gerada por IA</span>
-        ${nivelLabel ? `<span class="badge badge-nivel">${nivelLabel}</span>` : ''}
-        <h2 class="t-section" style="margin-top:10px;margin-bottom:5px">${materia}</h2>
-        <p class="t-sub">${tema ? tema + ' · ' : ''}${resultado.blocos.length} tópico${resultado.blocos.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('pt-BR')}</p>`;
-      container.appendChild(header);
-    }
+    const header = document.createElement('div');
+    header.className = 'sheet-header';
+    header.innerHTML = `
+      <span class="badge badge-accent">✨ Gerada por IA</span>
+      ${nivelLabel ? `<span class="badge badge-nivel">${nivelLabel}</span>` : ''}
+      <h2 class="t-section" style="margin-top:10px;margin-bottom:5px">${materia}</h2>
+      <p class="t-sub">${tema ? tema + ' · ' : ''}${resultado.blocos.length} tópico${resultado.blocos.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('pt-BR')}</p>`;
+    container.appendChild(header);
 
     resultado.blocos.forEach(bloco => container.appendChild(AI2._renderBloco(bloco)));
 
@@ -59,7 +53,7 @@ const AI2 = {
     }
   },
 
-  /* ─── BLOCO DE TÓPICO ──────────────────────────────────────── */
+  /* BLOCO DE TÓPICO */
   _renderBloco(bloco) {
     const sec = document.createElement('div');
     sec.className = 'sh-section';
@@ -83,7 +77,7 @@ const AI2 = {
     return sec;
   },
 
-  /* ─── EXEMPLO com rótulo variável ──────────────────────────── */
+  /* EXEMPLO com rótulo variável */
   _renderExemplo(ex) {
     if (!ex || !ex.tipo) return '';
 
@@ -123,7 +117,7 @@ const AI2 = {
     return `<div class="sh-ex"><div class="sh-ex-lbl">${rotulo}</div>${innerHTML}</div>`;
   },
 
-  /* ─── DISPATCHER DE VISUAL ─────────────────────────────────── */
+  /* DISPATCHER DE VISUAL */
   _renderVisual(visual) {
     if (!visual?.tipo) return null;
 
@@ -162,7 +156,7 @@ const AI2 = {
     return wrap;
   },
 
-  /* ─── CHART.JS: FUNÇÃO ─────────────────────────────────────── */
+  /* CHART.JS: FUNÇÃO */
   _chartFuncao(d) {
     if (!d?.funcao) throw new Error('funcao ausente');
     const canvas = document.createElement('canvas');
@@ -198,7 +192,7 @@ const AI2 = {
     return canvas;
   },
 
-  /* ─── CHART.JS: BARRAS ─────────────────────────────────────── */
+  /* CHART.JS: BARRAS */
   _chartBarras(d) {
     if (!d?.labels || !d?.datasets) throw new Error('dados inválidos');
     const canvas = document.createElement('canvas');
@@ -221,7 +215,7 @@ const AI2 = {
     return canvas;
   },
 
-  /* ─── CHART.JS: PIZZA ──────────────────────────────────────── */
+  /* CHART.JS: PIZZA */
   _chartPizza(d) {
     if (!d?.labels || !d?.valores) throw new Error('dados inválidos');
     const canvas = document.createElement('canvas');
@@ -243,9 +237,24 @@ const AI2 = {
     return canvas;
   },
 
-  /* ─── SVG INLINE ───────────────────────────────────────────── */
+  /* SVG INLINE */
   _renderSVG(codigo) {
     if (!codigo?.trim().toLowerCase().startsWith('<svg')) throw new Error('SVG inválido');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(codigo.trim(), 'image/svg+xml');
+    const svgParsed = doc.querySelector('svg');
+
+    if (svgParsed) {
+      const geoTags = ['line', 'polygon', 'polyline', 'path', 'circle', 'ellipse'];
+      const geoCount = geoTags.reduce((n, tag) => n + svgParsed.querySelectorAll(tag).length, 0);
+      const rectCount = svgParsed.querySelectorAll('rect').length;
+      const textEls = svgParsed.querySelectorAll('text');
+      const textLen = Array.from(textEls).map(t => t.textContent.trim()).join('').length;
+      if (geoCount === 0 && rectCount <= 2 && textLen > 6) {
+        throw new Error('SVG descartado: apenas caixa com texto, sem geometria real.');
+      }
+    }
+
     const wrap = document.createElement('div');
     wrap.className = 'visual-svg';
     wrap.innerHTML = codigo.trim();
@@ -258,7 +267,7 @@ const AI2 = {
     return wrap;
   },
 
-  /* ─── WIKIMEDIA COMMONS ────────────────────────────────────── */
+  /* WIKIMEDIA COMMONS */
   _renderWiki(busca) {
     if (!busca?.trim()) return null;
 
@@ -309,7 +318,6 @@ const AI2 = {
             const info = p.imageinfo?.[0];
             if (!info?.thumburl) return false;
             const mime = info.mime || '';
-            /* Aceita jpg/png/webp, rejeita svg/ogg/pdf */
             return mime.startsWith('image/') &&
               !mime.includes('svg') &&
               !mime.includes('gif');
@@ -330,7 +338,7 @@ const AI2 = {
       }
     } catch { /* continua */ }
 
-    /* ── 2. Fallback: Wikipedia thumbnails (pt → en) ── */
+    /* 2. Fallback: Wikipedia thumbnails (pt → en) */
     for (const lang of ['pt', 'en']) {
       try {
         const url =
@@ -357,7 +365,7 @@ const AI2 = {
     return null;
   },
 
-  /* ─── OPÇÕES CHART.JS ──────────────────────────────────────── */
+  /* OPÇÕES CHART.JS */
   _chartOpts(titulo) {
     return {
       responsive: true, maintainAspectRatio: true,
