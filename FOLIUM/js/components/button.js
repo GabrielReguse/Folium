@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════
-   FOLIUM — components/button.js
-   Factory de botões reutilizáveis
-═══════════════════════════════════════ */
+/* FOLIUM — components/button.js */
 
 const Button = {
   /**
@@ -44,7 +41,7 @@ const Button = {
     return btn;
   },
 
-  /** Atalhos semânticos */
+  /* Atalhos semânticos */
   primary  (label, onClick, opts = {}) { return this.create({ label, onClick, variant: 'primary',   ...opts }); },
   secondary(label, onClick, opts = {}) { return this.create({ label, onClick, variant: 'secondary', ...opts }); },
   ghost    (label, onClick, opts = {}) { return this.create({ label, onClick, variant: 'ghost',     ...opts }); },
