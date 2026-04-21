@@ -1,27 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 72'>
-  <rect width='56' height='72' rx='15' fill='%23964B00'/>
-  <path d='M28 6 C13 17 9 34 10 47 C11 59 19 67 28 69 C37 67 45 59 46 47 C47 34 43 17 28 6Z' fill='%23F9F5F0'/>
-  <line x1='28' y1='10' x2='28' y2='66' stroke='%23964B00' stroke-width='1.6' stroke-linecap='round'/>
-  <line x1='28' y1='23' x2='14' y2='33' stroke='%23964B00' stroke-width='1' stroke-linecap='round' opacity='.7'/>
-  <line x1='28' y1='23' x2='42' y2='33' stroke='%23964B00' stroke-width='1' stroke-linecap='round' opacity='.7'/>
-  <line x1='28' y1='38' x2='11' y2='46' stroke='%23964B00' stroke-width='.9' stroke-linecap='round' opacity='.6'/>
-  <line x1='28' y1='38' x2='45' y2='46' stroke='%23964B00' stroke-width='.9' stroke-linecap='round' opacity='.6'/>
-  <line x1='28' y1='52' x2='15' y2='58' stroke='%23964B00' stroke-width='.8' stroke-linecap='round' opacity='.5'/>
-  <line x1='28' y1='52' x2='41' y2='58' stroke='%23964B00' stroke-width='.8' stroke-linecap='round' opacity='.5'/>
-</svg>">
-
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'><rect width='56' height='56' rx='16' fill='%23FF8FAB'/><path d='M28 10 C18 16 14 26 15 36 C16 45 21 51 28 52 C35 51 40 45 41 36 C42 26 38 16 28 10Z' fill='white' opacity='0.9'/><line x1='28' y1='13' x2='28' y2='50' stroke='%23FF8FAB' stroke-width='1.4' stroke-linecap='round'/></svg>">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Folium — Criar Folha</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/global.css">
   <link rel="stylesheet" href="../css/layout.css">
@@ -29,7 +14,6 @@
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/pages/criar.css">
 </head>
-
 <body>
 
   <canvas id="bg-canvas"></canvas>
@@ -65,16 +49,16 @@
         <div style="display:flex;flex-direction:column;gap:18px">
           <div class="inp-group">
             <label class="inp-label">Matéria</label>
-            <input type="text" class="inp" id="inp-materia" placeholder="ex: Biologia, Matemática, Física...">
+            <input type="text" class="inp" id="inp-materia" placeholder="ex: Biologia, Matemática, Física…">
           </div>
           <div class="inp-group">
             <label class="inp-label">Tema(s)</label>
-            <input type="text" class="inp" id="inp-tema" placeholder="ex: Citologia, Fotossíntese...">
+            <input type="text" class="inp" id="inp-tema" placeholder="ex: Citologia, Fotossíntese…">
           </div>
           <div class="inp-group">
             <label class="inp-label">Nível escolar</label>
             <select class="inp inp-select" id="inp-nivel">
-              <option value="">Selecione seu nível...</option>
+              <option value="">Selecione seu nível…</option>
               <option value="fundamental_1">Ensino Fundamental I (1º ao 5º ano)</option>
               <option value="fundamental_2">Ensino Fundamental II (6º ao 9º ano)</option>
               <option value="medio">Ensino Médio</option>
@@ -85,7 +69,7 @@
             </select>
           </div>
           <button class="btn btn-primary btn-full" id="btn-gerar" onclick="CriarPage.gerarSugestoes()">
-            ✨ Gerar sugestões
+            Gerar sugestões
           </button>
         </div>
       </div>
@@ -98,13 +82,13 @@
         <div id="topics-list"></div>
 
         <div class="add-row">
-          <input type="text" class="inp" id="inp-new-topic" placeholder="Adicionar tópico...">
-          <button class="btn btn-secondary" id="btn-add-topic" onclick="CriarPage.addTopic()">+ Add</button>
+          <input type="text" class="inp" id="inp-new-topic" placeholder="Adicionar tópico…">
+          <button class="btn btn-secondary" id="btn-add-topic" onclick="CriarPage.addTopic()">Adicionar</button>
         </div>
 
         <div class="step-actions">
-          <button class="btn btn-ghost btn-back" onclick="CriarPage.goStep(1)">‹ Voltar</button>
-          <button class="btn btn-primary btn-next" onclick="CriarPage.gerarFolha()">📄 Gerar folha</button>
+          <button class="btn btn-ghost btn-back" onclick="CriarPage.goStep(1)">Voltar</button>
+          <button class="btn btn-primary btn-next" onclick="CriarPage.gerarFolha()">Gerar folha</button>
         </div>
       </div>
 
@@ -113,15 +97,14 @@
         <div id="sheet-out"></div>
 
         <div class="step-actions sheet-footer">
-          <button class="btn btn-ghost btn-back" onclick="CriarPage.goStep(2)">‹ Editar</button>
-          <button class="btn btn-primary btn-next" onclick="CriarPage.salvarFolha()">✅ Salvar folha</button>
+          <button class="btn btn-ghost btn-back" onclick="CriarPage.goStep(2)">Editar</button>
+          <button class="btn btn-primary btn-next" onclick="CriarPage.salvarFolha()">Salvar folha</button>
         </div>
       </div>
 
     </div>
   </div>
 
-  <!-- JS -->
   <script src="../js/config.js"></script>
   <script src="../js/utils/dom.js"></script>
   <script src="../js/utils/storage.js"></script>
@@ -138,5 +121,4 @@
   <script src="../js/ai2.js"></script>
   <script src="../js/pages/criar.js"></script>
 </body>
-
 </html>

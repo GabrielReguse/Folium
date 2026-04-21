@@ -56,9 +56,9 @@ const HomePage = {
     if (!container) return;
 
     const actions = [
-      { icon: '✨', iconClass: 'ai-1', title: 'Criar folha',   subtitle: 'Gere um resumo com IA em segundos', route: 'criar'   },
-      { icon: '📚', iconClass: 'ai-2', title: 'Minhas folhas', subtitle: 'Acesse seus resumos salvos',        route: 'folhas'  },
-      { icon: '💬', iconClass: 'ai-3', title: 'Suporte',       subtitle: 'Dúvidas e ajuda rápida',            route: 'suporte' },
+      { iconClass: 'ai-1', title: 'Criar folha',   subtitle: 'Gere um resumo com IA em segundos', route: 'criar'   },
+      { iconClass: 'ai-2', title: 'Minhas folhas', subtitle: 'Acesse seus resumos salvos',        route: 'folhas'  },
+      { iconClass: 'ai-3', title: 'Suporte',       subtitle: 'Dúvidas e ajuda rápida',            route: 'suporte' },
     ];
 
     actions.forEach((a, i) => {

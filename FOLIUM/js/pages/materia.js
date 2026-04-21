@@ -36,7 +36,7 @@ const MateriaPage = {
 
     Navbar.renderTop({
       backRoute: 'folhas',
-      backLabel: '‹ Matérias',
+      backLabel: 'Matérias',
       title: `<em>${this.subject.nomeNormalizado}</em>`
     });
 
@@ -61,7 +61,7 @@ const MateriaPage = {
       const empty = document.createElement('div');
       empty.className = 'empty-state';
       empty.innerHTML = `
-        <div class="ei">📄</div>
+        <div class="ei"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;stroke:var(--rose-mid)" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></div>
         <h3>Nenhuma folha aqui</h3>
         <p>Crie uma folha para esta matéria.</p>`;
       body.appendChild(empty);
@@ -136,11 +136,11 @@ const MateriaPage = {
     header.className = 'sheet-view-header';
     header.innerHTML = `
       <div class="shv-badges">
-        <span class="badge badge-accent">${this.subject.emoji} ${this.subject.nomeNormalizado}</span>
+        <span class="badge badge-accent">${this.subject.nomeNormalizado}</span>
         ${this.sheet.nivelLabel ? `<span class="badge badge-nivel">${this.sheet.nivelLabel}</span>` : ''}
         <button class="fav-btn-header ${isFav ? 'on' : ''}" id="fav-header-btn"
                 title="${isFav ? 'Remover favorito' : 'Favoritar'}">
-          ${isFav ? '⭐' : '☆'}
+          ${isFav ? '<svg viewBox="0 0 24 24" fill="#f5a623" stroke="#f5a623" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;stroke:var(--text-light)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'}
         </button>
       </div>
       <h2 class="t-section" style="margin-top:10px;margin-bottom:6px">${this.sheet.titulo}</h2>
@@ -159,7 +159,7 @@ const MateriaPage = {
         folha.favorita = !folha.favorita;
         Storage.setSubjects(subjects);
         this.sheet.favorita = folha.favorita;
-        favBtn.textContent = folha.favorita ? '⭐' : '☆';
+        favBtn.innerHTML = folha.favorita ? '<svg viewBox="0 0 24 24" fill="#f5a623" stroke="#f5a623" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;stroke:var(--text-light)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
         favBtn.classList.toggle('on', folha.favorita);
         favBtn.title = folha.favorita ? 'Remover favorito' : 'Favoritar';
       });

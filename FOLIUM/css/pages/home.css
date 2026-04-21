@@ -1,132 +1,247 @@
 /* FOLIUM — pages/home.css */
 
-/* Hero do dashboard */
+/* ── Hero ── */
 .dash-hero {
-  padding: 36px 26px 28px;
-  background: linear-gradient(140deg, var(--c1) 0%, var(--c1-dark) 100%);
-  color: var(--white);
+  padding: 36px 26px 30px;
+  background: linear-gradient(150deg, #FFD9E8 0%, #F4C2C2 50%, #FFB3C8 100%);
+  color: var(--text);
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
 }
+
+/* Elemento decorativo — círculo suave */
 .dash-hero::before {
   content: '';
   position: absolute;
-  top: -50px; right: -50px;
-  width: 220px; height: 220px;
-  background: rgba(255, 255, 255, 0.06);
+  top: -60px;
+  right: -60px;
+  width: 260px;
+  height: 260px;
+  background: rgba(255,255,255,0.22);
   border-radius: 50%;
   pointer-events: none;
 }
+
+/* Segunda bola menor */
 .dash-hero::after {
   content: '';
   position: absolute;
-  bottom: -70px; left: 10px;
-  width: 180px; height: 180px;
-  background: rgba(255, 255, 255, 0.04);
+  bottom: -40px;
+  left: -20px;
+  width: 140px;
+  height: 140px;
+  background: rgba(255,255,255,0.12);
   border-radius: 50%;
   pointer-events: none;
 }
 
 .hero-greeting {
-  font-size: 14px;
-  opacity: 0.72;
-  margin-bottom: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--rose-dark);
+  margin-bottom: 6px;
   position: relative;
+  opacity: 0.85;
 }
+
 .hero-name {
   font-family: var(--font-serif);
-  font-size: 30px;
+  font-size: clamp(26px, 7vw, 34px);
   font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   margin-bottom: 8px;
   position: relative;
+  color: var(--text);
 }
+
 .hero-sub {
   font-size: 14px;
-  opacity: 0.68;
-  line-height: 1.5;
+  font-weight: 300;
+  color: var(--text-mid);
+  line-height: 1.6;
   position: relative;
 }
 
+/* ── Stats ── */
 .hero-stats {
   display: flex;
-  gap: 14px;
-  margin-top: 22px;
+  gap: 0;
+  margin-top: 24px;
+  position: relative;
+  background: rgba(255,255,255,0.45);
+  border-radius: var(--r);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.6);
+}
+
+.hstat {
+  flex: 1;
+  padding: 14px 12px;
+  text-align: center;
   position: relative;
 }
-.hstat {
-  background: rgba(255, 255, 255, 0.13);
-  border-radius: 13px;
-  padding: 10px 16px;
-  text-align: center;
-  flex: 1;
+
+.hstat + .hstat::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: rgba(255,143,171,0.22);
 }
+
 .hstat-num {
   font-family: var(--font-serif);
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1;
+  color: var(--rose-dark);
 }
-.hstat-lbl { font-size: 11px; opacity: 0.68; margin-top: 2px; }
 
-/* Ações do dashboard */
+.hstat-lbl {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-mid);
+  margin-top: 3px;
+  opacity: 0.75;
+}
+
+/* ── Corpo do dashboard ── */
 .dash-body {
-  padding: 26px 22px;
+  padding: 28px 22px;
   flex: 1;
   overflow-y: auto;
-  max-width: 520px;
+  max-width: 540px;
   margin: 0 auto;
   width: 100%;
 }
 
+/* ── Action cards — cada um com visual distinto ── */
 .act-card {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px 18px;
-  background: var(--white);
+  padding: 20px 20px;
+  background: var(--surface);
   border-radius: var(--r);
-  box-shadow: var(--sh-sm);
   cursor: pointer;
-  border: none;
+  border: 1px solid rgba(244,194,194,0.2);
   width: 100%;
   text-align: left;
   font-family: var(--font-sans);
-  transition: box-shadow var(--t-mid), transform var(--t-mid);
+  transition: box-shadow var(--t-mid), transform var(--t-mid), border-color var(--t-mid);
   margin-bottom: 12px;
   text-decoration: none;
   color: inherit;
+  box-shadow: var(--sh-sm);
+  position: relative;
+  overflow: hidden;
 }
+
+/* Linha decorativa lateral */
+.act-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: var(--rose-mid);
+  transition: background var(--t-mid);
+  border-radius: 3px 0 0 3px;
+}
+
 .act-card:hover {
   box-shadow: var(--sh);
   transform: translateY(-2px);
+  border-color: rgba(244,194,194,0.45);
 }
 
+.act-card:hover::before { background: var(--rose); }
+
+/* Primeiro card — destaque */
+.act-card:first-child {
+  background: linear-gradient(135deg, #fff5f7 0%, #ffe8ef 100%);
+  border-color: rgba(255,143,171,0.22);
+}
+
+.act-card:first-child::before { background: var(--rose); }
+
 .act-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 15px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
   flex-shrink: 0;
 }
-.ai-1 { background: rgba(150, 75, 0, 0.10); }
-.ai-2 { background: rgba(190, 143, 97, 0.15); }
-.ai-3 { background: rgba(214, 185, 156, 0.25); }
+
+.act-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.ai-1 {
+  background: rgba(255,143,171,0.14);
+}
+
+.ai-1 svg { stroke: var(--rose-dark); }
+
+.ai-2 {
+  background: rgba(244,194,194,0.25);
+}
+
+.ai-2 svg { stroke: var(--text-mid); }
+
+.ai-3 {
+  background: rgba(255,217,232,0.4);
+}
+
+.ai-3 svg { stroke: var(--text-mid); }
 
 .act-info { flex: 1; }
-.act-info h3 { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-.act-info p  { font-size: 13px; color: var(--text-light); }
 
-.act-arr { font-size: 22px; color: var(--c3); }
-
-/* Responsivo */
-@media (min-width: 640px) {
-  .dash-hero { padding: 44px 36px 32px; }
+.act-info h3 {
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+  letter-spacing: -0.01em;
 }
+
+.act-info p {
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 300;
+}
+
+.act-arr {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  opacity: 0.4;
+  transition: opacity var(--t-fast), transform var(--t-fast);
+}
+
+.act-card:hover .act-arr {
+  opacity: 0.75;
+  transform: translateX(3px);
+}
+
+/* ── Responsivo ── */
+@media (min-width: 640px) {
+  .dash-hero { padding: 46px 38px 34px; }
+}
+
 @media (max-width: 380px) {
-  .hero-name  { font-size: 26px; }
-  .hstat-num  { font-size: 20px; }
+  .hero-name   { font-size: 24px; }
+  .hstat-num   { font-size: 22px; }
 }

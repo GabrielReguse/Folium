@@ -29,15 +29,15 @@ const AI2 = {
     container.innerHTML = '';
 
     const nivelLabel = {
-      fundamental_1: '📚 Fund. I', fundamental_2: '📚 Fund. II',
-      medio: '🎓 Ensino Médio', vestibular: '🏆 Vestibular/ENEM',
-      tecnico: '🔧 Técnico', superior: '🏛️ Superior', pos: '🔬 Pós-graduação',
+      fundamental_1: 'Fund. I', fundamental_2: 'Fund. II',
+      medio: 'Ensino Médio', vestibular: 'Vestibular/ENEM',
+      tecnico: 'Técnico', superior: 'Superior', pos: 'Pós-graduação',
     }[nivel] || '';
 
     const header = document.createElement('div');
     header.className = 'sheet-header';
     header.innerHTML = `
-      <span class="badge badge-accent">✨ Gerada por IA</span>
+      <span class="badge badge-accent"><svg style="width:13px;height:13px;stroke:var(--rose-dark);fill:none;stroke-width:1.8;vertical-align:middle;margin-right:3px" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke-linecap="round" stroke-linejoin="round"/></svg>Gerada por IA</span>
       ${nivelLabel ? `<span class="badge badge-nivel">${nivelLabel}</span>` : ''}
       <h2 class="t-section" style="margin-top:10px;margin-bottom:5px">${materia}</h2>
       <p class="t-sub">${tema ? tema + ' · ' : ''}${resultado.blocos.length} tópico${resultado.blocos.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('pt-BR')}</p>`;
@@ -48,7 +48,7 @@ const AI2 = {
     if (resultado.resumo_geral) {
       const summary = document.createElement('div');
       summary.className = 'sh-summary';
-      summary.innerHTML = `<h3>📝 Resumo Geral</h3><p>${resultado.resumo_geral}</p>`;
+      summary.innerHTML = `<h3>Resumo Geral</h3><p>${resultado.resumo_geral}</p>`;
       container.appendChild(summary);
     }
   },
@@ -60,7 +60,7 @@ const AI2 = {
 
     const exHTML = AI2._renderExemplo(bloco.exemplo);
     const dicaHTML = bloco.dica_prova
-      ? `<div class="sh-dica">🎯 ${bloco.dica_prova}</div>`
+      ? `<div class="sh-dica"> ${bloco.dica_prova}</div>`
       : '';
 
     sec.innerHTML = `
@@ -83,11 +83,11 @@ const AI2 = {
 
     /* Rótulo definido pela IA, com fallbacks por tipo */
     const defaultLabels = {
-      pratico: '💡 Exemplo Resolvido',
-      tabela: '📋 Tabela Comparativa',
-      lista: '📌 Resumo',
+      pratico: ' Exemplo Resolvido',
+      tabela: ' Tabela Comparativa',
+      lista: ' Resumo',
     };
-    const rotulo = ex.rotulo || defaultLabels[ex.tipo] || '📌 Conteúdo';
+    const rotulo = ex.rotulo || defaultLabels[ex.tipo] || ' Conteúdo';
 
     let innerHTML = '';
 
@@ -125,15 +125,15 @@ const AI2 = {
     wrap.className = 'sh-visual';
 
     const icons = {
-      grafico_funcao: '📈 Gráfico',
-      grafico_barras: '📊 Gráfico',
-      grafico_pizza: '🥧 Gráfico',
-      svg: '📐 Diagrama',
-      imagem_wiki: '🖼️ Ilustração',
+      grafico_funcao: ' Gráfico',
+      grafico_barras: ' Gráfico',
+      grafico_pizza: ' Gráfico',
+      svg: ' Diagrama',
+      imagem_wiki: '️ Ilustração',
     };
     const lbl = document.createElement('div');
     lbl.className = 'sh-visual-lbl';
-    lbl.textContent = icons[visual.tipo] || '📊 Visual';
+    lbl.textContent = icons[visual.tipo] || ' Visual';
     wrap.appendChild(lbl);
 
     try {

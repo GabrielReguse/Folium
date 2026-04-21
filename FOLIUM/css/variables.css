@@ -2,47 +2,49 @@
 
 :root {
 
-  /*  Paleta principal */
-  --c1: #964B00; /* marrom primário */
-  --c1-dark: #7D3E00; /* marrom escuro */
-  --c1-light: rgba(150, 75, 0, 0.10);
-  --c2: #BE8F61; /* caramelo */
-  --c3: #D6B99C; /* areia clara */
-  --c4: #E9DACA;/* linho */
-  --c5: #F9F5F0; /* creme/fundo */
+  /* ── Paleta Rosa ── */
+  --rose:       #FF8FAB;
+  --rose-dark:  #D9607E;
+  --rose-mid:   #F4C2C2;
+  --blush:      #FFD9E8;
+  --cream:      #FFF5F7;
+  --surface:    #FFFFFF;
+  --petal-bg:   rgba(244,194,194,0.18);
+  --rose-glow:  rgba(255,143,171,0.14);
+  --rose-light: rgba(255,143,171,0.10);
 
-  /*  Textos  */
-  --text: #2C1A0E;
-  --text-mid: #6B4C32;
-  --text-light: #A0795A;
-  --white: #FFFFFF;
+  /* ── Texto ── */
+  --text:       #1F141A;
+  --text-mid:   #6B4459;
+  --text-light: #B08095;
+  --white:      #FFFFFF;
 
-  /*  Border radius  */
-  --r-xs: 6px;
-  --r-sm: 10px;
-  --r: 16px;
-  --r-lg: 24px;
-  --r-xl: 32px;
+  /* ── Border radius ── */
+  --r-xs:  6px;
+  --r-sm:  12px;
+  --r:     18px;
+  --r-lg:  26px;
+  --r-xl:  38px;
 
-  /*  Sombras  */
-  --sh-sm: 0 2px 12px rgba(150, 75, 0, 0.06);
-  --sh: 0 4px 28px rgba(150, 75, 0, 0.10);
-  --sh-lg: 0 10px 48px rgba(150, 75, 0, 0.16);
-  --sh-xl: 0 20px 64px rgba(150, 75, 0, 0.22);
+  /* ── Sombras ── */
+  --sh-sm: 0 2px 14px rgba(255,143,171,0.07);
+  --sh:    0 5px 32px rgba(255,143,171,0.12);
+  --sh-lg: 0 14px 56px rgba(255,143,171,0.18);
+  --sh-xl: 0 28px 80px rgba(255,143,171,0.24);
 
-  /*  Tipografia  */
+  /* ── Tipografia ── */
   --font-serif: 'Playfair Display', Georgia, serif;
-  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-sans:  'DM Sans', system-ui, sans-serif;
 
-  /*  Transições  */
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* ── Transições ── */
+  --ease:   cubic-bezier(0.22, 1, 0.36, 1);
   --t-fast: 0.15s;
-  --t-mid: 0.25s;
-  --t-slow: 0.40s;
+  --t-mid:  0.28s;
+  --t-slow: 0.45s;
 
-  /*  Z-index  */
+  /* ── Z-index ── */
   --z-canvas: 0;
-  --z-base: 1;
-  --z-nav: 100;
-  --z-modal: 300;
+  --z-base:   1;
+  --z-nav:    100;
+  --z-modal:  300;
 }

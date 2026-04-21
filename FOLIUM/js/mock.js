@@ -4,7 +4,7 @@ const Mock = {
   user: {
     name: 'Gabriel Reguse',
     email: 'gabriel@email.com',
-    avatar: '🎓',
+    avatar: '',
   },
 
   /* ── Sugestões de tópicos genéricas (fallback quando IA 1 falha) ── */

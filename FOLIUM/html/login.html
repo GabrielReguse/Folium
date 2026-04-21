@@ -1,63 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 72'>
-  <rect width='56' height='72' rx='15' fill='%23964B00'/>
-  <path d='M28 6 C13 17 9 34 10 47 C11 59 19 67 28 69 C37 67 45 59 46 47 C47 34 43 17 28 6Z' fill='%23F9F5F0'/>
-  <line x1='28' y1='10' x2='28' y2='66' stroke='%23964B00' stroke-width='1.6' stroke-linecap='round'/>
-  <line x1='28' y1='23' x2='14' y2='33' stroke='%23964B00' stroke-width='1' stroke-linecap='round' opacity='.7'/>
-  <line x1='28' y1='23' x2='42' y2='33' stroke='%23964B00' stroke-width='1' stroke-linecap='round' opacity='.7'/>
-  <line x1='28' y1='38' x2='11' y2='46' stroke='%23964B00' stroke-width='.9' stroke-linecap='round' opacity='.6'/>
-  <line x1='28' y1='38' x2='45' y2='46' stroke='%23964B00' stroke-width='.9' stroke-linecap='round' opacity='.6'/>
-  <line x1='28' y1='52' x2='15' y2='58' stroke='%23964B00' stroke-width='.8' stroke-linecap='round' opacity='.5'/>
-  <line x1='28' y1='52' x2='41' y2='58' stroke='%23964B00' stroke-width='.8' stroke-linecap='round' opacity='.5'/>
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'>
+  <rect width='56' height='56' rx='16' fill='%23FF8FAB'/>
+  <path d='M28 10 C18 16 14 26 15 36 C16 45 21 51 28 52 C35 51 40 45 41 36 C42 26 38 16 28 10Z' fill='white' opacity='0.9'/>
+  <line x1='28' y1='13' x2='28' y2='50' stroke='%23FF8FAB' stroke-width='1.4' stroke-linecap='round'/>
+  <line x1='28' y1='24' x2='16' y2='32' stroke='%23FF8FAB' stroke-width='1' stroke-linecap='round' opacity='.65'/>
+  <line x1='28' y1='24' x2='40' y2='32' stroke='%23FF8FAB' stroke-width='1' stroke-linecap='round' opacity='.65'/>
+  <line x1='28' y1='36' x2='14' y2='42' stroke='%23FF8FAB' stroke-width='.8' stroke-linecap='round' opacity='.5'/>
+  <line x1='28' y1='36' x2='42' y2='42' stroke='%23FF8FAB' stroke-width='.8' stroke-linecap='round' opacity='.5'/>
 </svg>">
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Folium — Entrar</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap"
-    rel="stylesheet">
-  <!-- CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/global.css">
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/animations.css">
   <link rel="stylesheet" href="../css/pages/login.css">
-
-  <style>
-    .login-error {
-      background: #fff0f0;
-      border: 1.5px solid #ffb3b3;
-      color: #c0392b;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 0.85rem;
-      margin-bottom: 12px;
-      text-align: center;
-      animation: fadeInDown 0.25s ease;
-      white-space: pre-line;
-    }
-
-    @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-8px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  </style>
 </head>
-
 <body>
 
   <canvas id="bg-canvas"></canvas>
@@ -75,12 +41,22 @@
 
       <!-- Logo -->
       <div class="login-logo">
-        <div class="logo-mark">🍃</div>
+        <div class="logo-mark">
+          <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="56" height="56" rx="16" fill="#FF8FAB"/>
+            <path d="M28 10 C18 16 14 26 15 36 C16 45 21 51 28 52 C35 51 40 45 41 36 C42 26 38 16 28 10Z" fill="white" opacity="0.92"/>
+            <line x1="28" y1="13" x2="28" y2="50" stroke="#FF8FAB" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="28" y1="24" x2="16" y2="32" stroke="#FF8FAB" stroke-width="1" stroke-linecap="round" opacity=".7"/>
+            <line x1="28" y1="24" x2="40" y2="32" stroke="#FF8FAB" stroke-width="1" stroke-linecap="round" opacity=".7"/>
+            <line x1="28" y1="36" x2="14" y2="42" stroke="#FF8FAB" stroke-width=".9" stroke-linecap="round" opacity=".5"/>
+            <line x1="28" y1="36" x2="42" y2="42" stroke="#FF8FAB" stroke-width=".9" stroke-linecap="round" opacity=".5"/>
+          </svg>
+        </div>
         <h1><em>Folium</em></h1>
         <p>Seus resumos inteligentes</p>
       </div>
 
-      <!-- Formulário de Login -->
+      <!-- Login -->
       <div class="lform" id="f-login">
         <div class="inp-group">
           <label class="inp-label">E-mail</label>
@@ -95,7 +71,7 @@
         <button class="btn btn-secondary btn-full" onclick="swapForm('register')">Criar conta gratuita</button>
       </div>
 
-      <!-- Formulário de Cadastro -->
+      <!-- Cadastro -->
       <div class="lform" id="f-register" style="display:none">
         <div class="inp-group">
           <label class="inp-label">Nome completo</label>
@@ -113,13 +89,11 @@
       </div>
 
       <div class="lswitch" id="sw-login">Não tem conta? <a onclick="swapForm('register')">Cadastre-se</a></div>
-      <div class="lswitch" id="sw-register" style="display:none">Já tem conta? <a onclick="swapForm('login')">Entrar</a>
-      </div>
+      <div class="lswitch" id="sw-register" style="display:none">Já tem conta? <a onclick="swapForm('login')">Entrar</a></div>
 
     </div>
   </div>
 
-  <!-- JS: utilitários e dependências primeiro -->
   <script src="../js/config.js"></script>
   <script src="../js/utils/dom.js"></script>
   <script src="../js/utils/storage.js"></script>
@@ -127,10 +101,7 @@
   <script src="../js/mock.js"></script>
   <script src="../js/router.js"></script>
   <script src="../js/components/modal.js"></script>
-  <!-- JS: página -->
   <script src="../js/app.js"></script>
   <script src="../js/pages/login.js"></script>
-
 </body>
-
 </html>
