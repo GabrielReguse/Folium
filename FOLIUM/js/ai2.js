@@ -37,7 +37,7 @@ const AI2 = {
     const header = document.createElement('div');
     header.className = 'sheet-header';
     header.innerHTML = `
-      <span class="badge badge-accent"><svg style="width:13px;height:13px;stroke:var(--rose-dark);fill:none;stroke-width:1.8;vertical-align:middle;margin-right:3px" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke-linecap="round" stroke-linejoin="round"/></svg>Gerada por IA</span>
+      <span class="badge badge-accent"><svg style="width:13px;height:13px;stroke:var(--caramel);fill:none;stroke-width:1.8;vertical-align:middle;margin-right:3px" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke-linecap="round" stroke-linejoin="round"/></svg>Gerada por IA</span>
       ${nivelLabel ? `<span class="badge badge-nivel">${nivelLabel}</span>` : ''}
       <h2 class="t-section" style="margin-top:10px;margin-bottom:5px">${materia}</h2>
       <p class="t-sub">${tema ? tema + ' · ' : ''}${resultado.blocos.length} tópico${resultado.blocos.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('pt-BR')}</p>`;
@@ -159,7 +159,9 @@ const AI2 = {
   /* CHART.JS: FUNÇÃO */
   _chartFuncao(d) {
     if (!d?.funcao) throw new Error('funcao ausente');
-    const canvas = document.createElement('canvas');
+    const wrapper = document.createElement('div');
+      wrapper.className = 'chart-wrapper';
+      const canvas = document.createElement('canvas');
     canvas.className = 'visual-canvas';
 
     const n = d.passos || 100;
@@ -183,7 +185,7 @@ const AI2 = {
       data: {
         labels, datasets: [{
           label: d.label || 'f(x)', data: values,
-          borderColor: '#964B00', backgroundColor: 'rgba(150,75,0,0.08)',
+          borderColor: '#9B6B42', backgroundColor: 'rgba(155,107,66,0.08),',
           borderWidth: 2.5, pointRadius: 0, tension: 0.4, fill: true, spanGaps: false,
         }]
       },
@@ -195,9 +197,11 @@ const AI2 = {
   /* CHART.JS: BARRAS */
   _chartBarras(d) {
     if (!d?.labels || !d?.datasets) throw new Error('dados inválidos');
-    const canvas = document.createElement('canvas');
+    const wrapper = document.createElement('div');
+      wrapper.className = 'chart-wrapper';
+      const canvas = document.createElement('canvas');
     canvas.className = 'visual-canvas';
-    const palette = ['#964B00', '#BE8F61', '#D6B99C', '#7D3E00'];
+    const palette = ['#9B6B42', '#7A5035', '#C4A882', '#5C3D2E'];
 
     requestAnimationFrame(() => new Chart(canvas, {
       type: 'bar',
@@ -218,9 +222,11 @@ const AI2 = {
   /* CHART.JS: PIZZA */
   _chartPizza(d) {
     if (!d?.labels || !d?.valores) throw new Error('dados inválidos');
-    const canvas = document.createElement('canvas');
+    const wrapper = document.createElement('div');
+      wrapper.className = 'chart-wrapper';
+      const canvas = document.createElement('canvas');
     canvas.className = 'visual-canvas visual-canvas--sm';
-    const palette = ['#964B00', '#BE8F61', '#D6B99C', '#E9DACA', '#7D3E00', '#A0795A'];
+    const palette = ['#9B6B42', '#7A5035', '#C4A882', '#D4B896', '#5C3D2E', '#B8906A'];
 
     requestAnimationFrame(() => new Chart(canvas, {
       type: 'doughnut',
@@ -368,7 +374,7 @@ const AI2 = {
   /* OPÇÕES CHART.JS */
   _chartOpts(titulo) {
     return {
-      responsive: true, maintainAspectRatio: true,
+      responsive: true, maintainAspectRatio: false,
       animation: { duration: 500 },
       plugins: {
         legend: {
@@ -386,8 +392,8 @@ const AI2 = {
           }
           : { display: false },
         tooltip: {
-          backgroundColor: '#fff', titleColor: '#964B00', bodyColor: '#2C1A0E',
-          borderColor: '#D6B99C', borderWidth: 1, cornerRadius: 8, padding: 10,
+          backgroundColor: '#fff', titleColor: '#9B6B42', bodyColor: '#2C1810',
+          borderColor: '#D4B896', borderWidth: 1, cornerRadius: 8, padding: 10,
         },
       },
       scales: {

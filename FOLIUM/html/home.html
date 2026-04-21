@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'><rect width='56' height='56' rx='16' fill='%23FF8FAB'/><path d='M28 10 C18 16 14 26 15 36 C16 45 21 51 28 52 C35 51 40 45 41 36 C42 26 38 16 28 10Z' fill='white' opacity='0.9'/><line x1='28' y1='13' x2='28' y2='50' stroke='%23FF8FAB' stroke-width='1.4' stroke-linecap='round'/></svg>">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Folium — Início</title>
@@ -15,48 +14,17 @@
   <link rel="stylesheet" href="../css/pages/home.css">
 </head>
 <body>
-
   <canvas id="bg-canvas"></canvas>
-
-  <div id="loading-overlay">
+    <div id="loading-overlay">
     <div class="loading-box">
       <div class="loader loader-lg"></div>
       <h3 id="ld-title">Processando...</h3>
       <p id="ld-sub">Aguarde um momento</p>
     </div>
   </div>
-
   <div class="page">
-
-    <!-- Hero -->
-    <div class="dash-hero">
-      <p class="hero-greeting" id="hero-greeting">Bom estudo</p>
-      <h2 class="hero-name" id="hero-name">…</h2>
-      <p class="hero-sub">O que você vai resumir hoje?</p>
-      <div class="hero-stats">
-        <div class="hstat">
-          <div class="hstat-num" id="stat-sheets">—</div>
-          <div class="hstat-lbl">Folhas</div>
-        </div>
-        <div class="hstat">
-          <div class="hstat-num" id="stat-subjects">—</div>
-          <div class="hstat-lbl">Matérias</div>
-        </div>
-        <div class="hstat">
-          <div class="hstat-num" id="stat-topics">—</div>
-          <div class="hstat-lbl">Tópicos</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Corpo -->
-    <div class="dash-body page-body">
-      <p class="t-label mb-16">O que deseja fazer?</p>
-      <div id="dash-actions"></div>
-    </div>
-
+    <!-- Navbars injetadas por home.js -->
   </div>
-
   <script src="../js/config.js"></script>
   <script src="../js/utils/dom.js"></script>
   <script src="../js/utils/storage.js"></script>
@@ -64,7 +32,9 @@
   <script src="../js/mock.js"></script>
   <script src="../js/router.js"></script>
   <script src="../js/components/modal.js"></script>
+  <script src="../js/components/confirm.js"></script>
   <script src="../js/components/navbar.js"></script>
+  <script src="../js/components/sidebar.js"></script>
   <script src="../js/components/card.js"></script>
   <script src="../js/components/button.js"></script>
   <script src="../js/app.js"></script>

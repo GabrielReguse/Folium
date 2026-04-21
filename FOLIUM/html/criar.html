@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'><rect width='56' height='56' rx='16' fill='%23FF8FAB'/><path d='M28 10 C18 16 14 26 15 36 C16 45 21 51 28 52 C35 51 40 45 41 36 C42 26 38 16 28 10Z' fill='white' opacity='0.9'/><line x1='28' y1='13' x2='28' y2='50' stroke='%23FF8FAB' stroke-width='1.4' stroke-linecap='round'/></svg>">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Folium — Criar Folha</title>
@@ -15,24 +14,16 @@
   <link rel="stylesheet" href="../css/pages/criar.css">
 </head>
 <body>
-
   <canvas id="bg-canvas"></canvas>
-
-  <div id="loading-overlay">
+    <div id="loading-overlay">
     <div class="loading-box">
       <div class="loader loader-lg"></div>
       <h3 id="ld-title">Processando...</h3>
       <p id="ld-sub">Aguarde um momento</p>
     </div>
   </div>
-
   <div class="page">
-
-    <!-- Top nav injetada pelo criar.js -->
-
     <div class="criar-body page-body">
-
-      <!-- Step bar -->
       <div class="step-bar">
         <div class="sdot" id="dot1">1</div>
         <div class="sline" id="ln1"></div>
@@ -40,21 +31,13 @@
         <div class="sline" id="ln2"></div>
         <div class="sdot" id="dot3">3</div>
       </div>
-
-      <!-- PANE 1: Entrada -->
+      <!-- PANE 1 -->
       <div class="step-pane" id="pane1">
         <h2 class="t-section mb-8">Nova folha</h2>
         <p class="t-sub mb-24">Informe a matéria e o tema — a IA cuida do resto</p>
-
         <div style="display:flex;flex-direction:column;gap:18px">
-          <div class="inp-group">
-            <label class="inp-label">Matéria</label>
-            <input type="text" class="inp" id="inp-materia" placeholder="ex: Biologia, Matemática, Física…">
-          </div>
-          <div class="inp-group">
-            <label class="inp-label">Tema(s)</label>
-            <input type="text" class="inp" id="inp-tema" placeholder="ex: Citologia, Fotossíntese…">
-          </div>
+          <div class="inp-group"><label class="inp-label">Matéria</label><input type="text" class="inp" id="inp-materia" placeholder="ex: Biologia, Matemática, Física…"></div>
+          <div class="inp-group"><label class="inp-label">Tema(s)</label><input type="text" class="inp" id="inp-tema" placeholder="ex: Citologia, Fotossíntese…"></div>
           <div class="inp-group">
             <label class="inp-label">Nível escolar</label>
             <select class="inp inp-select" id="inp-nivel">
@@ -68,43 +51,33 @@
               <option value="pos">Pós-graduação</option>
             </select>
           </div>
-          <button class="btn btn-primary btn-full" id="btn-gerar" onclick="CriarPage.gerarSugestoes()">
-            Gerar sugestões
-          </button>
+          <button class="btn btn-primary btn-full" id="btn-gerar" onclick="CriarPage.gerarSugestoes()">Gerar sugestões</button>
         </div>
       </div>
-
-      <!-- PANE 2: Tópicos -->
+      <!-- PANE 2 -->
       <div class="step-pane" id="pane2">
         <h2 class="t-section mb-8">Tópicos sugeridos</h2>
         <p class="t-sub mb-20">Selecione, remova ou adicione antes de gerar</p>
-
         <div id="topics-list"></div>
-
         <div class="add-row">
           <input type="text" class="inp" id="inp-new-topic" placeholder="Adicionar tópico…">
           <button class="btn btn-secondary" id="btn-add-topic" onclick="CriarPage.addTopic()">Adicionar</button>
         </div>
-
         <div class="step-actions">
           <button class="btn btn-ghost btn-back" onclick="CriarPage.goStep(1)">Voltar</button>
           <button class="btn btn-primary btn-next" onclick="CriarPage.gerarFolha()">Gerar folha</button>
         </div>
       </div>
-
-      <!-- PANE 3: Folha gerada -->
+      <!-- PANE 3 -->
       <div class="step-pane" id="pane3">
         <div id="sheet-out"></div>
-
         <div class="step-actions sheet-footer">
           <button class="btn btn-ghost btn-back" onclick="CriarPage.goStep(2)">Editar</button>
           <button class="btn btn-primary btn-next" onclick="CriarPage.salvarFolha()">Salvar folha</button>
         </div>
       </div>
-
     </div>
   </div>
-
   <script src="../js/config.js"></script>
   <script src="../js/utils/dom.js"></script>
   <script src="../js/utils/storage.js"></script>
@@ -112,7 +85,9 @@
   <script src="../js/mock.js"></script>
   <script src="../js/router.js"></script>
   <script src="../js/components/modal.js"></script>
+  <script src="../js/components/confirm.js"></script>
   <script src="../js/components/navbar.js"></script>
+  <script src="../js/components/sidebar.js"></script>
   <script src="../js/components/card.js"></script>
   <script src="../js/components/button.js"></script>
   <script src="../js/app.js"></script>

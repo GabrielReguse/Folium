@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'><rect width='56' height='56' rx='16' fill='%23FF8FAB'/><path d='M28 10 C18 16 14 26 15 36 C16 45 21 51 28 52 C35 51 40 45 41 36 C42 26 38 16 28 10Z' fill='white' opacity='0.9'/><line x1='28' y1='13' x2='28' y2='50' stroke='%23FF8FAB' stroke-width='1.4' stroke-linecap='round'/></svg>">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Folium — Suporte</title>
@@ -15,145 +14,93 @@
   <link rel="stylesheet" href="../css/pages/suporte.css">
 </head>
 <body>
-
   <canvas id="bg-canvas"></canvas>
-
-  <div id="loading-overlay">
+    <div id="loading-overlay">
     <div class="loading-box">
       <div class="loader loader-lg"></div>
       <h3 id="ld-title">Processando...</h3>
       <p id="ld-sub">Aguarde um momento</p>
     </div>
   </div>
-
   <div class="page">
-
-    <!-- Top nav injetada pelo suporte.js -->
-
     <div class="suporte-body page-body">
-      <h2 class="t-section mb-8">Suporte</h2>
-      <p class="t-sub mb-28">Tudo que você precisa saber sobre o Folium</p>
+      <div class="sup-hero">
+        <h2>Central de Suporte</h2>
+        <p>Tudo que você precisa para aproveitar o Folium ao máximo</p>
+      </div>
+      <div class="sup-cols">
+        <!-- Coluna esquerda: FAQ -->
+        <div class="sup-faq-col">
+          <p class="t-label faq-group-label">Como usar</p>
+          <div class="faq-item">
+            <button class="faq-q">Como criar uma folha? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+            <div class="faq-a">Vá em "Criar folha", insira a matéria e o tema e clique em "Gerar sugestões". A IA listará tópicos relevantes. Edite a lista e clique em "Gerar folha" para obter seu resumo completo.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Como editar os tópicos? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+            <div class="faq-a">Na etapa 2, clique no ícone de remoção ao lado de qualquer tópico para retirá-lo. Use o campo na parte inferior para adicionar novos. Somente os tópicos marcados serão incluídos na folha final.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Como acessar minhas folhas? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+            <div class="faq-a">Clique em "Minhas folhas" no menu. Você verá suas matérias organizadas em cards. Clique numa matéria para ver todas as folhas salvas nela.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Como apagar uma folha? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+            <div class="faq-a">Dentro de uma matéria, clique no ícone de lixeira ao lado da folha que deseja remover. Uma confirmação aparecerá antes de apagar definitivamente.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Como favoritar uma folha? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+            <div class="faq-a">Clique na estrela ao lado da folha na listagem, ou no cabeçalho ao visualizá-la. As folhas favoritadas aparecem primeiro na lista.</div>
+          </div>
 
-      <!-- Grupo: Como usar -->
-      <p class="t-label faq-group-label">Como usar</p>
+          <p class="t-label faq-group-label">Dúvidas frequentes</p>
+          <div class="faq-item">
+            <button class="faq-q">As folhas ficam salvas? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+            <div class="faq-a">Sim. Após gerar a folha, clique em "Salvar folha". Ela ficará disponível em "Minhas folhas", organizada por matéria e em ordem cronológica.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">A IA pode errar? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+            <div class="faq-a">Como todo sistema de IA, o Folium pode ocasionalmente gerar informações imprecisas. Sempre revise o conteúdo com base nas suas fontes de estudo. Você tem controle total para editar tópicos antes de gerar a folha.</div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q">Posso usar offline? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
+            <div class="faq-a">Atualmente o Folium requer conexão para gerar resumos com IA. As folhas já salvas ficam disponíveis localmente.</div>
+          </div>
+        </div>
 
-      <div class="faq-item">
-        <button class="faq-q">
-          Como criar uma folha?
-          <span class="faq-arr">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </span>
-        </button>
-        <div class="faq-a">
-          Vá em "Criar folha", insira a matéria e o tema desejado e clique em "Gerar sugestões". A IA listará tópicos relevantes. Você pode editar a lista e depois clicar em "Gerar folha" para obter seu resumo completo e estruturado.
+        <!-- Coluna direita: cards informativos -->
+        <div class="sup-info-col">
+          <div class="sup-info-card">
+            <div class="sic-head"><h4>Como funciona a IA</h4></div>
+            <div class="sic-body">
+              <ul>
+                <li>Você informa matéria, tema e nível escolar</li>
+                <li>A IA sugere tópicos relevantes para o tema</li>
+                <li>Você seleciona, remove ou adiciona tópicos</li>
+                <li>A IA gera explicações, exemplos e gráficos</li>
+                <li>Você salva a folha organizada por matéria</li>
+              </ul>
+            </div>
+          </div>
+          <div class="sup-info-card">
+            <div class="sic-head"><h4>Dicas de uso</h4></div>
+            <div class="sic-body">
+              <ul>
+                <li>Seja específico no tema para melhores resultados</li>
+                <li>Remova tópicos que já domina — foque no que precisa</li>
+                <li>Use o nível escolar correto para linguagem adequada</li>
+                <li>Favorita folhas que vai revisar próximo às provas</li>
+              </ul>
+            </div>
+          </div>
+          <div class="contact-card">
+            <div class="ci"><svg viewBox="0 0 48 48" fill="none" stroke="var(--caramel)" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="10" width="40" height="28" rx="5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16l20 13 20-13" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <p>Ainda com dúvidas?<br>Escreva para <strong>suporte@folha.app</strong></p>
+          </div>
         </div>
       </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          Como editar os tópicos?
-          <span class="faq-arr">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </span>
-        </button>
-        <div class="faq-a">
-          Na etapa 2, clique no × de qualquer tópico para removê-lo. Use o campo na parte inferior para adicionar novos. Somente os tópicos marcados serão incluídos na folha final.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          Como acessar minhas folhas?
-          <span class="faq-arr">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </span>
-        </button>
-        <div class="faq-a">
-          Clique em "Minhas folhas" no menu. Você verá suas matérias organizadas — basta clicar em uma para ver as folhas disponíveis e abrir a que desejar.
-        </div>
-      </div>
-
-      <!-- Grupo: Dúvidas frequentes -->
-      <p class="t-label faq-group-label">Dúvidas frequentes</p>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          As folhas ficam salvas?
-          <span class="faq-arr">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </span>
-        </button>
-        <div class="faq-a">
-          Sim! Após gerar a folha, clique em "Salvar folha". Ela ficará disponível em "Minhas folhas", organizada por matéria e ordenada cronologicamente.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          Posso usar offline?
-          <span class="faq-arr">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </span>
-        </button>
-        <div class="faq-a">
-          Atualmente o Folium requer conexão com a internet para gerar resumos com IA. Estamos desenvolvendo um modo offline para versões futuras do app.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          A IA pode errar?
-          <span class="faq-arr">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </span>
-        </button>
-        <div class="faq-a">
-          Como todo sistema de IA, o Folium pode ocasionalmente sugerir informações imprecisas. Sempre revise o conteúdo gerado com base nas suas fontes de estudo. Você tem controle total para editar e remover tópicos antes de gerar a folha final.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          Como entrar em contato?
-          <span class="faq-arr">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </span>
-        </button>
-        <div class="faq-a">
-          Você pode nos escrever em <strong>suporte@folha.app</strong>. Respondemos em até 24 horas úteis, de segunda a sexta-feira.
-        </div>
-      </div>
-
-      <!-- Bloco de contato -->
-      <div class="contact-card">
-        <div class="ci">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4" y="10" width="40" height="28" rx="5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M4 16l20 13 20-13" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <p>Ainda com dúvidas? Fale conosco em<br>
-          <strong>suporte@folha.app</strong>
-        </p>
-      </div>
-
     </div>
   </div>
-
   <script src="../js/config.js"></script>
   <script src="../js/utils/dom.js"></script>
   <script src="../js/utils/storage.js"></script>
@@ -161,7 +108,9 @@
   <script src="../js/mock.js"></script>
   <script src="../js/router.js"></script>
   <script src="../js/components/modal.js"></script>
+  <script src="../js/components/confirm.js"></script>
   <script src="../js/components/navbar.js"></script>
+  <script src="../js/components/sidebar.js"></script>
   <script src="../js/components/card.js"></script>
   <script src="../js/components/button.js"></script>
   <script src="../js/app.js"></script>

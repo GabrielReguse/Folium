@@ -6,8 +6,9 @@
 const SuportePage = {
   init() {
     if (!Router.requireAuth()) return;
-    Navbar.renderTop({ backRoute: 'home', backLabel: 'Início', title: '<em>Suporte</em>' });
+    Navbar.renderTop({ title: '<em>Suporte</em>' });
     Navbar.renderBottom('suporte');
+    Sidebar.init();
     this._bindFAQ();
   },
 

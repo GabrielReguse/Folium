@@ -31,6 +31,7 @@ const MateriaPage = {
 
   /* ── Lista de folhas da matéria ── */
   _renderSheetList() {
+    Sidebar.init();
     Storage.clearContext('sheetId');
     Storage.clearContext('viewSheet');
 
@@ -52,6 +53,18 @@ const MateriaPage = {
       new Date(b.criadaEm) - new Date(a.criadaEm)
     );
 
+    /* Breadcrumb */
+    const bread = document.createElement('div');
+    bread.className = 'bread-row au';
+    bread.innerHTML = `
+      <button class="bread-back" onclick="Router.go('folhas')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Matérias
+      </button>
+      <span class="bread-sep">/</span>
+      <span class="bread-current">${this.subject.nomeNormalizado}</span>`;
+    body.appendChild(bread);
+
     const lbl = document.createElement('p');
     lbl.className = 't-label mb-16';
     lbl.textContent = `${folhas.length} folha${folhas.length !== 1 ? 's' : ''}`;
@@ -61,7 +74,7 @@ const MateriaPage = {
       const empty = document.createElement('div');
       empty.className = 'empty-state';
       empty.innerHTML = `
-        <div class="ei"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;stroke:var(--rose-mid)" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></div>
+        <div class="ei"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;stroke:var(--tan)" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></div>
         <h3>Nenhuma folha aqui</h3>
         <p>Crie uma folha para esta matéria.</p>`;
       body.appendChild(empty);
@@ -73,6 +86,7 @@ const MateriaPage = {
         ...sh,
         subjectId:  this.subject.id,
         onFavorite: () => this._toggleFavorite(sh.id),
+        onDelete:   () => this._deleteSheet(sh.id),
       });
       card.style.animationDelay = `${i * 0.07}s`;
       card.classList.add('au');
@@ -96,6 +110,32 @@ const MateriaPage = {
     this._renderSheetList();   /* DOM.clear está dentro — sem duplicação */
   },
 
+  /* ── Apagar folha ── */
+  _deleteSheet(sheetId) {
+    const fTitle = this.subject.folhas.find(f => f.id === sheetId)?.titulo || 'esta folha';
+    Confirm.show({
+      title: 'Apagar folha?',
+      text: `"${fTitle}" será removida permanentemente.`,
+      confirmLabel: 'Apagar',
+      onConfirm: () => {
+        const subjects = Storage.getSubjects();
+        const subj = subjects.find(s => s.id === this.subject.id);
+        if (!subj) return;
+        subj.folhas = subj.folhas.filter(f => f.id !== sheetId);
+        Storage.setSubjects(subjects);
+        this.subject = subj;
+        if (!subj.folhas.length) {
+          // Matéria sem folhas — volta para lista de matérias
+          const allSubj = Storage.getSubjects().filter(s => s.id !== subj.id);
+          Storage.setSubjects(allSubj);
+          Router.go('folhas');
+        } else {
+          this._renderSheetList();
+        }
+      }
+    });
+  },
+
   /* ── Visualização completa da folha ── */
   _renderSheetView() {
     history.pushState({ foliumSheet: true }, '', window.location.href);
@@ -112,7 +152,7 @@ const MateriaPage = {
       if (wrapper) {
         const backBtn = document.createElement('button');
         backBtn.className = 'nav-back';
-        backBtn.textContent = `‹ ${this.subject.nomeNormalizado}`;
+        backBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" style="flex-shrink:0"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> ${this.subject.nomeNormalizado}`;
         backBtn.addEventListener('click', () => {
           /* FIX nav circular: limpa contexto ANTES de navegar */
           Storage.clearContext('sheetId');
@@ -136,7 +176,7 @@ const MateriaPage = {
     header.className = 'sheet-view-header';
     header.innerHTML = `
       <div class="shv-badges">
-        <span class="badge badge-accent">${this.subject.nomeNormalizado}</span>
+        <span class="badge badge-accent">Folha de estudo</span>
         ${this.sheet.nivelLabel ? `<span class="badge badge-nivel">${this.sheet.nivelLabel}</span>` : ''}
         <button class="fav-btn-header ${isFav ? 'on' : ''}" id="fav-header-btn"
                 title="${isFav ? 'Remover favorito' : 'Favoritar'}">

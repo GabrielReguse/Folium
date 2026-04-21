@@ -96,6 +96,9 @@ const Card = {
     const isFav      = !!sh.favorita;
     const subjectId  = sh.subjectId;
     const onFavorite = sh.onFavorite;
+    const onDelete   = sh.onDelete;
+
+    const delIcon = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
 
     const btn = document.createElement('button');
     btn.className = 'sheet-card-item';
@@ -105,7 +108,7 @@ const Card = {
         <div class="sc-title">${titulo}</div>
         <div class="sc-meta">
           ${data    ? `<span class="sc-date">${data}</span>` : ''}
-          ${topicos.length ? `<span class="sc-topics">${topicos.length} tópico${topicos.length !== 1 ? 's' : ''}</span>` : ''}
+          ${topicos.length ? `<span class="sc-topics">&middot; ${topicos.length} tópico${topicos.length !== 1 ? 's' : ''}</span>` : ''}
           ${nivelLabel ? `<span class="sc-nivel">${nivelLabel}</span>` : ''}
         </div>
       </div>
@@ -113,7 +116,8 @@ const Card = {
         <button class="fav-btn ${isFav ? 'on' : ''}" title="${isFav ? 'Remover favorito' : 'Favoritar'}">
           ${isFav ? CardIcons.starFill : CardIcons.star}
         </button>
-        <span class="sc-arr">${CardIcons.arrow}</span>
+        ${onDelete ? `<button class="del-btn" title="Apagar folha">${delIcon}</button>` : ''}
+        <svg class="sc-arr" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="var(--text-light)" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </div>`;
 
     const favBtn = btn.querySelector('.fav-btn');
@@ -121,6 +125,14 @@ const Card = {
       favBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         onFavorite();
+      });
+    }
+
+    const delBtn = btn.querySelector('.del-btn');
+    if (delBtn && onDelete) {
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onDelete();
       });
     }
 

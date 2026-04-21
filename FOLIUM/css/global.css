@@ -1,125 +1,30 @@
-/* FOLIUM — global.css */
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* FOLIUM v3 — global.css */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font-sans);
+  background:var(--cream);
+  color:var(--text);
+  min-height:100dvh;
+  overflow-x:clip;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
 }
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:var(--font-sans);border:none;background:none}
+input,textarea,select{font-family:var(--font-sans)}
+img,svg{display:block;max-width:100%}
 
-html {
-  scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  font-family: var(--font-sans);
-  background: var(--cream);
-  color: var(--text);
-  min-height: 100dvh;
-  overflow-x: clip;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button {
-  cursor: pointer;
-  font-family: var(--font-sans);
-  border: none;
-  background: none;
-}
-
-input,
-textarea,
-select {
-  font-family: var(--font-sans);
-}
-
-img,
-svg {
-  display: block;
-  max-width: 100%;
-}
-
-/* ── Tipografia utilitária ── */
-
-.t-display {
-  font-family: var(--font-serif);
-  font-size: clamp(27px, 6vw, 40px);
-  font-weight: 700;
-  line-height: 1.18;
-  letter-spacing: -0.02em;
-  color: var(--text);
-}
-
-.t-display em {
-  font-style: italic;
-  color: var(--rose-dark);
-}
-
-.t-section {
-  font-family: var(--font-serif);
-  font-size: clamp(19px, 3.8vw, 26px);
-  font-weight: 600;
-  line-height: 1.28;
-  color: var(--text);
-}
-
-.t-topic {
-  font-family: var(--font-serif);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--rose-dark);
-  line-height: 1.35;
-}
-
-.t-sub {
-  font-size: 14px;
-  font-weight: 300;
-  color: var(--text-mid);
-  line-height: 1.7;
-}
-
-.t-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: var(--text-light);
-}
+/* ── Tipografia ── */
+.t-display{font-family:var(--font-serif);font-size:clamp(26px,5.5vw,38px);font-weight:700;line-height:1.18;letter-spacing:-0.025em;color:var(--text)}
+.t-display em{font-style:italic;color:var(--caramel);font-weight:400}
+.t-section{font-family:var(--font-serif);font-size:clamp(18px,3.5vw,24px);font-weight:600;line-height:1.28;color:var(--text)}
+.t-topic{font-family:var(--font-serif);font-size:17px;font-weight:600;color:var(--caramel);line-height:1.35}
+.t-sub{font-size:14px;font-weight:300;color:var(--text-mid);line-height:1.7}
+.t-label{font-size:11px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:var(--text-light)}
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--rose-mid); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--rose); }
-
-/* ── Logout button ── */
-.nav-logout {
-  background: none;
-  border: 1.5px solid rgba(255,143,171,0.4);
-  color: var(--rose-dark);
-  border-radius: 20px;
-  padding: 5px 13px;
-  font-size: 0.77rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
-  white-space: nowrap;
-  letter-spacing: 0.02em;
-}
-.nav-logout:hover {
-  background: var(--rose);
-  color: #fff;
-  border-color: var(--rose);
-}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--sand);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--tan)}

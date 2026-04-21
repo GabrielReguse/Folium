@@ -1,17 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'>
-  <rect width='56' height='56' rx='16' fill='%23FF8FAB'/>
-  <path d='M28 10 C18 16 14 26 15 36 C16 45 21 51 28 52 C35 51 40 45 41 36 C42 26 38 16 28 10Z' fill='white' opacity='0.9'/>
-  <line x1='28' y1='13' x2='28' y2='50' stroke='%23FF8FAB' stroke-width='1.4' stroke-linecap='round'/>
-  <line x1='28' y1='24' x2='16' y2='32' stroke='%23FF8FAB' stroke-width='1' stroke-linecap='round' opacity='.65'/>
-  <line x1='28' y1='24' x2='40' y2='32' stroke='%23FF8FAB' stroke-width='1' stroke-linecap='round' opacity='.65'/>
-  <line x1='28' y1='36' x2='14' y2='42' stroke='%23FF8FAB' stroke-width='.8' stroke-linecap='round' opacity='.5'/>
-  <line x1='28' y1='36' x2='42' y2='42' stroke='%23FF8FAB' stroke-width='.8' stroke-linecap='round' opacity='.5'/>
-</svg>">
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Folium — Entrar</title>
@@ -25,75 +14,38 @@
   <link rel="stylesheet" href="../css/pages/login.css">
 </head>
 <body>
-
   <canvas id="bg-canvas"></canvas>
-
-  <div id="loading-overlay">
+    <div id="loading-overlay">
     <div class="loading-box">
       <div class="loader loader-lg"></div>
       <h3 id="ld-title">Processando...</h3>
       <p id="ld-sub">Aguarde um momento</p>
     </div>
   </div>
-
   <div class="login-page">
     <div class="login-card scale-in">
-
-      <!-- Logo -->
       <div class="login-logo">
-        <div class="logo-mark">
-          <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="56" height="56" rx="16" fill="#FF8FAB"/>
-            <path d="M28 10 C18 16 14 26 15 36 C16 45 21 51 28 52 C35 51 40 45 41 36 C42 26 38 16 28 10Z" fill="white" opacity="0.92"/>
-            <line x1="28" y1="13" x2="28" y2="50" stroke="#FF8FAB" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="28" y1="24" x2="16" y2="32" stroke="#FF8FAB" stroke-width="1" stroke-linecap="round" opacity=".7"/>
-            <line x1="28" y1="24" x2="40" y2="32" stroke="#FF8FAB" stroke-width="1" stroke-linecap="round" opacity=".7"/>
-            <line x1="28" y1="36" x2="14" y2="42" stroke="#FF8FAB" stroke-width=".9" stroke-linecap="round" opacity=".5"/>
-            <line x1="28" y1="36" x2="42" y2="42" stroke="#FF8FAB" stroke-width=".9" stroke-linecap="round" opacity=".5"/>
-          </svg>
-        </div>
-        <h1><em>Folium</em></h1>
+        <div class="logo-mark"><svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="56" height="56" rx="16" fill="#9B6B42"/><path d="M28 10 C18 16 14 26 15 36 C16 45 21 51 28 52 C35 51 40 45 41 36 C42 26 38 16 28 10Z" fill="white" opacity="0.92"/><line x1="28" y1="13" x2="28" y2="50" stroke="#9B6B42" stroke-width="1.5" stroke-linecap="round"/><line x1="28" y1="24" x2="16" y2="32" stroke="#9B6B42" stroke-width="1" stroke-linecap="round" opacity=".7"/><line x1="28" y1="24" x2="40" y2="32" stroke="#9B6B42" stroke-width="1" stroke-linecap="round" opacity=".7"/></svg></div>
+        <h1>Foli<em>um</em></h1>
         <p>Seus resumos inteligentes</p>
       </div>
-
-      <!-- Login -->
       <div class="lform" id="f-login">
-        <div class="inp-group">
-          <label class="inp-label">E-mail</label>
-          <input type="email" class="inp" id="l-email" placeholder="seu@email.com">
-        </div>
-        <div class="inp-group">
-          <label class="inp-label">Senha</label>
-          <input type="password" class="inp" id="l-pass" placeholder="••••••••">
-        </div>
+        <div class="inp-group"><label class="inp-label">E-mail</label><input type="email" class="inp" id="l-email" placeholder="seu@email.com"></div>
+        <div class="inp-group"><label class="inp-label">Senha</label><input type="password" class="inp" id="l-pass" placeholder="••••••••"></div>
         <button class="btn btn-primary btn-full btn-lg" onclick="doAuth()">Entrar</button>
         <div class="divider">ou</div>
         <button class="btn btn-secondary btn-full" onclick="swapForm('register')">Criar conta gratuita</button>
       </div>
-
-      <!-- Cadastro -->
       <div class="lform" id="f-register" style="display:none">
-        <div class="inp-group">
-          <label class="inp-label">Nome completo</label>
-          <input type="text" class="inp" id="r-name" placeholder="Ana Clara">
-        </div>
-        <div class="inp-group">
-          <label class="inp-label">E-mail</label>
-          <input type="email" class="inp" id="r-email" placeholder="seu@email.com">
-        </div>
-        <div class="inp-group">
-          <label class="inp-label">Senha</label>
-          <input type="password" class="inp" id="r-pass" placeholder="Mínimo 4 caracteres">
-        </div>
+        <div class="inp-group"><label class="inp-label">Nome completo</label><input type="text" class="inp" id="r-name" placeholder="Ana Clara"></div>
+        <div class="inp-group"><label class="inp-label">E-mail</label><input type="email" class="inp" id="r-email" placeholder="seu@email.com"></div>
+        <div class="inp-group"><label class="inp-label">Senha</label><input type="password" class="inp" id="r-pass" placeholder="Mínimo 4 caracteres"></div>
         <button class="btn btn-primary btn-full btn-lg" onclick="doAuth()">Criar conta</button>
       </div>
-
       <div class="lswitch" id="sw-login">Não tem conta? <a onclick="swapForm('register')">Cadastre-se</a></div>
       <div class="lswitch" id="sw-register" style="display:none">Já tem conta? <a onclick="swapForm('login')">Entrar</a></div>
-
     </div>
   </div>
-
   <script src="../js/config.js"></script>
   <script src="../js/utils/dom.js"></script>
   <script src="../js/utils/storage.js"></script>
@@ -101,6 +53,11 @@
   <script src="../js/mock.js"></script>
   <script src="../js/router.js"></script>
   <script src="../js/components/modal.js"></script>
+  <script src="../js/components/confirm.js"></script>
+  <script src="../js/components/navbar.js"></script>
+  <script src="../js/components/sidebar.js"></script>
+  <script src="../js/components/card.js"></script>
+  <script src="../js/components/button.js"></script>
   <script src="../js/app.js"></script>
   <script src="../js/pages/login.js"></script>
 </body>

@@ -24,8 +24,9 @@ const CriarPage = {
 
   init() {
     if (!Router.requireAuth()) return;
-    Navbar.renderTop({ backRoute:'home', backLabel:'Início', title:'<em>Nova Folha</em>'});
+    Navbar.renderTop({ title:'<em>Nova Folha</em>'});
     Navbar.renderBottom('criar');
+    Sidebar.init();
     this.goStep(1);
   },
 
@@ -343,7 +344,7 @@ const CriarPage = {
       const nivelLabel = NIVEL_LABELS[nivel] || nivel ||'';
       const novaFolha = {
         id:            `sh_${Date.now()}`,
-        titulo:        `${nomeNormalizado} — ${tema ||'Geral'}`,
+        titulo:        `${tema || nomeNormalizado}`,
         tema:          tema ||'',
         nivel:         nivel ||'',
         nivelLabel,
