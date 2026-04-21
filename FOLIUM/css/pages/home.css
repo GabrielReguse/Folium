@@ -1,90 +1,307 @@
-/* FOLIUM v3 — pages/home.css */
+/* FOLIUM v4 — pages/home.css */
 
-/* Hero transparente — nav overlay */
-.page-home .top-nav{
-  background:transparent;
-  border-bottom:none;
-  position:absolute;
-  left:0;right:0;top:0;
-}
-@media(min-width:900px){
-  .page-home .top-nav{left:var(--sidebar-w)}
+/* ── Top nav transparente no mobile (flutua sobre o hero) ── */
+.page-home .top-nav {
+  background: transparent;
+  border-bottom: none;
+  position: absolute;
+  width: 100%;
+  z-index: var(--z-nav);
 }
 
-/* ── Hero ── */
-.dash-hero{
-  padding:calc(58px + 32px) 28px 32px; /* topo: nav height + padding */
-  background:linear-gradient(155deg,var(--linen) 0%,var(--bg-deep) 55%,var(--sand-light) 100%);
-  position:relative;overflow:hidden;
+/* ── Hero mobile ── */
+.dash-hero {
+  padding: 72px 26px 52px;          /* topo: nav height + espaço */
+  background: linear-gradient(
+    160deg,
+    var(--linen)      0%,
+    var(--bg-deep)    50%,
+    var(--sand-light) 100%
+  );
+  position: relative;
+  overflow: hidden;
 }
-.dash-hero::before{
-  content:'';position:absolute;top:-80px;right:-80px;
-  width:340px;height:340px;
-  background:rgba(196,168,130,0.18);border-radius:50%;
-  pointer-events:none;
+
+/* Bolhas decorativas */
+.dash-hero::before {
+  content: '';
+  position: absolute;
+  top: -70px; right: -70px;
+  width: 300px; height: 300px;
+  background: rgba(196,168,130,0.14);
+  border-radius: 50%;
+  pointer-events: none;
 }
-.dash-hero::after{
-  content:'';position:absolute;bottom:-50px;left:-30px;
-  width:200px;height:200px;
-  background:rgba(155,107,66,0.08);border-radius:50%;
-  pointer-events:none;
+.dash-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: -30px;
+  width: 160px; height: 160px;
+  background: rgba(155,107,66,0.07);
+  border-radius: 50%;
+  pointer-events: none;
 }
-.hero-greeting{font-size:12px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:var(--caramel);margin-bottom:5px;position:relative;opacity:0.8}
-.hero-name{font-family:var(--font-serif);font-size:clamp(26px,6vw,34px);font-weight:700;line-height:1.15;letter-spacing:-0.025em;color:var(--text);margin-bottom:6px;position:relative}
-.hero-sub{font-size:14px;font-weight:300;color:var(--text-mid);position:relative}
+
+/* Fade suave na base do hero → cor do body */
+.dash-hero .hero-fade {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 64px;
+  background: linear-gradient(to bottom, transparent, var(--cream));
+  pointer-events: none;
+}
+
+.hero-greeting {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--caramel);
+  margin-bottom: 5px;
+  position: relative;
+  opacity: 0.85;
+}
+
+.hero-name {
+  font-family: var(--font-serif);
+  font-size: clamp(26px, 7vw, 34px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin-bottom: 6px;
+  position: relative;
+}
+
+.hero-sub {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--text-mid);
+  position: relative;
+}
 
 /* Stats */
-.hero-stats{display:flex;margin-top:22px;position:relative;background:rgba(255,255,255,0.42);border-radius:var(--r);overflow:hidden;border:1px solid rgba(196,168,130,0.35);backdrop-filter:blur(8px)}
-.hstat{flex:1;padding:13px 10px;text-align:center;position:relative}
-.hstat+.hstat::before{content:'';position:absolute;left:0;top:20%;height:60%;width:1px;background:rgba(196,168,130,0.3)}
-.hstat-num{font-family:var(--font-serif);font-size:24px;font-weight:700;line-height:1;color:var(--caramel)}
-.hstat-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-mid);margin-top:3px;opacity:0.75}
+.hero-stats {
+  display: flex;
+  margin-top: 20px;
+  position: relative;
+  background: rgba(255,255,255,0.52);
+  border-radius: var(--r);
+  overflow: hidden;
+  border: 1px solid rgba(196,168,130,0.30);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
 
-/* ── Corpo ── */
-.dash-body{padding:24px 22px;flex:1;overflow-y:auto;max-width:560px;margin:0 auto;width:100%}
+.hstat {
+  flex: 1;
+  padding: 14px 10px;
+  text-align: center;
+  position: relative;
+}
+
+.hstat + .hstat::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 20%; height: 60%;
+  width: 1px;
+  background: rgba(196,168,130,0.3);
+}
+
+.hstat-num {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--caramel);
+}
+
+.hstat-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-mid);
+  margin-top: 3px;
+  opacity: 0.75;
+}
+
+/* ── Body mobile (action cards) ── */
+.dash-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 20px 24px;
+  max-width: 560px;
+  margin: 0 auto;
+  width: 100%;
+}
 
 /* ── Action cards ── */
-.act-card{display:flex;align-items:center;gap:16px;padding:20px;background:var(--surface);border-radius:var(--r);cursor:pointer;border:1px solid var(--border);width:100%;text-align:left;font-family:var(--font-sans);transition:box-shadow var(--t-mid),transform var(--t-mid),border-color var(--t-mid);margin-bottom:11px;text-decoration:none;color:inherit;box-shadow:var(--sh-sm);position:relative;overflow:hidden}
-.act-card::before{content:'';position:absolute;left:0;top:0;height:100%;width:3px;background:var(--sand);transition:background var(--t-mid);border-radius:3px 0 0 3px}
-.act-card:hover{box-shadow:var(--sh);transform:translateY(-2px);border-color:var(--border-act)}
-.act-card:hover::before{background:var(--caramel)}
-.act-card:first-child{background:linear-gradient(135deg,var(--surface) 0%,var(--linen) 100%)}
-.act-card:first-child::before{background:var(--caramel)}
-.act-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.act-icon svg{width:22px;height:22px}
-.ai-1{background:var(--caramel-lt)}.ai-1 svg{stroke:var(--caramel)}
-.ai-2{background:rgba(196,168,130,0.2)}.ai-2 svg{stroke:var(--text-mid)}
-.ai-3{background:rgba(212,184,150,0.25)}.ai-3 svg{stroke:var(--text-mid)}
-.act-info{flex:1}
-.act-info h3{font-size:15.5px;font-weight:600;color:var(--text);margin-bottom:3px;letter-spacing:-0.01em}
-.act-info p{font-size:13px;color:var(--text-light);font-weight:300}
-.act-arr{width:20px;height:20px;flex-shrink:0;opacity:0.35;transition:opacity var(--t-fast),transform var(--t-fast)}
-.act-arr svg{stroke:var(--text-mid)}
-.act-card:hover .act-arr{opacity:0.7;transform:translateX(3px)}
+.act-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 18px;
+  background: var(--surface);
+  border-radius: var(--r);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-sans);
+  transition: box-shadow var(--t-mid), transform var(--t-mid), border-color var(--t-mid);
+  margin-bottom: 11px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: var(--sh-sm);
+  position: relative;
+  overflow: hidden;
+}
 
-/* ── Desktop: 2 colunas para action cards ── */
-@media(min-width:900px){
-  .dash-body{max-width:none;padding:0}
-  .dash-layout{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:calc(100dvh - 58px)}
-  .dash-col-left{padding:36px 40px 36px;background:var(--cream);border-right:1px solid var(--border);display:flex;flex-direction:column;max-width:480px}
-  .dash-col-right{padding:36px 40px;background:var(--linen);display:flex;flex-direction:column}
+.act-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; height: 100%; width: 3px;
+  background: var(--sand);
+  transition: background var(--t-mid);
+  border-radius: 3px 0 0 3px;
+}
 
-  /* Cards maiores e mais decorados no desktop */
-  .act-card{padding:24px 22px;margin-bottom:14px}
-  .act-card:first-child{padding:26px 22px}
-  .act-icon{width:54px;height:54px;border-radius:16px}
-  .act-icon svg{width:25px;height:25px}
-  .act-info h3{font-size:17px}
-  .act-info p{font-size:14px}
+.act-card:hover {
+  box-shadow: var(--sh);
+  transform: translateY(-2px);
+  border-color: var(--border-act);
+}
 
-  /* Hero no desktop: dentro do col-right */
-  .dash-hero{
-    background:none;
-    padding:0 0 28px;
-    position:static;
-    overflow:visible;
+.act-card:hover::before { background: var(--caramel); }
+
+.act-card:first-child { background: linear-gradient(135deg, var(--surface) 0%, var(--linen) 100%); }
+.act-card:first-child::before { background: var(--caramel); }
+
+.act-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.act-icon svg { width: 22px; height: 22px; }
+.ai-1 { background: var(--caramel-lt); }
+.ai-1 svg { stroke: var(--caramel); }
+.ai-2 { background: rgba(196,168,130,0.2); }
+.ai-2 svg { stroke: var(--text-mid); }
+.ai-3 { background: rgba(212,184,150,0.25); }
+.ai-3 svg { stroke: var(--text-mid); }
+
+.act-info { flex: 1; }
+.act-info h3 { font-size: 15.5px; font-weight: 600; color: var(--text); margin-bottom: 3px; letter-spacing: -0.01em; }
+.act-info p  { font-size: 13px; color: var(--text-light); font-weight: 300; }
+
+.act-arr { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.3; transition: opacity var(--t-fast), transform var(--t-fast); }
+.act-card:hover .act-arr { opacity: 0.65; transform: translateX(3px); }
+
+/* ══════════════════════════
+   DESKTOP — Layout 2 colunas
+══════════════════════════ */
+@media (min-width: 900px) {
+
+  /* Nav transparente só no mobile — no desktop a sidebar tem o logo */
+  .page-home .top-nav { display: none; }
+
+  /* Grid principal */
+  .dash-layout {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    min-height: 100dvh;
+    max-width: none;
+    padding: 0;
+    margin: 0;
   }
-  .dash-hero::before,.dash-hero::after{display:none}
 
-  .page-home .top-nav{display:none} /* logo está na sidebar */
+  /* Coluna esquerda */
+  .dash-col-left {
+    padding: 48px 44px;
+    background: var(--cream);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  /* Coluna direita */
+  .dash-col-right {
+    padding: 48px 44px;
+    background: var(--linen);
+    overflow-y: auto;
+  }
+
+  /* Action cards maiores no desktop */
+  .act-card {
+    padding: 22px 20px;
+    margin-bottom: 14px;
+  }
+
+  .act-card:first-child { padding: 24px 20px; }
+
+  .act-icon { width: 52px; height: 52px; border-radius: 15px; }
+  .act-icon svg { width: 24px; height: 24px; }
+  .act-info h3 { font-size: 16.5px; }
+  .act-info p  { font-size: 14px; }
+
+  /* Cards de atividade recente */
+  .recent-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: box-shadow var(--t-mid), transform var(--t-mid), border-color var(--t-mid);
+    box-shadow: var(--sh-sm);
+  }
+
+  .recent-card:hover {
+    box-shadow: var(--sh);
+    transform: translateY(-2px);
+    border-color: var(--border-act);
+  }
+
+  .rc-tag {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 6px;
+  }
+
+  .rc-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 5px;
+    line-height: 1.35;
+  }
+
+  .rc-meta {
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 300;
+  }
+
+  .recent-empty {
+    color: var(--text-light);
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.75;
+    padding: 24px 0;
+  }
+
+  .recent-empty strong { color: var(--caramel); font-weight: 600; }
+}
+
+/* ── Responsivo pequeno ── */
+@media (max-width: 380px) {
+  .hero-name { font-size: 24px; }
+  .hstat-num { font-size: 20px; }
 }
