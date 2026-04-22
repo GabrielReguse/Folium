@@ -24,9 +24,9 @@ const HomePage = {
     const page = document.querySelector('.page');
     if (!page) return;
 
-    const totals  = this._getTotals();
-    const user    = Storage.getUser() || {};
-    const name    = (user.name || user.nome || 'Estudante').split(' ')[0];
+    const totals = this._getTotals();
+    const user = Storage.getUser() || {};
+    const name = (user.name || user.nome || 'Estudante').split(' ')[0];
     const greeting = Helpers.greeting();
 
     /* ── Top nav com logo imagem ── */
@@ -87,19 +87,19 @@ const HomePage = {
       {
         svg: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
         title: 'Criar folha',
-        sub:   'Gere um resumo com IA em segundos',
+        sub: 'Gere um resumo com IA em segundos',
         route: 'criar',
       },
       {
         svg: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/></svg>`,
         title: 'Minhas folhas',
-        sub:   'Acesse seus resumos salvos',
+        sub: 'Acesse seus resumos salvos',
         route: 'folhas',
       },
       {
         svg: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="var(--tan)" stroke="none"/></svg>`,
         title: 'Suporte',
-        sub:   'Dúvidas e ajuda rápida',
+        sub: 'Dúvidas e ajuda rápida',
         route: 'suporte',
       },
     ];
@@ -132,15 +132,15 @@ const HomePage = {
     const page = document.querySelector('.page');
     if (!page) return;
 
-    const totals  = this._getTotals();
-    const user    = Storage.getUser() || {};
-    const name    = user.name || user.nome || 'Estudante';
+    const totals = this._getTotals();
+    const user = Storage.getUser() || {};
+    const name = user.name || user.nome || 'Estudante';
     const greeting = Helpers.greeting();
 
     /* ── Imagem do vinicius no background esquerdo ── */
     const vinicius = document.createElement('img');
-    vinicius.src       = '../assets/images/vinicius-fundo.png';
-    vinicius.alt       = '';
+    vinicius.src = '../assets/images/vinicius-fundo.png';
+    vinicius.alt = '';
     vinicius.className = 'desk-vinicius';
     vinicius.setAttribute('aria-hidden', 'true');
     page.appendChild(vinicius);
@@ -197,7 +197,7 @@ const HomePage = {
                onclick="Router.go('materia',{subjectId:'${f.sid}',sheetId:'${f.id}',viewSheet:true})">
             <div class="rc-tag">${f.materia}</div>
             <div class="rc-title">${f.titulo || 'Folha'}</div>
-            <div class="rc-meta">${f.dataFormatada || ''} &middot; ${(f.topicos||[]).length} tópicos</div>
+            <div class="rc-meta">${f.dataFormatada || ''} &middot; ${(f.topicos || []).length} tópicos</div>
           </div>`).join('')
       : `<div class="recent-empty">
            <p>Nenhuma folha criada ainda.</p>

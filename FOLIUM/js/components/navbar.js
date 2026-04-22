@@ -45,9 +45,6 @@ const Navbar = {
     page.insertBefore(nav, page.firstChild);
   },
 
-  /* ─────────────────────────────────────────
-     renderBottom — dock no desktop, barra no mobile
-  ───────────────────────────────────────── */
   renderBottom(active = 'home') {
     if (window.innerWidth >= 900) {
       this._renderDock(active);
@@ -56,7 +53,7 @@ const Navbar = {
     }
   },
 
-  /* ── MOBILE NAV (bottom bar) ── */
+  /* ── MOBILE NAV (Original mantida) ── */
   _renderMobileNav(active = 'home') {
     const items = [
       { route: 'home',    icon: NavIcons.home,    label: 'Início'  },
@@ -65,7 +62,7 @@ const Navbar = {
       { route: 'suporte', icon: NavIcons.suporte, label: 'Suporte' },
     ];
 
-    const user     = Storage.getUser() || {};
+    const user     = window.Storage ? window.Storage.getUser() : {};
     const userName = user.name || user.nome || 'Usuário';
 
     const nav = document.createElement('nav');
@@ -86,13 +83,13 @@ const Navbar = {
 
     const page = document.querySelector('.page');
     if (page) {
-      const existing = page.querySelector('.bottom-nav, .dock-nav');
+      const existing = page.querySelector('.bottom-nav, .dock-nav-desktop');
       if (existing) existing.remove();
       page.appendChild(nav);
     }
   },
 
-  /* ── DESKTOP DOCK — bolha flutuante fora da borda ── */
+  /* ── DESKTOP NAV — Barra centralizada com recorte e elevação do SVG ── */
   _renderDock(active = 'home') {
     const items = [
       { route: 'home',    icon: NavIcons.home,    label: 'Início'  },
@@ -101,107 +98,221 @@ const Navbar = {
       { route: 'suporte', icon: NavIcons.suporte, label: 'Suporte' },
     ];
 
-    /* Wrapper fixo centralizado */
+    // Injeta o CSS específico se não estiver carregado
+    if (!document.getElementById('dock-nav-style')) {
+      const style = document.createElement('style');
+      style.id = 'dock-nav-style';
+      style.innerHTML = `
+        .dock-nav-desktop {
+          position: fixed;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 380px;
+          height: 70px;
+          z-index: 1000;
+          display: flex;
+          -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Container que embute a cor de fundo, bordas e cria dinamicamente o recorte em meia-lua (concavidade) */
+        .dock-bg {
+          position: absolute;
+          inset: 0;
+          background-color: #F0E8D1;
+          border: 2px solid #E4DAC1;
+          border-radius: 20px;
+          box-sizing: border-box;
+          
+          /* Cria a meia-lua transparente perfurando a barra */
+          -webkit-mask-image: radial-gradient(circle at 1000px 1px, transparent 26px, black 27px);
+          mask-image: radial-gradient(circle at 1000px 1px, transparent 26px, black 27px);
+          -webkit-mask-size: 2000px 100%;
+          mask-size: 2000px 100%;
+          -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+          
+          transition: -webkit-mask-position 0.4s cubic-bezier(0.4, 0, 0.2, 1), mask-position 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* SVG deslizante contendo a continuidade da borda e os círculos interno/externo */
+        .dock-slider {
+          position: absolute;
+          top: -49px; /* Alinha o eixo Y=50 da SVG com a borda de topo Y=1 do background */
+          left: 0;
+          width: 100px;
+          height: 100px;
+          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 2;
+          pointer-events: none;
+        }
+
+        /* Container do SVG ativado (que muda de cor e se eleva) */
+        .dock-slider-icon {
+          position: absolute;
+          top: 33px;
+          left: 33px;
+          width: 34px;
+          height: 34px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F5EED6;
+        }
+        .dock-slider-icon svg {
+          width: 20px;
+          height: 20px;
+        }
+        
+        .dock-items {
+          display: flex;
+          width: 100%;
+          height: 100%;
+          position: relative;
+          z-index: 3;
+        }
+        
+        .dock-item {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          padding-top: 14px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          color: #AD8B6B;
+          outline: none;
+        }
+        
+        .di-icon-wrapper {
+          width: 24px;
+          height: 24px;
+          margin-bottom: 4px;
+          transition: opacity 0.3s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .di-icon-wrapper svg {
+          width: 22px;
+          height: 22px;
+          stroke: currentColor;
+        }
+        
+        .di-label {
+          font-size: 11px;
+          font-weight: 600;
+          font-family: inherit;
+          transition: color 0.3s;
+        }
+
+        /* Estados do item Ativo */
+        .dock-item.active .di-icon-wrapper {
+          opacity: 0; /* O ícone estático some para dar lugar ao circular */
+        }
+        .dock-item.active .di-label {
+          color: #6CAB69;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    /* Container base */
     const nav = document.createElement('nav');
-    nav.className = 'dock-nav';
+    nav.className = 'dock-nav-desktop';
     nav.dataset.active = active;
 
-    /* Pílula — contém itens, bolha e máscara */
-    const pill = document.createElement('div');
-    pill.className = 'dock-pill';
+    /* Fundo mascarado */
+    const bg = document.createElement('div');
+    bg.className = 'dock-bg';
+    nav.appendChild(bg);
 
-    /* Itens de navegação */
+    /* Slider geométrico contendo as formas e a cor preenchida (ativo) */
+    const slider = document.createElement('div');
+    slider.className = 'dock-slider';
+    slider.innerHTML = `
+      <svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block;">
+        <path d="M 24 50 A 26 26 0 0 0 76 50" fill="none" stroke="#E4DAC1" stroke-width="2" />
+        
+        <circle cx="50" cy="50" r="22" fill="none" stroke="#6CAB69" stroke-width="2"/>
+        
+        <circle cx="50" cy="50" r="17" fill="#6CAB69" />
+      </svg>
+      <div class="dock-slider-icon">
+        ${NavIcons[active] || ''}
+      </div>
+    `;
+    nav.appendChild(slider);
+
+    /* Botões Interativos */
+    const itemsContainer = document.createElement('div');
+    itemsContainer.className = 'dock-items';
+
     items.forEach(it => {
       const btn = document.createElement('button');
-      btn.className = `dock-item${it.route === active ? ' active' : ''}`;
+      btn.className = `dock-item ${it.route === active ? 'active' : ''}`;
       btn.dataset.route = it.route;
       btn.innerHTML = `
-        <span class="di-icon">${it.icon}</span>
+        <span class="di-icon-wrapper">${it.icon}</span>
         <span class="di-label">${it.label}</span>`;
+      
       btn.addEventListener('click', () => {
         if (it.route === nav.dataset.active) return;
         this._animateBubbleTo(nav, btn, it.route);
-        setTimeout(() => Router.go(it.route), 300);
+        // Utilizando Window.Router
+        setTimeout(() => { if (window.Router) Router.go(it.route); }, 300);
       });
-      pill.appendChild(btn);
+      itemsContainer.appendChild(btn);
     });
+    nav.appendChild(itemsContainer);
 
-    /* Bolha verde que flutua acima da borda */
-    const bubble = document.createElement('div');
-    bubble.className = 'dock-bubble';
-    bubble.innerHTML = `<span class="db-icon">${NavIcons[active] || ''}</span>`;
-    pill.appendChild(bubble);
+    /* Injeção no DOM */
+    const page = document.querySelector('.page') || document.body;
+    const existing = document.querySelector('.dock-nav-desktop, .bottom-nav');
+    if (existing) existing.remove();
+    page.appendChild(nav);
 
-    /* Máscara que apaga a borda superior sob a bolha */
-    const mask = document.createElement('div');
-    mask.className = 'dock-notch-mask';
-    pill.appendChild(mask);
-
-    nav.appendChild(pill);
-
-    /* Injeta no DOM */
-    const page = document.querySelector('.page');
-    if (page) {
-      const existing = page.querySelector('.dock-nav, .bottom-nav');
-      if (existing) existing.remove();
-      page.appendChild(nav);
-    }
-
-    /* Posiciona após o layout ser calculado */
+    /* Aguarda layout renderizar para calcular medidas perfeitamente */
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        this._positionBubble(nav, active);
-      });
+      this._positionBubble(nav, active);
     });
   },
 
-  /* Posiciona a bolha e a máscara sobre o item ativo */
+  /* Realiza o cálculo para posicionar perfeitamente a máscara de concavidade e o slider SVG */
   _positionBubble(nav, activeRoute) {
-    const pill       = nav.querySelector('.dock-pill');
-    const bubble     = nav.querySelector('.dock-bubble');
-    const mask       = nav.querySelector('.dock-notch-mask');
+    const slider = nav.querySelector('.dock-slider');
+    const bg = nav.querySelector('.dock-bg');
     const activeItem = nav.querySelector(`.dock-item[data-route="${activeRoute}"]`);
 
-    if (!pill || !bubble || !activeItem) return;
+    if (!slider || !bg || !activeItem) return;
 
-    const pillRect = pill.getBoundingClientRect();
+    const navRect = nav.getBoundingClientRect();
     const itemRect = activeItem.getBoundingClientRect();
 
-    /* Centro X do item relativo ao padding-box da pílula */
-    const cx = itemRect.left - pillRect.left + itemRect.width / 2;
+    /* Centro Horizontal (X) do elemento alvo ativo */
+    const cx = itemRect.left - navRect.left + itemRect.width / 2;
 
-    /* Bolha: 58px de diâmetro, centrada */
-    bubble.style.left    = `${cx - 29}px`;
-    bubble.style.opacity = '1';
-
-    /* Máscara: 66px, centrada — cobre a borda superior da pílula */
-    if (mask) mask.style.left = `${cx - 33}px`;
+    /* Move os círculos visualmente em CSS */
+    slider.style.transform = `translateX(${cx - 50}px)`;
+    /* Move a "perfuração" da máscara para coincidir exatamente embaixo do anel usando a proporção 1000px do tamanho de imagem estipulado no CSS */
+    bg.style.webkitMaskPosition = `${cx - 1000}px 0`;
+    bg.style.maskPosition = `${cx - 1000}px 0`;
   },
 
-  /* Anima a bolha para o novo destino antes de navegar */
+  /* Roda a transição e a elevação de estado */
   _animateBubbleTo(nav, targetBtn, route) {
-    const pill   = nav.querySelector('.dock-pill');
-    const bubble = nav.querySelector('.dock-bubble');
-    const mask   = nav.querySelector('.dock-notch-mask');
-
-    if (!pill || !bubble) return;
-
     nav.dataset.active = route;
 
-    /* Atualiza ícone na bolha */
-    const iconEl = bubble.querySelector('.db-icon');
+    /* Transiciona a cor/fundo do ícone inserido no slider circular */
+    const iconEl = nav.querySelector('.dock-slider-icon');
     if (iconEl) iconEl.innerHTML = NavIcons[route] || '';
 
-    /* Move classes .active */
+    /* Remove classe ativa dos antigos e repassa pro novo */
     nav.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active'));
     targetBtn.classList.add('active');
 
-    /* Desloca a bolha e a máscara */
-    const pillRect = pill.getBoundingClientRect();
-    const itemRect = targetBtn.getBoundingClientRect();
-    const cx = itemRect.left - pillRect.left + itemRect.width / 2;
-
-    bubble.style.left = `${cx - 29}px`;
-    if (mask) mask.style.left = `${cx - 33}px`;
-  },
+    this._positionBubble(nav, route);
+  }
 };
