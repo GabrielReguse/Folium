@@ -350,7 +350,7 @@
   .desk-logo {
     position: fixed;
     left: 50%;
-    top: 50%;
+    top: 68%;
     transform: translate(-50%, -50%);
     width: min(90%, 500px);
     height: auto;
