@@ -361,6 +361,24 @@
     z-index: 2;
   }
 
+  /* ── Texto abaixo do logo ── */
+  .desk-tagline {
+  position: fixed;
+  left: 50%;
+  top: calc(50% + 160px);
+  transform: translateX(-50%);
+  text-align: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 15px;
+  color: #2B1813;
+  opacity: 0.55;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+
   /* ── Coluna direita: atividade recente ── */
   .desk-col-right {
     padding: 56px 48px 120px 28px;

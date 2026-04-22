@@ -170,11 +170,12 @@ const HomePage = {
         </div>
       </div>
 
-      <!-- Coluna central: logo grande -->
-      <div class="desk-col-center">
-        <img src="../assets/images/logo-folium-v2.png"
-             alt="Folium" class="desk-logo">
-      </div>
+      /* ── Coluna central: logo grande ── */
+<div class="desk-col-center">
+  <img src="../assets/images/logo-folium-v2.png"
+       alt="Folium" class="desk-logo">
+  <p class="desk-tagline">Transforme qualquer conteúdo em uma<br>folha de estudos inteligente.</p>
+</div>
 
       <!-- Coluna direita: atividade recente -->
       <div class="desk-col-right" id="desk-recent"></div>`;
