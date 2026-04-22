@@ -148,9 +148,9 @@
     bottom: 0;
     top: auto;
     transform: none;
-    height: 90vh;
+    height: 130vh;       /* maior — cabeça fica acima das stats */
     width: auto;
-    max-width: 44vw;
+    max-width: 54vw;
     pointer-events: none;
     user-select: none;
     z-index: 1;
@@ -219,8 +219,10 @@
 
   /* ── Coluna direita: atividade recente ── */
   .desk-col-right {
-    padding: 56px 48px 120px 28px;
+    padding: 56px 48px 120px 36px;
     overflow-y: auto;
+    background: #F0E8D1;
+    border-left: 1px solid #E4DAC1;
   }
 
   .recent-title {
