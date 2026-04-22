@@ -159,10 +159,10 @@
     object-position: bottom left;
   }
 
-  /* ── Layout 3 colunas ── */
+  /* ── Layout 3 colunas — colunas externas simétricas para centralizar a logo ── */
   .dash-desk-layout {
     display: grid;
-    grid-template-columns: 1fr 1.1fr 0.60fr;
+    grid-template-columns: 1fr 1fr 1fr;
     min-height: 100dvh;
     padding: 0;
     position: relative;
@@ -219,8 +219,11 @@
 
   /* ── Coluna direita: atividade recente ── */
   .desk-col-right {
-    padding: 56px 48px 120px 28px;
+    padding: 56px 48px 120px 32px;
     overflow-y: auto;
+    background: #F0E8D1;
+    border-left: 1.5px solid #E4DAC1;
+    min-height: 100dvh;
   }
 
   .recent-title {
