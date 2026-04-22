@@ -1,17 +1,12 @@
-/* FOLIUM v5 — pages/home.css
-   Fiel ao design de referência: mobile + desktop */
+/* FOLIUM v6 — pages/home.css */
 
-/* ════════════════════════════════════════
-   SHARED — canvas e body base
-════════════════════════════════════════ */
+/* ── Canvas (desabilitado) ── */
+#bg-canvas { display: none; }
 
-/* O canvas desenhado pelo app.js fica fixo abaixo de tudo */
-#bg-canvas { display: none; } /* desativado — usamos imagens reais */
-
-/* Fundo com a imagem de doodles (mobile) */
+/* ── Fundo global da página home ── */
 .page-home {
   background-color: var(--cream);
-  background-image: url('../assets/images/doodles-mobile.png');
+  background-image: url('../../assets/images/doodles-mobile.png');
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: 100% auto;
@@ -22,7 +17,6 @@
    MOBILE
 ════════════════════════════════════════ */
 
-/* ── Top nav com logo ── */
 .home-top-nav {
   position: sticky;
   top: 0;
@@ -36,72 +30,43 @@
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
-
-.home-top-nav__spacer {
-  width: 44px; /* equilibra o botão da direita */
-}
-
-.home-top-nav__logo {
-  height: 36px;
-  width: auto;
-  object-fit: contain;
-  display: block;
-}
-
+.home-top-nav__spacer { width: 44px; }
+.home-top-nav__logo { height: 36px; width: auto; object-fit: contain; display: block; }
 .home-top-nav__burger {
   width: 44px; height: 44px;
   border-radius: var(--r-sm);
   background: var(--surface);
   border: 1px solid var(--border);
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
+  cursor: pointer; flex-shrink: 0;
   transition: background var(--t-fast);
   color: var(--text-mid);
 }
-
 .home-top-nav__burger:hover { background: var(--sand-light); }
 .home-top-nav__burger svg { width: 20px; height: 20px; }
 
-/* ── Hero mobile ── */
 .dash-hero {
   padding: 32px 22px 44px;
-  background: linear-gradient(160deg,
-    var(--linen)      0%,
-    var(--bg-deep)    50%,
-    var(--sand-light) 100%
-  );
+  background: linear-gradient(160deg, var(--linen) 0%, var(--bg-deep) 50%, var(--sand-light) 100%);
   position: relative;
 }
 
 .hero-greeting {
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--caramel);
-  margin-bottom: 6px;
-  opacity: 0.9;
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--caramel); margin-bottom: 6px; opacity: 0.9;
 }
-
 .hero-name {
   font-family: var(--font-serif);
   font-size: clamp(32px, 9vw, 44px);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  color: var(--text);
-  margin-bottom: 8px;
+  font-weight: 700; line-height: 1.1;
+  letter-spacing: -0.03em; color: var(--text); margin-bottom: 8px;
 }
-
 .hero-sub {
-  font-size: 15px;
-  font-weight: 300;
-  color: var(--text-mid);
-  margin-bottom: 24px;
+  font-size: 15px; font-weight: 300;
+  color: var(--text-mid); margin-bottom: 24px;
 }
 
-/* Stats card ── glass morphism sobre o gradiente */
 .hero-stats {
   display: flex;
   background: rgba(255,255,255,0.60);
@@ -110,151 +75,88 @@
   border: 1px solid rgba(196,168,130,0.28);
   box-shadow: 0 4px 20px rgba(92,61,46,0.06);
 }
-
-.hstat {
-  flex: 1;
-  padding: 16px 12px;
-  text-align: center;
-  position: relative;
-}
-
+.hstat { flex: 1; padding: 16px 12px; text-align: center; position: relative; }
 .hstat + .hstat::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 22%; height: 56%;
-  width: 1px;
-  background: rgba(196,168,130,0.35);
+  content: ''; position: absolute; left: 0; top: 22%; height: 56%;
+  width: 1px; background: rgba(196,168,130,0.35);
 }
-
 .hstat-num {
-  font-family: var(--font-serif);
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--caramel);
-  margin-bottom: 4px;
+  font-family: var(--font-serif); font-size: 26px;
+  font-weight: 700; line-height: 1; color: var(--caramel); margin-bottom: 4px;
 }
-
 .hstat-lbl {
-  font-size: 9.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--text-mid);
-  opacity: 0.7;
+  font-size: 9.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--text-mid); opacity: 0.7;
 }
 
-/* ── Body / action cards ── */
-.dash-body {
-  flex: 1;
-  padding: 28px 18px 100px; /* 100px para não sobrepor bottom nav */
-  background: var(--cream);
-}
-
+.dash-body { flex: 1; padding: 28px 18px 100px; background: var(--cream); }
 .dash-section-label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.10em;
-  text-transform: uppercase;
-  color: var(--caramel);
-  margin-bottom: 16px;
-  opacity: 0.85;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.10em;
+  text-transform: uppercase; color: var(--caramel); margin-bottom: 16px; opacity: 0.85;
 }
-
-/* Action card mobile — limpo, sem borda lateral colorida */
 .home-act-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px 18px;
-  background: var(--surface);
-  border-radius: var(--r-lg);
-  border: 1px solid var(--border);
+  display: flex; align-items: center; gap: 16px;
+  padding: 20px 18px; background: var(--surface);
+  border-radius: var(--r-lg); border: 1px solid var(--border);
   box-shadow: 0 2px 16px rgba(92,61,46,0.06);
-  width: 100%;
-  text-align: left;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  margin-bottom: 12px;
+  width: 100%; text-align: left; font-family: var(--font-sans);
+  cursor: pointer; margin-bottom: 12px;
   transition: box-shadow var(--t-mid), transform var(--t-mid);
-  position: relative;
-  overflow: hidden;
+  position: relative; overflow: hidden;
 }
-
-.home-act-card:hover {
-  box-shadow: 0 6px 28px rgba(92,61,46,0.12);
-  transform: translateY(-2px);
-}
-
+.home-act-card:hover { box-shadow: 0 6px 28px rgba(92,61,46,0.12); transform: translateY(-2px); }
 .home-act-card:active { transform: scale(0.98); }
-
 .home-act-icon {
-  width: 52px; height: 52px;
-  border-radius: 15px;
+  width: 52px; height: 52px; border-radius: 15px;
   background: var(--caramel-lt);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-
-.home-act-icon svg {
-  width: 24px; height: 24px;
-  stroke: var(--caramel);
-}
-
+.home-act-icon svg { width: 24px; height: 24px; stroke: var(--caramel); }
 .home-act-info { flex: 1; }
-
-.home-act-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 4px;
-  letter-spacing: -0.01em;
-}
-
-.home-act-sub {
-  font-size: 13px;
-  color: var(--text-light);
-  font-weight: 300;
-  line-height: 1.4;
-}
+.home-act-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; letter-spacing: -0.01em; }
+.home-act-sub { font-size: 13px; color: var(--text-light); font-weight: 300; line-height: 1.4; }
 
 /* ════════════════════════════════════════
    DESKTOP (≥900px)
 ════════════════════════════════════════ */
 @media (min-width: 900px) {
 
-  /* ── Fundo: doodles desktop nas bordas ── */
+  /* Fundo doodles desktop — path corrigido */
   .page-home {
-    background-image: url('../assets/images/doodles-desktop.png');
+    background-image: url('../../assets/images/doodles-desktop.png');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
   }
 
-  /* Remove margem da sidebar (não há sidebar no home desktop) */
   .page-home { margin-left: 0 !important; }
 
-  /* Esconde elementos mobile */
+  /* Oculta elementos mobile */
   .home-top-nav { display: none; }
   .dash-hero    { display: none; }
   .dash-body    { display: none; }
 
-  /* Oculta bottom-nav mobile — será a dock */
-  /* (o bottom-nav regular é reestilizado em seguida) */
-
-  /* ── Vinicius: figura funda no fundo esquerdo ── */
+  /* ────────────────────────────────────────
+     VINICIUS — grande, fixo no canto inferior esquerdo
+     Cabeça deve quase tocar as estatísticas
+  ──────────────────────────────────────── */
   .desk-vinicius {
     display: block !important;
     position: fixed;
-    left: 0; top: 50%;
-    transform: translateY(-55%);
-    width: 32vw;
-    max-width: 480px;
+    left: 0;
+    bottom: 0;
+    top: auto;
+    transform: none;
+    height: 90vh;
+    width: auto;
+    max-width: 44vw;
     pointer-events: none;
     user-select: none;
     z-index: 1;
-    /* a imagem já vem muito clara — mantemos quase na opacidade original */
-    opacity: 0.85;
+    opacity: 0.80;
+    object-fit: contain;
+    object-position: bottom left;
   }
 
   /* ── Layout 3 colunas ── */
@@ -275,28 +177,15 @@
     justify-content: flex-start;
   }
 
-  .hero-greeting {
-    font-size: 12px;
-    letter-spacing: 0.14em;
-    margin-bottom: 8px;
-  }
+  .hero-greeting { font-size: 12px; letter-spacing: 0.14em; margin-bottom: 8px; }
 
   .desk-name {
     font-family: var(--font-serif);
     font-size: clamp(36px, 4.5vw, 56px);
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    color: var(--text);
-    margin-bottom: 8px;
-    line-height: 1.1;
+    font-weight: 700; letter-spacing: -0.03em;
+    color: var(--text); margin-bottom: 8px; line-height: 1.1;
   }
-
-  .desk-sub {
-    font-size: 15px;
-    font-weight: 300;
-    color: var(--text-mid);
-    margin-bottom: 28px;
-  }
+  .desk-sub { font-size: 15px; font-weight: 300; color: var(--text-mid); margin-bottom: 28px; }
 
   .desk-stats {
     max-width: 360px;
@@ -307,12 +196,11 @@
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
   }
-
   .desk-stats .hstat { padding: 18px 14px; }
   .desk-stats .hstat-num { font-size: 30px; }
   .desk-stats .hstat-lbl { font-size: 10px; }
 
-  /* ── Coluna central: logo enorme ── */
+  /* ── Coluna central: logo ── */
   .desk-col-center {
     display: flex;
     align-items: center;
@@ -320,8 +208,9 @@
     padding: 48px 24px 120px;
   }
 
+  /* Logo levemente maior que antes */
   .desk-logo {
-    width: min(82%, 420px);
+    width: min(90%, 500px);
     height: auto;
     object-fit: contain;
     user-select: none;
@@ -336,144 +225,183 @@
 
   .recent-title {
     font-family: var(--font-serif);
-    font-size: 22px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 4px;
-    letter-spacing: -0.01em;
+    font-size: 22px; font-weight: 600;
+    color: var(--text); margin-bottom: 4px; letter-spacing: -0.01em;
   }
-
   .recent-sub {
-    font-size: 13px;
-    font-weight: 300;
-    color: var(--text-light);
-    margin-bottom: 22px;
+    font-size: 13px; font-weight: 300;
+    color: var(--text-light); margin-bottom: 22px;
   }
 
+  /* Cards com fundo mais escuro e borda mais visível */
   .recent-card {
-    background: rgba(255,255,255,0.70);
-    border: 1px solid rgba(196,168,130,0.28);
+    background: rgba(230,218,196,0.82);
+    border: 1.5px solid rgba(180,148,100,0.55);
     border-radius: var(--r);
     padding: 18px 20px;
     margin-bottom: 10px;
     cursor: pointer;
     transition: background var(--t-fast), box-shadow var(--t-mid), transform var(--t-mid);
-    box-shadow: 0 2px 12px rgba(92,61,46,0.05);
+    box-shadow: 0 2px 16px rgba(92,61,46,0.10);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
   }
-
   .recent-card:hover {
-    background: rgba(255,255,255,0.90);
-    box-shadow: 0 6px 24px rgba(92,61,46,0.10);
+    background: rgba(240,228,208,0.95);
+    box-shadow: 0 6px 24px rgba(92,61,46,0.16);
     transform: translateY(-2px);
   }
 
   .rc-tag {
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--caramel);
-    margin-bottom: 6px;
-    opacity: 0.85;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--caramel); margin-bottom: 6px; opacity: 0.85;
   }
-
-  .rc-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 5px;
-    line-height: 1.35;
-  }
-
-  .rc-meta {
-    font-size: 12px;
-    color: var(--text-light);
-    font-weight: 300;
-  }
-
-  .recent-empty {
-    color: var(--text-light);
-    font-size: 14px;
-    font-weight: 300;
-    line-height: 1.8;
-    padding: 20px 0;
-  }
-
+  .rc-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 5px; line-height: 1.35; }
+  .rc-meta  { font-size: 12px; color: var(--text-light); font-weight: 300; }
+  .recent-empty { color: var(--text-light); font-size: 14px; font-weight: 300; line-height: 1.8; padding: 20px 0; }
   .recent-empty strong { color: var(--caramel); font-weight: 600; }
 
   /* ════════════════════════════════════════
-     DOCK NAV desktop — flutuante, centralizado
+     DOCK NAV — pílula flutuante com bolha
   ════════════════════════════════════════ */
-  .page-home .bottom-nav {
-    position: fixed !important;
-    bottom: 24px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: auto !important;
-    min-width: 340px !important;
-    flex-direction: row !important;
-    border-top: none !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 22px !important;
-    padding: 10px 16px !important;
-    gap: 4px !important;
-    background: rgba(245,237,214,0.96) !important;
-    box-shadow: 0 8px 40px rgba(92,61,46,0.18) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    z-index: var(--z-nav) !important;
+
+  /* Wrapper externo — fixo e centralizado */
+  .dock-nav {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: var(--z-nav);
   }
 
-  /* Items do dock */
-  .page-home .bottom-nav .nav-item {
-    flex-direction: column !important;
-    padding: 8px 20px !important;
-    border-radius: 14px !important;
-    min-width: 72px !important;
-    gap: 4px !important;
-    width: auto !important;
-    flex: none !important;
+  /* Pílula */
+  .dock-pill {
+    display: flex;
+    align-items: center;
+    background: rgba(245,237,214,0.97);
+    border: 1.5px solid rgba(180,148,100,0.55);
+    border-radius: 32px;
+    padding: 10px 16px;
+    gap: 0;
+    box-shadow: 0 8px 40px rgba(92,61,46,0.20);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    position: relative;
+    overflow: visible; /* CRÍTICO: permite a bolha sair para cima */
   }
 
-  .page-home .bottom-nav .nav-item .nl {
-    font-size: 11px !important;
-    letter-spacing: 0 !important;
+  /* Item de navegação */
+  .dock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 22px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    font-family: var(--font-sans);
+    position: relative;
+    min-width: 84px;
+    border-radius: 16px;
+    transition: background var(--t-fast);
   }
 
-  /* Item ativo (home) — fundo verde folha */
-  .page-home .bottom-nav .nav-item.active {
-    background: #5A7A3E !important;
+  .dock-item:hover { background: rgba(212,184,150,0.20); }
+
+  /* Ícone inativo */
+  .dock-item .di-icon {
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity var(--t-fast);
+  }
+  .dock-item .di-icon svg {
+    width: 20px; height: 20px;
+    stroke: var(--text-light);
+    transition: stroke var(--t-fast);
+  }
+  .dock-item:hover .di-icon svg { stroke: var(--caramel); }
+
+  /* Label */
+  .dock-item .di-label {
+    font-size: 11px; font-weight: 500;
+    color: var(--text-light);
+    transition: color var(--t-fast);
+    line-height: 1;
+  }
+  .dock-item:hover .di-label { color: var(--caramel); }
+
+  /* Item ATIVO: ícone oculto (a bolha o mostra acima), label verde */
+  .dock-item.active .di-icon { visibility: hidden; }
+  .dock-item.active .di-label {
+    color: #4A6A30;
+    font-weight: 700;
+    font-size: 12px;
   }
 
-  .page-home .bottom-nav .nav-item.active .ni svg {
-    stroke: #fff !important;
-    transform: none !important;
+  /* ── BOLHA flutuante ── */
+  .dock-bubble {
+    position: absolute;
+    top: -36px;          /* sai acima da borda superior da pílula */
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: #5A7A3E;
+    border: 1.5px solid rgba(180,148,100,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 4px 20px rgba(74,106,48,0.45),
+      0 2px 8px rgba(74,106,48,0.25);
+    z-index: 10;
+    opacity: 0;                                       /* inicia invisível; JS revela */
+    transition:
+      left 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.2s ease;
   }
 
-  .page-home .bottom-nav .nav-item.active .nl {
-    color: #fff !important;
+  .dock-bubble .db-icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px;
+  }
+  .dock-bubble .db-icon svg {
+    width: 22px; height: 22px;
+    stroke: #ffffff;
+    stroke-width: 1.8;
+    fill: none;
   }
 
-  /* Remove indicador de linha do dock */
-  .page-home .bottom-nav .nav-item.active::after { display: none !important; }
+  /* ── MÁSCARA DA ENTALHADA (notch mask) ── */
+  /* Apaga a borda superior da pílula onde a bolha cruza */
+  .dock-notch-mask {
+    position: absolute;
+    top: -1.5px;   /* alinhado à borda superior da pílula */
+    width: 66px;
+    height: 4px;
+    background: rgba(245,237,214,0.97);
+    z-index: 9;    /* acima da borda, abaixo da bolha (z:10) */
+    transition: left 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  }
 
-  /* Esconde elementos desktop sidebar que não existem aqui */
-  .page-home .nav-logo-desk,
-  .page-home .nav-user-desk { display: none !important; }
+  /* Remove qualquer bottom-nav mobile que possa existir */
+  .page-home .bottom-nav { display: none !important; }
+
+  /* Garante que elementos de sidebar desktop somem */
+  .nav-logo-desk,
+  .nav-user-desk { display: none !important; }
 }
 
 /* ════════════════════════════════════════
-   MOBILE: ajuste do bottom-nav padrão
+   MOBILE: oculta elementos desktop
 ════════════════════════════════════════ */
 @media (max-width: 899px) {
-  /* Garante que desk-vinicius não aparece */
-  .desk-vinicius { display: none; }
+  .desk-vinicius  { display: none; }
   .dash-desk-layout { display: none; }
+  .dock-nav       { display: none; }
 }
 
-/* ── Responsivo extra pequeno ── */
 @media (max-width: 360px) {
   .hero-name     { font-size: 28px; }
   .hstat-num     { font-size: 22px; }

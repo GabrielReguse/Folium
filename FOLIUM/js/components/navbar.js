@@ -1,4 +1,4 @@
-/* FOLIUM v3 — components/navbar.js */
+/* FOLIUM v4 — components/navbar.js */
 
 const NavIcons = {
   home:   `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>`,
@@ -10,20 +10,13 @@ const NavIcons = {
 };
 
 const Navbar = {
-  /**
-   * Top navbar
-   * opts.backRoute  — se definido, mostra botão voltar
-   * opts.backLabel  — label do botão voltar
-   * opts.title      — título central (HTML)
-   * opts.showBurger — mostra hamburger (padrão: true)
-   */
+
   renderTop(opts = {}) {
     const {
       backRoute  = null,
       backLabel  = 'Voltar',
       title      = 'Foli<em>um</em>',
       showBurger = true,
-      showLogout = false, // legacy — kept for compat, ignored (use sidebar)
     } = opts;
 
     const nav = document.createElement('nav');
@@ -52,10 +45,19 @@ const Navbar = {
     page.insertBefore(nav, page.firstChild);
   },
 
-  /**
-   * Bottom navbar (vira sidebar no desktop via CSS)
-   */
+  /* ─────────────────────────────────────────
+     renderBottom — dock no desktop, barra no mobile
+  ───────────────────────────────────────── */
   renderBottom(active = 'home') {
+    if (window.innerWidth >= 900) {
+      this._renderDock(active);
+    } else {
+      this._renderMobileNav(active);
+    }
+  },
+
+  /* ── MOBILE NAV (bottom bar) ── */
+  _renderMobileNav(active = 'home') {
     const items = [
       { route: 'home',    icon: NavIcons.home,    label: 'Início'  },
       { route: 'criar',   icon: NavIcons.criar,   label: 'Criar'   },
@@ -69,9 +71,7 @@ const Navbar = {
     const nav = document.createElement('nav');
     nav.className = 'bottom-nav';
     nav.innerHTML = `
-      <!-- Logo — visível apenas na sidebar desktop -->
       <div class="nav-logo-desk">Foli<em>um</em></div>
-
       ${items.map(it => `
         <button
           class="nav-item ${it.route === active ? 'active' : ''}"
@@ -79,14 +79,129 @@ const Navbar = {
           <span class="ni">${it.icon}</span>
           <span class="nl">${it.label}</span>
         </button>`).join('')}
-
-      <!-- Bloco do usuário — visível apenas na sidebar desktop -->
       <div class="nav-user-desk">
         <div class="nu-name">${userName}</div>
         <div class="nu-label">Conta</div>
       </div>`;
 
     const page = document.querySelector('.page');
-    if (page) page.appendChild(nav);
-  }
+    if (page) {
+      const existing = page.querySelector('.bottom-nav, .dock-nav');
+      if (existing) existing.remove();
+      page.appendChild(nav);
+    }
+  },
+
+  /* ── DESKTOP DOCK — bolha flutuante fora da borda ── */
+  _renderDock(active = 'home') {
+    const items = [
+      { route: 'home',    icon: NavIcons.home,    label: 'Início'  },
+      { route: 'criar',   icon: NavIcons.criar,   label: 'Criar'   },
+      { route: 'folhas',  icon: NavIcons.folhas,  label: 'Folhas'  },
+      { route: 'suporte', icon: NavIcons.suporte, label: 'Suporte' },
+    ];
+
+    /* Wrapper fixo centralizado */
+    const nav = document.createElement('nav');
+    nav.className = 'dock-nav';
+    nav.dataset.active = active;
+
+    /* Pílula — contém itens, bolha e máscara */
+    const pill = document.createElement('div');
+    pill.className = 'dock-pill';
+
+    /* Itens de navegação */
+    items.forEach(it => {
+      const btn = document.createElement('button');
+      btn.className = `dock-item${it.route === active ? ' active' : ''}`;
+      btn.dataset.route = it.route;
+      btn.innerHTML = `
+        <span class="di-icon">${it.icon}</span>
+        <span class="di-label">${it.label}</span>`;
+      btn.addEventListener('click', () => {
+        if (it.route === nav.dataset.active) return;
+        this._animateBubbleTo(nav, btn, it.route);
+        setTimeout(() => Router.go(it.route), 300);
+      });
+      pill.appendChild(btn);
+    });
+
+    /* Bolha verde que flutua acima da borda */
+    const bubble = document.createElement('div');
+    bubble.className = 'dock-bubble';
+    bubble.innerHTML = `<span class="db-icon">${NavIcons[active] || ''}</span>`;
+    pill.appendChild(bubble);
+
+    /* Máscara que apaga a borda superior sob a bolha */
+    const mask = document.createElement('div');
+    mask.className = 'dock-notch-mask';
+    pill.appendChild(mask);
+
+    nav.appendChild(pill);
+
+    /* Injeta no DOM */
+    const page = document.querySelector('.page');
+    if (page) {
+      const existing = page.querySelector('.dock-nav, .bottom-nav');
+      if (existing) existing.remove();
+      page.appendChild(nav);
+    }
+
+    /* Posiciona após o layout ser calculado */
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this._positionBubble(nav, active);
+      });
+    });
+  },
+
+  /* Posiciona a bolha e a máscara sobre o item ativo */
+  _positionBubble(nav, activeRoute) {
+    const pill       = nav.querySelector('.dock-pill');
+    const bubble     = nav.querySelector('.dock-bubble');
+    const mask       = nav.querySelector('.dock-notch-mask');
+    const activeItem = nav.querySelector(`.dock-item[data-route="${activeRoute}"]`);
+
+    if (!pill || !bubble || !activeItem) return;
+
+    const pillRect = pill.getBoundingClientRect();
+    const itemRect = activeItem.getBoundingClientRect();
+
+    /* Centro X do item relativo ao padding-box da pílula */
+    const cx = itemRect.left - pillRect.left + itemRect.width / 2;
+
+    /* Bolha: 58px de diâmetro, centrada */
+    bubble.style.left    = `${cx - 29}px`;
+    bubble.style.opacity = '1';
+
+    /* Máscara: 66px, centrada — cobre a borda superior da pílula */
+    if (mask) mask.style.left = `${cx - 33}px`;
+  },
+
+  /* Anima a bolha para o novo destino antes de navegar */
+  _animateBubbleTo(nav, targetBtn, route) {
+    const pill   = nav.querySelector('.dock-pill');
+    const bubble = nav.querySelector('.dock-bubble');
+    const mask   = nav.querySelector('.dock-notch-mask');
+
+    if (!pill || !bubble) return;
+
+    nav.dataset.active = route;
+
+    /* Atualiza ícone na bolha */
+    const iconEl = bubble.querySelector('.db-icon');
+    if (iconEl) iconEl.innerHTML = NavIcons[route] || '';
+
+    /* Move classes .active */
+    nav.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active'));
+    targetBtn.classList.add('active');
+
+    /* Desloca a bolha e a máscara */
+    const pillRect = pill.getBoundingClientRect();
+    const itemRect = targetBtn.getBoundingClientRect();
+    const cx = itemRect.left - pillRect.left + itemRect.width / 2;
+
+    bubble.style.left = `${cx - 29}px`;
+    if (mask) mask.style.left = `${cx - 33}px`;
+  },
 };
