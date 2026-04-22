@@ -170,7 +170,6 @@ const HomePage = {
         </div>
       </div>
 
-      /* ── Coluna central: logo grande ── */
 <div class="desk-col-center">
   <img src="../assets/images/logo-folium-v2.png"
        alt="Folium" class="desk-logo">
