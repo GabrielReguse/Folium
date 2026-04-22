@@ -348,11 +348,17 @@
   }
 
   .desk-logo {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     width: min(90%, 500px);
     height: auto;
     object-fit: contain;
     user-select: none;
+    pointer-events: none;
     filter: drop-shadow(0 8px 32px rgba(92, 61, 46, 0.12));
+    z-index: 2;
   }
 
   /* ── Coluna direita: atividade recente ── */
