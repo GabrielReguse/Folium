@@ -253,9 +253,10 @@ const Navbar = {
         <span class="di-label">${it.label}</span>`;
       
       btn.addEventListener('click', () => {
-        if (it.route === nav.dataset.active) return;
-        this._animateBubbleTo(nav, btn, it.route);
-        setTimeout(() => { if (window.Router) Router.go(it.route); }, 300);
+        const route = it.route;
+        if (route === nav.dataset.active) return;
+        this._animateBubbleTo(nav, btn, route);
+        Router.go(route);
       });
       itemsContainer.appendChild(btn);
     });
