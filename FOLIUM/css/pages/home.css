@@ -148,9 +148,9 @@
     bottom: 0;
     top: auto;
     transform: none;
-    height: 230vh;
+    height: 180vh;
     width: auto;
-    max-width: 154vw;
+    max-width: 104vw;
     pointer-events: none;
     user-select: none;
     z-index: 1;
