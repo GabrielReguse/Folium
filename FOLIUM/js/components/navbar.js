@@ -53,7 +53,6 @@ const Navbar = {
     }
   },
 
-  /* ── MOBILE NAV (Original mantida) ── */
   _renderMobileNav(active = 'home') {
     const items = [
       { route: 'home',    icon: NavIcons.home,    label: 'Início'  },
@@ -89,7 +88,6 @@ const Navbar = {
     }
   },
 
-  /* ── DESKTOP NAV — Barra centralizada com recorte e elevação do SVG ── */
   _renderDock(active = 'home') {
     const items = [
       { route: 'home',    icon: NavIcons.home,    label: 'Início'  },
@@ -98,7 +96,6 @@ const Navbar = {
       { route: 'suporte', icon: NavIcons.suporte, label: 'Suporte' },
     ];
 
-    // Injeta o CSS específico se não estiver carregado
     if (!document.getElementById('dock-nav-style')) {
       const style = document.createElement('style');
       style.id = 'dock-nav-style';
@@ -113,32 +110,32 @@ const Navbar = {
           z-index: 1000;
           display: flex;
           -webkit-tap-highlight-color: transparent;
+          /* MELHORIA 1: Drop-shadow projeta a sombra seguindo o contorno do recorte */
+          filter: drop-shadow(0px -5px 10px rgba(0, 0, 0, 0.12));
         }
         
-        /* Container que embute a cor de fundo, bordas e cria dinamicamente o recorte em meia-lua (concavidade) */
         .dock-bg {
           position: absolute;
           inset: 0;
           background-color: #F0E8D1;
-          border: 2px solid #E4DAC1;
-          border-radius: 20px;
+          /* MELHORIA 1: Borda levemente mais escura para melhor contraste visual */
+          border: 1.5px solid #D1C4A8; 
+          /* ERRO 2 CORRIGIDO: Cantos inferiores retos para alinhar com o fim da página */
+          border-radius: 22px 22px 0 0; 
           box-sizing: border-box;
           
-          /* Cria a meia-lua transparente perfurando a barra */
           -webkit-mask-image: radial-gradient(circle at 1000px 1px, transparent 26px, black 27px);
           mask-image: radial-gradient(circle at 1000px 1px, transparent 26px, black 27px);
           -webkit-mask-size: 2000px 100%;
           mask-size: 2000px 100%;
           -webkit-mask-repeat: no-repeat;
           mask-repeat: no-repeat;
-          
           transition: -webkit-mask-position 0.4s cubic-bezier(0.4, 0, 0.2, 1), mask-position 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* SVG deslizante contendo a continuidade da borda e os círculos interno/externo */
         .dock-slider {
           position: absolute;
-          top: -49px; /* Alinha o eixo Y=50 da SVG com a borda de topo Y=1 do background */
+          top: -49px; 
           left: 0;
           width: 100px;
           height: 100px;
@@ -147,7 +144,6 @@ const Navbar = {
           pointer-events: none;
         }
 
-        /* Container do SVG ativado (que muda de cor e se eleva) */
         .dock-slider-icon {
           position: absolute;
           top: 33px;
@@ -157,11 +153,15 @@ const Navbar = {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F5EED6;
+          /* ERRO 1 CORRIGIDO: Cor clara para o ícone aparecer no círculo verde */
+          color: #F5F2E7; 
         }
+
         .dock-slider-icon svg {
-          width: 20px;
-          height: 20px;
+          width: 22px;
+          height: 22px;
+          stroke: currentColor;
+          display: block;
         }
         
         .dock-items {
@@ -208,9 +208,8 @@ const Navbar = {
           transition: color 0.3s;
         }
 
-        /* Estados do item Ativo */
         .dock-item.active .di-icon-wrapper {
-          opacity: 0; /* O ícone estático some para dar lugar ao circular */
+          opacity: 0; 
         }
         .dock-item.active .di-label {
           color: #6CAB69;
@@ -219,26 +218,22 @@ const Navbar = {
       document.head.appendChild(style);
     }
 
-    /* Container base */
     const nav = document.createElement('nav');
     nav.className = 'dock-nav-desktop';
     nav.dataset.active = active;
 
-    /* Fundo mascarado */
     const bg = document.createElement('div');
     bg.className = 'dock-bg';
     nav.appendChild(bg);
 
-    /* Slider geométrico contendo as formas e a cor preenchida (ativo) */
     const slider = document.createElement('div');
     slider.className = 'dock-slider';
     slider.innerHTML = `
       <svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block;">
-        <path d="M 24 50 A 26 26 0 0 0 76 50" fill="none" stroke="#E4DAC1" stroke-width="2" />
-        
+        /* Ajuste do arco da borda para bater com a borda da nav */
+        <path d="M 24 50 A 26 26 0 0 0 76 50" fill="none" stroke="#D1C4A8" stroke-width="1.5" />
         <circle cx="50" cy="50" r="22" fill="none" stroke="#6CAB69" stroke-width="2"/>
-        
-        <circle cx="50" cy="50" r="17" fill="#6CAB69" />
+        <circle cx="50" cy="50" r="18" fill="#6CAB69" />
       </svg>
       <div class="dock-slider-icon">
         ${NavIcons[active] || ''}
@@ -246,7 +241,6 @@ const Navbar = {
     `;
     nav.appendChild(slider);
 
-    /* Botões Interativos */
     const itemsContainer = document.createElement('div');
     itemsContainer.className = 'dock-items';
 
@@ -261,26 +255,22 @@ const Navbar = {
       btn.addEventListener('click', () => {
         if (it.route === nav.dataset.active) return;
         this._animateBubbleTo(nav, btn, it.route);
-        // Utilizando Window.Router
         setTimeout(() => { if (window.Router) Router.go(it.route); }, 300);
       });
       itemsContainer.appendChild(btn);
     });
     nav.appendChild(itemsContainer);
 
-    /* Injeção no DOM */
     const page = document.querySelector('.page') || document.body;
     const existing = document.querySelector('.dock-nav-desktop, .bottom-nav');
     if (existing) existing.remove();
     page.appendChild(nav);
 
-    /* Aguarda layout renderizar para calcular medidas perfeitamente */
     requestAnimationFrame(() => {
       this._positionBubble(nav, active);
     });
   },
 
-  /* Realiza o cálculo para posicionar perfeitamente a máscara de concavidade e o slider SVG */
   _positionBubble(nav, activeRoute) {
     const slider = nav.querySelector('.dock-slider');
     const bg = nav.querySelector('.dock-bg');
@@ -290,29 +280,19 @@ const Navbar = {
 
     const navRect = nav.getBoundingClientRect();
     const itemRect = activeItem.getBoundingClientRect();
-
-    /* Centro Horizontal (X) do elemento alvo ativo */
     const cx = itemRect.left - navRect.left + itemRect.width / 2;
 
-    /* Move os círculos visualmente em CSS */
     slider.style.transform = `translateX(${cx - 50}px)`;
-    /* Move a "perfuração" da máscara para coincidir exatamente embaixo do anel usando a proporção 1000px do tamanho de imagem estipulado no CSS */
     bg.style.webkitMaskPosition = `${cx - 1000}px 0`;
     bg.style.maskPosition = `${cx - 1000}px 0`;
   },
 
-  /* Roda a transição e a elevação de estado */
   _animateBubbleTo(nav, targetBtn, route) {
     nav.dataset.active = route;
-
-    /* Transiciona a cor/fundo do ícone inserido no slider circular */
     const iconEl = nav.querySelector('.dock-slider-icon');
     if (iconEl) iconEl.innerHTML = NavIcons[route] || '';
-
-    /* Remove classe ativa dos antigos e repassa pro novo */
     nav.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active'));
     targetBtn.classList.add('active');
-
     this._positionBubble(nav, route);
   }
 };
