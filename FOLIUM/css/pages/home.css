@@ -1,101 +1,119 @@
-/* FOLIUM v4 — pages/home.css */
+/* FOLIUM v5 — pages/home.css
+   Fiel ao design de referência: mobile + desktop */
 
-/* ── Top nav transparente no mobile (flutua sobre o hero) ── */
-.page-home .top-nav {
-  background: transparent;
-  border-bottom: none;
-  position: absolute;
-  width: 100%;
-  z-index: var(--z-nav);
+/* ════════════════════════════════════════
+   SHARED — canvas e body base
+════════════════════════════════════════ */
+
+/* O canvas desenhado pelo app.js fica fixo abaixo de tudo */
+#bg-canvas { display: none; } /* desativado — usamos imagens reais */
+
+/* Fundo com a imagem de doodles (mobile) */
+.page-home {
+  background-color: var(--cream);
+  background-image: url('../assets/images/doodles-mobile.png');
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  background-size: 100% auto;
+  min-height: 100dvh;
 }
+
+/* ════════════════════════════════════════
+   MOBILE
+════════════════════════════════════════ */
+
+/* ── Top nav com logo ── */
+.home-top-nav {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: rgba(245,237,214,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.home-top-nav__spacer {
+  width: 44px; /* equilibra o botão da direita */
+}
+
+.home-top-nav__logo {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.home-top-nav__burger {
+  width: 44px; height: 44px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--t-fast);
+  color: var(--text-mid);
+}
+
+.home-top-nav__burger:hover { background: var(--sand-light); }
+.home-top-nav__burger svg { width: 20px; height: 20px; }
 
 /* ── Hero mobile ── */
 .dash-hero {
-  padding: 72px 26px 52px;          /* topo: nav height + espaço */
-  background: linear-gradient(
-    160deg,
+  padding: 32px 22px 44px;
+  background: linear-gradient(160deg,
     var(--linen)      0%,
     var(--bg-deep)    50%,
     var(--sand-light) 100%
   );
   position: relative;
-  overflow: hidden;
-}
-
-/* Bolhas decorativas */
-.dash-hero::before {
-  content: '';
-  position: absolute;
-  top: -70px; right: -70px;
-  width: 300px; height: 300px;
-  background: rgba(196,168,130,0.14);
-  border-radius: 50%;
-  pointer-events: none;
-}
-.dash-hero::after {
-  content: '';
-  position: absolute;
-  bottom: -40px; left: -30px;
-  width: 160px; height: 160px;
-  background: rgba(155,107,66,0.07);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-/* Fade suave na base do hero → cor do body */
-.dash-hero .hero-fade {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 64px;
-  background: linear-gradient(to bottom, transparent, var(--cream));
-  pointer-events: none;
 }
 
 .hero-greeting {
   font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--caramel);
-  margin-bottom: 5px;
-  position: relative;
-  opacity: 0.85;
+  margin-bottom: 6px;
+  opacity: 0.9;
 }
 
 .hero-name {
   font-family: var(--font-serif);
-  font-size: clamp(26px, 7vw, 34px);
+  font-size: clamp(32px, 9vw, 44px);
   font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.025em;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
   color: var(--text);
-  margin-bottom: 6px;
-  position: relative;
+  margin-bottom: 8px;
 }
 
 .hero-sub {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 300;
   color: var(--text-mid);
-  position: relative;
+  margin-bottom: 24px;
 }
 
-/* Stats */
+/* Stats card ── glass morphism sobre o gradiente */
 .hero-stats {
   display: flex;
-  margin-top: 20px;
-  position: relative;
-  background: rgba(255,255,255,0.52);
-  border-radius: var(--r);
+  background: rgba(255,255,255,0.60);
+  border-radius: var(--r-lg);
   overflow: hidden;
-  border: 1px solid rgba(196,168,130,0.30);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(196,168,130,0.28);
+  box-shadow: 0 4px 20px rgba(92,61,46,0.06);
 }
 
 .hstat {
   flex: 1;
-  padding: 14px 10px;
+  padding: 16px 12px;
   text-align: center;
   position: relative;
 }
@@ -103,176 +121,262 @@
 .hstat + .hstat::before {
   content: '';
   position: absolute;
-  left: 0; top: 20%; height: 60%;
+  left: 0; top: 22%; height: 56%;
   width: 1px;
-  background: rgba(196,168,130,0.3);
+  background: rgba(196,168,130,0.35);
 }
 
 .hstat-num {
   font-family: var(--font-serif);
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   line-height: 1;
   color: var(--caramel);
+  margin-bottom: 4px;
 }
 
 .hstat-lbl {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.09em;
   color: var(--text-mid);
-  margin-top: 3px;
-  opacity: 0.75;
+  opacity: 0.7;
 }
 
-/* ── Body mobile (action cards) ── */
+/* ── Body / action cards ── */
 .dash-body {
   flex: 1;
-  overflow-y: auto;
-  padding: 28px 20px 24px;
-  max-width: 560px;
-  margin: 0 auto;
-  width: 100%;
+  padding: 28px 18px 100px; /* 100px para não sobrepor bottom nav */
+  background: var(--cream);
 }
 
-/* ── Action cards ── */
-.act-card {
+.dash-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--caramel);
+  margin-bottom: 16px;
+  opacity: 0.85;
+}
+
+/* Action card mobile — limpo, sem borda lateral colorida */
+.home-act-card {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 18px 18px;
+  padding: 20px 18px;
   background: var(--surface);
-  border-radius: var(--r);
-  cursor: pointer;
+  border-radius: var(--r-lg);
   border: 1px solid var(--border);
+  box-shadow: 0 2px 16px rgba(92,61,46,0.06);
   width: 100%;
   text-align: left;
   font-family: var(--font-sans);
-  transition: box-shadow var(--t-mid), transform var(--t-mid), border-color var(--t-mid);
-  margin-bottom: 11px;
-  text-decoration: none;
-  color: inherit;
-  box-shadow: var(--sh-sm);
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: box-shadow var(--t-mid), transform var(--t-mid);
   position: relative;
   overflow: hidden;
 }
 
-.act-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; height: 100%; width: 3px;
-  background: var(--sand);
-  transition: background var(--t-mid);
-  border-radius: 3px 0 0 3px;
-}
-
-.act-card:hover {
-  box-shadow: var(--sh);
+.home-act-card:hover {
+  box-shadow: 0 6px 28px rgba(92,61,46,0.12);
   transform: translateY(-2px);
-  border-color: var(--border-act);
 }
 
-.act-card:hover::before { background: var(--caramel); }
+.home-act-card:active { transform: scale(0.98); }
 
-.act-card:first-child { background: linear-gradient(135deg, var(--surface) 0%, var(--linen) 100%); }
-.act-card:first-child::before { background: var(--caramel); }
-
-.act-icon {
-  width: 48px; height: 48px;
-  border-radius: 14px;
+.home-act-icon {
+  width: 52px; height: 52px;
+  border-radius: 15px;
+  background: var(--caramel-lt);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
 
-.act-icon svg { width: 22px; height: 22px; }
-.ai-1 { background: var(--caramel-lt); }
-.ai-1 svg { stroke: var(--caramel); }
-.ai-2 { background: rgba(196,168,130,0.2); }
-.ai-2 svg { stroke: var(--text-mid); }
-.ai-3 { background: rgba(212,184,150,0.25); }
-.ai-3 svg { stroke: var(--text-mid); }
+.home-act-icon svg {
+  width: 24px; height: 24px;
+  stroke: var(--caramel);
+}
 
-.act-info { flex: 1; }
-.act-info h3 { font-size: 15.5px; font-weight: 600; color: var(--text); margin-bottom: 3px; letter-spacing: -0.01em; }
-.act-info p  { font-size: 13px; color: var(--text-light); font-weight: 300; }
+.home-act-info { flex: 1; }
 
-.act-arr { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.3; transition: opacity var(--t-fast), transform var(--t-fast); }
-.act-card:hover .act-arr { opacity: 0.65; transform: translateX(3px); }
+.home-act-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
 
-/* ══════════════════════════
-   DESKTOP — Layout 2 colunas
-══════════════════════════ */
+.home-act-sub {
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+/* ════════════════════════════════════════
+   DESKTOP (≥900px)
+════════════════════════════════════════ */
 @media (min-width: 900px) {
 
-  /* Nav transparente só no mobile — no desktop a sidebar tem o logo */
-  .page-home .top-nav { display: none; }
-
-  /* Grid principal */
-  .dash-layout {
-    display: grid;
-    grid-template-columns: 400px 1fr;
-    min-height: 100dvh;
-    max-width: none;
-    padding: 0;
-    margin: 0;
+  /* ── Fundo: doodles desktop nas bordas ── */
+  .page-home {
+    background-image: url('../assets/images/doodles-desktop.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
   }
 
-  /* Coluna esquerda */
-  .dash-col-left {
-    padding: 48px 44px;
-    background: var(--cream);
-    border-right: 1px solid var(--border);
+  /* Remove margem da sidebar (não há sidebar no home desktop) */
+  .page-home { margin-left: 0 !important; }
+
+  /* Esconde elementos mobile */
+  .home-top-nav { display: none; }
+  .dash-hero    { display: none; }
+  .dash-body    { display: none; }
+
+  /* Oculta bottom-nav mobile — será a dock */
+  /* (o bottom-nav regular é reestilizado em seguida) */
+
+  /* ── Vinicius: figura funda no fundo esquerdo ── */
+  .desk-vinicius {
+    display: block !important;
+    position: fixed;
+    left: 0; top: 50%;
+    transform: translateY(-55%);
+    width: 32vw;
+    max-width: 480px;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+    /* a imagem já vem muito clara — mantemos quase na opacidade original */
+    opacity: 0.85;
+  }
+
+  /* ── Layout 3 colunas ── */
+  .dash-desk-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr 0.85fr;
+    min-height: 100dvh;
+    padding: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ── Coluna esquerda ── */
+  .desk-col-left {
+    padding: 56px 48px 120px 52px;
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .hero-greeting {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    margin-bottom: 8px;
+  }
+
+  .desk-name {
+    font-family: var(--font-serif);
+    font-size: clamp(36px, 4.5vw, 56px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+
+  .desk-sub {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--text-mid);
+    margin-bottom: 28px;
+  }
+
+  .desk-stats {
+    max-width: 360px;
+    border-radius: var(--r-lg);
+    background: rgba(255,255,255,0.52);
+    border: 1px solid rgba(196,168,130,0.30);
+    box-shadow: 0 4px 24px rgba(92,61,46,0.07);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .desk-stats .hstat { padding: 18px 14px; }
+  .desk-stats .hstat-num { font-size: 30px; }
+  .desk-stats .hstat-lbl { font-size: 10px; }
+
+  /* ── Coluna central: logo enorme ── */
+  .desk-col-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px 120px;
+  }
+
+  .desk-logo {
+    width: min(82%, 420px);
+    height: auto;
+    object-fit: contain;
+    user-select: none;
+    filter: drop-shadow(0 8px 32px rgba(92,61,46,0.12));
+  }
+
+  /* ── Coluna direita: atividade recente ── */
+  .desk-col-right {
+    padding: 56px 48px 120px 28px;
     overflow-y: auto;
   }
 
-  /* Coluna direita */
-  .dash-col-right {
-    padding: 48px 44px;
-    background: var(--linen);
-    overflow-y: auto;
+  .recent-title {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
   }
 
-  /* Action cards maiores no desktop */
-  .act-card {
-    padding: 22px 20px;
-    margin-bottom: 14px;
+  .recent-sub {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--text-light);
+    margin-bottom: 22px;
   }
 
-  .act-card:first-child { padding: 24px 20px; }
-
-  .act-icon { width: 52px; height: 52px; border-radius: 15px; }
-  .act-icon svg { width: 24px; height: 24px; }
-  .act-info h3 { font-size: 16.5px; }
-  .act-info p  { font-size: 14px; }
-
-  /* Cards de atividade recente */
   .recent-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.70);
+    border: 1px solid rgba(196,168,130,0.28);
     border-radius: var(--r);
     padding: 18px 20px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     cursor: pointer;
-    transition: box-shadow var(--t-mid), transform var(--t-mid), border-color var(--t-mid);
-    box-shadow: var(--sh-sm);
+    transition: background var(--t-fast), box-shadow var(--t-mid), transform var(--t-mid);
+    box-shadow: 0 2px 12px rgba(92,61,46,0.05);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
   }
 
   .recent-card:hover {
-    box-shadow: var(--sh);
+    background: rgba(255,255,255,0.90);
+    box-shadow: 0 6px 24px rgba(92,61,46,0.10);
     transform: translateY(-2px);
-    border-color: var(--border-act);
   }
 
   .rc-tag {
     font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--text-light);
+    color: var(--caramel);
     margin-bottom: 6px;
+    opacity: 0.85;
   }
 
   .rc-title {
@@ -293,15 +397,85 @@
     color: var(--text-light);
     font-size: 14px;
     font-weight: 300;
-    line-height: 1.75;
-    padding: 24px 0;
+    line-height: 1.8;
+    padding: 20px 0;
   }
 
   .recent-empty strong { color: var(--caramel); font-weight: 600; }
+
+  /* ════════════════════════════════════════
+     DOCK NAV desktop — flutuante, centralizado
+  ════════════════════════════════════════ */
+  .page-home .bottom-nav {
+    position: fixed !important;
+    bottom: 24px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+    min-width: 340px !important;
+    flex-direction: row !important;
+    border-top: none !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 22px !important;
+    padding: 10px 16px !important;
+    gap: 4px !important;
+    background: rgba(245,237,214,0.96) !important;
+    box-shadow: 0 8px 40px rgba(92,61,46,0.18) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    z-index: var(--z-nav) !important;
+  }
+
+  /* Items do dock */
+  .page-home .bottom-nav .nav-item {
+    flex-direction: column !important;
+    padding: 8px 20px !important;
+    border-radius: 14px !important;
+    min-width: 72px !important;
+    gap: 4px !important;
+    width: auto !important;
+    flex: none !important;
+  }
+
+  .page-home .bottom-nav .nav-item .nl {
+    font-size: 11px !important;
+    letter-spacing: 0 !important;
+  }
+
+  /* Item ativo (home) — fundo verde folha */
+  .page-home .bottom-nav .nav-item.active {
+    background: #5A7A3E !important;
+  }
+
+  .page-home .bottom-nav .nav-item.active .ni svg {
+    stroke: #fff !important;
+    transform: none !important;
+  }
+
+  .page-home .bottom-nav .nav-item.active .nl {
+    color: #fff !important;
+  }
+
+  /* Remove indicador de linha do dock */
+  .page-home .bottom-nav .nav-item.active::after { display: none !important; }
+
+  /* Esconde elementos desktop sidebar que não existem aqui */
+  .page-home .nav-logo-desk,
+  .page-home .nav-user-desk { display: none !important; }
 }
 
-/* ── Responsivo pequeno ── */
-@media (max-width: 380px) {
-  .hero-name { font-size: 24px; }
-  .hstat-num { font-size: 20px; }
+/* ════════════════════════════════════════
+   MOBILE: ajuste do bottom-nav padrão
+════════════════════════════════════════ */
+@media (max-width: 899px) {
+  /* Garante que desk-vinicius não aparece */
+  .desk-vinicius { display: none; }
+  .dash-desk-layout { display: none; }
+}
+
+/* ── Responsivo extra pequeno ── */
+@media (max-width: 360px) {
+  .hero-name     { font-size: 28px; }
+  .hstat-num     { font-size: 22px; }
+  .home-act-card { padding: 16px 14px; }
 }
