@@ -219,7 +219,7 @@
 
   /* ── Coluna direita: atividade recente ── */
   .desk-col-right {
-    padding: 56px 48px 120px 32px;
+    padding: 56px 48px 120px 28px;
     overflow-y: auto;
     background: #F0E8D1;
     border-left: 1.5px solid #E4DAC1;
@@ -291,7 +291,7 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     position: relative;
-    overflow: visible; /* CRÍTICO: permite a bolha sair para cima */
+    overflow: visible;
   }
 
   /* Item de navegação */
@@ -346,7 +346,7 @@
   /* ── BOLHA flutuante ── */
   .dock-bubble {
     position: absolute;
-    top: -36px;          /* sai acima da borda superior da pílula */
+    top: -36px;
     width: 58px;
     height: 58px;
     border-radius: 50%;
@@ -359,7 +359,7 @@
       0 4px 20px rgba(74,106,48,0.45),
       0 2px 8px rgba(74,106,48,0.25);
     z-index: 10;
-    opacity: 0;                                       /* inicia invisível; JS revela */
+    opacity: 0;
     transition:
       left 0.38s cubic-bezier(0.22, 1, 0.36, 1),
       opacity 0.2s ease;
