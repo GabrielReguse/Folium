@@ -365,7 +365,7 @@
   .desk-tagline {
   position: fixed;
   left: 50%;
-  top: calc(50% + 160px);
+  top: calc(50% + 45px);
   transform: translateX(-50%);
   text-align: center;
   font-family: var(--font-serif);
