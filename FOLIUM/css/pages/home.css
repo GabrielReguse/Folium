@@ -38,7 +38,7 @@
 }
 
 .home-top-nav__logo {
-  height: 46px;
+  height: 56px;
   width: auto;
   object-fit: contain;
   display: block;
@@ -72,6 +72,44 @@
   padding: 32px 22px 44px;
   background: linear-gradient(160deg, var(--linen) 0%, var(--bg-deep) 50%, var(--sand-light) 100%);
   position: relative;
+  overflow: hidden;
+}
+
+/* Círculo grande — canto superior direito (atrás do header/hero) */
+.dash-hero::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  right: -80px;
+  width: 310px;
+  height: 310px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 250, 238, 0.70) 0%, rgba(240, 228, 204, 0.25) 55%, transparent 78%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Círculo menor — canto inferior esquerdo (atrás das estatísticas) */
+.dash-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -50px;
+  left: -55px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 192, 160, 0.50) 0%, rgba(196, 172, 136, 0.15) 60%, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Conteúdo do hero acima dos círculos */
+.hero-greeting,
+.hero-name,
+.hero-sub,
+.hero-stats {
+  position: relative;
+  z-index: 1;
 }
 
 .hero-greeting {

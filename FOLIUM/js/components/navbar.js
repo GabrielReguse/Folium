@@ -61,7 +61,7 @@ const Navbar = {
       { route: 'suporte', icon: NavIcons.suporte, label: 'Suporte' },
     ];
 
-    const user     = window.Storage ? window.Storage.getUser() : {};
+    const user     = (typeof Storage !== 'undefined' && typeof Storage.getUser === 'function') ? Storage.getUser() : {};
     const userName = user.name || user.nome || 'Usuário';
 
     const nav = document.createElement('nav');
