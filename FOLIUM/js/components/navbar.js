@@ -46,11 +46,8 @@ const Navbar = {
   },
 
   renderBottom(active = 'home') {
-    if (window.innerWidth >= 900) {
-      this._renderDock(active);
-    } else {
-      this._renderMobileNav(active);
-    }
+    // Usa o dock em todos os tamanhos de tela
+    this._renderDock(active);
   },
 
   _renderMobileNav(active = 'home') {
@@ -110,8 +107,21 @@ const Navbar = {
           z-index: 1000;
           display: flex;
           -webkit-tap-highlight-color: transparent;
-          /* MELHORIA 1: Drop-shadow projeta a sombra seguindo o contorno do recorte */
           filter: drop-shadow(0px -5px 10px rgba(0, 0, 0, 0.12));
+        }
+
+        /* Mobile: dock largura total, sem bordas laterais */
+        @media (max-width: 899px) {
+          .dock-nav-desktop {
+            width: 100%;
+            left: 0;
+            transform: none;
+          }
+          .dock-bg {
+            border-radius: 0 !important;
+            border-left: none !important;
+            border-right: none !important;
+          }
         }
         
         .dock-bg {

@@ -13,6 +13,43 @@
   background-position: bottom center;
   background-size: 100% auto;
   min-height: 100dvh;
+  position: relative;
+}
+
+/* Círculo decorativo grande — canto superior direito
+   aparece atrás do header e do topo do hero */
+.page-home::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -70px;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(255, 252, 242, 0.90) 0%,
+    rgba(245, 236, 212, 0.55) 45%,
+    rgba(230, 218, 192, 0.15) 70%,
+    transparent 85%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Círculo médio — lado esquerdo, atrás das estatísticas */
+.page-home::after {
+  content: '';
+  position: absolute;
+  top: 180px;
+  left: -80px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(218, 200, 168, 0.60) 0%,
+    rgba(205, 185, 150, 0.25) 55%,
+    transparent 80%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ════════════════════════════════════════
@@ -26,11 +63,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
-  background: rgba(245, 237, 214, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  /* border-bottom removido — sem divisão visual no header mobile */
+  padding: 10px 20px;
+  background: rgba(245, 237, 214, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  /* sem border-bottom — visual limpo */
 }
 
 .home-top-nav__spacer {
@@ -38,7 +75,7 @@
 }
 
 .home-top-nav__logo {
-  height: 56px;
+  height: 62px;
   width: auto;
   object-fit: contain;
   display: block;
@@ -69,41 +106,13 @@
 }
 
 .dash-hero {
-  padding: 32px 22px 44px;
+  padding: 32px 22px 48px;
   background: linear-gradient(160deg, var(--linen) 0%, var(--bg-deep) 50%, var(--sand-light) 100%);
   position: relative;
-  overflow: hidden;
+  /* sem overflow:hidden — círculos devem sangrar para fora */
 }
 
-/* Círculo grande — canto superior direito (atrás do header/hero) */
-.dash-hero::before {
-  content: '';
-  position: absolute;
-  top: -100px;
-  right: -80px;
-  width: 310px;
-  height: 310px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 250, 238, 0.70) 0%, rgba(240, 228, 204, 0.25) 55%, transparent 78%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Círculo menor — canto inferior esquerdo (atrás das estatísticas) */
-.dash-hero::after {
-  content: '';
-  position: absolute;
-  bottom: -50px;
-  left: -55px;
-  width: 240px;
-  height: 240px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(212, 192, 160, 0.50) 0%, rgba(196, 172, 136, 0.15) 60%, transparent 80%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Conteúdo do hero acima dos círculos */
+/* Conteúdo do hero acima dos círculos de fundo */
 .hero-greeting,
 .hero-name,
 .hero-sub,
@@ -261,55 +270,6 @@
   color: var(--text-light);
   font-weight: 300;
   line-height: 1.4;
-}
-
-/* ════════════════════════════════════════
-   MOBILE: navbar com círculo completo
-   (sobrepõe components.css sem afetar desktop)
-════════════════════════════════════════ */
-@media (max-width: 899px) {
-
-  /* Navbar sem bordas laterais, altura suficiente pro círculo */
-  .page-home .bottom-nav {
-    height: 76px;
-    padding: 0 0 env(safe-area-inset-bottom);
-    align-items: center;
-    overflow: visible;
-    border-left: none;
-    border-right: none;
-  }
-
-  .page-home .nav-item {
-    padding: 4px 0 6px;
-    gap: 4px;
-    justify-content: center;
-  }
-
-  /* Círculo verde completo no item ativo */
-  .page-home .nav-item.active .ni {
-    width: 54px;
-    height: 54px;
-    min-width: 54px;
-    border-radius: 50%;
-    background: #5A7A3E;
-    box-shadow: 0 4px 16px rgba(74, 124, 53, 0.38);
-  }
-
-  .page-home .nav-item.active .ni svg {
-    stroke: #ffffff !important;
-    transform: none;
-  }
-
-  .page-home .nav-item.active .nl {
-    color: #4A7A30;
-    font-weight: 700;
-    font-size: 11px;
-  }
-
-  /* Remove a linha underline — o círculo já é o indicador */
-  .page-home .nav-item.active::after {
-    display: none;
-  }
 }
 
 /* ════════════════════════════════════════
