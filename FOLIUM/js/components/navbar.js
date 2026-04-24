@@ -265,7 +265,22 @@ const Navbar = {
       btn.addEventListener('click', () => {
         const route = it.route;
         if (route === nav.dataset.active) return;
-        this._animateBubbleTo(nav, btn, route);
+        // Atualiza estado do active (label + icon) para que o snapshot
+        // do View Transitions capture o novo estado se a API estiver
+        // ativa. A bolha NÃO é animada via JS antes da navegação: o
+        // próprio View Transitions morph-ia a posição entre a página
+        // antiga e a nova (já posicionada corretamente no load).
+        // Em browsers sem view-transitions, animamos o bubble via JS
+        // como fallback.
+        const supportsVT = typeof document.startViewTransition === 'function';
+        if (!supportsVT) {
+          this._animateBubbleTo(nav, btn, route);
+        } else {
+          // só marca estado semântico/visual do item (sem mover bubble)
+          nav.dataset.active = route;
+          nav.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active'));
+          btn.classList.add('active');
+        }
         Router.go(route);
       });
       itemsContainer.appendChild(btn);
