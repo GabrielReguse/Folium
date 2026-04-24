@@ -694,10 +694,11 @@
      às bordas e têm tons muito próximos do fundo cream da página,
      para criar apenas uma aura suave — sem blobs saturados. */
 
-  /* Grande halo cremoso — topo/hero, ligeiramente estourando
-     para a direita do viewport como na referência. */
+  /* Grande halo cremoso — posicionado LOGO ABAIXO do header
+     para não ser cortado pelo fundo opaco/blur da navbar.
+     Extrapola levemente pela direita do viewport. */
   .page-home::before {
-    top: 20px;
+    top: 110px;
     right: -40px;
     left: auto;
     width: 92vw;
@@ -715,7 +716,7 @@
   /* Halo quente atrás das estatísticas — bem à esquerda,
      com a borda esquerda saindo do viewport como na referência. */
   .page-home::after {
-    top: 210px;
+    top: 280px;
     left: -50px;
     width: 62vw;
     max-width: 240px;
@@ -762,6 +763,14 @@
     height: 18px !important;
   }
 
+  /* Remove o recorte (mask) do dock no mobile — a borda superior
+     fica uma linha contínua, sem a meia-lua desconectada por trás
+     da búlha do "Início". */
+  .page-home .dock-nav-desktop .dock-bg {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+
   .dash-section-label {
     margin-bottom: 18px;
   }
@@ -787,18 +796,18 @@
   }
 
   /* Em telas muito estreitas, círculos ligeiramente menores mas
-     mantendo o mesmo posicionamento (espiando para fora). */
+     mantendo o mesmo posicionamento (abaixo do header / bordas). */
   .page-home::before {
     width: 88vw;
     height: 88vw;
-    top: 16px;
+    top: 100px;
     right: -40px;
   }
 
   .page-home::after {
     width: 58vw;
     height: 58vw;
-    top: 200px;
+    top: 270px;
     left: -40px;
   }
 }
