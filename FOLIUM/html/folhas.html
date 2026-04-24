@@ -13,26 +13,23 @@
   <link rel="stylesheet" href="../css/layout.css">
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/pages/materia.css">
   <link rel="stylesheet" href="../css/pages/folhas.css">
 </head>
 <body>
   <canvas id="bg-canvas"></canvas>
-    <div id="loading-overlay">
+
+  <div id="loading-overlay">
     <div class="loading-box">
       <div class="loader loader-lg"></div>
-      <h3 id="ld-title">Processando...</h3>
+      <h3 id="ld-title">Carregando...</h3>
       <p id="ld-sub">Aguarde um momento</p>
     </div>
   </div>
-  <div class="page">
-    <div class="folhas-body page-body">
-      <div class="subj-section">
-        <h2 class="t-section mb-8">Minhas Matérias</h2>
-        <p class="t-sub mb-24">Selecione para ver as folhas criadas</p>
-        <div id="subj-list"></div>
-      </div>
-    </div>
-  </div>
+
+  <!-- Estrutura dinâmica — folhas.js constrói tudo -->
+  <div class="page page-folhas"></div>
+
   <script src="../js/config.js"></script>
   <script src="../js/utils/dom.js"></script>
   <script src="../js/utils/storage.js"></script>
