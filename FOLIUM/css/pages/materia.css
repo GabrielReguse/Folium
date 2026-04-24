@@ -33,6 +33,7 @@
   text-decoration:none;color:inherit;
   transition:box-shadow var(--t-mid),transform var(--t-mid),border-color var(--t-mid);
   margin-bottom:10px;
+  position:relative;
 }
 .sheet-card-item:hover{box-shadow:var(--sh);transform:translateY(-2px);border-color:var(--border-act)}
 
@@ -57,6 +58,48 @@
 .del-btn{background:none;border:none;cursor:pointer;padding:5px 6px;border-radius:8px;transition:background var(--t-fast),color var(--t-fast);display:flex;align-items:center;color:var(--text-light)}
 .del-btn svg{width:15px;height:15px;stroke:currentColor}
 .del-btn:hover{background:#fff0ec;color:#b91c1c}
+
+/* Botão download (PDF / DOC) */
+.dl-btn{background:none;border:none;cursor:pointer;padding:5px 6px;border-radius:8px;transition:background var(--t-fast),color var(--t-fast);display:flex;align-items:center;color:var(--text-light)}
+.dl-btn svg{width:17px;height:17px;stroke:currentColor}
+.dl-btn:hover{background:var(--hover-bg);color:var(--caramel)}
+
+/* Botão kebab (três pontos) — só visível em mobile */
+.sc-kebab{display:none;background:none;border:none;cursor:pointer;padding:5px 6px;border-radius:8px;color:var(--text-light);align-items:center;justify-content:center}
+.sc-kebab svg{width:18px;height:18px;fill:currentColor}
+.sc-kebab:hover{background:var(--hover-bg);color:var(--text)}
+
+/* Mobile: esconde os ícones de desktop, mostra o kebab */
+@media (max-width:899px){
+  .sc-actions .sc-desktop{display:none !important}
+  .sc-kebab{display:flex}
+}
+
+/* Menu flutuante do kebab */
+.sc-menu{
+  position:absolute;
+  z-index:1000;
+  min-width:180px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.12);
+  padding:6px;
+  display:flex;flex-direction:column;gap:2px;
+  font-family:var(--font-sans);
+}
+.sc-menu-item{
+  display:flex;align-items:center;
+  padding:10px 12px;
+  background:none;border:none;cursor:pointer;
+  text-align:left;font-size:14px;color:var(--text);
+  border-radius:8px;
+  font-family:inherit;
+  transition:background var(--t-fast),color var(--t-fast);
+}
+.sc-menu-item:hover{background:var(--hover-bg)}
+.sc-menu-item.danger{color:#b91c1c}
+.sc-menu-item.danger:hover{background:#fff0ec}
 
 /* ── View da folha ── */
 .shv-badges{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px}

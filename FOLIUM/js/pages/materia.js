@@ -87,11 +87,153 @@ const MateriaPage = {
         subjectId:  this.subject.id,
         onFavorite: () => this._toggleFavorite(sh.id),
         onDelete:   () => this._deleteSheet(sh.id),
+        onDownload: (format) => this._downloadSheet(sh.id, format),
       });
       card.style.animationDelay = `${i * 0.07}s`;
       card.classList.add('au');
       body.appendChild(card);
     });
+  },
+
+  /* ── Download de folha (PDF ou DOC) ── */
+  _downloadSheet(sheetId, format) {
+    const folha = this.subject.folhas.find(f => f.id === sheetId);
+    if (!folha) return;
+
+    const safeName = (folha.titulo || 'folha')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9_\- ]/g, '').replace(/\s+/g, '_').slice(0, 80) || 'folha';
+
+    const bodyHTML = this._buildSheetHTML(folha);
+
+    if (format === 'doc') {
+      this._downloadDoc(bodyHTML, `${safeName}.doc`, folha.titulo);
+    } else {
+      this._downloadPdf(bodyHTML, `${safeName}.pdf`);
+    }
+  },
+
+  /* Constrói HTML da folha para export */
+  _buildSheetHTML(folha) {
+    const esc = (s) => String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    const parts = [];
+    parts.push(`<h1 style="font-family:Georgia,serif;margin:0 0 4px">${esc(folha.titulo || 'Folha')}</h1>`);
+    const subtitle = [this.subject.nomeNormalizado, folha.tema].filter(Boolean).map(esc).join(' — ');
+    if (subtitle) parts.push(`<p style="margin:0 0 4px;color:#555"><em>${subtitle}</em></p>`);
+    const meta = [folha.dataFormatada, folha.nivelLabel].filter(Boolean).map(esc).join(' · ');
+    if (meta) parts.push(`<p style="margin:0 0 18px;color:#888;font-size:12px">${meta}</p>`);
+
+    const r = folha.resultado;
+    if (r && Array.isArray(r.blocos) && r.blocos.length) {
+      r.blocos.forEach(b => {
+        parts.push(`<h2 style="font-family:Georgia,serif;margin:18px 0 6px">${esc(b.titulo || '')}</h2>`);
+        if (b.explicacao) parts.push(`<p style="margin:0 0 8px;line-height:1.5">${esc(b.explicacao)}</p>`);
+
+        const ex = b.exemplo;
+        if (ex && ex.tipo) {
+          const rotulo = esc(ex.rotulo || (ex.tipo === 'pratico' ? 'Exemplo' : ex.tipo === 'tabela' ? 'Tabela' : 'Resumo'));
+          if (ex.tipo === 'pratico' && ex.texto) {
+            parts.push(`<div style="margin:8px 0;padding:10px 12px;background:#f6f2ec;border-left:3px solid #b08a5a"><strong>${rotulo}:</strong> ${esc(ex.texto)}</div>`);
+          } else if (ex.tipo === 'lista' && Array.isArray(ex.itens) && ex.itens.length) {
+            parts.push(`<div style="margin:8px 0"><strong>${rotulo}</strong><ul>${ex.itens.filter(Boolean).map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>`);
+          } else if (ex.tipo === 'tabela' && Array.isArray(ex.colunas) && Array.isArray(ex.linhas)) {
+            const thead = `<tr>${ex.colunas.map(c => `<th style="border:1px solid #aaa;padding:4px 8px;background:#eee;text-align:left">${esc(c)}</th>`).join('')}</tr>`;
+            const tbody = ex.linhas.map(row => {
+              const cells = Array.isArray(row) ? row : [];
+              return `<tr>${cells.map(c => `<td style="border:1px solid #aaa;padding:4px 8px">${esc(c)}</td>`).join('')}</tr>`;
+            }).join('');
+            parts.push(`<div style="margin:8px 0"><strong>${rotulo}</strong><table style="border-collapse:collapse;margin-top:4px">${thead}${tbody}</table></div>`);
+          }
+        }
+
+        if (b.dica_prova) {
+          parts.push(`<div style="margin:8px 0;padding:8px 12px;background:#fff8e1;border-left:3px solid #e0a800"><strong>Dica de prova:</strong> ${esc(b.dica_prova)}</div>`);
+        }
+      });
+
+      if (r.resumo_geral) {
+        parts.push(`<h2 style="font-family:Georgia,serif;margin:22px 0 6px">Resumo Geral</h2>`);
+        parts.push(`<p style="margin:0;line-height:1.5">${esc(r.resumo_geral)}</p>`);
+      }
+    } else if (Array.isArray(folha.topicos) && folha.topicos.length) {
+      parts.push('<h2 style="font-family:Georgia,serif;margin:18px 0 6px">Tópicos</h2>');
+      parts.push('<ul>' + folha.topicos.map(t => `<li>${esc(t)}</li>`).join('') + '</ul>');
+    } else {
+      parts.push('<p><em>Conteúdo não disponível.</em></p>');
+    }
+
+    return parts.join('\n');
+  },
+
+  /* Baixa como .doc (HTML compatível com Word) */
+  _downloadDoc(bodyHTML, filename, title) {
+    const html = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="utf-8">
+  <title>${(title || 'Folium').replace(/</g, '&lt;')}</title>
+  <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->
+  <style>body{font-family:Arial,sans-serif;font-size:12pt;color:#222;padding:16px}</style>
+</head>
+<body>${bodyHTML}</body>
+</html>`;
+
+    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+    this._triggerDownload(blob, filename);
+  },
+
+  /* Baixa como .pdf via html2pdf.js (CDN carregado no materia.html) */
+  _downloadPdf(bodyHTML, filename) {
+    const run = () => {
+      if (typeof html2pdf === 'undefined') {
+        alert('Não foi possível carregar o gerador de PDF. Verifique sua conexão.');
+        return;
+      }
+      const container = document.createElement('div');
+      container.style.cssText = 'padding:18px;font-family:Arial,sans-serif;color:#222;max-width:780px';
+      container.innerHTML = bodyHTML;
+      /* Temporariamente no DOM (fora do fluxo visual) */
+      container.style.position = 'absolute';
+      container.style.left = '-10000px';
+      container.style.top = '0';
+      document.body.appendChild(container);
+
+      html2pdf().from(container).set({
+        margin: [10, 10, 10, 10],
+        filename,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      }).save().then(() => container.remove()).catch(() => container.remove());
+    };
+
+    if (typeof html2pdf === 'undefined') {
+      /* Fallback: tenta carregar o CDN se ainda não estiver disponível */
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      s.onload = run;
+      s.onerror = () => alert('Falha ao carregar o gerador de PDF.');
+      document.head.appendChild(s);
+    } else {
+      run();
+    }
+  },
+
+  /* Dispara o download de um blob */
+  _triggerDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
   },
 
   /* ── Alternar favorito de uma folha ── */
