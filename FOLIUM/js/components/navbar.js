@@ -301,10 +301,20 @@ const Navbar = {
     });
     nav.appendChild(itemsContainer);
 
-    const page = document.querySelector('.page') || document.body;
+    /* Sempre appendar ao body — evita que CSS do .page quebre position:fixed */
     const existing = document.querySelector('.dock-nav-desktop, .bottom-nav');
     if (existing) existing.remove();
-    page.appendChild(nav);
+    document.body.appendChild(nav);
+
+    /* Forçar position:fixed via inline style para mobile como garantia extra */
+    if (window.innerWidth < 900) {
+      nav.style.position = 'fixed';
+      nav.style.bottom   = '0';
+      nav.style.left     = '0';
+      nav.style.width    = '100vw';
+      nav.style.height   = '64px';
+      nav.style.zIndex   = '9999';
+    }
 
     requestAnimationFrame(() => {
       this._positionBubble(nav, active);
