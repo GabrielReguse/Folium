@@ -10,11 +10,22 @@
   background-image: url('../../assets/images/doodles-mobile.png');
   background-repeat: no-repeat;
   background-position: bottom center;
-  background-size: 100% auto;
+  background-size: 86% auto;
   min-height: 100dvh;
   position: relative;
 }
 .page-criar #bg-canvas { display: none; }
+
+/* Desktop: usa o doodle landscape (já proporcional) e remove o margin-left
+   do layout.css que era pra sidebar — criar usa o dock flutuante igual a home. */
+@media (min-width: 900px) {
+  .page-criar {
+    margin-left: 0 !important;
+    background-image: url('../../assets/images/doodles-desktop.png');
+    background-position: bottom right -40px;
+    background-size: min(920px, 70%) auto;
+  }
+}
 
 /* Shell/container principal */
 .cr-shell {
@@ -130,7 +141,9 @@
 /* ════════ STEPPER ════════ */
 .cr-stepper {
   display: flex;
-  align-items: center;
+  /* flex-start pra bolinha e linha ficarem alinhadas pelo TOPO;
+     a linha recebe margin-top pra ficar no centro da bolinha. */
+  align-items: flex-start;
   justify-content: center;
   gap: 6px;
   padding: 4px 0;
@@ -156,9 +169,9 @@
   font-family: var(--font-serif);
   font-size: 15px;
   font-weight: 600;
-  background: var(--surface);
+  background: var(--linen);
   color: var(--text-light);
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--tan);
   transition: all 0.28s var(--ease);
 }
 .cs-label {
@@ -193,6 +206,8 @@
   background: var(--border);
   border-radius: 2px;
   max-width: 80px;
+  /* centra verticalmente com o meio da bolinha (num 38px / 2 - line 2px / 2) */
+  margin-top: 18px;
   transition: background 0.28s var(--ease);
 }
 .cs-line.done {
@@ -201,7 +216,132 @@
 @media (min-width: 900px) {
   .cs-num { width: 44px; height: 44px; font-size: 16px; }
   .cs-label { font-size: 12px; }
-  .cs-line { max-width: 120px; }
+  /* num 44px / 2 - line 2px / 2 = 21px */
+  .cs-line { max-width: 120px; margin-top: 21px; }
+}
+
+/* ════════ STEPPER — animação de entrada (somente no primeiro load)
+   Sequência desejada:
+   - dot1: borda aparece → preenche → número surge → label digita
+   - linha 1→2 desenha da esquerda pra direita
+   - dot2: só borda (mais claro) → label digita
+   - linha 2→3 desenha
+   - dot3: mesma coisa do dot2
+   JS adiciona .cs-anim-init no primeiro render; remove depois. */
+
+.cs-anim-init .cs-num,
+.cs-anim-init .cs-label,
+.cs-anim-init .cs-line {
+  animation-fill-mode: both;
+}
+
+/* Bolinha 1 — primeira na sequência: borda → fill → número → label */
+.cs-anim-init #dot1 .cs-num {
+  /* começa com borda transparente (invisível), cresce */
+  border-color: transparent;
+  background: transparent;
+  color: transparent;
+  transform: scale(0.4);
+  animation:
+    csBorderGrow 0.30s 0.00s cubic-bezier(.6,0,.3,1.3) forwards,
+    csFillCaramel 0.28s 0.40s ease-out forwards,
+    csNumReveal 0.20s 0.60s ease-out forwards;
+}
+.cs-anim-init #dot1 .cs-label {
+  opacity: 0;
+  color: var(--caramel);
+  animation: csLabelFadeIn 0.25s 0.75s ease-out forwards;
+}
+
+/* Linha 1 → desenha da esquerda pra direita */
+.cs-anim-init #ln1 {
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--tan), var(--caramel));
+  animation: csLineDraw 0.45s 0.88s cubic-bezier(.5,0,.4,1) forwards;
+}
+
+/* Bolinha 2 — só borda + fundo linen (não selecionada) */
+.cs-anim-init #dot2 .cs-num {
+  border-color: transparent;
+  background: transparent;
+  color: transparent;
+  transform: scale(0.4);
+  animation:
+    csBorderGrow 0.30s 1.40s cubic-bezier(.6,0,.3,1.3) forwards,
+    csFillLinen 0.28s 1.75s ease-out forwards,
+    csNumRevealLight 0.20s 1.90s ease-out forwards;
+}
+.cs-anim-init #dot2 .cs-label {
+  opacity: 0;
+  color: var(--text-mid);
+  animation: csLabelFadeIn 0.25s 2.05s ease-out forwards;
+}
+
+/* Linha 2 → 3 */
+.cs-anim-init #ln2 {
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--tan), var(--caramel));
+  animation: csLineDraw 0.45s 2.18s cubic-bezier(.5,0,.4,1) forwards;
+}
+
+/* Bolinha 3 — mesma coisa da 2 */
+.cs-anim-init #dot3 .cs-num {
+  border-color: transparent;
+  background: transparent;
+  color: transparent;
+  transform: scale(0.4);
+  animation:
+    csBorderGrow 0.30s 2.70s cubic-bezier(.6,0,.3,1.3) forwards,
+    csFillLinen 0.28s 3.05s ease-out forwards,
+    csNumRevealLight 0.20s 3.20s ease-out forwards;
+}
+.cs-anim-init #dot3 .cs-label {
+  opacity: 0;
+  color: var(--text-mid);
+  animation: csLabelFadeIn 0.25s 3.30s ease-out forwards;
+}
+
+/* Keyframes — borda/fundo/número */
+@keyframes csBorderGrow {
+  0%   { border-color: transparent; transform: scale(0.4); }
+  60%  { border-color: var(--tan); transform: scale(1.12); }
+  100% { border-color: var(--tan); transform: scale(1); }
+}
+@keyframes csFillCaramel {
+  0%   { background: transparent; border-color: var(--tan); box-shadow: none; transform: scale(1); }
+  100% { background: var(--caramel); border-color: var(--caramel); box-shadow: 0 6px 18px rgba(155,107,66,0.32); transform: scale(1.06); }
+}
+@keyframes csFillLinen {
+  0%   { background: transparent; border-color: var(--tan); }
+  100% { background: var(--linen); border-color: var(--tan); }
+}
+@keyframes csNumReveal {
+  0%   { color: transparent; }
+  100% { color: #fff; }
+}
+@keyframes csNumRevealLight {
+  0%   { color: transparent; }
+  100% { color: var(--text-light); }
+}
+@keyframes csLineDraw {
+  0%   { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+@keyframes csLabelFadeIn {
+  0%   { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Respeita prefers-reduced-motion — pula a animação de entrada */
+@media (prefers-reduced-motion: reduce) {
+  .cs-anim-init .cs-num,
+  .cs-anim-init .cs-label,
+  .cs-anim-init .cs-line {
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 /* ════════ CONTEÚDO / PANES ════════ */
@@ -231,9 +371,9 @@
   }
 }
 
-/* Cards base */
+/* Cards base — tom creme quente (paper) — evita branco frio */
 .cr-card {
-  background: var(--surface);
+  background: #F7F0DC;
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 26px 22px;
@@ -272,13 +412,13 @@
   padding: 14px 16px;
   font-size: 14.5px;
   border-radius: var(--r-sm);
-  background: var(--cream);
+  background: #FBF5E3;
   border: 1.5px solid var(--border);
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 .cr-form .inp:focus {
   border-color: var(--caramel);
-  background: #fff;
+  background: #FDF9EC;
   box-shadow: 0 0 0 4px rgba(155,107,66,0.10);
   outline: none;
 }
@@ -372,7 +512,7 @@
 .cr-tip {
   display: flex;
   gap: 12px;
-  background: var(--cream);
+  background: #FBF5E3;
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
   padding: 14px 14px;
@@ -410,7 +550,7 @@
   align-items: baseline;
   gap: 4px;
   font-family: var(--font-serif);
-  background: var(--cream);
+  background: #FBF5E3;
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 7px 14px;
@@ -443,7 +583,7 @@
   align-items: center;
   gap: 14px;
   padding: 14px 18px;
-  background: var(--cream);
+  background: #FBF5E3;
   border: 1.5px solid var(--border);
   border-radius: var(--r-sm);
   transition: border-color 0.2s, background 0.2s, transform 0.15s;
@@ -526,12 +666,12 @@
   flex: 1;
   min-width: 0;
   border-radius: var(--r-sm);
-  background: var(--cream);
+  background: #FBF5E3;
   border: 1.5px solid var(--border);
 }
 .cr-add-row .inp:focus {
   border-color: var(--caramel);
-  background: #fff;
+  background: #FDF9EC;
   box-shadow: 0 0 0 4px rgba(155,107,66,0.10);
   outline: none;
 }
@@ -545,7 +685,7 @@
   font-size: 14px;
   font-weight: 600;
   border-radius: var(--r-sm);
-  background: var(--surface);
+  background: #FBF5E3;
   color: var(--caramel-dk);
   border: 1.5px solid var(--tan);
   cursor: pointer;
