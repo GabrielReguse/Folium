@@ -173,22 +173,32 @@ const MateriaPage = {
   },
 
   /* Baixa como .doc — MHTML (multipart/related) com imagens como partes
-     separadas. Garante que gráficos/imagens apareçam em TODAS as versões
-     do Word (inclusive Word Online), que não renderizam data: URIs em <img>. */
+     MIME separadas. Usa URLs absolutas idênticas entre o src da <img> e o
+     Content-Location da parte de imagem, que é o formato que o Microsoft
+     Word (desktop e Online) espera e resolve corretamente. data: URIs não
+     funcionam no Word Online, por isso convertemos para referências MHTML. */
   _downloadDoc(bodyHTML, filename, title) {
-    /* Extrai imagens em data URI do HTML e substitui por referências a
-       anexos MIME (Content-Location). */
+    /* Base absoluta única pra este documento. Word exige que o src da <img>
+       seja EXATAMENTE igual ao Content-Location do anexo — caminho relativo
+       falha em versões mais novas que não fazem resolução contra o location
+       da parte HTML. */
+    const baseUrl  = 'file:///C:/folium/';
+    const htmlLoc  = baseUrl + 'folium.htm';
+
+    /* Extrai imagens em data URI do HTML e substitui por URLs absolutas
+       que apontam pras partes MIME anexadas. */
     const images = [];
     const processedHTML = bodyHTML.replace(
       /<img([^>]*?)src=(["'])data:image\/([a-zA-Z0-9+.-]+);base64,([^"']+)\2([^>]*)>/gi,
       (_m, pre, _q, ext, b64, post) => {
-        const norm = ext.toLowerCase();
-        const mime = 'image/' + (norm === 'svg+xml' ? 'svg+xml' : norm === 'jpg' ? 'jpeg' : norm);
+        const norm    = ext.toLowerCase();
+        const mime    = 'image/' + (norm === 'svg+xml' ? 'svg+xml' : norm === 'jpg' ? 'jpeg' : norm);
         const fileExt = norm === 'svg+xml' ? 'svg' : norm === 'jpeg' ? 'jpg' : norm;
-        const idx = images.length + 1;
-        const name = `image${String(idx).padStart(3, '0')}.${fileExt}`;
-        images.push({ name, mime, data: b64.replace(/\s+/g, '') });
-        return `<img${pre}src="${name}"${post}>`;
+        const idx     = images.length + 1;
+        const name    = `image${String(idx).padStart(3, '0')}.${fileExt}`;
+        const url     = baseUrl + name;
+        images.push({ name, url, mime, data: b64.replace(/\s+/g, '') });
+        return `<img${pre}src="${url}"${post}>`;
       }
     );
 
@@ -207,14 +217,16 @@ const MateriaPage = {
 <body>${processedHTML}</body>
 </html>`;
 
-    /* Se não há imagens, mantém HTML simples (compatível com Word). */
+    /* Sem imagens → HTML simples com BOM UTF-8, que o Word abre como
+       "Página da Web" e exibe corretamente. */
     if (!images.length) {
       const blob = new Blob(['\ufeff', htmlPart], { type: 'application/msword' });
       this._triggerDownload(blob, filename);
       return;
     }
 
-    /* Monta MHTML: HTML em base64 + cada imagem como parte separada. */
+    /* Monta MHTML: HTML em base64 + cada imagem como parte separada, todas
+       com Content-Location absoluto. */
     const boundary = '----=_NextPart_Folium_' + Date.now().toString(36);
     const htmlB64  = this._utf8ToBase64(htmlPart).match(/.{1,76}/g).join('\r\n');
 
@@ -225,7 +237,7 @@ const MateriaPage = {
       `--${boundary}`,
       'Content-Type: text/html; charset="utf-8"',
       'Content-Transfer-Encoding: base64',
-      'Content-Location: file:///C:/folium.htm',
+      `Content-Location: ${htmlLoc}`,
       '',
       htmlB64,
       ''
@@ -237,7 +249,8 @@ const MateriaPage = {
         `--${boundary}`,
         `Content-Type: ${img.mime}`,
         'Content-Transfer-Encoding: base64',
-        `Content-Location: ${img.name}`,
+        'Content-Disposition: inline',
+        `Content-Location: ${img.url}`,
         '',
         dataB64,
         ''
@@ -258,30 +271,41 @@ const MateriaPage = {
     return btoa(bin);
   },
 
-  /* Baixa como .pdf via html2pdf.js (CDN carregado no materia.html) */
+  /* Baixa como .pdf usando html2canvas + jsPDF diretamente.
+     html2pdf.js 0.10.1 produzia PDF em branco (~3KB com content stream vazio)
+     independente da configuração do container — o pipeline interno dele
+     falha ao converter o canvas pra página. Usando as duas libs diretamente
+     o fluxo é estável: captura o canvas, embute como JPEG e pagina à mão
+     deslocando a mesma imagem verticalmente. */
   async _downloadPdf(bodyHTML, filename) {
-    if (typeof html2pdf === 'undefined') {
-      try {
-        await new Promise((resolve, reject) => {
-          const s = document.createElement('script');
-          s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-          s.onload = resolve;
-          s.onerror = reject;
-          document.head.appendChild(s);
-        });
-      } catch {
-        alert('Falha ao carregar o gerador de PDF.');
-        return;
+    const loadScript = (src) => new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+
+    try {
+      if (typeof html2canvas === 'undefined') {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
       }
+      if (!(window.jspdf && window.jspdf.jsPDF)) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+      }
+    } catch {
+      alert('Falha ao carregar o gerador de PDF.');
+      return;
     }
-    if (typeof html2pdf === 'undefined') {
+
+    const JSPDF = window.jspdf && window.jspdf.jsPDF;
+    if (typeof html2canvas === 'undefined' || !JSPDF) {
       alert('Não foi possível carregar o gerador de PDF. Verifique sua conexão.');
       return;
     }
 
-    /* Container off-screen (e NÃO atrás de outros elementos com z-index
-       negativo, que causava PDF em branco pois o html2canvas falha ao
-       capturar nodes escondidos sob o #bg-canvas). */
+    /* Container off-screen em fluxo normal (sem z-index negativo nem
+       position:fixed, que atrapalham o html2canvas). */
     const container = document.createElement('div');
     container.style.cssText = [
       'position:absolute',
@@ -306,26 +330,43 @@ const MateriaPage = {
           : new Promise(r => { img.onload = r; img.onerror = r; })
       ));
     }
-
-    /* Garante ao menos 1 frame de layout antes da captura. */
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     try {
-      await html2pdf().from(container).set({
-        margin: [10, 10, 10, 10],
-        filename,
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-          windowWidth: 780
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-      }).save();
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        windowWidth: 780
+      });
+
+      const pdf    = new JSPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      const pageW  = pdf.internal.pageSize.getWidth();
+      const pageH  = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const imgW   = pageW - margin * 2;
+      const imgH   = canvas.height * imgW / canvas.width;
+      const usable = pageH - margin * 2;
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+      /* Paginação: desloca a MESMA imagem verticalmente e usa o clipping
+         da página pra mostrar só a faixa correspondente. Evita rasterizar
+         em tiras (que geralmente corta linhas no meio). */
+      let heightLeft = imgH;
+      let position   = margin;
+      pdf.addImage(imgData, 'JPEG', margin, position, imgW, imgH);
+      heightLeft -= usable;
+      while (heightLeft > 0) {
+        position = margin - (imgH - heightLeft);
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', margin, position, imgW, imgH);
+        heightLeft -= usable;
+      }
+
+      pdf.save(filename);
     } finally {
       container.remove();
     }
@@ -466,14 +507,33 @@ const MateriaPage = {
     }
   },
 
-  /* Busca imagem da Wikipedia/Wikimedia e gera tag img */
+  /* Busca imagem da Wikipedia/Wikimedia e gera tag img.
+     Baixa o binário e embute como data URI — referência a URL remota
+     não funciona no export (DOC não consegue fetchar offline; html2canvas
+     falha por CORS mesmo com crossorigin="anonymous"). */
   async _wikiToImgHTML(busca) {
     if (!busca?.trim()) return '';
     try {
       const result = await AI2._fetchWiki(busca);
       if (!result?.url) return '';
+
+      let dataUrl = '';
+      try {
+        const resp = await fetch(result.url, { mode: 'cors' });
+        if (resp.ok) {
+          const blob = await resp.blob();
+          dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload  = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error('read fail'));
+            reader.readAsDataURL(blob);
+          });
+        }
+      } catch { /* cai pro fallback abaixo */ }
+
       const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-      return `<div style="margin:12px 0;text-align:center"><img src="${esc(result.url)}" style="max-width:480px;width:100%;height:auto" alt="${esc(busca)}" crossorigin="anonymous"><p style="font-size:10px;color:#888;margin-top:4px">${esc(result.title || busca)} · Wikimedia Commons</p></div>`;
+      const src = dataUrl || result.url;
+      return `<div style="margin:12px 0;text-align:center"><img src="${esc(src)}" style="max-width:480px;width:100%;height:auto" alt="${esc(busca)}" crossorigin="anonymous"><p style="font-size:10px;color:#888;margin-top:4px">${esc(result.title || busca)} · Wikimedia Commons</p></div>`;
     } catch {
       return '';
     }
