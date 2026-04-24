@@ -43,19 +43,27 @@ const Router = {
   },
 
   initFade() {
-    // Limpa contexto efêmero ao voltar/voltar do bfcache. A transição
-    // visual agora é 100% CSS (view-transition + html bg).
     window.addEventListener('popstate', () => {
       Storage.clearContext('sheetId');
       Storage.clearContext('viewSheet');
     });
 
+    // Quando o browser restaura a página do bfcache (ex.: botão
+    // voltar), ela pode voltar com a classe 'is-leaving' ainda
+    // presente — o body ficaria opacity:0 invisível. Removemos
+    // sempre que a página volta a ser mostrada, e se a restauração
+    // veio do bfcache também limpamos o contexto efêmero.
     window.addEventListener('pageshow', (e) => {
+      document.body.classList.remove('is-leaving');
       if (e.persisted) {
         Storage.clearContext('sheetId');
         Storage.clearContext('viewSheet');
       }
     });
+
+    // pagehide roda ao sair da página (inclusive antes de entrar
+    // no bfcache). Não removemos is-leaving aqui porque o usuário
+    // ainda deve ver o fade-out; pageshow acima cobre o retorno.
   }
 };
 
