@@ -18,17 +18,18 @@
 
 /* Desktop: dois "tapetes" do doodle-mobile — um normal embaixo,
    um espelhado em ambos os eixos (rotação 180°) em cima.
-   Pseudo-elementos pra poder transformar só a faixa do topo. */
+   position: fixed pra ambos ficarem sempre colados ao topo/rodapé
+   da viewport (sem gap esquisito no meio em telas grandes). */
 @media (min-width: 900px) {
   .page-criar {
     margin-left: 0 !important;
     background-image: none;
-    overflow: hidden; /* evita scroll lateral pelas pseudo-elements */
+    overflow-x: hidden; /* só lateral; vertical precisa scrollar normal */
   }
   .page-criar::before,
   .page-criar::after {
     content: '';
-    position: absolute;
+    position: fixed;
     left: 0;
     right: 0;
     height: 50vh;
@@ -36,9 +37,10 @@
     background-repeat: no-repeat;
     background-size: 100% auto;
     pointer-events: none;
+    opacity: 0.55; /* deixa como textura de fundo, não foregound */
     z-index: 0;
   }
-  /* Embaixo: doodle normal, "colado" pelo bottom */
+  /* Embaixo: doodle normal, "colado" pelo bottom da viewport */
   .page-criar::after {
     bottom: 0;
     background-position: bottom center;
@@ -51,8 +53,8 @@
     background-position: bottom center;
     transform: scale(-1, -1);
   }
-  /* Conteúdo do shell precisa ficar acima dos pseudo-elements */
-  .page-criar > *:not(::before):not(::after) {
+  /* Conteúdo precisa ficar acima dos pseudo-elements */
+  .page-criar > * {
     position: relative;
     z-index: 1;
   }
