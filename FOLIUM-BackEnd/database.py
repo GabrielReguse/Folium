@@ -120,6 +120,15 @@ def get_user_by_id(user_id: int) -> dict | None:
     finally:
         conn.close()
 
+def delete_user_by_id(user_id: int):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
 def link_google_id(user_id: int, google_id: str):
     conn = get_conn()
     try:

@@ -73,6 +73,7 @@ def register(body: RegisterBody):
 
     sent = _send_code(user["email"])
     if not sent:
+        db.delete_user_by_id(user["id"])
         raise HTTPException(500, "Erro ao enviar código de verificação.")
 
     print(f"[AUTH] Cadastro pendente de verificação: {user['email']}")
