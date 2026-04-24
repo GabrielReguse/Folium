@@ -650,23 +650,9 @@
     display: none;
   }
 
-  /* Evita scroll horizontal se um círculo encostar na borda.
-     Também adiciona o 3º halo via background-image (camada
-     radial-gradient) seguindo a mesma reta a 45° que liga os
-     dois ::before / ::after, prolongada para cima. Mantém o
-     doodles-mobile.png como 2ª camada ao fundo. */
+  /* Evita scroll horizontal se um círculo encostar na borda */
   .page-home {
     overflow-x: clip;
-    background-image:
-      radial-gradient(circle at center,
-        rgba(246, 233, 200, 0.55) 0%,
-        rgba(240, 225, 185, 0.32) 45%,
-        rgba(230, 215, 175, 0.12) 72%,
-        transparent 92%),
-      url('../../assets/images/doodles-mobile.png');
-    background-repeat: no-repeat, no-repeat;
-    background-size: 140px 140px, 100% auto;
-    background-position: right -24px top 70px, bottom center;
   }
 
   /* ── Círculos decorativos — EXCLUSIVOS DO MOBILE ──
@@ -699,16 +685,18 @@
   }
 
   /* Halo quente atrás das estatísticas — bem à esquerda,
-     com a borda esquerda saindo do viewport como na referência. */
+     com a borda esquerda saindo do viewport como na referência.
+     Posicionado para ficar ao nível das estatísticas (acima do
+     label "O QUE DESEJA FAZER?") e não invadir os cards. */
   .page-home::after {
     content: '';
     position: absolute;
-    top: 280px;
-    left: -50px;
-    width: 62vw;
-    max-width: 240px;
-    height: 62vw;
-    max-height: 240px;
+    top: 220px;
+    left: -55px;
+    width: 52vw;
+    max-width: 200px;
+    height: 52vw;
+    max-height: 200px;
     border-radius: 50%;
     background: radial-gradient(circle,
       rgba(215, 193, 156, 0.65) 0%,
@@ -766,9 +754,9 @@
   }
 
   .page-home::after {
-    width: 58vw;
-    height: 58vw;
-    top: 260px;
-    left: -40px;
+    width: 50vw;
+    height: 50vw;
+    top: 210px;
+    left: -45px;
   }
 }
