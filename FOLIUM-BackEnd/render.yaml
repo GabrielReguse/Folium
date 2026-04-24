@@ -11,7 +11,10 @@ services:
       - key: NODE_ENV
         value: production
       # Preencha no painel do Render:
-      # JWT_SECRET       → frase longa e aleatória
-      # ALLOWED_ORIGIN   → https://seu-projeto.vercel.app
-      # DATABASE_URL     → preenchido automaticamente pelo Render
+      # JWT_SECRET        → frase longa e aleatória
+      # ALLOWED_ORIGIN    → https://seu-projeto.vercel.app
+      # DATABASE_URL      → preenchido automaticamente pelo Render
       # ANTHROPIC_API_KEY → sua chave sk-ant-...
+      # GOOGLE_CLIENT_ID  → ID do Google OAuth (APIs & Services → Credentials)
+      # SMTP_EMAIL        → suporte.folium@gmail.com
+      # SMTP_PASSWORD     → App Password do Gmail

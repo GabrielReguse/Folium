@@ -3,6 +3,10 @@
 const Config = {
   API_BASE: 'https://folium-py.onrender.com/api',
 
+  /* Google OAuth Client ID — configure em:
+     https://console.cloud.google.com → APIs & Services → Credentials */
+  GOOGLE_CLIENT_ID: 'SEU_GOOGLE_CLIENT_ID_AQUI',
+
   get API() {
     const isLocal =
       window.location.hostname === 'localhost' ||

@@ -11,5 +11,31 @@
 .lswitch a{color:var(--caramel);cursor:pointer;font-weight:600;transition:opacity var(--t-fast)}
 .lswitch a:hover{opacity:0.7}
 .login-error{background:#fff9f5;border:1.5px solid rgba(155,107,66,0.35);color:#7a4012;border-radius:var(--r-sm);padding:10px 14px;font-size:0.84rem;margin-bottom:12px;text-align:center;animation:fadeDown 0.25s ease;white-space:pre-line}
+
+/* ── Botão Google ── */
+.btn-google{background:#fff;color:#3c4043;border:1.5px solid var(--border);font-weight:500;font-size:15px;padding:13px 24px;transition:background var(--t-fast),box-shadow var(--t-fast),border-color var(--t-fast)}
+.btn-google:hover{background:#f8f8f8;border-color:var(--border-act);box-shadow:0 2px 12px rgba(0,0,0,0.08)}
+.btn-google:active{background:#f1f1f1}
+.google-icon{flex-shrink:0}
+
+/* ── Verificação de código ── */
+.verify-header{text-align:center;margin-bottom:8px}
+.verify-icon{margin:0 auto 16px;width:48px;height:48px}
+.verify-title{font-family:var(--font-serif);font-size:22px;font-weight:600;color:var(--text);margin:0 0 8px}
+.verify-sub{font-size:13.5px;color:var(--text-light);font-weight:300;margin:0;line-height:1.5}
+.verify-sub strong{color:var(--text-mid);font-weight:600}
+
+.code-inputs{display:flex;gap:8px;justify-content:center;margin:4px 0}
+.code-digit{width:46px;height:54px;text-align:center;font-size:22px;font-weight:600;color:var(--text);border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface);outline:none;transition:border-color var(--t-fast),box-shadow var(--t-fast);font-family:var(--font-sans)}
+.code-digit:focus{border-color:var(--caramel);box-shadow:0 0 0 3px var(--focus-ring)}
+
+.verify-actions{display:flex;align-items:center;justify-content:center;gap:12px;font-size:13px;color:var(--text-light)}
+.verify-resend{color:var(--caramel);cursor:pointer;font-weight:500;transition:opacity var(--t-fast)}
+.verify-resend:hover{opacity:0.7}
+.verify-resend.disabled{color:var(--text-light);cursor:default;opacity:0.6}
+.verify-separator{color:var(--border)}
+.verify-back{color:var(--text-mid);cursor:pointer;font-weight:400;transition:opacity var(--t-fast)}
+.verify-back:hover{opacity:0.7}
+
 @media(min-width:640px){.login-card{padding:62px 56px}}
-@media(max-width:380px){.login-card{padding:38px 28px}}
+@media(max-width:380px){.login-card{padding:38px 28px}.code-digit{width:40px;height:48px;font-size:20px}.code-inputs{gap:6px}}
