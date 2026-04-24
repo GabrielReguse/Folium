@@ -18,7 +18,7 @@ def get_conn():
     return psycopg.connect(url, row_factory=dict_row)
 
 def init_db():
-    """Cria a tabela de usuários se não existir."""
+    """Cria as tabelas se não existirem e aplica migrações."""
     conn = get_conn()
     try:
         with conn.cursor() as cur:
@@ -27,10 +27,40 @@ def init_db():
                     id         SERIAL PRIMARY KEY,
                     name       TEXT        NOT NULL,
                     email      TEXT        NOT NULL UNIQUE,
-                    password   TEXT        NOT NULL,
+                    password   TEXT,
+                    google_id  TEXT,
                     created_at TIMESTAMPTZ DEFAULT NOW()
                 );
             """)
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS verification_codes (
+                    id         SERIAL PRIMARY KEY,
+                    email      TEXT        NOT NULL,
+                    code       TEXT        NOT NULL,
+                    expires_at TIMESTAMPTZ NOT NULL,
+                    created_at TIMESTAMPTZ DEFAULT NOW()
+                );
+            """)
+
+            # Migração: adicionar google_id se não existir
+            cur.execute("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = 'users' AND column_name = 'google_id'
+                    ) THEN
+                        ALTER TABLE users ADD COLUMN google_id TEXT;
+                    END IF;
+                END $$;
+            """)
+
+            # Migração: tornar password nullable (para usuários Google)
+            cur.execute("""
+                ALTER TABLE users ALTER COLUMN password DROP NOT NULL;
+            """)
+
         conn.commit()
         print("[DB] PostgreSQL pronto ✓")
     finally:
@@ -50,12 +80,26 @@ def create_user(name: str, email: str, password: str) -> dict:
     finally:
         conn.close()
 
+def create_google_user(name: str, email: str, google_id: str) -> dict:
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO users (name, email, google_id) VALUES (%s, %s, %s) RETURNING id, name, email",
+                (name, email.lower(), google_id)
+            )
+            user = dict(cur.fetchone())
+        conn.commit()
+        return user
+    finally:
+        conn.close()
+
 def get_user_by_email(email: str) -> dict | None:
     conn = get_conn()
     try:
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT id, name, email, password, created_at FROM users WHERE LOWER(email) = %s",
+                "SELECT id, name, email, password, google_id, created_at FROM users WHERE LOWER(email) = %s",
                 (email.lower(),)
             )
             row = cur.fetchone()
@@ -76,9 +120,67 @@ def get_user_by_id(user_id: int) -> dict | None:
     finally:
         conn.close()
 
+def delete_user_by_id(user_id: int):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+def link_google_id(user_id: int, google_id: str):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE users SET google_id = %s WHERE id = %s",
+                (google_id, user_id)
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+# ── Verificação por código ─────────────────────
+
+def save_verification_code(email: str, code: str, expires_at):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM verification_codes WHERE LOWER(email) = %s", (email.lower(),))
+            cur.execute(
+                "INSERT INTO verification_codes (email, code, expires_at) VALUES (%s, %s, %s)",
+                (email.lower(), code, expires_at)
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+def get_verification_code(email: str, code: str) -> dict | None:
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT * FROM verification_codes WHERE LOWER(email) = %s AND code = %s ORDER BY created_at DESC LIMIT 1",
+                (email.lower(), code)
+            )
+            row = cur.fetchone()
+            return dict(row) if row else None
+    finally:
+        conn.close()
+
+def delete_verification_codes(email: str):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM verification_codes WHERE LOWER(email) = %s", (email.lower(),))
+        conn.commit()
+    finally:
+        conn.close()
+
 # Inicializa o banco ao importar
 try:
     init_db()
 except Exception as e:
     print(f"[DB] ERRO ao inicializar banco: {e}")
-    raise  # agora vai aparecer no log do Render
+    raise

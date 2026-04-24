@@ -3,6 +3,8 @@
 const Config = {
   API_BASE: 'https://folium-py.onrender.com/api',
 
+  GOOGLE_CLIENT_ID: '',
+
   get API() {
     const isLocal =
       window.location.hostname === 'localhost' ||
