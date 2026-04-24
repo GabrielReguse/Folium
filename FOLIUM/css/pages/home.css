@@ -694,37 +694,38 @@
      às bordas e têm tons muito próximos do fundo cream da página,
      para criar apenas uma aura suave — sem blobs saturados. */
 
-  /* Grande halo cremoso — atrás do topo/hero, com tom quase
-     idêntico ao fundo da página (fade para transparente bem cedo
-     garante que o círculo seja inteiramente visível). */
+  /* Grande halo cremoso — atrás do topo/hero.
+     Tons cremosos visíveis, fade para transparente em 92% para
+     garantir que o círculo fique inteiramente dentro do viewport. */
   .page-home::before {
-    top: 16px;
-    right: 8%;
+    top: 12px;
+    right: 6%;
     left: auto;
-    width: 72vw;
-    max-width: 300px;
-    height: 72vw;
-    max-height: 300px;
+    width: 78vw;
+    max-width: 320px;
+    height: 78vw;
+    max-height: 320px;
     background: radial-gradient(circle,
-      rgba(255, 253, 244, 0.60) 0%,
-      rgba(250, 244, 224, 0.38) 38%,
-      rgba(245, 237, 214, 0.15) 68%,
-      transparent 92%);
+      rgba(255, 253, 240, 0.92) 0%,
+      rgba(248, 238, 212, 0.66) 32%,
+      rgba(240, 227, 196, 0.38) 58%,
+      rgba(232, 218, 184, 0.16) 80%,
+      transparent 94%);
   }
 
-  /* Halo discreto atrás das estatísticas — somente um leve aquecimento,
-     sem criar um blob escuro visível. */
+  /* Halo quente atrás das estatísticas — visível como na referência,
+     mas sem criar um blob escuro saturado. */
   .page-home::after {
-    top: 210px;
-    left: 6%;
-    width: 54vw;
-    max-width: 200px;
-    height: 54vw;
-    max-height: 200px;
+    top: 180px;
+    left: 5%;
+    width: 60vw;
+    max-width: 230px;
+    height: 60vw;
+    max-height: 230px;
     background: radial-gradient(circle,
-      rgba(220, 204, 176, 0.30) 0%,
-      rgba(215, 200, 172, 0.18) 45%,
-      rgba(215, 200, 172, 0.06) 72%,
+      rgba(218, 198, 162, 0.55) 0%,
+      rgba(215, 195, 158, 0.34) 42%,
+      rgba(215, 195, 158, 0.14) 70%,
       transparent 92%);
   }
 
@@ -735,8 +736,10 @@
     background: transparent;
   }
 
+  /* Espaço inferior generoso para o dock + búlha suspensa não
+     sobreporem o último card (Suporte). */
   .dash-body {
-    padding: 32px 18px 110px;
+    padding: 32px 18px 150px;
   }
 
   .dash-section-label {
@@ -763,19 +766,19 @@
     padding: 16px 14px;
   }
 
-  /* Em telas muito estreitas, círculos ainda menores e mais recuados
-     para continuar 100% dentro do viewport. */
+  /* Em telas muito estreitas, círculos ligeiramente menores e mais
+     recuados para continuar 100% dentro do viewport. */
   .page-home::before {
-    width: 66vw;
-    height: 66vw;
-    top: 10px;
-    right: 8%;
+    width: 72vw;
+    height: 72vw;
+    top: 8px;
+    right: 6%;
   }
 
   .page-home::after {
-    width: 50vw;
-    height: 50vw;
-    top: 200px;
-    left: 6%;
+    width: 56vw;
+    height: 56vw;
+    top: 170px;
+    left: 5%;
   }
 }
