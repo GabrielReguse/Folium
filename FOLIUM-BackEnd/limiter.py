@@ -2,18 +2,7 @@
 #  FOLIUM — limiter.py
 #  Controle de concorrência e cooldown por usuário
 # ═══════════════════════════════════════════════
-#
-#  Problema sem isso:
-#    10 usuários simultâneos → 52.500 tokens ao mesmo tempo
-#    Groq free tier → 12.000 tokens/minuto
-#    Resultado → todos levam 429 ao mesmo tempo
-#
-#  Solução:
-#    1. Semáforo global  → no máximo MAX_CONCURRENT chamadas ao Groq ao mesmo tempo
-#    2. Cooldown por user → mínimo de COOLDOWN_SECONDS entre chamadas do mesmo usuário
-#    3. Fila visível     → usuário vê "posição X na fila" em vez de erro
-#
-# ═══════════════════════════════════════════════
+
 
 import asyncio
 import time
