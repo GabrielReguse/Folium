@@ -97,8 +97,12 @@ const Card = {
     const subjectId  = sh.subjectId;
     const onFavorite = sh.onFavorite;
     const onDelete   = sh.onDelete;
+    const onDownload = sh.onDownload;
 
-    const delIcon = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+    const delIcon    = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+    const dlPdfIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><text x="7" y="18" font-family="Arial" font-size="6" font-weight="bold" fill="currentColor" stroke="none">PDF</text></svg>`;
+    const dlDocIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><text x="6" y="18" font-family="Arial" font-size="6" font-weight="bold" fill="currentColor" stroke="none">DOC</text></svg>`;
+    const kebabIcon  = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>`;
 
     const btn = document.createElement('button');
     btn.className = 'sheet-card-item';
@@ -113,11 +117,14 @@ const Card = {
         </div>
       </div>
       <div class="sc-actions">
-        <button class="fav-btn ${isFav ? 'on' : ''}" title="${isFav ? 'Remover favorito' : 'Favoritar'}">
+        <button class="fav-btn sc-desktop ${isFav ? 'on' : ''}" title="${isFav ? 'Remover favorito' : 'Favoritar'}">
           ${isFav ? CardIcons.starFill : CardIcons.star}
         </button>
-        ${onDelete ? `<button class="del-btn" title="Apagar folha">${delIcon}</button>` : ''}
-        <svg class="sc-arr" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="var(--text-light)" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        ${onDownload ? `<button class="dl-btn sc-desktop" data-format="pdf" title="Baixar PDF">${dlPdfIcon}</button>` : ''}
+        ${onDownload ? `<button class="dl-btn sc-desktop" data-format="doc" title="Baixar DOC">${dlDocIcon}</button>` : ''}
+        ${onDelete   ? `<button class="del-btn sc-desktop" title="Apagar folha">${delIcon}</button>` : ''}
+        <svg class="sc-arr sc-desktop" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="var(--text-light)" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        <button class="sc-kebab" title="Mais opções" aria-haspopup="menu" aria-expanded="false">${kebabIcon}</button>
       </div>`;
 
     const favBtn = btn.querySelector('.fav-btn');
@@ -136,10 +143,101 @@ const Card = {
       });
     }
 
+    btn.querySelectorAll('.dl-btn').forEach(b => {
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (onDownload) onDownload(b.dataset.format);
+      });
+    });
+
+    const kebab = btn.querySelector('.sc-kebab');
+    if (kebab) {
+      kebab.addEventListener('click', (e) => {
+        e.stopPropagation();
+        Card._openSheetMenu(kebab, { isFav, onFavorite, onDownload, onDelete });
+      });
+    }
+
     btn.addEventListener('click', () =>
       Router.go('materia', { subjectId, sheetId: sh.id, viewSheet: true })
     );
     return btn;
+  },
+
+  /** Menu flutuante do kebab (mobile) */
+  _openSheetMenu(anchor, { isFav, onFavorite, onDownload, onDelete }) {
+    /* Se já existe um menu aberto, fecha */
+    const existing = document.querySelector('.sc-menu');
+    if (existing) {
+      existing.remove();
+      if (existing.dataset.anchorId && existing.dataset.anchorId === anchor.dataset.menuId) {
+        anchor.setAttribute('aria-expanded', 'false');
+        return;
+      }
+    }
+
+    const menuId = 'kb_' + Date.now().toString(36);
+    anchor.dataset.menuId = menuId;
+    anchor.setAttribute('aria-expanded', 'true');
+
+    const menu = document.createElement('div');
+    menu.className = 'sc-menu';
+    menu.dataset.anchorId = menuId;
+    menu.setAttribute('role', 'menu');
+
+    const items = [];
+    if (onFavorite) items.push({ label: isFav ? 'Remover favorito' : 'Favoritar', action: onFavorite });
+    if (onDownload) items.push({ label: 'Baixar PDF', action: () => onDownload('pdf') });
+    if (onDownload) items.push({ label: 'Baixar DOC', action: () => onDownload('doc') });
+    if (onDelete)   items.push({ label: 'Excluir', action: onDelete, danger: true });
+
+    menu.innerHTML = items.map((it, i) =>
+      `<button class="sc-menu-item${it.danger ? ' danger' : ''}" data-idx="${i}" role="menuitem">${it.label}</button>`
+    ).join('');
+
+    document.body.appendChild(menu);
+
+    /* Posiciona abaixo do kebab */
+    const r = anchor.getBoundingClientRect();
+    const menuWidth = menu.offsetWidth;
+    const vw = window.innerWidth;
+    let left = r.right - menuWidth;
+    if (left < 8) left = 8;
+    if (left + menuWidth > vw - 8) left = vw - menuWidth - 8;
+    menu.style.top  = `${r.bottom + 6 + window.scrollY}px`;
+    menu.style.left = `${left + window.scrollX}px`;
+
+    const close = () => {
+      menu.remove();
+      anchor.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('click', onDoc, true);
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('resize', close);
+      window.removeEventListener('scroll', close, true);
+    };
+
+    const onDoc = (e) => {
+      if (!menu.contains(e.target) && e.target !== anchor) close();
+    };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+
+    /* Delay para não captar o próprio clique que abriu o menu */
+    setTimeout(() => {
+      document.addEventListener('click', onDoc, true);
+      document.addEventListener('keydown', onKey);
+      window.addEventListener('resize', close);
+      window.addEventListener('scroll', close, true);
+    }, 0);
+
+    menu.querySelectorAll('.sc-menu-item').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.idx, 10);
+        const it = items[idx];
+        close();
+        if (it && typeof it.action === 'function') it.action();
+      });
+    });
   },
 
   /**
