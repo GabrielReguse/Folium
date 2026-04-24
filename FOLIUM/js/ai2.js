@@ -160,9 +160,10 @@ const AI2 = {
   _chartFuncao(d) {
     if (!d?.funcao) throw new Error('funcao ausente');
     const wrapper = document.createElement('div');
-      wrapper.className = 'chart-wrapper';
-      const canvas = document.createElement('canvas');
+    wrapper.className = 'chart-wrapper';
+    const canvas = document.createElement('canvas');
     canvas.className = 'visual-canvas';
+    wrapper.appendChild(canvas);
 
     const n = d.passos || 100;
     const xMin = d.dominio?.[0] ?? -10;
@@ -185,22 +186,23 @@ const AI2 = {
       data: {
         labels, datasets: [{
           label: d.label || 'f(x)', data: values,
-          borderColor: '#9B6B42', backgroundColor: 'rgba(155,107,66,0.08),',
+          borderColor: '#9B6B42', backgroundColor: 'rgba(155,107,66,0.08)',
           borderWidth: 2.5, pointRadius: 0, tension: 0.4, fill: true, spanGaps: false,
         }]
       },
       options: AI2._chartOpts(d.label || ''),
     }));
-    return canvas;
+    return wrapper;
   },
 
   /* CHART.JS: BARRAS */
   _chartBarras(d) {
     if (!d?.labels || !d?.datasets) throw new Error('dados inválidos');
     const wrapper = document.createElement('div');
-      wrapper.className = 'chart-wrapper';
-      const canvas = document.createElement('canvas');
+    wrapper.className = 'chart-wrapper';
+    const canvas = document.createElement('canvas');
     canvas.className = 'visual-canvas';
+    wrapper.appendChild(canvas);
     const palette = ['#9B6B42', '#7A5035', '#C4A882', '#5C3D2E'];
 
     requestAnimationFrame(() => new Chart(canvas, {
@@ -216,16 +218,17 @@ const AI2 = {
       },
       options: AI2._chartOpts(d.titulo || ''),
     }));
-    return canvas;
+    return wrapper;
   },
 
   /* CHART.JS: PIZZA */
   _chartPizza(d) {
     if (!d?.labels || !d?.valores) throw new Error('dados inválidos');
     const wrapper = document.createElement('div');
-      wrapper.className = 'chart-wrapper';
-      const canvas = document.createElement('canvas');
+    wrapper.className = 'chart-wrapper chart-wrapper--pizza';
+    const canvas = document.createElement('canvas');
     canvas.className = 'visual-canvas visual-canvas--sm';
+    wrapper.appendChild(canvas);
     const palette = ['#9B6B42', '#7A5035', '#C4A882', '#D4B896', '#5C3D2E', '#B8906A'];
 
     requestAnimationFrame(() => new Chart(canvas, {
@@ -240,7 +243,7 @@ const AI2 = {
       },
       options: { ...AI2._chartOpts(d.titulo || ''), cutout: '52%', scales: {} },
     }));
-    return canvas;
+    return wrapper;
   },
 
   /* SVG INLINE */

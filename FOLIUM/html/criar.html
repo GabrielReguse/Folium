@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Folium — Criar Folha</title>
+  <title>Folium — Nova folha</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/global.css">
@@ -15,69 +16,163 @@
 </head>
 <body>
   <canvas id="bg-canvas"></canvas>
-    <div id="loading-overlay">
+  <div id="loading-overlay">
     <div class="loading-box">
       <div class="loader loader-lg"></div>
       <h3 id="ld-title">Processando...</h3>
       <p id="ld-sub">Aguarde um momento</p>
     </div>
   </div>
-  <div class="page">
-    <div class="criar-body page-body">
-      <div class="step-bar">
-        <div class="sdot" id="dot1">1</div>
-        <div class="sline" id="ln1"></div>
-        <div class="sdot" id="dot2">2</div>
-        <div class="sline" id="ln2"></div>
-        <div class="sdot" id="dot3">3</div>
-      </div>
-      <!-- PANE 1 -->
-      <div class="step-pane" id="pane1">
-        <h2 class="t-section mb-8">Nova folha</h2>
-        <p class="t-sub mb-24">Informe a matéria e o tema — a IA cuida do resto</p>
-        <div style="display:flex;flex-direction:column;gap:18px">
-          <div class="inp-group"><label class="inp-label">Matéria</label><input type="text" class="inp" id="inp-materia" placeholder="ex: Biologia, Matemática, Física…"></div>
-          <div class="inp-group"><label class="inp-label">Tema(s)</label><input type="text" class="inp" id="inp-tema" placeholder="ex: Citologia, Fotossíntese…"></div>
-          <div class="inp-group">
-            <label class="inp-label">Nível escolar</label>
-            <select class="inp inp-select" id="inp-nivel">
-              <option value="">Selecione seu nível…</option>
-              <option value="fundamental_1">Ensino Fundamental I (1º ao 5º ano)</option>
-              <option value="fundamental_2">Ensino Fundamental II (6º ao 9º ano)</option>
-              <option value="medio">Ensino Médio</option>
-              <option value="vestibular">Vestibular / ENEM</option>
-              <option value="tecnico">Ensino Técnico</option>
-              <option value="superior">Ensino Superior</option>
-              <option value="pos">Pós-graduação</option>
-            </select>
+
+  <div class="page page-criar">
+    <main class="page-body cr-shell">
+
+      <!-- ═══ HERO ═══ -->
+      <section class="cr-hero au">
+        <span class="cr-eyebrow">Criar · Folium</span>
+        <h1 class="cr-title">Gere sua nova <em>folha</em></h1>
+        <p class="cr-lede">Informe matéria, tema e nível — a IA propõe os tópicos e monta a folha de estudos em minutos.</p>
+
+        <!-- decorativo -->
+        <span class="cr-leaf" aria-hidden="true">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M60 8c28 22 44 48 40 76-16 28-52 32-80 16 2-32 14-62 40-92z" fill="currentColor" opacity=".10"/>
+            <path d="M60 14C42 40 30 66 28 96" stroke="currentColor" stroke-width="1.5" opacity=".35" stroke-linecap="round"/>
+            <path d="M60 14c18 26 30 52 32 82" stroke="currentColor" stroke-width="1.5" opacity=".20" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </section>
+
+      <!-- ═══ STEPPER ═══ -->
+      <nav class="cr-stepper" aria-label="Etapas">
+        <div class="cs-step" id="dot1">
+          <span class="cs-num">1</span>
+          <span class="cs-label">Matéria</span>
+        </div>
+        <div class="cs-line" id="ln1"></div>
+        <div class="cs-step" id="dot2">
+          <span class="cs-num">2</span>
+          <span class="cs-label">Tópicos</span>
+        </div>
+        <div class="cs-line" id="ln2"></div>
+        <div class="cs-step" id="dot3">
+          <span class="cs-num">3</span>
+          <span class="cs-label">Folha</span>
+        </div>
+      </nav>
+
+      <!-- ═══ CONTEÚDO DOS PASSOS ═══ -->
+      <div class="cr-content">
+
+        <!-- PANE 1 — Matéria + tema + nível -->
+        <section class="step-pane cr-pane" id="pane1">
+          <div class="cr-card cr-form-card">
+            <h2 class="cr-pane-title">Qual é o assunto?</h2>
+            <p class="cr-pane-sub">Diga à IA o que você quer estudar — ela faz o resto.</p>
+
+            <div class="cr-form">
+              <div class="inp-group">
+                <label class="inp-label" for="inp-materia">Matéria</label>
+                <input type="text" class="inp" id="inp-materia" placeholder="ex: Biologia, Matemática, História…" autocomplete="off">
+              </div>
+              <div class="inp-group">
+                <label class="inp-label" for="inp-tema">Tema <span class="inp-hint">(opcional)</span></label>
+                <input type="text" class="inp" id="inp-tema" placeholder="ex: Fotossíntese, 2ª Guerra, Funções quadráticas…" autocomplete="off">
+              </div>
+              <div class="inp-group">
+                <label class="inp-label" for="inp-nivel">Nível escolar</label>
+                <select class="inp inp-select" id="inp-nivel">
+                  <option value="">Selecione seu nível…</option>
+                  <option value="fundamental_1">Ensino Fundamental I (1º ao 5º ano)</option>
+                  <option value="fundamental_2">Ensino Fundamental II (6º ao 9º ano)</option>
+                  <option value="medio">Ensino Médio</option>
+                  <option value="vestibular">Vestibular / ENEM</option>
+                  <option value="tecnico">Ensino Técnico</option>
+                  <option value="superior">Ensino Superior</option>
+                  <option value="pos">Pós-graduação</option>
+                </select>
+              </div>
+              <button class="btn btn-primary btn-full cr-btn-primary" id="btn-gerar" onclick="CriarPage.gerarSugestoes()">
+                Gerar sugestões
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+              </button>
+            </div>
           </div>
-          <button class="btn btn-primary btn-full" id="btn-gerar" onclick="CriarPage.gerarSugestoes()">Gerar sugestões</button>
-        </div>
+
+          <aside class="cr-aside" aria-label="Como funciona">
+            <h3 class="cr-aside-title">Como funciona</h3>
+            <ol class="cr-howto">
+              <li><span class="cr-howto-n">1</span><div><strong>Você informa</strong><p>Matéria, tema e nível escolar.</p></div></li>
+              <li><span class="cr-howto-n">2</span><div><strong>IA sugere</strong><p>Uma lista de tópicos que você revisa e edita.</p></div></li>
+              <li><span class="cr-howto-n">3</span><div><strong>Folha pronta</strong><p>Resumos, exemplos e visuais organizados.</p></div></li>
+            </ol>
+            <div class="cr-tip">
+              <span class="cr-tip-ic" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-4 12.7V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.3A7 7 0 0 0 12 2z"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+              </span>
+              <p><strong>Dica:</strong> quanto mais específico o tema, melhores as sugestões. "Fotossíntese" funciona melhor que "Biologia".</p>
+            </div>
+          </aside>
+        </section>
+
+        <!-- PANE 2 — Tópicos -->
+        <section class="step-pane cr-pane" id="pane2">
+          <div class="cr-card cr-topics-card">
+            <div class="cr-pane-head">
+              <div>
+                <h2 class="cr-pane-title">Tópicos sugeridos</h2>
+                <p class="cr-pane-sub">Selecione, remova ou adicione antes de gerar a folha.</p>
+              </div>
+              <div class="cr-pane-meter">
+                <span id="topic-count">0</span><span class="cr-meter-sep">/</span><span id="topic-total">0</span>
+                <span class="cr-meter-lbl">selecionados</span>
+              </div>
+            </div>
+
+            <div id="topics-list" class="cr-topics"></div>
+
+            <div class="add-row cr-add-row">
+              <input type="text" class="inp" id="inp-new-topic" placeholder="Adicionar tópico manualmente…" autocomplete="off">
+              <button class="btn btn-secondary cr-btn-add" id="btn-add-topic" onclick="CriarPage.addTopic()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Adicionar
+              </button>
+            </div>
+
+            <div class="step-actions cr-step-actions">
+              <button class="btn btn-ghost btn-back cr-btn-back" onclick="CriarPage.goStep(1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg>
+                Voltar
+              </button>
+              <button class="btn btn-primary btn-next cr-btn-primary" onclick="CriarPage.gerarFolha()">
+                Gerar folha
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- PANE 3 — Resultado -->
+        <section class="step-pane cr-pane cr-pane-wide" id="pane3">
+          <div class="cr-card cr-sheet-card">
+            <div id="sheet-out"></div>
+            <div class="step-actions cr-step-actions sheet-footer">
+              <button class="btn btn-ghost btn-back cr-btn-back" onclick="CriarPage.goStep(2)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg>
+                Editar
+              </button>
+              <button class="btn btn-primary btn-next cr-btn-primary" onclick="CriarPage.salvarFolha()">
+                Salvar folha
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
       </div>
-      <!-- PANE 2 -->
-      <div class="step-pane" id="pane2">
-        <h2 class="t-section mb-8">Tópicos sugeridos</h2>
-        <p class="t-sub mb-20">Selecione, remova ou adicione antes de gerar</p>
-        <div id="topics-list"></div>
-        <div class="add-row">
-          <input type="text" class="inp" id="inp-new-topic" placeholder="Adicionar tópico…">
-          <button class="btn btn-secondary" id="btn-add-topic" onclick="CriarPage.addTopic()">Adicionar</button>
-        </div>
-        <div class="step-actions">
-          <button class="btn btn-ghost btn-back" onclick="CriarPage.goStep(1)">Voltar</button>
-          <button class="btn btn-primary btn-next" onclick="CriarPage.gerarFolha()">Gerar folha</button>
-        </div>
-      </div>
-      <!-- PANE 3 -->
-      <div class="step-pane" id="pane3">
-        <div id="sheet-out"></div>
-        <div class="step-actions sheet-footer">
-          <button class="btn btn-ghost btn-back" onclick="CriarPage.goStep(2)">Editar</button>
-          <button class="btn btn-primary btn-next" onclick="CriarPage.salvarFolha()">Salvar folha</button>
-        </div>
-      </div>
-    </div>
+    </main>
   </div>
+
   <script src="../js/config.js"></script>
   <script src="../js/utils/dom.js"></script>
   <script src="../js/utils/storage.js"></script>
