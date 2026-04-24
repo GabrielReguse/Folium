@@ -84,14 +84,29 @@ const MateriaPage = {
     folhas.forEach((sh, i) => {
       const card = Card.sheet({
         ...sh,
-        subjectId:  this.subject.id,
-        onFavorite: () => this._toggleFavorite(sh.id),
-        onDelete:   () => this._deleteSheet(sh.id),
+        subjectId:     this.subject.id,
+        onFavorite:    () => this._toggleFavorite(sh.id),
+        onDelete:      () => this._deleteSheet(sh.id),
+        onDownloadDoc: () => this._downloadSheet(sh.id, 'doc'),
+        onDownloadPdf: () => this._downloadSheet(sh.id, 'pdf'),
       });
       card.style.animationDelay = `${i * 0.07}s`;
       card.classList.add('au');
       body.appendChild(card);
     });
+  },
+
+  /* ── Baixar folha (DOC ou PDF) ── */
+  _downloadSheet(sheetId, format) {
+    const folha = this.subject.folhas.find(f => f.id === sheetId);
+    if (!folha) return;
+    if (typeof Download === 'undefined') {
+      console.warn('[Materia] Download utility indisponível');
+      return;
+    }
+    const subjName = this.subject.nomeNormalizado || this.subject.name || '';
+    if (format === 'pdf') Download.asPdf(folha, subjName);
+    else                  Download.asDoc(folha, subjName);
   },
 
   /* ── Alternar favorito de uma folha ── */

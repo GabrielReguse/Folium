@@ -93,31 +93,50 @@ const Card = {
                      : Array.isArray(sh.topics)  ? sh.topics
                      : [];
     const nivelLabel = sh.nivelLabel || '';
-    const isFav      = !!sh.favorita;
-    const subjectId  = sh.subjectId;
-    const onFavorite = sh.onFavorite;
-    const onDelete   = sh.onDelete;
+    const isFav          = !!sh.favorita;
+    const subjectId      = sh.subjectId;
+    const onFavorite     = sh.onFavorite;
+    const onDelete       = sh.onDelete;
+    const onDownloadDoc  = sh.onDownloadDoc;
+    const onDownloadPdf  = sh.onDownloadPdf;
 
     const delIcon = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+    const dlIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+    const kebabIcon = `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>`;
+
+    const favStar = isFav
+      ? `<span class="sc-fav-mark" title="Favorita">${CardIcons.starFill}</span>`
+      : '';
+
+    const hasDownload = !!(onDownloadDoc || onDownloadPdf);
 
     const btn = document.createElement('button');
-    btn.className = 'sheet-card-item';
+    btn.className = 'sheet-card-item' + (isFav ? ' is-fav' : '');
     btn.innerHTML = `
       <div class="sc-icon">${CardIcons.sheet}</div>
       <div class="sc-info">
-        <div class="sc-title">${titulo}</div>
+        <div class="sc-title">${favStar}<span class="sc-title-txt">${titulo}</span></div>
         <div class="sc-meta">
           ${data    ? `<span class="sc-date">${data}</span>` : ''}
           ${topicos.length ? `<span class="sc-topics">&middot; ${topicos.length} tópico${topicos.length !== 1 ? 's' : ''}</span>` : ''}
           ${nivelLabel ? `<span class="sc-nivel">${nivelLabel}</span>` : ''}
         </div>
       </div>
-      <div class="sc-actions">
-        <button class="fav-btn ${isFav ? 'on' : ''}" title="${isFav ? 'Remover favorito' : 'Favoritar'}">
-          ${isFav ? CardIcons.starFill : CardIcons.star}
-        </button>
-        ${onDelete ? `<button class="del-btn" title="Apagar folha">${delIcon}</button>` : ''}
+
+      <div class="sc-actions sc-actions--desktop">
+        ${onFavorite ? `
+          <button class="sc-btn fav-btn ${isFav ? 'on' : ''}" title="${isFav ? 'Remover favorito' : 'Favoritar'}" aria-label="${isFav ? 'Remover favorito' : 'Favoritar'}">
+            ${isFav ? CardIcons.starFill : CardIcons.star}
+          </button>` : ''}
+        ${hasDownload ? `
+          <button class="sc-btn dl-btn" title="Baixar" aria-label="Baixar">${dlIcon}</button>` : ''}
+        ${onDelete ? `
+          <button class="sc-btn del-btn" title="Apagar folha" aria-label="Apagar folha">${delIcon}</button>` : ''}
         <svg class="sc-arr" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="var(--text-light)" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <div class="sc-actions sc-actions--mobile">
+        <button class="sc-btn menu-btn" title="Mais opções" aria-label="Mais opções" aria-haspopup="menu">${kebabIcon}</button>
       </div>`;
 
     const favBtn = btn.querySelector('.fav-btn');
@@ -133,6 +152,34 @@ const Card = {
       delBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         onDelete();
+      });
+    }
+
+    const dlBtn = btn.querySelector('.dl-btn');
+    if (dlBtn && hasDownload) {
+      dlBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof SheetMenu === 'undefined') return;
+        SheetMenu.show(dlBtn, {
+          variant: 'download',
+          onDownloadDoc,
+          onDownloadPdf,
+        });
+      });
+    }
+
+    const menuBtn = btn.querySelector('.menu-btn');
+    if (menuBtn) {
+      menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof SheetMenu === 'undefined') return;
+        SheetMenu.show(menuBtn, {
+          isFav,
+          onFavorite,
+          onDownloadDoc,
+          onDownloadPdf,
+          onDelete,
+        });
       });
     }
 
