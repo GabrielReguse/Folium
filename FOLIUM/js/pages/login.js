@@ -22,20 +22,11 @@ const LoginPage = {
     this.currentForm === 'register' ? await this._register() : await this._login();
   },
 
-  /* ── Acorda o servidor antes de fazer a requisição real ── */
-  async _wakeServer() {
-    const MAX_WAIT = 90000; // 90 segundos
-    const INTERVAL = 3000;  // tenta a cada 3s
-    const start = Date.now();
-
-    while (Date.now() - start < MAX_WAIT) {
-      try {
-        const res = await fetch(`${Config.API}/health`, { method: 'GET' });
-        if (res.ok) return true;
-      } catch (_) {}
-      await new Promise(r => setTimeout(r, INTERVAL));
-    }
-    return false;
+  /* ── Acorda o servidor antes de fazer a requisição real ──
+     Delegado a Config.wake() pra a mesma sessão compartilhar a
+     promise (assim outras páginas que já chamaram wake reaproveitam). */
+  _wakeServer() {
+    return Config.wake();
   },
 
   async _register() {

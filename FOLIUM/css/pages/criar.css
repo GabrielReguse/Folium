@@ -10,20 +10,53 @@
   background-image: url('../../assets/images/doodles-mobile.png');
   background-repeat: no-repeat;
   background-position: bottom center;
-  background-size: 86% auto;
+  background-size: 100% auto;
   min-height: 100dvh;
   position: relative;
 }
 .page-criar #bg-canvas { display: none; }
 
-/* Desktop: usa o doodle landscape (já proporcional) e remove o margin-left
-   do layout.css que era pra sidebar — criar usa o dock flutuante igual a home. */
+/* Desktop: dois "tapetes" do doodle-mobile — um normal embaixo,
+   um espelhado em ambos os eixos (rotação 180°) em cima.
+   position: fixed pra ambos ficarem sempre colados ao topo/rodapé
+   da viewport (sem gap esquisito no meio em telas grandes). */
 @media (min-width: 900px) {
   .page-criar {
     margin-left: 0 !important;
-    background-image: url('../../assets/images/doodles-desktop.png');
-    background-position: bottom right -40px;
-    background-size: min(920px, 70%) auto;
+    background-image: none;
+    overflow-x: hidden; /* só lateral; vertical precisa scrollar normal */
+  }
+  .page-criar::before,
+  .page-criar::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 50vh;
+    background-image: url('../../assets/images/doodles-mobile.png');
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    pointer-events: none;
+    opacity: 0.55; /* deixa como textura de fundo, não foregound */
+    z-index: 0;
+  }
+  /* Embaixo: doodle normal, "colado" pelo bottom da viewport */
+  .page-criar::after {
+    bottom: 0;
+    background-position: bottom center;
+  }
+  /* Em cima: mesma imagem espelhada horizontal + verticalmente.
+     Posição "bottom" + transform scale(-1,-1) deixa a faixa
+     "cheia" do doodle visível na parte superior, de cabeça pra baixo. */
+  .page-criar::before {
+    top: 0;
+    background-position: bottom center;
+    transform: scale(-1, -1);
+  }
+  /* Conteúdo precisa ficar acima dos pseudo-elements */
+  .page-criar > * {
+    position: relative;
+    z-index: 1;
   }
 }
 
