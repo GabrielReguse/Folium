@@ -96,7 +96,7 @@ const MateriaPage = {
   },
 
   /* ── Download de folha (PDF ou DOC) ── */
-  _downloadSheet(sheetId, format) {
+  async _downloadSheet(sheetId, format) {
     const folha = this.subject.folhas.find(f => f.id === sheetId);
     if (!folha) return;
 
@@ -104,17 +104,17 @@ const MateriaPage = {
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-zA-Z0-9_\- ]/g, '').replace(/\s+/g, '_').slice(0, 80) || 'folha';
 
-    const bodyHTML = this._buildSheetHTML(folha);
+    const bodyHTML = await this._buildSheetHTML(folha);
 
     if (format === 'doc') {
       this._downloadDoc(bodyHTML, `${safeName}.doc`, folha.titulo);
     } else {
-      this._downloadPdf(bodyHTML, `${safeName}.pdf`);
+      await this._downloadPdf(bodyHTML, `${safeName}.pdf`);
     }
   },
 
-  /* Constrói HTML da folha para export */
-  _buildSheetHTML(folha) {
+  /* Constrói HTML da folha para export (async para capturar visuais) */
+  async _buildSheetHTML(folha) {
     const esc = (s) => String(s == null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -127,7 +127,7 @@ const MateriaPage = {
 
     const r = folha.resultado;
     if (r && Array.isArray(r.blocos) && r.blocos.length) {
-      r.blocos.forEach(b => {
+      for (const b of r.blocos) {
         parts.push(`<h2 style="font-family:Georgia,serif;margin:18px 0 6px">${esc(b.titulo || '')}</h2>`);
         if (b.explicacao) parts.push(`<p style="margin:0 0 8px;line-height:1.5">${esc(b.explicacao)}</p>`);
 
@@ -151,7 +151,12 @@ const MateriaPage = {
         if (b.dica_prova) {
           parts.push(`<div style="margin:8px 0;padding:8px 12px;background:#fff8e1;border-left:3px solid #e0a800"><strong>Dica de prova:</strong> ${esc(b.dica_prova)}</div>`);
         }
-      });
+
+        if (b.visual) {
+          const visualHTML = await this._buildVisualHTML(b.visual);
+          if (visualHTML) parts.push(visualHTML);
+        }
+      }
 
       if (r.resumo_geral) {
         parts.push(`<h2 style="font-family:Georgia,serif;margin:22px 0 6px">Resumo Geral</h2>`);
@@ -187,40 +192,198 @@ const MateriaPage = {
   },
 
   /* Baixa como .pdf via html2pdf.js (CDN carregado no materia.html) */
-  _downloadPdf(bodyHTML, filename) {
-    const run = () => {
-      if (typeof html2pdf === 'undefined') {
-        alert('Não foi possível carregar o gerador de PDF. Verifique sua conexão.');
+  async _downloadPdf(bodyHTML, filename) {
+    if (typeof html2pdf === 'undefined') {
+      try {
+        await new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      } catch {
+        alert('Falha ao carregar o gerador de PDF.');
         return;
       }
-      const container = document.createElement('div');
-      container.style.cssText = 'padding:18px;font-family:Arial,sans-serif;color:#222;max-width:780px';
-      container.innerHTML = bodyHTML;
-      /* Temporariamente no DOM (fora do fluxo visual) */
-      container.style.position = 'absolute';
-      container.style.left = '-10000px';
-      container.style.top = '0';
-      document.body.appendChild(container);
+    }
+    if (typeof html2pdf === 'undefined') {
+      alert('Não foi possível carregar o gerador de PDF. Verifique sua conexão.');
+      return;
+    }
 
-      html2pdf().from(container).set({
+    const container = document.createElement('div');
+    container.style.cssText = 'position:fixed;left:0;top:0;width:780px;padding:18px;font-family:Arial,sans-serif;color:#222;background:#fff;z-index:-9999;pointer-events:none';
+    container.innerHTML = bodyHTML;
+    document.body.appendChild(container);
+
+    /* Aguarda imagens carregarem antes de capturar */
+    const imgs = container.querySelectorAll('img');
+    if (imgs.length) {
+      await Promise.all(Array.from(imgs).map(img =>
+        img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
+      ));
+    }
+
+    try {
+      await html2pdf().from(container).set({
         margin: [10, 10, 10, 10],
         filename,
         image: { type: 'jpeg', quality: 0.95 },
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-      }).save().then(() => container.remove()).catch(() => container.remove());
-    };
+      }).save();
+    } finally {
+      container.remove();
+    }
+  },
 
-    if (typeof html2pdf === 'undefined') {
-      /* Fallback: tenta carregar o CDN se ainda não estiver disponível */
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-      s.onload = run;
-      s.onerror = () => alert('Falha ao carregar o gerador de PDF.');
-      document.head.appendChild(s);
-    } else {
-      run();
+  /* Constrói HTML para um visual (chart, SVG, imagem wiki) */
+  async _buildVisualHTML(visual) {
+    if (!visual?.tipo) return '';
+    try {
+      switch (visual.tipo) {
+        case 'grafico_funcao':
+        case 'grafico_barras':
+        case 'grafico_pizza':
+          return await this._chartToImgHTML(visual);
+        case 'svg':
+          return await this._svgToImgHTML(visual.codigo);
+        case 'imagem_wiki':
+          return await this._wikiToImgHTML(visual.busca);
+        default:
+          return '';
+      }
+    } catch (e) {
+      console.warn('[Download] visual falhou:', e.message);
+      return '';
+    }
+  },
+
+  /* Renderiza Chart.js em canvas temporário e converte para base64 PNG */
+  async _chartToImgHTML(visual) {
+    if (typeof Chart === 'undefined') return '';
+    const d = visual.dados;
+    if (!d) return '';
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 450;
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position:fixed;left:0;top:0;width:800px;height:450px;z-index:-9999;pointer-events:none';
+    wrapper.appendChild(canvas);
+    document.body.appendChild(wrapper);
+
+    let chartConfig;
+
+    if (visual.tipo === 'grafico_funcao') {
+      if (!d.funcao) { wrapper.remove(); return ''; }
+      const n = d.passos || 100;
+      const xMin = d.dominio?.[0] ?? -10;
+      const xMax = d.dominio?.[1] ?? 10;
+      const step = (xMax - xMin) / n;
+      let fn;
+      try { fn = new Function('x', `"use strict";return (${d.funcao});`); }
+      catch { wrapper.remove(); return ''; }
+      const labels = [], values = [];
+      for (let i = 0; i <= n; i++) {
+        const x = xMin + i * step;
+        const y = fn(x);
+        labels.push(parseFloat(x.toFixed(2)));
+        values.push(isFinite(y) ? parseFloat(y.toFixed(4)) : null);
+      }
+      chartConfig = {
+        type: 'line',
+        data: { labels, datasets: [{ label: d.label || 'f(x)', data: values, borderColor: '#9B6B42', backgroundColor: 'rgba(155,107,66,0.08)', borderWidth: 2.5, pointRadius: 0, tension: 0.4, fill: true, spanGaps: false }] },
+        options: { ...AI2._chartOpts(d.label || ''), animation: false, responsive: false },
+      };
+    } else if (visual.tipo === 'grafico_barras') {
+      if (!d.labels || !d.datasets) { wrapper.remove(); return ''; }
+      const palette = ['#9B6B42', '#7A5035', '#C4A882', '#5C3D2E'];
+      chartConfig = {
+        type: 'bar',
+        data: { labels: d.labels, datasets: d.datasets.map((ds, i) => ({ label: ds.label, data: ds.valores, backgroundColor: palette[i % palette.length] + 'BB', borderColor: palette[i % palette.length], borderWidth: 1.5, borderRadius: 6 })) },
+        options: { ...AI2._chartOpts(d.titulo || ''), animation: false, responsive: false },
+      };
+    } else if (visual.tipo === 'grafico_pizza') {
+      if (!d.labels || !d.valores) { wrapper.remove(); return ''; }
+      const palette = ['#9B6B42', '#7A5035', '#C4A882', '#D4B896', '#5C3D2E', '#B8906A'];
+      chartConfig = {
+        type: 'doughnut',
+        data: { labels: d.labels, datasets: [{ data: d.valores, backgroundColor: palette.map(c => c + 'CC'), borderColor: '#fff', borderWidth: 3, hoverOffset: 6 }] },
+        options: { ...AI2._chartOpts(d.titulo || ''), animation: false, responsive: false, cutout: '52%', scales: {} },
+      };
+    }
+
+    if (!chartConfig) { wrapper.remove(); return ''; }
+
+    const chart = new Chart(canvas, chartConfig);
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const dataUrl = canvas.toDataURL('image/png');
+    chart.destroy();
+    wrapper.remove();
+
+    return `<div style="margin:12px 0;text-align:center"><img src="${dataUrl}" style="max-width:100%;height:auto" alt="Gráfico"></div>`;
+  },
+
+  /* Converte SVG inline para imagem PNG (melhor compatibilidade com Word) */
+  async _svgToImgHTML(codigo) {
+    if (!codigo?.trim().toLowerCase().startsWith('<svg')) return '';
+
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(codigo.trim(), 'image/svg+xml');
+      const svgEl = doc.querySelector('svg');
+      if (!svgEl) return '';
+
+      let w = 500, h = 300;
+      const vb = svgEl.getAttribute('viewBox');
+      if (vb) {
+        const p = vb.split(/[\s,]+/).map(Number);
+        if (p.length >= 4 && p[2] > 0 && p[3] > 0) { w = p[2]; h = p[3]; }
+      }
+      if (!svgEl.getAttribute('width'))  svgEl.setAttribute('width', w);
+      if (!svgEl.getAttribute('height')) svgEl.setAttribute('height', h);
+
+      const serialized = new XMLSerializer().serializeToString(svgEl);
+      const blob = new Blob([serialized], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+
+      const dataUrl = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = 2;
+          const c = document.createElement('canvas');
+          c.width = w * scale; c.height = h * scale;
+          const ctx = c.getContext('2d');
+          ctx.scale(scale, scale);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(url);
+          resolve(c.toDataURL('image/png'));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('SVG render failed')); };
+        img.src = url;
+      });
+
+      return `<div style="margin:12px 0;text-align:center"><img src="${dataUrl}" style="max-width:100%;height:auto" alt="Diagrama"></div>`;
+    } catch {
+      return `<div style="margin:12px 0;text-align:center;max-width:500px;margin-left:auto;margin-right:auto">${codigo.trim()}</div>`;
+    }
+  },
+
+  /* Busca imagem da Wikipedia/Wikimedia e gera tag img */
+  async _wikiToImgHTML(busca) {
+    if (!busca?.trim()) return '';
+    try {
+      const result = await AI2._fetchWiki(busca);
+      if (!result?.url) return '';
+      const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      return `<div style="margin:12px 0;text-align:center"><img src="${esc(result.url)}" style="max-width:480px;width:100%;height:auto" alt="${esc(busca)}" crossorigin="anonymous"><p style="font-size:10px;color:#888;margin-top:4px">${esc(result.title || busca)} · Wikimedia Commons</p></div>`;
+    } catch {
+      return '';
     }
   },
 
