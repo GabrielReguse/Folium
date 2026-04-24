@@ -7,6 +7,14 @@ const HomePage = {
     const page = document.querySelector('.page');
     if (page) page.classList.add('page-home');
 
+    // Na primeira visita (localStorage.folium_subjects nunca foi
+    // escrito), semeia uma atividade de boas-vindas para que o
+    // bloco de "Atividade recente" não fique vazio e o usuário
+    // veja a animação dos cards subindo. Não re-semeia depois que
+    // o usuário criar/apagar atividades (a própria setSubjects
+    // marca a chave no storage).
+    this._seedWelcomeIfFirstVisit();
+
     if (window.innerWidth >= 900) {
       this._buildDesktop();
     } else {
@@ -15,6 +23,74 @@ const HomePage = {
 
     Navbar.renderBottom('home');
     Sidebar.init();
+    this._runEntryAnimations();
+  },
+
+  _seedWelcomeIfFirstVisit() {
+    if (localStorage.getItem('folium_subjects') !== null) return;
+    const now = new Date();
+    const demoFolha = {
+      id:            `sh_demo_${now.getTime()}`,
+      titulo:        'Boas-vindas ao Folium',
+      tema:          'Visão geral',
+      nivel:         'ensino-medio',
+      nivelLabel:    'Ensino médio',
+      topicos: [
+        { titulo: 'Como criar sua primeira folha', resumo: 'Clique em Criar e informe matéria, tema e nível.' },
+        { titulo: 'Resumos automáticos com IA',    resumo: 'A IA gera um resumo rápido a partir do tema.' },
+        { titulo: 'Organize por matérias',         resumo: 'Cada matéria agrupa folhas e tópicos.' },
+      ],
+      resultado:     null,
+      favorita:      false,
+      criadaEm:      now.toISOString(),
+      dataFormatada: now.toLocaleDateString('pt-BR'),
+    };
+    const demoSubject = {
+      id:              `bio_demo_${now.getTime()}`,
+      nomeOriginal:    'Introdução',
+      nomeNormalizado: 'Introdução',
+      favorita:        false,
+      criadaEm:        now.toISOString(),
+      folhas:          [demoFolha],
+    };
+    Storage.setSubjects([demoSubject]);
+  },
+
+  /* ═══════════════════════════════════════
+     ENTRY ANIMATIONS — count-up + stagger
+  ═══════════════════════════════════════ */
+  _runEntryAnimations() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // 1) Stagger dos cards de atividade recente
+    document.querySelectorAll('.recent-card, .recent-empty').forEach((card, i) => {
+      card.classList.add('home-anim-rise');
+      card.style.animationDelay = `${0.55 + i * 0.08}s`;
+    });
+
+    // 2) Count-up nos números das estatísticas
+    document.querySelectorAll('.hstat-num').forEach((el) => {
+      const target = parseInt(el.dataset.target || el.textContent, 10) || 0;
+      el.textContent = '0';
+      // delay para começar depois que o bloco esquerdo entrou
+      setTimeout(() => this._countUp(el, target), 220);
+    });
+  },
+
+  _countUp(el, target) {
+    if (target <= 0) { el.textContent = '0'; return; }
+    // Duração fixa de 1400ms — valores maiores incrementam mais
+    // rápido por tick; valores menores rodam devagarzinho. Ease
+    // out-cubic pra sensação de "chegando" no final.
+    const duration = 1400;
+    const start = performance.now();
+    const ease = (t) => 1 - Math.pow(1 - t, 3);
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      el.textContent = Math.round(target * ease(t));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   },
 
   /* ═══════════════════════════════════════
@@ -31,7 +107,7 @@ const HomePage = {
 
     /* ── Top nav com logo imagem ── */
     const topNav = document.createElement('div');
-    topNav.className = 'home-top-nav';
+    topNav.className = 'home-top-nav fade-down';
     topNav.innerHTML = `
       <div class="home-top-nav__spacer"></div>
       <img src="../assets/images/logo-folium.png"
@@ -48,22 +124,22 @@ const HomePage = {
 
     /* ── Hero ── */
     const hero = document.createElement('div');
-    hero.className = 'dash-hero';
+    hero.className = 'dash-hero home-anim-left';
     hero.innerHTML = `
       <p class="hero-greeting">${greeting}</p>
       <h2 class="hero-name">${name}</h2>
       <p class="hero-sub">O que você vai resumir hoje?</p>
       <div class="hero-stats">
         <div class="hstat">
-          <div class="hstat-num">${totals.sheets}</div>
+          <div class="hstat-num" data-target="${totals.sheets}">${totals.sheets}</div>
           <div class="hstat-lbl">Folhas</div>
         </div>
         <div class="hstat">
-          <div class="hstat-num">${totals.subjects}</div>
+          <div class="hstat-num" data-target="${totals.subjects}">${totals.subjects}</div>
           <div class="hstat-lbl">Matérias</div>
         </div>
         <div class="hstat">
-          <div class="hstat-num">${totals.topics}</div>
+          <div class="hstat-num" data-target="${totals.topics}">${totals.topics}</div>
           <div class="hstat-lbl">Tópicos</div>
         </div>
       </div>`;
@@ -150,21 +226,21 @@ const HomePage = {
     layout.className = 'dash-desk-layout';
     layout.innerHTML = `
       <!-- Coluna esquerda: saudação + stats -->
-      <div class="desk-col-left">
+      <div class="desk-col-left home-anim-left">
         <p class="hero-greeting">${greeting}</p>
         <h2 class="hero-name desk-name">${name}</h2>
         <p class="hero-sub desk-sub">O que você vai resumir hoje?</p>
         <div class="hero-stats desk-stats">
           <div class="hstat">
-            <div class="hstat-num">${totals.sheets}</div>
+            <div class="hstat-num" data-target="${totals.sheets}">${totals.sheets}</div>
             <div class="hstat-lbl">Folhas</div>
           </div>
           <div class="hstat">
-            <div class="hstat-num">${totals.subjects}</div>
+            <div class="hstat-num" data-target="${totals.subjects}">${totals.subjects}</div>
             <div class="hstat-lbl">Matérias</div>
           </div>
           <div class="hstat">
-            <div class="hstat-num">${totals.topics}</div>
+            <div class="hstat-num" data-target="${totals.topics}">${totals.topics}</div>
             <div class="hstat-lbl">Tópicos</div>
           </div>
         </div>
@@ -172,12 +248,12 @@ const HomePage = {
 
 <div class="desk-col-center">
   <img src="../assets/images/logo-folium-v2.png"
-       alt="Folium" class="desk-logo">
-  <p class="desk-tagline">Transforme qualquer conteúdo em uma<br>folha de estudos inteligente.</p>
+       alt="Folium" class="desk-logo home-anim-logo">
+  <p class="desk-tagline fade-in" style="animation-delay:.35s">Transforme qualquer conteúdo em uma<br>folha de estudos inteligente.</p>
 </div>
 
       <!-- Coluna direita: atividade recente -->
-      <div class="desk-col-right" id="desk-recent"></div>`;
+      <div class="desk-col-right home-anim-right-panel" id="desk-recent"></div>`;
 
     page.appendChild(layout);
     this._buildRecentPanel(document.getElementById('desk-recent'));
