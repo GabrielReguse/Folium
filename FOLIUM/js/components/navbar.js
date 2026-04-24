@@ -265,14 +265,16 @@ const Navbar = {
       btn.addEventListener('click', () => {
         const route = it.route;
         if (route === nav.dataset.active) return;
-        // Anima a bolha suavemente até o item clicado ANTES de navegar.
-        // O Router.go() tem um delay de ~180ms (fade-out) que dá tempo
-        // pra animação de 0.4s ser visível antes da troca de página.
-        // Na página nova, _positionBubble instantâneo coloca a bolha
-        // exatamente no lugar certo — o usuário percebe como uma
-        // animação contínua entre telas.
+        // 1) Dispara a animação de 0.4s: a bolha + meia-lua deslizam
+        //    horizontalmente juntas até o item clicado.
         this._animateBubbleTo(nav, btn, route);
-        Router.go(route);
+        // 2) Só depois da animação completar (~420ms) chamamos
+        //    Router.go, que então faz o fade-out de 160ms e navega.
+        //    O usuário vê: bolha desliza até o destino -> página faz
+        //    fade pra creme -> nova página faz fade-in (já com a
+        //    bolha posicionada no mesmo ponto pelo _positionBubble
+        //    instantâneo).
+        setTimeout(() => Router.go(route), 420);
       });
       itemsContainer.appendChild(btn);
     });

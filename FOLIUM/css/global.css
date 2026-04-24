@@ -35,7 +35,7 @@ body{
 }
 body.is-leaving{
   opacity:0;
-  transition:opacity 180ms ease-out;
+  transition:opacity 160ms ease-out;
   animation:none;
 }
 @keyframes folium-page-in{

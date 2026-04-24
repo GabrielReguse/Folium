@@ -15,9 +15,10 @@ const Router = {
     const dest = this.routes[route] || route;
     // Fade-out suave: o html tem background creme, então ao deixar o
     // body opacity=0 o navegador revela o creme em vez de pintar branco
-    // durante a navegação. Curto o suficiente para não travar o clique.
+    // durante a navegação. 160ms é curto o suficiente pra não travar
+    // o clique, mas longo pra o fade ser percebido como suave.
     document.body.classList.add('is-leaving');
-    setTimeout(() => { window.location.href = dest; }, 180);
+    setTimeout(() => { window.location.href = dest; }, 160);
   },
 
   back() {
