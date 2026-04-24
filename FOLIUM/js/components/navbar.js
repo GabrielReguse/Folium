@@ -277,12 +277,16 @@ const Navbar = {
     if (existing) existing.remove();
     page.appendChild(nav);
 
+    // Posiciona a bolha INSTANTANEAMENTE no primeiro render (sem
+    // transition), senão ela sempre aparece deslizando da esquerda
+    // quando a página carrega. Depois do primeiro posicionamento,
+    // reativamos a transition para animar cliques subsequentes.
     requestAnimationFrame(() => {
-      this._positionBubble(nav, active);
+      this._positionBubble(nav, active, /* instant */ true);
     });
   },
 
-  _positionBubble(nav, activeRoute) {
+  _positionBubble(nav, activeRoute, instant = false) {
     const slider = nav.querySelector('.dock-slider');
     const bg = nav.querySelector('.dock-bg');
     const activeItem = nav.querySelector(`.dock-item[data-route="${activeRoute}"]`);
@@ -293,9 +297,30 @@ const Navbar = {
     const itemRect = activeItem.getBoundingClientRect();
     const cx = itemRect.left - navRect.left + itemRect.width / 2;
 
-    slider.style.transform = `translateX(${cx - 50}px)`;
-    bg.style.webkitMaskPosition = `${cx - 1000}px 0`;
-    bg.style.maskPosition = `${cx - 1000}px 0`;
+    if (instant) {
+      const prevSlider = slider.style.transition;
+      const prevBg = bg.style.transition;
+      slider.style.transition = 'none';
+      bg.style.transition = 'none';
+      slider.style.transform = `translateX(${cx - 50}px)`;
+      bg.style.webkitMaskPosition = `${cx - 1000}px 0`;
+      bg.style.maskPosition = `${cx - 1000}px 0`;
+      // força reflow e restaura a transition original em dois rAFs
+      // (um para o browser aplicar o estilo sem transition, outro
+      // para voltar a transition antes de interações futuras).
+      // eslint-disable-next-line no-unused-expressions
+      slider.offsetHeight;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          slider.style.transition = prevSlider;
+          bg.style.transition = prevBg;
+        });
+      });
+    } else {
+      slider.style.transform = `translateX(${cx - 50}px)`;
+      bg.style.webkitMaskPosition = `${cx - 1000}px 0`;
+      bg.style.maskPosition = `${cx - 1000}px 0`;
+    }
   },
 
   _animateBubbleTo(nav, targetBtn, route) {

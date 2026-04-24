@@ -2,10 +2,10 @@
 
 const Router = {
   routes: {
-    login: '../html/login.html',
-    home: '../html/home.html',
-    criar: '../html/criar.html',
-    folhas: '../html/folhas.html',
+    login:   '../html/login.html',
+    home:    '../html/home.html',
+    criar:   '../html/criar.html',
+    folhas:  '../html/folhas.html',
     materia: '../html/materia.html',
     suporte: '../html/suporte.html',
   },
@@ -13,15 +13,14 @@ const Router = {
   go(route, ctx = {}) {
     Object.entries(ctx).forEach(([k, v]) => Storage.setContext(k, v));
     const dest = this.routes[route] || route;
-    document.body.style.transition = 'opacity 0.15s ease';
-    document.body.style.opacity = '0';
-    setTimeout(() => { window.location.href = dest; }, 160);
+    // Sem fade-out manual via JS. A @view-transition CSS (quando
+    // suportada) cuida da transição; o html{background:cream} evita
+    // piscar branco onde a API não está disponível.
+    window.location.href = dest;
   },
 
   back() {
-    document.body.style.transition = 'opacity 0.15s ease';
-    document.body.style.opacity = '0';
-    setTimeout(() => window.history.back(), 160);
+    window.history.back();
   },
 
   redirect(route) {
@@ -42,17 +41,8 @@ const Router = {
   },
 
   initFade() {
-    document.body.style.opacity = '0';
-
-    document.addEventListener('DOMContentLoaded', () => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          document.body.style.transition = 'opacity 0.22s ease';
-          document.body.style.opacity = '1';
-        });
-      });
-    });
-
+    // Limpa contexto efêmero ao voltar/voltar do bfcache. A transição
+    // visual agora é 100% CSS (view-transition + html bg).
     window.addEventListener('popstate', () => {
       Storage.clearContext('sheetId');
       Storage.clearContext('viewSheet');
@@ -62,8 +52,6 @@ const Router = {
       if (e.persisted) {
         Storage.clearContext('sheetId');
         Storage.clearContext('viewSheet');
-        document.body.style.transition = 'none';
-        document.body.style.opacity = '1';
       }
     });
   }
