@@ -63,20 +63,60 @@ const Card = {
    */
   subject(s) {
     const nome  = s.nomeNormalizado || s.name || 'Matéria';
-    const count = Array.isArray(s.folhas) ? s.folhas.length
-                : Array.isArray(s.sheets) ? s.sheets.length
-                : 0;
+    const folhas = Array.isArray(s.folhas) ? s.folhas
+                 : Array.isArray(s.sheets) ? s.sheets
+                 : [];
+    const count = folhas.length;
+    const favCount = folhas.filter(f => f && f.favorita).length;
     const icon  = CardIcons.getSubjectIcon(nome);
+
+    /* última atividade: data mais recente entre as folhas */
+    let lastLabel = '';
+    if (count) {
+      const timestamps = folhas
+        .map(f => f && (f.criadaEm || f.atualizadaEm || f.date))
+        .filter(Boolean)
+        .map(d => new Date(d).getTime())
+        .filter(t => !Number.isNaN(t));
+      if (timestamps.length) {
+        const latest = new Date(Math.max(...timestamps));
+        const diffMs = Date.now() - latest.getTime();
+        const days = Math.floor(diffMs / 86400000);
+        if (days <= 0)       lastLabel = 'Atualizada hoje';
+        else if (days === 1) lastLabel = 'Atualizada ontem';
+        else if (days < 7)   lastLabel = `Atualizada há ${days} dias`;
+        else                 lastLabel = `Atualizada em ${latest.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}`;
+      }
+    } else {
+      lastLabel = 'Sem folhas ainda';
+    }
 
     const btn = document.createElement('button');
     btn.className = 'subj-card';
+    btn.setAttribute('aria-label', `Abrir matéria ${nome}`);
     btn.innerHTML = `
-      <div class="subj-emoji">${icon}</div>
+      <div class="subj-card-top">
+        <div class="subj-emoji">${icon}</div>
+        ${favCount ? `
+          <span class="subj-fav-flag" title="${favCount} favorita${favCount !== 1 ? 's' : ''}">
+            ${CardIcons.starFill}
+            ${favCount}
+          </span>` : ''}
+      </div>
       <div class="subj-info">
         <div class="subj-name">${nome}</div>
-        <div class="subj-count">${count} folha${count !== 1 ? 's' : ''}</div>
+        <div class="subj-last">${lastLabel}</div>
       </div>
-      <span class="subj-arr">${CardIcons.arrow}</span>`;
+      <div class="subj-card-bottom">
+        <span class="subj-count">
+          ${CardIcons.sheet}
+          ${count} folha${count !== 1 ? 's' : ''}
+        </span>
+        <svg class="subj-arr" viewBox="0 0 24 24" fill="none" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </div>`;
     btn.addEventListener('click', () =>
       Router.go('materia', { subjectId: s.id })
     );

@@ -17,22 +17,77 @@
 </head>
 <body>
   <canvas id="bg-canvas"></canvas>
-    <div id="loading-overlay">
+  <div id="loading-overlay">
     <div class="loading-box">
       <div class="loader loader-lg"></div>
       <h3 id="ld-title">Processando...</h3>
       <p id="ld-sub">Aguarde um momento</p>
     </div>
   </div>
-  <div class="page">
-    <div class="folhas-body page-body">
-      <div class="subj-section">
-        <h2 class="t-section mb-8">Minhas Matérias</h2>
-        <p class="t-sub mb-24">Selecione para ver as folhas criadas</p>
-        <div id="subj-list"></div>
+
+  <div class="page page-folhas">
+    <main class="page-body fl-shell">
+
+      <!-- ═══ HERO ═══ -->
+      <section class="fl-hero">
+        <div class="fl-hero-inner">
+          <span class="fl-eyebrow">Folium · Minhas Folhas</span>
+          <h1 class="fl-title">Suas <em>matérias</em></h1>
+          <p class="fl-lede">Explore, revise e continue de onde parou. Tudo que você já criou, organizado por matéria.</p>
+
+          <!-- stats inline -->
+          <div class="fl-hero-stats">
+            <div class="flh-stat">
+              <div class="flh-stat-num" id="fl-stat-subjects">0</div>
+              <div class="flh-stat-lbl">Matérias</div>
+            </div>
+            <div class="flh-stat">
+              <div class="flh-stat-num" id="fl-stat-sheets">0</div>
+              <div class="flh-stat-lbl">Folhas</div>
+            </div>
+            <div class="flh-stat">
+              <div class="flh-stat-num" id="fl-stat-fav">0</div>
+              <div class="flh-stat-lbl">Favoritas</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- decorativo -->
+        <span class="fl-leaf" aria-hidden="true">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M60 8c28 22 44 48 40 76-16 28-52 32-80 16 2-32 14-62 40-92z" fill="currentColor" opacity=".10"/>
+            <path d="M60 14C42 40 30 66 28 96" stroke="currentColor" stroke-width="1.5" opacity=".35" stroke-linecap="round"/>
+            <path d="M60 14c18 26 30 52 32 82" stroke="currentColor" stroke-width="1.5" opacity=".20" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </section>
+
+      <!-- ═══ TOOLBAR ═══ -->
+      <section class="fl-toolbar" id="fl-toolbar" hidden>
+        <div class="fl-toolbar-left">
+          <span class="fl-section-label">Seus estudos</span>
+          <span class="fl-count-pill" id="fl-count-pill">0 matérias</span>
+        </div>
+        <div class="fl-search">
+          <svg class="fl-search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" class="fl-search-inp" id="fl-search"
+                 placeholder="Buscar matéria…" autocomplete="off" aria-label="Buscar matéria">
+        </div>
+      </section>
+
+      <!-- ═══ GRID ═══ -->
+      <section id="subj-list" class="fl-grid"></section>
+
+      <!-- ═══ EMPTY — sem resultado na busca ═══ -->
+      <div class="fl-no-results" id="fl-no-results" hidden>
+        <p>Nenhuma matéria encontrada para <strong id="fl-no-results-term"></strong>.</p>
       </div>
-    </div>
+
+    </main>
   </div>
+
   <script src="../js/config.js"></script>
   <script src="../js/utils/dom.js"></script>
   <script src="../js/utils/storage.js"></script>
