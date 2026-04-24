@@ -141,7 +141,9 @@
 /* ════════ STEPPER ════════ */
 .cr-stepper {
   display: flex;
-  align-items: center;
+  /* flex-start pra bolinha e linha ficarem alinhadas pelo TOPO;
+     a linha recebe margin-top pra ficar no centro da bolinha. */
+  align-items: flex-start;
   justify-content: center;
   gap: 6px;
   padding: 4px 0;
@@ -204,6 +206,8 @@
   background: var(--border);
   border-radius: 2px;
   max-width: 80px;
+  /* centra verticalmente com o meio da bolinha (num 38px / 2 - line 2px / 2) */
+  margin-top: 18px;
   transition: background 0.28s var(--ease);
 }
 .cs-line.done {
@@ -212,7 +216,8 @@
 @media (min-width: 900px) {
   .cs-num { width: 44px; height: 44px; font-size: 16px; }
   .cs-label { font-size: 12px; }
-  .cs-line { max-width: 120px; }
+  /* num 44px / 2 - line 2px / 2 = 21px */
+  .cs-line { max-width: 120px; margin-top: 21px; }
 }
 
 /* ════════ STEPPER — animação de entrada (somente no primeiro load)
