@@ -17,7 +17,8 @@
 }
 
 /* Círculo decorativo grande — canto superior direito
-   aparece atrás do header e do topo do hero */
+   aparece atrás do header e do topo do hero
+   (valores-base usados no desktop; mobile sobrescreve abaixo) */
 .page-home::before {
   content: '';
   position: absolute;
@@ -35,7 +36,8 @@
   z-index: 0;
 }
 
-/* Círculo médio — lado esquerdo, atrás das estatísticas */
+/* Círculo médio — lado esquerdo, atrás das estatísticas
+   (valores-base usados no desktop; mobile sobrescreve abaixo) */
 .page-home::after {
   content: '';
   position: absolute;
@@ -667,7 +669,7 @@
 }
 
 /* ════════════════════════════════════════
-   MOBILE: oculta elementos desktop
+   MOBILE: oculta elementos desktop + refinamentos visuais
 ════════════════════════════════════════ */
 @media (max-width: 899px) {
   .desk-vinicius {
@@ -680,6 +682,67 @@
 
   .dock-nav {
     display: none;
+  }
+
+  /* Evita scroll horizontal se um círculo encostar na borda */
+  .page-home {
+    overflow-x: clip;
+  }
+
+  /* ── Círculos decorativos mobile ── */
+  /* Grande círculo cremoso — atrás do topo/logotipo.
+     Fica totalmente contido dentro do viewport (não é cortado pelas bordas). */
+  .page-home::before {
+    top: 20px;
+    right: 4%;
+    left: auto;
+    width: 90vw;
+    max-width: 340px;
+    height: 90vw;
+    max-height: 340px;
+    background: radial-gradient(circle,
+      rgba(252, 246, 227, 0.95) 0%,
+      rgba(247, 238, 214, 0.82) 28%,
+      rgba(238, 226, 196, 0.58) 50%,
+      rgba(228, 214, 180, 0.30) 72%,
+      rgba(228, 214, 180, 0.08) 88%,
+      transparent 100%);
+  }
+
+  /* Círculo médio — lado esquerdo, atrás das estatísticas */
+  .page-home::after {
+    top: 220px;
+    left: 3%;
+    width: 62vw;
+    max-width: 240px;
+    height: 62vw;
+    max-height: 240px;
+    background: radial-gradient(circle,
+      rgba(205, 183, 148, 0.62) 0%,
+      rgba(200, 178, 142, 0.38) 46%,
+      rgba(200, 178, 142, 0.14) 72%,
+      transparent 94%);
+  }
+
+  /* Respiro entre hero e ações + fundo transparente para os círculos
+     aparecerem completos, como na referência. */
+  .dash-hero {
+    padding: 28px 22px 56px;
+    background: transparent;
+  }
+
+  .dash-body {
+    padding: 32px 18px 110px;
+  }
+
+  .dash-section-label {
+    margin-bottom: 18px;
+  }
+
+  /* Garante que o texto/hero fique visualmente acima dos círculos */
+  .home-top-nav {
+    position: relative;
+    z-index: var(--z-nav);
   }
 }
 
@@ -694,5 +757,20 @@
 
   .home-act-card {
     padding: 16px 14px;
+  }
+
+  /* Em telas muito estreitas, círculos menores para não invadir conteúdo */
+  .page-home::before {
+    width: 74vw;
+    height: 74vw;
+    top: 0;
+    right: 6px;
+  }
+
+  .page-home::after {
+    width: 60vw;
+    height: 60vw;
+    top: 200px;
+    left: 4px;
   }
 }
