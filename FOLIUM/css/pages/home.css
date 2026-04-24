@@ -694,39 +694,38 @@
      às bordas e têm tons muito próximos do fundo cream da página,
      para criar apenas uma aura suave — sem blobs saturados. */
 
-  /* Grande halo cremoso — atrás do topo/hero.
-     Tons cremosos visíveis, fade para transparente em 92% para
-     garantir que o círculo fique inteiramente dentro do viewport. */
+  /* Grande halo cremoso — topo/hero, ligeiramente estourando
+     para a direita do viewport como na referência. */
   .page-home::before {
-    top: 12px;
-    right: 6%;
+    top: 20px;
+    right: -40px;
     left: auto;
-    width: 78vw;
-    max-width: 320px;
-    height: 78vw;
-    max-height: 320px;
+    width: 92vw;
+    max-width: 360px;
+    height: 92vw;
+    max-height: 360px;
     background: radial-gradient(circle,
-      rgba(255, 253, 240, 0.92) 0%,
-      rgba(248, 238, 212, 0.66) 32%,
-      rgba(240, 227, 196, 0.38) 58%,
-      rgba(232, 218, 184, 0.16) 80%,
+      rgba(255, 253, 236, 0.95) 0%,
+      rgba(248, 235, 206, 0.72) 30%,
+      rgba(238, 222, 188, 0.42) 56%,
+      rgba(230, 215, 180, 0.18) 80%,
       transparent 94%);
   }
 
-  /* Halo quente atrás das estatísticas — visível como na referência,
-     mas sem criar um blob escuro saturado. */
+  /* Halo quente atrás das estatísticas — bem à esquerda,
+     com a borda esquerda saindo do viewport como na referência. */
   .page-home::after {
-    top: 180px;
-    left: 5%;
-    width: 60vw;
-    max-width: 230px;
-    height: 60vw;
-    max-height: 230px;
+    top: 210px;
+    left: -50px;
+    width: 62vw;
+    max-width: 240px;
+    height: 62vw;
+    max-height: 240px;
     background: radial-gradient(circle,
-      rgba(218, 198, 162, 0.55) 0%,
-      rgba(215, 195, 158, 0.34) 42%,
-      rgba(215, 195, 158, 0.14) 70%,
-      transparent 92%);
+      rgba(215, 193, 156, 0.65) 0%,
+      rgba(212, 190, 152, 0.42) 40%,
+      rgba(212, 190, 152, 0.16) 70%,
+      transparent 94%);
   }
 
   /* Respiro entre hero e ações + fundo transparente para os círculos
@@ -739,7 +738,28 @@
   /* Espaço inferior generoso para o dock + búlha suspensa não
      sobreporem o último card (Suporte). */
   .dash-body {
-    padding: 32px 18px 150px;
+    padding: 32px 18px 180px;
+  }
+
+  /* Búlha do dock um pouco menor e mais baixa no mobile
+     (desce um pouco a navbar). Override ao estilo injetado pelo
+     navbar.js com maior especificidade + !important. */
+  .page-home .dock-nav-desktop .dock-slider {
+    width: 68px !important;
+    height: 68px !important;
+    top: -28px !important;
+  }
+
+  .page-home .dock-nav-desktop .dock-slider-icon {
+    top: 22px !important;
+    left: 22px !important;
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .page-home .dock-nav-desktop .dock-slider-icon svg {
+    width: 18px !important;
+    height: 18px !important;
   }
 
   .dash-section-label {
@@ -766,19 +786,19 @@
     padding: 16px 14px;
   }
 
-  /* Em telas muito estreitas, círculos ligeiramente menores e mais
-     recuados para continuar 100% dentro do viewport. */
+  /* Em telas muito estreitas, círculos ligeiramente menores mas
+     mantendo o mesmo posicionamento (espiando para fora). */
   .page-home::before {
-    width: 72vw;
-    height: 72vw;
-    top: 8px;
-    right: 6%;
+    width: 88vw;
+    height: 88vw;
+    top: 16px;
+    right: -40px;
   }
 
   .page-home::after {
-    width: 56vw;
-    height: 56vw;
-    top: 170px;
-    left: 5%;
+    width: 58vw;
+    height: 58vw;
+    top: 200px;
+    left: -40px;
   }
 }
