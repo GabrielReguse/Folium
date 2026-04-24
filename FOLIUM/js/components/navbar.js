@@ -265,18 +265,13 @@ const Navbar = {
       btn.addEventListener('click', () => {
         const route = it.route;
         if (route === nav.dataset.active) return;
-        // Atualiza estado semântico/visual do dock (label + icon do item
-        // ativo) para que o snapshot do View Transitions capture o novo
-        // estado. A posição da bolha NÃO é animada via JS: quando a API
-        // de View Transitions está disponível, o navegador morph-ia a
-        // posição entre o snapshot antigo e a nova página (onde a bolha
-        // já é posicionada instantaneamente pelo _positionBubble). Em
-        // browsers sem a API, a bolha simplesmente aparece no novo lugar
-        // — qualquer tentativa de animar aqui seria invisível porque o
-        // Router.go troca a página imediatamente.
-        nav.dataset.active = route;
-        nav.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active'));
-        btn.classList.add('active');
+        // Anima a bolha suavemente até o item clicado ANTES de navegar.
+        // O Router.go() tem um delay de ~180ms (fade-out) que dá tempo
+        // pra animação de 0.4s ser visível antes da troca de página.
+        // Na página nova, _positionBubble instantâneo coloca a bolha
+        // exatamente no lugar certo — o usuário percebe como uma
+        // animação contínua entre telas.
+        this._animateBubbleTo(nav, btn, route);
         Router.go(route);
       });
       itemsContainer.appendChild(btn);

@@ -218,8 +218,9 @@
 /* ════════ TOPIC CARDS ════════ */
 .sup-topics {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
+  min-width: 0;
 }
 @media (min-width: 620px) {
   .sup-topics { grid-template-columns: repeat(4, 1fr); gap: 16px; }
@@ -307,9 +308,12 @@
 /* ════════ LAYOUT (FAQ + ASIDE) ════════ */
 .sup-layout {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 28px;
+  min-width: 0;
 }
+.sup-main  { min-width: 0; }
+.sup-aside { min-width: 0; }
 @media (min-width: 900px) {
   .sup-layout {
     grid-template-columns: minmax(0, 1.55fr) minmax(260px, 1fr);
@@ -349,15 +353,18 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 18px;
+  min-width: 0;
+  max-width: 100%;
 }
 @media (max-width: 620px) {
   .sup-chips {
     flex-wrap: nowrap;
     overflow-x: auto;
+    overscroll-behavior-x: contain;
     padding-bottom: 4px;
-    margin: 0 -18px 16px;
-    padding-left: 18px;
-    padding-right: 18px;
+    /* sem margem negativa, senão sum-main (e body) ficam mais largos
+       que o viewport e viram scroll horizontal da página inteira. */
+    margin: 0 0 16px;
     scrollbar-width: none;
   }
   .sup-chips::-webkit-scrollbar { display: none; }

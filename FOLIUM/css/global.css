@@ -3,13 +3,15 @@
 
 /* `html` herda o creme para que o navegador não mostre um flash branco
    entre uma página e outra (durante a troca, o window pinta o html bg
-   antes do body ser montado). color-scheme: light evita que o tema
+   antes do body ser montado). overflow-x: clip impede qualquer child
+   de causar scroll horizontal. color-scheme: light evita que o tema
    escuro do sistema afete inputs/scrollbars nativos. */
 html{
   scroll-behavior:smooth;
   -webkit-text-size-adjust:100%;
   background:var(--cream);
   color-scheme:light;
+  overflow-x:clip;
 }
 
 body{
@@ -17,54 +19,32 @@ body{
   background:var(--cream);
   color:var(--text);
   min-height:100dvh;
+  max-width:100vw;
   overflow-x:clip;
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
 }
 
-/* ── View Transitions API (navegações entre documentos) ──
-   Chrome 126+, Safari 18+ — onde suportado, o navegador tira
-   snapshot da página atual, carrega a próxima e anima um
-   cross-fade suave. Onde não suportado, cai silenciosamente
-   para a navegação normal (que agora já não pisca em branco
-   graças ao html{background:var(--cream)} acima). */
-@view-transition{
-  navigation:auto;
+/* ── Transição de páginas (JS-driven, consistente em todos os browsers) ──
+   Ao clicar num link/dock, Router.go adiciona .is-leaving no body,
+   faz fade pra revelar o creme do html (em vez de branco) e depois
+   navega. No page load, body entra animado de baixa opacidade pra 1
+   (fadein suave), terminando a sensação de continuidade. */
+body{
+  animation:folium-page-in 240ms cubic-bezier(0.22,1,0.36,1) both;
 }
-
-::view-transition-old(root),
-::view-transition-new(root){
-  animation-duration:260ms;
-  animation-timing-function:cubic-bezier(0.22,1,0.36,1);
-}
-
-/* Nome dado ao dock/sidebar e ao topo para que a morphing
-   do View Transitions mantenha essas áreas aparentemente
-   estáticas (em vez de cross-fade). Definidos como selectors
-   CSS para pegar os elementos injetados por navbar.js assim
-   que eles entram no DOM. */
-.dock-nav-desktop{ view-transition-name:folium-dock; }
-.dock-slider     { view-transition-name:folium-dock-bubble; }
-.bottom-nav      { view-transition-name:folium-sidebar; }
-.top-nav         { view-transition-name:folium-topnav; }
-.home-top-nav    { view-transition-name:folium-topnav; }
-
-/* O snapshot do dock não deve ter animação de cross-fade — ele
-   deve parecer permanente. Tornamos as animações do dock
-   visualmente estáveis (sem fade). */
-::view-transition-old(folium-dock),
-::view-transition-new(folium-dock),
-::view-transition-old(folium-sidebar),
-::view-transition-new(folium-sidebar),
-::view-transition-old(folium-topnav),
-::view-transition-new(folium-topnav){
+body.is-leaving{
+  opacity:0;
+  transition:opacity 180ms ease-out;
   animation:none;
-  mix-blend-mode:normal;
 }
-::view-transition-old(folium-dock-bubble),
-::view-transition-new(folium-dock-bubble){
-  animation-duration:360ms;
-  animation-timing-function:cubic-bezier(0.4,0,0.2,1);
+@keyframes folium-page-in{
+  from{ opacity:0 }
+  to  { opacity:1 }
+}
+@media (prefers-reduced-motion: reduce){
+  body{ animation:none }
+  body.is-leaving{ transition:none; opacity:1 }
 }
 a{color:inherit;text-decoration:none}
 button{cursor:pointer;font-family:var(--font-sans);border:none;background:none}
