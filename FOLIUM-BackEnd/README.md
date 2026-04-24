@@ -1,6 +1,6 @@
 # 🍃 FOLIUM — Backend
 
-API de autenticação do Folium com **Node.js + Express + PostgreSQL + bcrypt + JWT**.
+API de autenticação do Folium com **Python + FastAPI + PostgreSQL + bcrypt + JWT**.
 
 ---
 
@@ -22,31 +22,34 @@ API de autenticação do Folium com **Node.js + Express + PostgreSQL + bcrypt + 
 1. **New → Web Service** → conecte seu repositório GitHub
 2. Configure:
    - **Root Directory:** `FOLIUM-BackEnd` (se o repo tiver as duas pastas)
-   - **Runtime:** Node
-   - **Build Command:** `npm install`
-   - **Start Command:** `node server.js`
+   - **Runtime:** Python
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
    - **Plan:** Free
 3. Em **Environment Variables**, adicione:
 
 | Variável | Valor |
 |---|---|
-| `NODE_ENV` | `production` |
 | `JWT_SECRET` | Uma frase longa e aleatória (ex: `folium_xK9#mP2...`) |
-| `JWT_EXPIRES_IN` | `7d` |
+| `JWT_EXPIRES_DAYS` | `7` |
 | `ALLOWED_ORIGIN` | `https://seu-projeto.vercel.app` |
 | `DATABASE_URL` | A URL que você copiou do PostgreSQL |
+| `GOOGLE_CLIENT_ID` | Seu Google OAuth Client ID |
+| `SMTP_EMAIL` | `suporte.folium@gmail.com` |
+| `SMTP_PASSWORD` | Senha de App do Gmail |
+| `SMTP_HOST` | `smtp.gmail.com` |
+| `SMTP_PORT` | `587` |
 
 4. Clique em **Create Web Service**
-
-✅ Após o deploy, copie a URL do serviço (ex: `https://folium-api.onrender.com`).
 
 ---
 
 ## ▲ Frontend no Vercel
 
-1. Abra `FOLIUM/js/config.js` e substitua a URL:
+1. Abra `FOLIUM/js/config.js` e configure:
 ```js
 API_BASE: 'https://folium-api.onrender.com/api',
+GOOGLE_CLIENT_ID: 'seu-google-client-id.apps.googleusercontent.com',
 ```
 2. Suba o frontend no Vercel apontando para a pasta `FOLIUM/`
 
@@ -55,10 +58,9 @@ API_BASE: 'https://folium-api.onrender.com/api',
 ## 💻 Dev local
 
 ```bash
-npm install
+pip install -r requirements.txt
 # Crie um .env com base no .env.example
-# (você precisa de um PostgreSQL local OU pode usar o do Render no .env)
-npm start
+uvicorn main:app --reload --port 3001
 ```
 
 ---
@@ -68,9 +70,34 @@ npm start
 | Método | Rota | Descrição |
 |---|---|---|
 | `GET` | `/api/health` | Status da API |
-| `POST` | `/api/auth/register` | Cadastro |
-| `POST` | `/api/auth/login` | Login |
+| `POST` | `/api/auth/register` | Cadastro (envia código de verificação) |
+| `POST` | `/api/auth/login` | Login (envia código de verificação) |
+| `POST` | `/api/auth/google` | Login com Google (envia código de verificação) |
+| `POST` | `/api/auth/verify-code` | Verifica o código e retorna JWT |
+| `POST` | `/api/auth/resend-code` | Reenvia o código de verificação |
 | `GET` | `/api/auth/me` | Dados do usuário (requer token) |
+
+---
+
+## 🔐 Configuração do Google OAuth
+
+1. Acesse [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Crie um projeto (ou use um existente)
+3. Vá em **APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID**
+4. Tipo: **Web application**
+5. Em **Authorized JavaScript origins** adicione:
+   - `http://localhost:5500` (dev local)
+   - `https://seu-projeto.vercel.app` (produção)
+6. Copie o **Client ID** e configure no backend (.env) e frontend (config.js)
+
+---
+
+## 📧 Configuração do SMTP (Gmail)
+
+1. Acesse a conta `suporte.folium@gmail.com`
+2. Ative a **Verificação em duas etapas** em [myaccount.google.com/security](https://myaccount.google.com/security)
+3. Gere uma **Senha de App** em [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
+4. Use essa senha de app como `SMTP_PASSWORD` no .env
 
 ---
 
