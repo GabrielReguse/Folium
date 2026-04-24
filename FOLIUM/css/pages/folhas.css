@@ -3,7 +3,8 @@
    Biblioteca pessoal (Minhas Folhas)
    Creme / caramel / tan · Playfair Display + DM Sans
    Mobile-first; ajustes a partir de 900px.
-   Sem animações (por enquanto).
+   Animações de entrada (fadeUp + count-up nos stats)
+   são aplicadas via .au e JS — ver folhas.js.
    ════════════════════════════════════════════════════════════════ */
 
 /* ── Fundo da página ── */
@@ -353,11 +354,18 @@
   color: inherit;
   position: relative;
   overflow: hidden;
+  transition: box-shadow var(--t-mid), transform var(--t-mid),
+              border-color var(--t-mid);
 }
 
 .fh-grid .subj-card:hover {
   box-shadow: var(--sh);
   border-color: var(--border-act);
+  transform: translateY(-3px);
+}
+
+.fh-grid .subj-card:active {
+  transform: scale(0.98);
 }
 
 .fh-grid .subj-card .subj-arr {
@@ -548,4 +556,16 @@
   .fh-stats { max-width: none; }
   .fh-grid  { grid-template-columns: 1fr; }
   .fh-title { font-size: clamp(26px, 7.2vw, 34px); }
+}
+
+/* Reduced motion — desliga animações e hover-lifts da página */
+@media (prefers-reduced-motion: reduce) {
+  .page-folhas .au,
+  .page-folhas .fade-in,
+  .page-folhas .fade-down {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .fh-grid .subj-card:hover { transform: none; }
 }

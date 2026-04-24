@@ -1,14 +1,19 @@
 /* ═══════════════════════════════════════
    FOLIUM — pages/folhas.js
    Biblioteca pessoal: matérias, recentes, favoritas.
-   Sem animações (por enquanto).
+   Animações: hero/toolbar entram com fadeUp,
+   stats fazem count-up, cards sobem em stagger.
 ═══════════════════════════════════════ */
 
 const FolhasPage = {
   /* estado: 'subjects' | 'recent' | 'fav' */
-  _tab:      'subjects',
-  _query:    '',
-  _subjects: [],
+  _tab:        'subjects',
+  _query:      '',
+  _subjects:   [],
+  /* Controla se já rodou a animação de entrada da página
+     (hero/toolbar fadeUp + count-up) — trocar de aba só
+     reanima os cards, não o hero. */
+  _heroAnimated: false,
 
   init() {
     if (!Router.requireAuth()) return;
@@ -18,8 +23,42 @@ const FolhasPage = {
     Sidebar.init();
 
     this._subjects = Storage.getSubjects() || [];
+    this._heroAnimated = false;
     this._buildShell();
     this._renderContent();
+    this._runEntryAnimations();
+  },
+
+  /* ═══════════════════════════════════════
+     ENTRY ANIMATIONS — count-up nos stats
+     (cards animam dentro de _renderContent)
+  ═══════════════════════════════════════ */
+  _runEntryAnimations() {
+    if (this._heroAnimated) return;
+    this._heroAnimated = true;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    document.querySelectorAll('.fh-stat-num').forEach((el) => {
+      const target = parseInt(el.dataset.target || el.textContent, 10) || 0;
+      el.textContent = '0';
+      // delay para começar depois do fadeUp do hero terminar
+      setTimeout(() => this._countUp(el, target), 260);
+    });
+  },
+
+  _countUp(el, target) {
+    if (target <= 0) { el.textContent = '0'; return; }
+    // Ease out-cubic — sensação de chegada suave no valor final.
+    const duration = 1200;
+    const start = performance.now();
+    const ease = (t) => 1 - Math.pow(1 - t, 3);
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      el.textContent = Math.round(target * ease(t));
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   },
 
   /* ─────────────────────────────────────────
@@ -56,7 +95,7 @@ const FolhasPage = {
     const totals = this._getTotals();
 
     const hero = document.createElement('section');
-    hero.className = 'fh-hero';
+    hero.className = 'fh-hero au';
     hero.innerHTML = `
       <span class="fh-eyebrow">Biblioteca pessoal</span>
       <h1 class="fh-title">Sua <em>biblioteca</em> de folhas</h1>
@@ -67,15 +106,15 @@ const FolhasPage = {
 
       <div class="fh-stats" role="list">
         <div class="fh-stat" role="listitem">
-          <div class="fh-stat-num">${totals.sheets}</div>
+          <div class="fh-stat-num" data-target="${totals.sheets}">${totals.sheets}</div>
           <div class="fh-stat-lbl">Folhas</div>
         </div>
         <div class="fh-stat" role="listitem">
-          <div class="fh-stat-num">${totals.subjects}</div>
+          <div class="fh-stat-num" data-target="${totals.subjects}">${totals.subjects}</div>
           <div class="fh-stat-lbl">Matérias</div>
         </div>
         <div class="fh-stat" role="listitem">
-          <div class="fh-stat-num">${totals.favorites}</div>
+          <div class="fh-stat-num" data-target="${totals.favorites}">${totals.favorites}</div>
           <div class="fh-stat-lbl">Favoritas</div>
         </div>
       </div>
@@ -92,7 +131,7 @@ const FolhasPage = {
 
   _buildToolbar() {
     const bar = document.createElement('section');
-    bar.className = 'fh-toolbar';
+    bar.className = 'fh-toolbar au au1';
     bar.innerHTML = `
       <div class="fh-search">
         <svg class="fh-search-icon" viewBox="0 0 24 24" fill="none"
@@ -184,7 +223,7 @@ const FolhasPage = {
     );
 
     const header = document.createElement('div');
-    header.className = 'fh-section-head';
+    header.className = 'fh-section-head au au2';
     header.innerHTML = `
       <div>
         <span class="t-label">Matérias</span>
@@ -201,7 +240,11 @@ const FolhasPage = {
 
     const grid = document.createElement('div');
     grid.className = 'fh-grid';
-    list.forEach(s => grid.appendChild(Card.subject(s)));
+    list.forEach((s, i) => {
+      const card = Card.subject(s);
+      this._staggerCard(card, i);
+      grid.appendChild(card);
+    });
     box.appendChild(grid);
   },
 
@@ -215,7 +258,7 @@ const FolhasPage = {
     const list = this._filterFlat(flat).slice(0, 30);
 
     const header = document.createElement('div');
-    header.className = 'fh-section-head';
+    header.className = 'fh-section-head au au2';
     header.innerHTML = `
       <div>
         <span class="t-label">Últimas atividades</span>
@@ -232,7 +275,11 @@ const FolhasPage = {
 
     const wrap = document.createElement('div');
     wrap.className = 'fh-list';
-    list.forEach(entry => wrap.appendChild(this._makeSheetCard(entry)));
+    list.forEach((entry, i) => {
+      const card = this._makeSheetCard(entry);
+      this._staggerCard(card, i);
+      wrap.appendChild(card);
+    });
     box.appendChild(wrap);
   },
 
@@ -246,7 +293,7 @@ const FolhasPage = {
     const list = this._filterFlat(flat);
 
     const header = document.createElement('div');
-    header.className = 'fh-section-head';
+    header.className = 'fh-section-head au au2';
     header.innerHTML = `
       <div>
         <span class="t-label">Guardadas por você</span>
@@ -265,8 +312,21 @@ const FolhasPage = {
 
     const wrap = document.createElement('div');
     wrap.className = 'fh-list';
-    list.forEach(entry => wrap.appendChild(this._makeSheetCard(entry)));
+    list.forEach((entry, i) => {
+      const card = this._makeSheetCard(entry);
+      this._staggerCard(card, i);
+      wrap.appendChild(card);
+    });
     box.appendChild(wrap);
+  },
+
+  /* Aplica fadeUp em stagger nos cards (após o hero/toolbar terem entrado).
+     Mesmo padrão de materia.js — base 0.18s + i * 0.05s. */
+  _staggerCard(card, i) {
+    if (!card) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    card.classList.add('au');
+    card.style.animationDelay = `${0.18 + i * 0.05}s`;
   },
 
   /* ─────────────────────────────────────────
@@ -383,7 +443,7 @@ const FolhasPage = {
   ───────────────────────────────────────── */
   _emptyStateGlobal() {
     const el = document.createElement('div');
-    el.className = 'fh-empty fh-empty-global';
+    el.className = 'fh-empty fh-empty-global au au2';
     el.innerHTML = `
       <div class="fh-empty-art" aria-hidden="true">
         <svg viewBox="0 0 120 120" fill="none" stroke="var(--tan)"
@@ -409,7 +469,7 @@ const FolhasPage = {
 
   _emptyStateFiltered(message) {
     const el = document.createElement('div');
-    el.className = 'fh-empty fh-empty-filtered';
+    el.className = 'fh-empty fh-empty-filtered au au3';
     el.innerHTML = `
       <div class="fh-empty-dot" aria-hidden="true"></div>
       <p class="fh-empty-sub">${message}</p>
