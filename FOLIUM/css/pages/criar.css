@@ -16,14 +16,45 @@
 }
 .page-criar #bg-canvas { display: none; }
 
-/* Desktop: usa o doodle landscape (já proporcional) e remove o margin-left
-   do layout.css que era pra sidebar — criar usa o dock flutuante igual a home. */
+/* Desktop: dois "tapetes" do doodle-mobile — um normal embaixo,
+   um espelhado em ambos os eixos (rotação 180°) em cima.
+   Pseudo-elementos pra poder transformar só a faixa do topo. */
 @media (min-width: 900px) {
   .page-criar {
     margin-left: 0 !important;
-    background-image: url('../../assets/images/doodles-desktop.png');
-    background-position: bottom center;
+    background-image: none;
+    overflow: hidden; /* evita scroll lateral pelas pseudo-elements */
+  }
+  .page-criar::before,
+  .page-criar::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 50vh;
+    background-image: url('../../assets/images/doodles-mobile.png');
+    background-repeat: no-repeat;
     background-size: 100% auto;
+    pointer-events: none;
+    z-index: 0;
+  }
+  /* Embaixo: doodle normal, "colado" pelo bottom */
+  .page-criar::after {
+    bottom: 0;
+    background-position: bottom center;
+  }
+  /* Em cima: mesma imagem espelhada horizontal + verticalmente.
+     Posição "bottom" + transform scale(-1,-1) deixa a faixa
+     "cheia" do doodle visível na parte superior, de cabeça pra baixo. */
+  .page-criar::before {
+    top: 0;
+    background-position: bottom center;
+    transform: scale(-1, -1);
+  }
+  /* Conteúdo do shell precisa ficar acima dos pseudo-elements */
+  .page-criar > *:not(::before):not(::after) {
+    position: relative;
+    z-index: 1;
   }
 }
 

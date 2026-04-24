@@ -29,6 +29,12 @@ const CriarPage = {
     Sidebar.init();
     this.goStep(1);
     this._runStepperIntro();
+    /* Render free-tier dorme depois de 15min sem requests; cold-start
+       leva ~30-60s. Mando um ping de aquecimento em background pra,
+       quando o usuário clicar em "Gerar sugestões", o backend já
+       estar acordado. Sem isso, mobile costuma exibir "IA offline"
+       na primeira tentativa. */
+    Config.warmInBackground();
   },
 
   /* ─── STEPPER INTRO ANIMATION ───────────────────────────────
@@ -163,6 +169,17 @@ const CriarPage = {
     const btn = DOM.$('#btn-gerar');
     if (btn) btn.disabled = true;
 
+    Modal.showLoading('Conectando ao servidor…','Pode levar até 1 minuto na primeira vez');
+    /* Garante que o servidor esteja acordado antes de chamar a IA.
+       Se já estiver, Config.wake() retorna quase imediato. */
+    const online = await Config.wake();
+    if (!online) {
+      Modal.hideLoading();
+      if (btn) btn.disabled = false;
+      this._showStepMsg('pane1-msg','Servidor indisponível no momento. Tente novamente em instantes.','warn');
+      return;
+    }
+
     Modal.showLoading('IA analisando o tema…','Mapeando os melhores tópicos para seu estudo');
     this._startQueuePolling('IA analisando o tema');
 
@@ -294,6 +311,16 @@ const CriarPage = {
     const selecionados = this.topicList.filter(t => t.on);
     if (!selecionados.length) {
       alert('Selecione ao menos um tópico.');
+      return;
+    }
+
+    /* re-acorda o servidor caso ele tenha dormido entre as etapas
+       (ex: usuário ficou editando tópicos por muito tempo). */
+    Modal.showLoading('Conectando ao servidor…','Pode levar até 1 minuto na primeira vez');
+    const online = await Config.wake();
+    if (!online) {
+      Modal.hideLoading();
+      this._showStepMsg('pane3-msg','Servidor indisponível no momento. Tente novamente em instantes.','warn');
       return;
     }
 
