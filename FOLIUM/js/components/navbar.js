@@ -265,7 +265,18 @@ const Navbar = {
       btn.addEventListener('click', () => {
         const route = it.route;
         if (route === nav.dataset.active) return;
-        this._animateBubbleTo(nav, btn, route);
+        // Atualiza estado semântico/visual do dock (label + icon do item
+        // ativo) para que o snapshot do View Transitions capture o novo
+        // estado. A posição da bolha NÃO é animada via JS: quando a API
+        // de View Transitions está disponível, o navegador morph-ia a
+        // posição entre o snapshot antigo e a nova página (onde a bolha
+        // já é posicionada instantaneamente pelo _positionBubble). Em
+        // browsers sem a API, a bolha simplesmente aparece no novo lugar
+        // — qualquer tentativa de animar aqui seria invisível porque o
+        // Router.go troca a página imediatamente.
+        nav.dataset.active = route;
+        nav.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
         Router.go(route);
       });
       itemsContainer.appendChild(btn);
@@ -277,12 +288,16 @@ const Navbar = {
     if (existing) existing.remove();
     page.appendChild(nav);
 
+    // Posiciona a bolha INSTANTANEAMENTE no primeiro render (sem
+    // transition), senão ela sempre aparece deslizando da esquerda
+    // quando a página carrega. Depois do primeiro posicionamento,
+    // reativamos a transition para animar cliques subsequentes.
     requestAnimationFrame(() => {
-      this._positionBubble(nav, active);
+      this._positionBubble(nav, active, /* instant */ true);
     });
   },
 
-  _positionBubble(nav, activeRoute) {
+  _positionBubble(nav, activeRoute, instant = false) {
     const slider = nav.querySelector('.dock-slider');
     const bg = nav.querySelector('.dock-bg');
     const activeItem = nav.querySelector(`.dock-item[data-route="${activeRoute}"]`);
@@ -293,9 +308,30 @@ const Navbar = {
     const itemRect = activeItem.getBoundingClientRect();
     const cx = itemRect.left - navRect.left + itemRect.width / 2;
 
-    slider.style.transform = `translateX(${cx - 50}px)`;
-    bg.style.webkitMaskPosition = `${cx - 1000}px 0`;
-    bg.style.maskPosition = `${cx - 1000}px 0`;
+    if (instant) {
+      const prevSlider = slider.style.transition;
+      const prevBg = bg.style.transition;
+      slider.style.transition = 'none';
+      bg.style.transition = 'none';
+      slider.style.transform = `translateX(${cx - 50}px)`;
+      bg.style.webkitMaskPosition = `${cx - 1000}px 0`;
+      bg.style.maskPosition = `${cx - 1000}px 0`;
+      // força reflow e restaura a transition original em dois rAFs
+      // (um para o browser aplicar o estilo sem transition, outro
+      // para voltar a transition antes de interações futuras).
+      // eslint-disable-next-line no-unused-expressions
+      slider.offsetHeight;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          slider.style.transition = prevSlider;
+          bg.style.transition = prevBg;
+        });
+      });
+    } else {
+      slider.style.transform = `translateX(${cx - 50}px)`;
+      bg.style.webkitMaskPosition = `${cx - 1000}px 0`;
+      bg.style.maskPosition = `${cx - 1000}px 0`;
+    }
   },
 
   _animateBubbleTo(nav, targetBtn, route) {

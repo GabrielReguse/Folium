@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Folium — Suporte</title>
+  <title>Folium — Central de Ajuda</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/variables.css">
   <link rel="stylesheet" href="../css/global.css">
@@ -15,92 +16,360 @@
 </head>
 <body>
   <canvas id="bg-canvas"></canvas>
-    <div id="loading-overlay">
+  <div id="loading-overlay">
     <div class="loading-box">
       <div class="loader loader-lg"></div>
       <h3 id="ld-title">Processando...</h3>
       <p id="ld-sub">Aguarde um momento</p>
     </div>
   </div>
-  <div class="page">
-    <div class="suporte-body page-body">
-      <div class="sup-hero">
-        <h2>Central de Suporte</h2>
-        <p>Tudo que você precisa para aproveitar o Folium ao máximo</p>
-      </div>
-      <div class="sup-cols">
-        <!-- Coluna esquerda: FAQ -->
-        <div class="sup-faq-col">
-          <p class="t-label faq-group-label">Como usar</p>
-          <div class="faq-item">
-            <button class="faq-q">Como criar uma folha? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
-            <div class="faq-a">Vá em "Criar folha", insira a matéria e o tema e clique em "Gerar sugestões". A IA listará tópicos relevantes. Edite a lista e clique em "Gerar folha" para obter seu resumo completo.</div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q">Como editar os tópicos? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
-            <div class="faq-a">Na etapa 2, clique no ícone de remoção ao lado de qualquer tópico para retirá-lo. Use o campo na parte inferior para adicionar novos. Somente os tópicos marcados serão incluídos na folha final.</div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q">Como acessar minhas folhas? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
-            <div class="faq-a">Clique em "Minhas folhas" no menu. Você verá suas matérias organizadas em cards. Clique numa matéria para ver todas as folhas salvas nela.</div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q">Como apagar uma folha? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
-            <div class="faq-a">Dentro de uma matéria, clique no ícone de lixeira ao lado da folha que deseja remover. Uma confirmação aparecerá antes de apagar definitivamente.</div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q">Como favoritar uma folha? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
-            <div class="faq-a">Clique na estrela ao lado da folha na listagem, ou no cabeçalho ao visualizá-la. As folhas favoritadas aparecem primeiro na lista.</div>
+
+  <div class="page page-suporte">
+    <!-- page-suporte__content é o container principal (para o view-transition
+         animar só o conteúdo, preservando navbar/sidebar). -->
+    <main class="page-body sup-shell">
+
+      <!-- ═══ HERO ═══ -->
+      <section class="sup-hero2 au">
+        <span class="sup-eyebrow">Central de Ajuda · Folium</span>
+        <h1 class="sup-title">Como podemos ajudar <em>você</em>?</h1>
+        <p class="sup-lede">Respostas, guias e contato. Tudo que você precisa para aproveitar o Folium sem tropeços.</p>
+
+        <form class="sup-search" role="search" onsubmit="event.preventDefault(); SuportePage.submitSearch();">
+          <span class="sup-search__ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          </span>
+          <input id="sup-search-input" class="sup-search__in" type="search" autocomplete="off"
+                 placeholder="Busque um tópico — ex.: 'salvar folha', 'editar tópicos'..." />
+          <button type="button" class="sup-search__clear" id="sup-search-clear" aria-label="Limpar busca" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </form>
+
+        <div class="sup-quick-ideas">
+          <span class="t-label">Tente:</span>
+          <button type="button" class="sup-qi" data-q="criar folha">criar folha</button>
+          <button type="button" class="sup-qi" data-q="editar tópicos">editar tópicos</button>
+          <button type="button" class="sup-qi" data-q="favoritar">favoritar</button>
+          <button type="button" class="sup-qi" data-q="exportar">exportar</button>
+        </div>
+
+        <!-- decorativo -->
+        <span class="sup-leaf" aria-hidden="true">
+          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M60 8c28 22 44 48 40 76-16 28-52 32-80 16 2-32 14-62 40-92z" fill="currentColor" opacity=".10"/>
+            <path d="M60 14C42 40 30 66 28 96" stroke="currentColor" stroke-width="1.5" opacity=".35" stroke-linecap="round"/>
+            <path d="M60 14c18 26 30 52 32 82" stroke="currentColor" stroke-width="1.5" opacity=".20" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </section>
+
+      <!-- ═══ TOPIC CARDS ═══ -->
+      <section class="sup-topics">
+        <button type="button" class="sup-topic au au1" data-scroll="primeiros-passos">
+          <span class="sup-topic__icon sup-ic--cream">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5z"/><path d="M12 22V12"/><path d="M3 7l9 5 9-5"/></svg>
+          </span>
+          <h3>Primeiros passos</h3>
+          <p>Crie sua primeira folha em minutos.</p>
+          <span class="sup-topic__meta" data-count="primeiros-passos">4 guias</span>
+        </button>
+
+        <button type="button" class="sup-topic au au2" data-scroll="ia-resumos">
+          <span class="sup-topic__icon sup-ic--tan">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8c2.5 1 4.5 3 7 3s4.5-2 7-3"/><path d="M5 16c2.5-1 4.5-3 7-3s4.5 2 7 3"/></svg>
+          </span>
+          <h3>IA & Resumos</h3>
+          <p>Como a geração funciona por dentro.</p>
+          <span class="sup-topic__meta" data-count="ia-resumos">4 guias</span>
+        </button>
+
+        <button type="button" class="sup-topic au au3" data-scroll="conta-dados">
+          <span class="sup-topic__icon sup-ic--caramel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+          </span>
+          <h3>Conta & Dados</h3>
+          <p>Privacidade, exportação e segurança.</p>
+          <span class="sup-topic__meta" data-count="conta-dados">4 guias</span>
+        </button>
+
+        <button type="button" class="sup-topic au au4" data-scroll="contato">
+          <span class="sup-topic__icon sup-ic--leaf">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V7a2 2 0 012-2z"/><path d="M2 8l10 6 10-6"/></svg>
+          </span>
+          <h3>Fale com o time</h3>
+          <p>Nosso e-mail responde em até 24h.</p>
+          <span class="sup-topic__meta">Direto ao humano</span>
+        </button>
+      </section>
+
+      <!-- ═══ MAIN LAYOUT: FAQ + ASIDE ═══ -->
+      <section class="sup-layout">
+        <div class="sup-main">
+          <header class="sup-section-head">
+            <div>
+              <p class="t-label">Perguntas frequentes</p>
+              <h2 class="sup-section-title">Tudo que você precisa saber</h2>
+            </div>
+            <p class="sup-counter"><span id="sup-visible-count">0</span> resultado<span id="sup-visible-plural">s</span></p>
+          </header>
+
+          <!-- chips filtro -->
+          <div class="sup-chips" role="tablist" aria-label="Filtrar por categoria">
+            <button class="sup-chip active" data-filter="todas" role="tab" aria-selected="true">Todas</button>
+            <button class="sup-chip" data-filter="primeiros-passos" role="tab">Primeiros passos</button>
+            <button class="sup-chip" data-filter="ia-resumos" role="tab">IA & Resumos</button>
+            <button class="sup-chip" data-filter="conta-dados" role="tab">Conta & Dados</button>
           </div>
 
-          <p class="t-label faq-group-label">Dúvidas frequentes</p>
-          <div class="faq-item">
-            <button class="faq-q">As folhas ficam salvas? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
-            <div class="faq-a">Sim. Após gerar a folha, clique em "Salvar folha". Ela ficará disponível em "Minhas folhas", organizada por matéria e em ordem cronológica.</div>
+          <div class="sup-faq-list" id="sup-faq-list">
+            <!-- Primeiros passos -->
+            <article class="sup-faq" data-cat="primeiros-passos" data-terms="criar folha nova resumo ia tema matéria primeira">
+              <button class="sup-faq__q" type="button" aria-expanded="false">
+                <span class="sup-faq__ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                </span>
+                <span class="sup-faq__t">Como criar uma folha?</span>
+                <span class="sup-faq__arr" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="sup-faq__a">
+                <p>Abra a aba <strong>Criar</strong>, informe a matéria (ex.: Biologia), o tema (ex.: fotossíntese) e o nível escolar. Clique em <strong>Gerar sugestões</strong> — a IA lista os tópicos que ela propõe abordar. Edite a lista e confirme em <strong>Gerar folha</strong> para receber seu resumo completo.</p>
+              </div>
+            </article>
+
+            <article class="sup-faq" data-cat="primeiros-passos" data-terms="editar tópicos remover adicionar lista selecionar">
+              <button class="sup-faq__q" type="button" aria-expanded="false">
+                <span class="sup-faq__ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2M6 6v14a1 1 0 001 1h10a1 1 0 001-1V6"/></svg>
+                </span>
+                <span class="sup-faq__t">O que é um tópico e como editá-lo?</span>
+                <span class="sup-faq__arr" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="sup-faq__a">
+                <p>Cada tópico é um subitem da folha — a IA vai explicar e exemplificar cada um. Na etapa 2, clique no ícone de remoção ao lado de qualquer tópico para retirá-lo. Use o campo na parte inferior para adicionar novos. Somente os tópicos marcados entram na folha final.</p>
+              </div>
+            </article>
+
+            <article class="sup-faq" data-cat="primeiros-passos" data-terms="minhas folhas salvas onde encontrar lista acesso">
+              <button class="sup-faq__q" type="button" aria-expanded="false">
+                <span class="sup-faq__ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="9" y1="7" x2="15" y2="7"/></svg>
+                </span>
+                <span class="sup-faq__t">Onde ficam minhas folhas depois de salvas?</span>
+                <span class="sup-faq__arr" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="sup-faq__a">
+                <p>Clique em <strong>Minhas folhas</strong> no menu. Você verá suas matérias organizadas em cards. Clique numa matéria para ver todas as folhas salvas dentro dela, em ordem cronológica.</p>
+              </div>
+            </article>
+
+            <article class="sup-faq" data-cat="primeiros-passos" data-terms="favoritar estrela favorita prioridade ordem">
+              <button class="sup-faq__q" type="button" aria-expanded="false">
+                <span class="sup-faq__ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </span>
+                <span class="sup-faq__t">Como favoritar uma folha?</span>
+                <span class="sup-faq__arr" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="sup-faq__a">
+                <p>Clique na estrela ao lado da folha na listagem, ou no cabeçalho ao visualizá-la. Folhas favoritadas aparecem primeiro na lista da matéria — útil perto de provas.</p>
+              </div>
+            </article>
+
+            <!-- IA & Resumos -->
+            <article class="sup-faq" data-cat="ia-resumos" data-terms="como ia funciona gera conteúdo tópicos explicação">
+              <button class="sup-faq__q" type="button" aria-expanded="false">
+                <span class="sup-faq__ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M4.5 19.5l2-2M17.5 6.5l2-2"/></svg>
+                </span>
+                <span class="sup-faq__t">Como a IA gera o conteúdo?</span>
+                <span class="sup-faq__arr" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="sup-faq__a">
+                <p>A partir da matéria, tema e nível escolar que você informa, a IA primeiro propõe uma lista de tópicos relevantes. Depois, para cada tópico selecionado, ela produz explicação, exemplos e ilustrações quando aplicável. O nível escolar ajusta a linguagem e a profundidade.</p>
+              </div>
+            </article>
+
+            <article class="sup-faq" data-cat="ia-resumos" data-terms="ia errar errado impreciso alucinação revisar fonte">
+              <button class="sup-faq__q" type="button" aria-expanded="false">
+                <span class="sup-faq__ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </span>
+                <span class="sup-faq__t">A IA pode errar? O que fazer?</span>
+                <span class="sup-faq__arr" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="sup-faq__a">
+                <p>Sim. Como todo sistema de IA, o Folium pode gerar informações imprecisas. Sempre revise com suas fontes de estudo — em especial datas, nomes próprios e fórmulas. Você tem controle total para remover tópicos ou reescrever a lista antes de gerar a folha, o que reduz a margem de erro.</p>
+              </div>
+            </article>
+
+            <article class="sup-faq" data-cat="ia-resumos" data-terms="exemplos específicos personalizar direcionar contexto">
+              <button class="sup-faq__q" type="button" aria-expanded="false">
+                <span class="sup-faq__ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+                </span>
+                <span class="sup-faq__t">Posso pedir exemplos específicos à IA?</span>
+                <span class="sup-faq__arr" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="sup-faq__a">
+                <p>Você pode incluir o direcionamento diretamente no tema — por exemplo: "fotossíntese com exemplos do ENEM" ou "Revolução Francesa focando em causas econômicas". Quanto mais preciso o tema, melhor a IA direciona os tópicos e exemplos.</p>
+              </div>
+            </article>
+
+            <article class="sup-faq" data-cat="ia-resumos" data-terms="offline internet conexão wifi desconectado">
+              <button class="sup-faq__q" type="button" aria-expanded="false">
+                <span class="sup-faq__ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+                </span>
+                <span class="sup-faq__t">O Folium funciona offline?</span>
+                <span class="sup-faq__arr" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="sup-faq__a">
+                <p>A geração de resumos exige internet (é a IA quem produz o conteúdo). Folhas já salvas ficam disponíveis no aparelho e podem ser consultadas sem conexão — ótimo para estudar em trânsito.</p>
+              </div>
+            </article>
+
+            <!-- Conta & Dados -->
+            <article class="sup-faq" data-cat="conta-dados" data-terms="apagar excluir remover folha delete">
+              <button class="sup-faq__q" type="button" aria-expanded="false">
+                <span class="sup-faq__ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </span>
+                <span class="sup-faq__t">Como apagar uma folha?</span>
+                <span class="sup-faq__arr" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="sup-faq__a">
+                <p>Dentro de uma matéria, clique no ícone de lixeira ao lado da folha que deseja remover. Uma confirmação aparece antes da exclusão definitiva. Se apagou sem querer, cheque o histórico recente do dispositivo antes de gerar uma nova.</p>
+              </div>
+            </article>
+
+            <article class="sup-faq" data-cat="conta-dados" data-terms="privacidade dados lgpd pessoais seguros">
+              <button class="sup-faq__q" type="button" aria-expanded="false">
+                <span class="sup-faq__ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg>
+                </span>
+                <span class="sup-faq__t">Meus dados são privados?</span>
+                <span class="sup-faq__arr" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="sup-faq__a">
+                <p>Suas folhas e dados de conta são armazenados de forma segura e não são compartilhados com terceiros para fins comerciais. O conteúdo enviado à IA é usado apenas para gerar o resumo do momento. Para detalhes, consulte nossa <a href="#">Política de Privacidade</a>.</p>
+              </div>
+            </article>
+
+            <article class="sup-faq" data-cat="conta-dados" data-terms="exportar baixar pdf download salvar arquivo">
+              <button class="sup-faq__q" type="button" aria-expanded="false">
+                <span class="sup-faq__ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </span>
+                <span class="sup-faq__t">Posso exportar minhas folhas?</span>
+                <span class="sup-faq__arr" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="sup-faq__a">
+                <p>Sim — ao visualizar uma folha, use o botão <strong>Baixar PDF</strong> para salvar localmente. O arquivo sai formatado para leitura e impressão, mantendo seções e destaques.</p>
+              </div>
+            </article>
+
+            <article class="sup-faq" data-cat="conta-dados" data-terms="senha trocar alterar mudar esqueci acesso">
+              <button class="sup-faq__q" type="button" aria-expanded="false">
+                <span class="sup-faq__ic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                </span>
+                <span class="sup-faq__t">Como trocar minha senha?</span>
+                <span class="sup-faq__arr" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </button>
+              <div class="sup-faq__a">
+                <p>Abra o menu lateral (<strong>≡</strong> no mobile), vá em <strong>Conta</strong> e escolha <em>Trocar senha</em>. Se esqueceu a senha atual, use o link <em>Esqueci minha senha</em> na tela de login — enviaremos um e-mail para redefinir.</p>
+              </div>
+            </article>
           </div>
-          <div class="faq-item">
-            <button class="faq-q">A IA pode errar? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
-            <div class="faq-a">Como todo sistema de IA, o Folium pode ocasionalmente gerar informações imprecisas. Sempre revise o conteúdo com base nas suas fontes de estudo. Você tem controle total para editar tópicos antes de gerar a folha.</div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-q">Posso usar offline? <span class="faq-arr"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></button>
-            <div class="faq-a">Atualmente o Folium requer conexão para gerar resumos com IA. As folhas já salvas ficam disponíveis localmente.</div>
+
+          <!-- Empty state -->
+          <div class="sup-empty" id="sup-empty" hidden>
+            <span class="sup-empty__ic">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            </span>
+            <h4>Nenhum resultado</h4>
+            <p>Tente buscar por outro termo ou <button type="button" class="sup-empty__clear" id="sup-empty-clear">limpar filtros</button>.</p>
           </div>
         </div>
 
-        <!-- Coluna direita: cards informativos -->
-        <div class="sup-info-col">
-          <div class="sup-info-card">
-            <div class="sic-head"><h4>Como funciona a IA</h4></div>
-            <div class="sic-body">
-              <ul>
-                <li>Você informa matéria, tema e nível escolar</li>
-                <li>A IA sugere tópicos relevantes para o tema</li>
-                <li>Você seleciona, remove ou adiciona tópicos</li>
-                <li>A IA gera explicações, exemplos e gráficos</li>
-                <li>Você salva a folha organizada por matéria</li>
-              </ul>
+        <aside class="sup-aside">
+          <div class="sup-card sup-status">
+            <div class="sup-status__dot" aria-hidden="true"></div>
+            <div class="sup-status__txt">
+              <h4>Tudo operando bem</h4>
+              <p>IA online. Nenhum incidente reportado nas últimas 24h.</p>
             </div>
           </div>
-          <div class="sup-info-card">
-            <div class="sic-head"><h4>Dicas de uso</h4></div>
-            <div class="sic-body">
-              <ul>
-                <li>Seja específico no tema para melhores resultados</li>
-                <li>Remova tópicos que já domina — foque no que precisa</li>
-                <li>Use o nível escolar correto para linguagem adequada</li>
-                <li>Favorita folhas que vai revisar próximo às provas</li>
-              </ul>
-            </div>
+
+          <div class="sup-card sup-resources">
+            <header>
+              <span class="sup-card__label">Recursos</span>
+              <h4>Guias e documentos</h4>
+            </header>
+            <ul class="sup-res-list">
+              <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>Guia de primeiros passos</span><i aria-hidden="true">→</i></a></li>
+              <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg><span>Política de privacidade</span><i aria-hidden="true">→</i></a></li>
+              <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><span>Termos de uso</span><i aria-hidden="true">→</i></a></li>
+              <li><a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Histórico de atualizações</span><i aria-hidden="true">→</i></a></li>
+            </ul>
           </div>
-          <div class="contact-card">
-            <div class="ci"><svg viewBox="0 0 48 48" fill="none" stroke="var(--caramel)" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="10" width="40" height="28" rx="5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16l20 13 20-13" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <p>Ainda com dúvidas?<br>Escreva para <strong>suporte@folha.app</strong></p>
+
+          <div class="sup-card sup-tip">
+            <span class="sup-card__label">Dica rápida</span>
+            <p class="sup-tip__txt">Seja específico ao descrever o tema — "circulação sanguínea em mamíferos" rende um resumo mais preciso que apenas "circulação".</p>
+          </div>
+        </aside>
+      </section>
+
+      <!-- ═══ CONTATO ═══ -->
+      <section class="sup-contact" id="contato">
+        <div class="sup-contact__inner">
+          <span class="sup-contact__ic" aria-hidden="true">
+            <svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14h40a2 2 0 012 2v24a2 2 0 01-2 2H8a2 2 0 01-2-2V16a2 2 0 012-2z"/><polyline points="6 18 28 32 50 18"/></svg>
+          </span>
+          <p class="t-label">Falar direto com o time</p>
+          <h3 class="sup-contact__t">Ainda com dúvidas?</h3>
+          <p class="sup-contact__p">Nossa equipe responde em até 24 horas em dias úteis. Conta pra gente o que está acontecendo e anexa prints se ajudar.</p>
+          <a href="mailto:suporte@folium.app" class="sup-contact__cta">
+            <span>suporte@folium.app</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <div class="sup-contact__meta">
+            <span class="sup-dot-s"></span><span>Resposta em ~24h</span>
+            <span class="sup-contact__sep">·</span>
+            <span>Seg–Sex, 9h–18h (BRT)</span>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+    </main>
   </div>
+
   <script src="../js/config.js"></script>
   <script src="../js/utils/dom.js"></script>
   <script src="../js/utils/storage.js"></script>
