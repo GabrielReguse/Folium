@@ -87,7 +87,9 @@ def send_verification_code(to_email: str, code: str, name: str | None = None) ->
         )
 
     msg = EmailMessage()
-    msg["Subject"] = f"Folium — seu código de acesso: {code}"
+    # Não incluímos o código no subject: ele apareceria em lockscreens/notificações
+    # e em logs de servidor SMTP, expondo o OTP sem o usuário abrir o e-mail.
+    msg["Subject"] = "Folium — seu código de acesso"
     msg["From"]    = formataddr((EMAIL_FROM_NAME, EMAIL_FROM))
     msg["To"]      = to_email
     msg.set_content(_build_text(code))
