@@ -265,22 +265,18 @@ const Navbar = {
       btn.addEventListener('click', () => {
         const route = it.route;
         if (route === nav.dataset.active) return;
-        // Atualiza estado do active (label + icon) para que o snapshot
-        // do View Transitions capture o novo estado se a API estiver
-        // ativa. A bolha NÃO é animada via JS antes da navegação: o
-        // próprio View Transitions morph-ia a posição entre a página
-        // antiga e a nova (já posicionada corretamente no load).
-        // Em browsers sem view-transitions, animamos o bubble via JS
-        // como fallback.
-        const supportsVT = typeof document.startViewTransition === 'function';
-        if (!supportsVT) {
-          this._animateBubbleTo(nav, btn, route);
-        } else {
-          // só marca estado semântico/visual do item (sem mover bubble)
-          nav.dataset.active = route;
-          nav.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active'));
-          btn.classList.add('active');
-        }
+        // Atualiza estado semântico/visual do dock (label + icon do item
+        // ativo) para que o snapshot do View Transitions capture o novo
+        // estado. A posição da bolha NÃO é animada via JS: quando a API
+        // de View Transitions está disponível, o navegador morph-ia a
+        // posição entre o snapshot antigo e a nova página (onde a bolha
+        // já é posicionada instantaneamente pelo _positionBubble). Em
+        // browsers sem a API, a bolha simplesmente aparece no novo lugar
+        // — qualquer tentativa de animar aqui seria invisível porque o
+        // Router.go troca a página imediatamente.
+        nav.dataset.active = route;
+        nav.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
         Router.go(route);
       });
       itemsContainer.appendChild(btn);

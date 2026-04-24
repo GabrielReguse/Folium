@@ -172,8 +172,20 @@ const SuportePage = {
           input.focus();
         }
         this.state.query = q.toLowerCase();
+        // reset filter para 'todas' para que o termo busque em todas as
+        // categorias, e não só na categoria atualmente selecionada.
+        this.state.filter = 'todas';
         const clear = document.getElementById('sup-search-clear');
         if (clear) clear.hidden = !q;
+        DOM.$$('.sup-chip').forEach(c => {
+          c.classList.remove('active');
+          c.setAttribute('aria-selected', 'false');
+        });
+        const allChip = document.querySelector('.sup-chip[data-filter="todas"]');
+        if (allChip) {
+          allChip.classList.add('active');
+          allChip.setAttribute('aria-selected', 'true');
+        }
         this._apply();
         const list = document.getElementById('sup-faq-list');
         if (list) list.scrollIntoView({ behavior: 'smooth', block: 'start' });
