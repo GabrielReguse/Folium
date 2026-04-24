@@ -293,14 +293,19 @@ const CriarPage = {
     inp.value ='';
   },
 
-  /* ─── HELPER: mensagem contextual dentro do pane ────────── */
+  /* ─── HELPER: mensagem contextual dentro do pane ──────────
+     id no formato `paneN-msg` — o N decide em qual pane a msg
+     entra. Antes a função sempre injetava em #pane2; agora
+     paneN-msg → #paneN. */
   _showStepMsg(id, texto, tipo ='info') {
     let el = DOM.$(`#${id}`);
     if (!el) {
       el = document.createElement('div');
       el.id = id;
-      const pane2 = DOM.$('#pane2');
-      if (pane2) pane2.insertBefore(el, pane2.firstChild);
+      const m = id.match(/^pane(\d+)-msg$/);
+      const paneSel = m ? `#pane${m[1]}` : '#pane2';
+      const pane = DOM.$(paneSel);
+      if (pane) pane.insertBefore(el, pane.firstChild);
     }
     el.className = `step-msg step-msg--${tipo}`;
     el.textContent = texto;
