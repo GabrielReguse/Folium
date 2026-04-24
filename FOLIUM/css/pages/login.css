@@ -1,15 +1,45 @@
 /* FOLIUM v3 — pages/login.css */
 .login-page{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:40px 20px;background:linear-gradient(155deg,var(--linen) 0%,var(--bg-deep) 60%,var(--sand-light) 100%)}
-.login-card{width:100%;max-width:400px;background:rgba(253,250,243,0.94);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-radius:var(--r-xl);padding:52px 44px;box-shadow:var(--sh-xl);border:1px solid var(--border)}
-.login-logo{text-align:center;margin-bottom:38px}
+.login-card{width:100%;max-width:420px;background:rgba(253,250,243,0.94);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-radius:var(--r-xl);padding:52px 44px;box-shadow:var(--sh-xl);border:1px solid var(--border)}
+.login-logo{text-align:center;margin-bottom:32px}
 .logo-mark{width:58px;height:58px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center}
 .login-logo h1{font-family:var(--font-serif);font-size:30px;font-weight:700;color:var(--text);letter-spacing:-0.02em;line-height:1;margin-bottom:6px}
 .login-logo h1 em{font-style:italic;color:var(--caramel);font-weight:400}
 .login-logo p{font-size:13.5px;color:var(--text-light);font-weight:300}
-.lform{display:flex;flex-direction:column;gap:18px}
+.lform{display:flex;flex-direction:column;gap:16px}
 .lswitch{text-align:center;font-size:13px;color:var(--text-light);margin-top:14px;font-weight:300}
 .lswitch a{color:var(--caramel);cursor:pointer;font-weight:600;transition:opacity var(--t-fast)}
 .lswitch a:hover{opacity:0.7}
 .login-error{background:#fff9f5;border:1.5px solid rgba(155,107,66,0.35);color:#7a4012;border-radius:var(--r-sm);padding:10px 14px;font-size:0.84rem;margin-bottom:12px;text-align:center;animation:fadeDown 0.25s ease;white-space:pre-line}
-@media(min-width:640px){.login-card{padding:62px 56px}}
-@media(max-width:380px){.login-card{padding:38px 28px}}
+
+/* ── Botão Continue com Google ───────────────────── */
+.btn-google{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:12px 16px;background:#fff;border:1.5px solid rgba(60,40,20,0.14);border-radius:var(--r-md,10px);color:#2f2418;font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;transition:background var(--t-fast,0.2s) ease,border-color var(--t-fast,0.2s) ease,box-shadow var(--t-fast,0.2s) ease;box-shadow:0 1px 2px rgba(60,40,20,0.05)}
+.btn-google:hover{background:#fdfaf3;border-color:rgba(155,107,66,0.45);box-shadow:0 3px 10px rgba(60,40,20,0.08)}
+.btn-google:active{transform:translateY(1px)}
+.btn-google .g-logo{width:20px;height:20px;flex-shrink:0}
+
+/* ── Verificação por código ──────────────────────── */
+.verify-header{text-align:center;margin-bottom:4px}
+.verify-icon{width:52px;height:52px;margin:0 auto 14px;border-radius:50%;background:rgba(155,107,66,0.12);display:flex;align-items:center;justify-content:center}
+.verify-icon svg{width:26px;height:26px}
+.verify-title{font-family:var(--font-serif);font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:-0.01em}
+.verify-sub{font-size:13.5px;color:var(--text-light);line-height:1.5;font-weight:300}
+.verify-sub strong{color:var(--text);font-weight:600;word-break:break-all}
+
+.code-inputs{display:flex;gap:8px;justify-content:center;margin:6px 0 4px}
+.code-cell{width:44px;height:54px;text-align:center;font-size:24px;font-weight:600;font-family:'Courier New',monospace;border:1.5px solid rgba(60,40,20,0.18);border-radius:10px;background:#fff;color:var(--text);outline:none;transition:border-color 0.18s ease,box-shadow 0.18s ease,background 0.18s ease}
+.code-cell:focus{border-color:var(--caramel,#9B6B42);box-shadow:0 0 0 3px rgba(155,107,66,0.18)}
+.code-cell.filled{background:#fdfaf3;border-color:rgba(155,107,66,0.55)}
+
+.verify-foot{text-align:center;font-size:12.5px;color:var(--text-light);font-weight:300;margin-top:4px}
+.verify-foot a{color:var(--caramel);cursor:pointer;font-weight:600}
+.verify-foot a.disabled{color:var(--text-light);cursor:not-allowed;pointer-events:none;opacity:0.55}
+.verify-foot a:hover{opacity:0.75}
+.verify-timer{color:var(--text-light);font-weight:400;margin-left:2px}
+
+@media(min-width:640px){.login-card{padding:60px 52px}}
+@media(max-width:420px){
+  .login-card{padding:38px 26px}
+  .code-cell{width:40px;height:50px;font-size:22px}
+  .code-inputs{gap:6px}
+}
