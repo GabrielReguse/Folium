@@ -4,7 +4,7 @@
 # ═══════════════════════════════════════════════
 
 import os
-import random
+import secrets
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -12,7 +12,7 @@ from email.mime.multipart import MIMEMultipart
 
 def generate_code(length=6):
     """Gera um código numérico de verificação."""
-    return ''.join([str(random.randint(0, 9)) for _ in range(length)])
+    return ''.join([str(secrets.randbelow(10)) for _ in range(length)])
 
 
 def send_verification_email(to_email: str, code: str) -> bool:
@@ -25,7 +25,7 @@ def send_verification_email(to_email: str, code: str) -> bool:
         return True
 
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"Folium — Código de verificação: {code}"
+    msg["Subject"] = "Folium — Código de verificação"
     msg["From"] = f"Folium <{smtp_email}>"
     msg["To"] = to_email
 

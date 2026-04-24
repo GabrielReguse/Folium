@@ -185,8 +185,12 @@ def verify_code(body: VerifyCodeBody):
 
 @router.post("/resend-code")
 def resend_code(body: ResendCodeBody):
-    """Reenvia o código de verificação."""
-    _send_code(body.email.strip(), action=body.action)
+    """Reenvia o código de verificação, preservando payload de register/google."""
+    payload = None
+    if body.action in ("register", "google"):
+        payload = db.get_latest_payload(body.email.strip(), body.action)
+
+    _send_code(body.email.strip(), action=body.action, payload=payload)
 
     return {
         "message": "Novo código enviado para seu e-mail.",

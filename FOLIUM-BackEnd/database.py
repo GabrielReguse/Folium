@@ -202,6 +202,27 @@ def check_verification_code(email: str, code: str) -> dict | None:
     finally:
         conn.close()
 
+def get_latest_payload(email: str, action: str) -> dict | None:
+    """Busca o payload mais recente para um e-mail/action (usado pelo resend)."""
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT payload FROM verification_codes
+                WHERE LOWER(email) = %s AND action = %s AND payload IS NOT NULL
+                ORDER BY created_at DESC
+                LIMIT 1
+                """,
+                (email.lower(), action)
+            )
+            row = cur.fetchone()
+            if row and row["payload"]:
+                return json.loads(row["payload"])
+            return None
+    finally:
+        conn.close()
+
 def cleanup_expired_codes() -> None:
     """Remove códigos expirados (mais de 30 minutos)."""
     conn = get_conn()
