@@ -3,7 +3,7 @@
 const Config = {
   API_BASE: 'https://folium-py.onrender.com/api',
 
-  GOOGLE_CLIENT_ID: '',
+  GOOGLE_CLIENT_ID: '280915033344-crvu4es3204726pfvf0rktuf4phv91of.apps.googleusercontent.com',
 
   get API() {
     const isLocal =
@@ -16,23 +16,6 @@ const Config = {
       : this.API_BASE;
   },
 
-  /* ---------------------------------------------------------------
-     Render free-tier dorme depois de 15min sem requests; o cold-boot
-     leva ~30-60s. Em vez de cada tela reimplementar, expomos aqui:
-       Config.wake()             → Promise<boolean>  (até 90s, true se acordou)
-       Config.warmInBackground() → fire-and-forget   (chama sem await)
-
-     Cache:
-     - Polls em andamento são deduplicadas via _wakePromise (todas
-       as chamadas concorrentes recebem a mesma promise).
-     - Sucesso é cacheado por WAKE_TTL_MS (3min). Depois disso a
-       próxima chamada faz nova checagem — importante porque o
-       Render dorme em ~15min de inatividade e queremos que o
-       gerarFolha re-acorde se o usuário ficou tempo editando
-       tópicos antes de gerar.
-     - Falha (timeout) limpa o cache imediatamente pra permitir
-       nova tentativa.
-     --------------------------------------------------------------- */
   _wakePromise: null,
   _wakeAt: 0,
   WAKE_TTL_MS: 3 * 60 * 1000, // 3 minutos
