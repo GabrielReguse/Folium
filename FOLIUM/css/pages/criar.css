@@ -10,7 +10,7 @@
   background-image: url('../../assets/images/doodles-mobile.png');
   background-repeat: no-repeat;
   background-position: bottom center;
-  background-size: 86% auto;
+  background-size: 100% auto;
   min-height: 100dvh;
   position: relative;
 }
@@ -22,8 +22,8 @@
   .page-criar {
     margin-left: 0 !important;
     background-image: url('../../assets/images/doodles-desktop.png');
-    background-position: bottom right -40px;
-    background-size: min(920px, 70%) auto;
+    background-position: bottom center;
+    background-size: 100% auto;
   }
 }
 
