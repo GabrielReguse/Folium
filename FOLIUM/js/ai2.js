@@ -25,7 +25,7 @@ const AI2 = {
   },
 
   /* RENDER PRINCIPAL */
-  renderFolha(container, materia, tema, nivel, resultado) {
+  renderFolha(container, materia, tema, nivel, resultado, showHeader = true) {
     container.innerHTML = '';
 
     const nivelLabel = {
@@ -34,14 +34,16 @@ const AI2 = {
       tecnico: 'Técnico', superior: 'Superior', pos: 'Pós-graduação',
     }[nivel] || '';
 
-    const header = document.createElement('div');
-    header.className = 'sheet-header';
-    header.innerHTML = `
-      <span class="badge badge-accent"><svg style="width:13px;height:13px;stroke:var(--caramel);fill:none;stroke-width:1.8;vertical-align:middle;margin-right:3px" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke-linecap="round" stroke-linejoin="round"/></svg>Gerada por IA</span>
-      ${nivelLabel ? `<span class="badge badge-nivel">${nivelLabel}</span>` : ''}
-      <h2 class="t-section" style="margin-top:10px;margin-bottom:5px">${materia}</h2>
-      <p class="t-sub">${tema ? tema + ' · ' : ''}${resultado.blocos.length} tópico${resultado.blocos.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('pt-BR')}</p>`;
-    container.appendChild(header);
+    if (showHeader) {
+      const header = document.createElement('div');
+      header.className = 'sheet-header';
+      header.innerHTML = `
+        <span class="badge badge-accent"><svg style="width:13px;height:13px;stroke:var(--caramel);fill:none;stroke-width:1.8;vertical-align:middle;margin-right:3px" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke-linecap="round" stroke-linejoin="round"/></svg>Gerada por IA</span>
+        ${nivelLabel ? `<span class="badge badge-nivel">${nivelLabel}</span>` : ''}
+        <h2 class="t-section" style="margin-top:10px;margin-bottom:5px">${materia}</h2>
+        <p class="t-sub">${tema ? tema + ' · ' : ''}${resultado.blocos.length} tópico${resultado.blocos.length !== 1 ? 's' : ''} · ${new Date().toLocaleDateString('pt-BR')}</p>`;
+      container.appendChild(header);
+    }
 
     resultado.blocos.forEach(bloco => container.appendChild(AI2._renderBloco(bloco)));
 

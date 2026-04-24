@@ -28,8 +28,10 @@
     -webkit-backdrop-filter: none;
   }
 
-  /* Para outras páginas: offset da sidebar */
-  .page:not(.page-home) { margin-left: var(--sidebar-w); }
+  /* Offset da sidebar — aplicado APENAS quando a sidebar lateral
+     está realmente renderizada (.bottom-nav). O dock flutuante novo
+     (.dock-nav-desktop) NÃO ocupa espaço, então não precisa de margin. */
+  .page:not(.page-home):has(> .bottom-nav) { margin-left: var(--sidebar-w); }
 
   /* Logo no topo da sidebar */
   .nav-logo-desk {
