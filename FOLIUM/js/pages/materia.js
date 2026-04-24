@@ -258,30 +258,39 @@ const MateriaPage = {
     return btoa(bin);
   },
 
-  /* Baixa como .pdf via html2pdf.js (CDN carregado no materia.html) */
+  /* Baixa como .pdf.
+     Usa html2canvas + jsPDF diretamente. A biblioteca html2pdf.js
+     (antiga dependência) gerava PDF em branco quando o container estava
+     fora da viewport, devido a bug no seu pipeline interno. */
   async _downloadPdf(bodyHTML, filename) {
-    if (typeof html2pdf === 'undefined') {
-      try {
-        await new Promise((resolve, reject) => {
-          const s = document.createElement('script');
-          s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-          s.onload = resolve;
-          s.onerror = reject;
-          document.head.appendChild(s);
-        });
-      } catch {
-        alert('Falha ao carregar o gerador de PDF.');
-        return;
+    const loadScript = (src) => new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+
+    try {
+      if (typeof html2canvas === 'undefined') {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
       }
+      if (!(window.jspdf && window.jspdf.jsPDF)) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+      }
+    } catch {
+      alert('Falha ao carregar o gerador de PDF.');
+      return;
     }
-    if (typeof html2pdf === 'undefined') {
+
+    const JSPDF = window.jspdf && window.jspdf.jsPDF;
+    if (typeof html2canvas === 'undefined' || !JSPDF) {
       alert('Não foi possível carregar o gerador de PDF. Verifique sua conexão.');
       return;
     }
 
-    /* Container off-screen (e NÃO atrás de outros elementos com z-index
-       negativo, que causava PDF em branco pois o html2canvas falha ao
-       capturar nodes escondidos sob o #bg-canvas). */
+    /* Container off-screen, em fluxo normal (não usa z-index negativo
+       nem position:fixed, que confundem html2canvas). */
     const container = document.createElement('div');
     container.style.cssText = [
       'position:absolute',
@@ -306,26 +315,43 @@ const MateriaPage = {
           : new Promise(r => { img.onload = r; img.onerror = r; })
       ));
     }
-
-    /* Garante ao menos 1 frame de layout antes da captura. */
     await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     try {
-      await html2pdf().from(container).set({
-        margin: [10, 10, 10, 10],
-        filename,
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          logging: false,
-          windowWidth: 780
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-      }).save();
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        windowWidth: 780
+      });
+
+      const pdf = new JSPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      const pageW  = pdf.internal.pageSize.getWidth();
+      const pageH  = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const imgW   = pageW - margin * 2;
+      const imgH   = canvas.height * imgW / canvas.width;
+      const usable = pageH - margin * 2;
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+      /* Paginação: desloca a MESMA imagem verticalmente e limita pelo
+         clipping da página. Evita cortes no meio de linhas sem precisar
+         rasterizar em tiras. */
+      let heightLeft = imgH;
+      let position   = margin;
+      pdf.addImage(imgData, 'JPEG', margin, position, imgW, imgH);
+      heightLeft -= usable;
+      while (heightLeft > 0) {
+        position = margin - (imgH - heightLeft);
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', margin, position, imgW, imgH);
+        heightLeft -= usable;
+      }
+
+      pdf.save(filename);
     } finally {
       container.remove();
     }
