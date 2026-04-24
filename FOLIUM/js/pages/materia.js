@@ -172,23 +172,90 @@ const MateriaPage = {
     return parts.join('\n');
   },
 
-  /* Baixa como .doc (HTML compatível com Word) */
+  /* Baixa como .doc — MHTML (multipart/related) com imagens como partes
+     separadas. Garante que gráficos/imagens apareçam em TODAS as versões
+     do Word (inclusive Word Online), que não renderizam data: URIs em <img>. */
   _downloadDoc(bodyHTML, filename, title) {
-    const html = `<!DOCTYPE html>
+    /* Extrai imagens em data URI do HTML e substitui por referências a
+       anexos MIME (Content-Location). */
+    const images = [];
+    const processedHTML = bodyHTML.replace(
+      /<img([^>]*?)src=(["'])data:image\/([a-zA-Z0-9+.-]+);base64,([^"']+)\2([^>]*)>/gi,
+      (_m, pre, _q, ext, b64, post) => {
+        const norm = ext.toLowerCase();
+        const mime = 'image/' + (norm === 'svg+xml' ? 'svg+xml' : norm === 'jpg' ? 'jpeg' : norm);
+        const fileExt = norm === 'svg+xml' ? 'svg' : norm === 'jpeg' ? 'jpg' : norm;
+        const idx = images.length + 1;
+        const name = `image${String(idx).padStart(3, '0')}.${fileExt}`;
+        images.push({ name, mime, data: b64.replace(/\s+/g, '') });
+        return `<img${pre}src="${name}"${post}>`;
+      }
+    );
+
+    const safeTitle = (title || 'Folium').replace(/</g, '&lt;');
+    const htmlPart = `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
       xmlns:w="urn:schemas-microsoft-com:office:word"
       xmlns="http://www.w3.org/TR/REC-html40">
 <head>
   <meta charset="utf-8">
-  <title>${(title || 'Folium').replace(/</g, '&lt;')}</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>${safeTitle}</title>
   <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->
-  <style>body{font-family:Arial,sans-serif;font-size:12pt;color:#222;padding:16px}</style>
+  <style>body{font-family:Arial,sans-serif;font-size:12pt;color:#222;padding:16px}img{max-width:100%;height:auto}table{border-collapse:collapse}</style>
 </head>
-<body>${bodyHTML}</body>
+<body>${processedHTML}</body>
 </html>`;
 
-    const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+    /* Se não há imagens, mantém HTML simples (compatível com Word). */
+    if (!images.length) {
+      const blob = new Blob(['\ufeff', htmlPart], { type: 'application/msword' });
+      this._triggerDownload(blob, filename);
+      return;
+    }
+
+    /* Monta MHTML: HTML em base64 + cada imagem como parte separada. */
+    const boundary = '----=_NextPart_Folium_' + Date.now().toString(36);
+    const htmlB64  = this._utf8ToBase64(htmlPart).match(/.{1,76}/g).join('\r\n');
+
+    const parts = [
+      'MIME-Version: 1.0',
+      `Content-Type: multipart/related; boundary="${boundary}"; type="text/html"`,
+      '',
+      `--${boundary}`,
+      'Content-Type: text/html; charset="utf-8"',
+      'Content-Transfer-Encoding: base64',
+      'Content-Location: file:///C:/folium.htm',
+      '',
+      htmlB64,
+      ''
+    ];
+
+    for (const img of images) {
+      const dataB64 = img.data.match(/.{1,76}/g).join('\r\n');
+      parts.push(
+        `--${boundary}`,
+        `Content-Type: ${img.mime}`,
+        'Content-Transfer-Encoding: base64',
+        `Content-Location: ${img.name}`,
+        '',
+        dataB64,
+        ''
+      );
+    }
+    parts.push(`--${boundary}--`, '');
+
+    const mhtml = parts.join('\r\n');
+    const blob = new Blob([mhtml], { type: 'application/msword' });
     this._triggerDownload(blob, filename);
+  },
+
+  /* UTF-8 seguro para btoa */
+  _utf8ToBase64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin);
   },
 
   /* Baixa como .pdf via html2pdf.js (CDN carregado no materia.html) */
@@ -212,8 +279,21 @@ const MateriaPage = {
       return;
     }
 
+    /* Container off-screen (e NÃO atrás de outros elementos com z-index
+       negativo, que causava PDF em branco pois o html2canvas falha ao
+       capturar nodes escondidos sob o #bg-canvas). */
     const container = document.createElement('div');
-    container.style.cssText = 'position:fixed;left:0;top:0;width:780px;padding:18px;font-family:Arial,sans-serif;color:#222;background:#fff;z-index:-9999;pointer-events:none';
+    container.style.cssText = [
+      'position:absolute',
+      'left:-10000px',
+      'top:0',
+      'width:780px',
+      'padding:18px',
+      'font-family:Arial,sans-serif',
+      'color:#222',
+      'background:#fff',
+      'box-sizing:border-box'
+    ].join(';');
     container.innerHTML = bodyHTML;
     document.body.appendChild(container);
 
@@ -221,16 +301,28 @@ const MateriaPage = {
     const imgs = container.querySelectorAll('img');
     if (imgs.length) {
       await Promise.all(Array.from(imgs).map(img =>
-        img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
+        img.complete && img.naturalWidth > 0
+          ? Promise.resolve()
+          : new Promise(r => { img.onload = r; img.onerror = r; })
       ));
     }
+
+    /* Garante ao menos 1 frame de layout antes da captura. */
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     try {
       await html2pdf().from(container).set({
         margin: [10, 10, 10, 10],
         filename,
         image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          logging: false,
+          windowWidth: 780
+        },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
       }).save();
