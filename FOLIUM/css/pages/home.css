@@ -650,9 +650,23 @@
     display: none;
   }
 
-  /* Evita scroll horizontal se um círculo encostar na borda */
+  /* Evita scroll horizontal se um círculo encostar na borda.
+     Também adiciona o 3º halo via background-image (camada
+     radial-gradient) seguindo a mesma reta a 45° que liga os
+     dois ::before / ::after, prolongada para cima. Mantém o
+     doodles-mobile.png como 2ª camada ao fundo. */
   .page-home {
     overflow-x: clip;
+    background-image:
+      radial-gradient(circle at center,
+        rgba(246, 233, 200, 0.55) 0%,
+        rgba(240, 225, 185, 0.32) 45%,
+        rgba(230, 215, 175, 0.12) 72%,
+        transparent 92%),
+      url('../../assets/images/doodles-mobile.png');
+    background-repeat: no-repeat, no-repeat;
+    background-size: 140px 140px, 100% auto;
+    background-position: right -24px top 70px, bottom center;
   }
 
   /* ── Círculos decorativos — EXCLUSIVOS DO MOBILE ──
