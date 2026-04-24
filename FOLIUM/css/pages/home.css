@@ -16,41 +16,9 @@
   position: relative;
 }
 
-/* Círculo decorativo grande — canto superior direito
-   aparece atrás do header e do topo do hero */
-.page-home::before {
-  content: '';
-  position: absolute;
-  top: -80px;
-  right: -70px;
-  width: 340px;
-  height: 340px;
-  border-radius: 50%;
-  background: radial-gradient(circle,
-    rgba(255, 252, 242, 0.90) 0%,
-    rgba(245, 236, 212, 0.55) 45%,
-    rgba(230, 218, 192, 0.15) 70%,
-    transparent 85%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Círculo médio — lado esquerdo, atrás das estatísticas */
-.page-home::after {
-  content: '';
-  position: absolute;
-  top: 180px;
-  left: -80px;
-  width: 260px;
-  height: 260px;
-  border-radius: 50%;
-  background: radial-gradient(circle,
-    rgba(218, 200, 168, 0.60) 0%,
-    rgba(205, 185, 150, 0.25) 55%,
-    transparent 80%);
-  pointer-events: none;
-  z-index: 0;
-}
+/* Os círculos decorativos (::before e ::after) existem SOMENTE no mobile.
+   Ver bloco `@media (max-width: 899px)` mais abaixo. No desktop a
+   página home não tem halos decorativos. */
 
 /* ════════════════════════════════════════
    MOBILE
@@ -75,7 +43,7 @@
 }
 
 .home-top-nav__logo {
-  height: 62px;
+  height: 86px;
   width: auto;
   object-fit: contain;
   display: block;
@@ -667,7 +635,7 @@
 }
 
 /* ════════════════════════════════════════
-   MOBILE: oculta elementos desktop
+   MOBILE: oculta elementos desktop + refinamentos visuais
 ════════════════════════════════════════ */
 @media (max-width: 899px) {
   .desk-vinicius {
@@ -680,6 +648,86 @@
 
   .dock-nav {
     display: none;
+  }
+
+  /* Evita scroll horizontal se um círculo encostar na borda */
+  .page-home {
+    overflow-x: clip;
+  }
+
+  /* ── Círculos decorativos — EXCLUSIVOS DO MOBILE ──
+     Definidos inteiramente dentro deste media query. No desktop
+     os pseudo-elementos não têm `content`, então nem existem. */
+
+  /* Grande halo cremoso — posicionado completamente ABAIXO do
+     header (o topo do círculo começa depois da altura total da
+     navbar, ~106px, para que o círculo apareça inteiro, sem ser
+     coberto pelo fundo opaco + blur do header). */
+  .page-home::before {
+    content: '';
+    position: absolute;
+    top: 118px;
+    right: 8%;
+    left: auto;
+    width: 78vw;
+    max-width: 310px;
+    height: 78vw;
+    max-height: 310px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+      rgba(255, 253, 236, 0.95) 0%,
+      rgba(248, 235, 206, 0.72) 30%,
+      rgba(238, 222, 188, 0.42) 56%,
+      rgba(230, 215, 180, 0.18) 80%,
+      transparent 94%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Halo quente atrás das estatísticas — bem à esquerda,
+     com a borda esquerda saindo do viewport como na referência.
+     Posicionado para ficar ao nível das estatísticas (acima do
+     label "O QUE DESEJA FAZER?") e não invadir os cards. */
+  .page-home::after {
+    content: '';
+    position: absolute;
+    top: 220px;
+    left: -55px;
+    width: 52vw;
+    max-width: 200px;
+    height: 52vw;
+    max-height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+      rgba(215, 193, 156, 0.65) 0%,
+      rgba(212, 190, 152, 0.42) 40%,
+      rgba(212, 190, 152, 0.16) 70%,
+      transparent 94%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Respiro entre hero e ações + fundo transparente para os círculos
+     aparecerem atrás da hero sem criar um bloco com cor diferente. */
+  .dash-hero {
+    padding: 28px 22px 56px;
+    background: transparent;
+  }
+
+  /* Espaço inferior para o dock (70px) + búlha suspensa (49px
+     acima da barra) + respiro adicional. */
+  .dash-body {
+    padding: 32px 18px 150px;
+  }
+
+  .dash-section-label {
+    margin-bottom: 18px;
+  }
+
+  /* Garante que o texto/hero fique visualmente acima dos círculos */
+  .home-top-nav {
+    position: relative;
+    z-index: var(--z-nav);
   }
 }
 
@@ -694,5 +742,21 @@
 
   .home-act-card {
     padding: 16px 14px;
+  }
+
+  /* Em telas muito estreitas, círculos ligeiramente menores mas
+     mantendo o mesmo posicionamento (abaixo do header / bordas). */
+  .page-home::before {
+    width: 74vw;
+    height: 74vw;
+    top: 110px;
+    right: 8%;
+  }
+
+  .page-home::after {
+    width: 50vw;
+    height: 50vw;
+    top: 210px;
+    left: -45px;
   }
 }
