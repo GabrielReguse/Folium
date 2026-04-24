@@ -164,12 +164,23 @@ const CriarPage = {
       });
       list.appendChild(row);
     });
+    this._updateTopicMeter();
+  },
+
+  _updateTopicMeter() {
+    const total = this.topicList.length;
+    const selected = this.topicList.filter(t => t.on).length;
+    const c = DOM.$('#topic-count');
+    const t = DOM.$('#topic-total');
+    if (c) c.textContent = selected;
+    if (t) t.textContent = total;
   },
 
   _toggleTopic(i, chkEl) {
     this.topicList[i].on = !this.topicList[i].on;
     chkEl.classList.toggle('on', this.topicList[i].on);
     chkEl.innerHTML = this.topicList[i].on ?'<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;stroke:white"><polyline points="20 6 9 17 4 12"/></svg>':'';
+    this._updateTopicMeter();
   },
 
   _removeTopic(i) {
