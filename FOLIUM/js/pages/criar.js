@@ -28,6 +28,59 @@ const CriarPage = {
     Navbar.renderBottom('criar');
     Sidebar.init();
     this.goStep(1);
+    this._runStepperIntro();
+  },
+
+  /* ─── STEPPER INTRO ANIMATION ───────────────────────────────
+     Primeiro load: bolinhas entram uma a uma (borda → fill →
+     número), linhas se desenham da esquerda pra direita,
+     labels são digitadas letra a letra (typewriter).
+  ─────────────────────────────────────────────────────────── */
+  _runStepperIntro() {
+    const stepper = DOM.$('.cr-stepper');
+    if (!stepper) return;
+    // Já rodou antes nesta sessão? pula. Evita reanimar ao voltar.
+    if (stepper.dataset.introDone === '1') return;
+    stepper.dataset.introDone = '1';
+
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+
+    // Schedule — tempos casam com o CSS (.cs-anim-init)
+    // Cada label começa a digitar junto com seu fadeIn correspondente.
+    const schedule = [
+      { sel: '#dot1 .cs-label', start: 750,  charDelay: 80 },
+      { sel: '#dot2 .cs-label', start: 2050, charDelay: 80 },
+      { sel: '#dot3 .cs-label', start: 3300, charDelay: 90 },
+    ];
+
+    // Guarda texto original e zera conteúdo ANTES de adicionar a classe
+    const labels = schedule.map(s => {
+      const el = DOM.$(s.sel);
+      if (!el) return null;
+      const txt = el.textContent;
+      el.textContent = '';
+      return { el, text: txt, ...s };
+    }).filter(Boolean);
+
+    stepper.classList.add('cs-anim-init');
+
+    labels.forEach(({ el, text, start, charDelay }) => {
+      setTimeout(() => {
+        let i = 0;
+        const tick = () => {
+          if (i < text.length) {
+            el.textContent += text[i++];
+            setTimeout(tick, charDelay);
+          }
+        };
+        tick();
+      }, start);
+    });
+
+    // Limpa depois que tudo termina (~4.5s) — remove a classe pra
+    // evitar interferir com transições futuras do goStep.
+    setTimeout(() => { stepper.classList.remove('cs-anim-init'); }, 4600);
   },
 
   /* ─── POLLING DA FILA ──────────────────────────────────────
