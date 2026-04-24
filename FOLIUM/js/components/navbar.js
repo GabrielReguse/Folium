@@ -97,10 +97,9 @@ const Navbar = {
       const style = document.createElement('style');
       style.id = 'dock-nav-style';
       style.innerHTML = `
-        /* ── Desktop: pill flutuante centralizado ── */
         .dock-nav-desktop {
           position: fixed;
-          bottom: 24px;
+          bottom: 0;
           left: 50%;
           transform: translateX(-50%);
           width: 380px;
@@ -111,58 +110,32 @@ const Navbar = {
           filter: drop-shadow(0px -5px 10px rgba(0, 0, 0, 0.12));
         }
 
-        /* ── Mobile: barra fixa de borda a borda ── */
+        /* Mobile: dock largura total, sem bordas laterais */
         @media (max-width: 899px) {
           .dock-nav-desktop {
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            transform: none !important;
-            width: 100vw !important;
-            height: 64px !important;
-            /* sem drop-shadow que pode causar overflow lateral */
-            filter: none !important;
-            /* sombra superior discreta em vez de drop-shadow */
-            box-shadow: 0 -2px 16px rgba(92,61,46,0.10);
+            width: 100%;
+            left: 0;
+            transform: none;
           }
           .dock-bg {
             border-radius: 0 !important;
             border-left: none !important;
             border-right: none !important;
-            border-bottom: none !important;
-            border-top: 1px solid #D1C4A8 !important;
-          }
-          /* Círculo ligeiramente menor no mobile para não sair da tela */
-          .dock-slider {
-            width: 80px !important;
-            height: 80px !important;
-            top: -39px !important;
-          }
-          .dock-slider-icon {
-            top: 26px !important;
-            left: 26px !important;
-            width: 28px !important;
-            height: 28px !important;
-          }
-          .dock-slider-icon svg {
-            width: 18px !important;
-            height: 18px !important;
-          }
-          /* Items com padding menor para não espremer o texto */
-          .dock-item {
-            padding-top: 10px !important;
           }
         }
-
+        
         .dock-bg {
           position: absolute;
           inset: 0;
           background-color: #F0E8D1;
-          border: 1.5px solid #D1C4A8;
-          border-radius: 22px 22px 0 0;
+          /* MELHORIA 1: Borda levemente mais escura para melhor contraste visual */
+          border: 1.5px solid #D1C4A8; 
+          /* ERRO 2 CORRIGIDO: Cantos inferiores retos para alinhar com o fim da página */
+          border-radius: 22px 22px 0 0; 
           box-sizing: border-box;
-          -webkit-mask-image: radial-gradient(circle at 1000px 1px, transparent 22px, black 23px);
-          mask-image: radial-gradient(circle at 1000px 1px, transparent 22px, black 23px);
+          
+          -webkit-mask-image: radial-gradient(circle at 1000px 1px, transparent 26px, black 27px);
+          mask-image: radial-gradient(circle at 1000px 1px, transparent 26px, black 27px);
           -webkit-mask-size: 2000px 100%;
           mask-size: 2000px 100%;
           -webkit-mask-repeat: no-repeat;
@@ -172,7 +145,7 @@ const Navbar = {
 
         .dock-slider {
           position: absolute;
-          top: -49px;
+          top: -49px; 
           left: 0;
           width: 100px;
           height: 100px;
@@ -190,7 +163,8 @@ const Navbar = {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F5F2E7;
+          /* ERRO 1 CORRIGIDO: Cor clara para o ícone aparecer no círculo verde */
+          color: #F5F2E7; 
         }
 
         .dock-slider-icon svg {
@@ -199,7 +173,7 @@ const Navbar = {
           stroke: currentColor;
           display: block;
         }
-
+        
         .dock-items {
           display: flex;
           width: 100%;
@@ -207,7 +181,7 @@ const Navbar = {
           position: relative;
           z-index: 3;
         }
-
+        
         .dock-item {
           flex: 1;
           display: flex;
@@ -220,9 +194,8 @@ const Navbar = {
           cursor: pointer;
           color: #AD8B6B;
           outline: none;
-          min-width: 0;
         }
-
+        
         .di-icon-wrapper {
           width: 24px;
           height: 24px;
@@ -231,24 +204,22 @@ const Navbar = {
           display: flex;
           align-items: center;
           justify-content: center;
-          flex-shrink: 0;
         }
         .di-icon-wrapper svg {
           width: 22px;
           height: 22px;
           stroke: currentColor;
         }
-
+        
         .di-label {
           font-size: 11px;
           font-weight: 600;
           font-family: inherit;
           transition: color 0.3s;
-          white-space: nowrap;
         }
 
         .dock-item.active .di-icon-wrapper {
-          opacity: 0;
+          opacity: 0; 
         }
         .dock-item.active .di-label {
           color: #6CAB69;
@@ -320,19 +291,9 @@ const Navbar = {
 
     const navRect = nav.getBoundingClientRect();
     const itemRect = activeItem.getBoundingClientRect();
-    const rawCx = itemRect.left - navRect.left + itemRect.width / 2;
+    const cx = itemRect.left - navRect.left + itemRect.width / 2;
 
-    /* Detecta tamanho real do slider (pode ser 80px no mobile, 100px no desktop) */
-    const sliderSize = parseFloat(getComputedStyle(slider).width) || 100;
-    const half = sliderSize / 2;
-
-    /* Clamp: bolha nunca sai pelos lados */
-    const cx = Math.max(half, Math.min(navRect.width - half, rawCx));
-
-    /* Raio da máscara: metade do slider */
-    const maskRadius = half - 4; /* 4px de margem para a borda combinar */
-
-    slider.style.transform = `translateX(${cx - half}px)`;
+    slider.style.transform = `translateX(${cx - 50}px)`;
     bg.style.webkitMaskPosition = `${cx - 1000}px 0`;
     bg.style.maskPosition = `${cx - 1000}px 0`;
   },
