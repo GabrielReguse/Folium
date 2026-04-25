@@ -7,18 +7,60 @@ const LoginPage = {
     this._bindForms();
     this._bindEnterKey();
     this._initCodeInputs();
+    this._initTabs();
+    this._initPasswordToggles();
+    this._initPasswordMeter();
   },
 
   swapForm(to) {
+    const prev = this.currentForm;
     this.currentForm = to;
     const isReg = to === 'register';
     const isVerify = to === 'verify';
 
-    DOM.$('#f-login').style.display     = (!isReg && !isVerify) ? 'flex' : 'none';
-    DOM.$('#f-register').style.display  = isReg ? 'flex' : 'none';
-    DOM.$('#f-verify').style.display    = isVerify ? 'flex' : 'none';
-    DOM.$('#sw-login').style.display    = (!isReg && !isVerify) ? 'block' : 'none';
-    DOM.$('#sw-register').style.display = (isReg && !isVerify) ? 'block' : 'none';
+    const forms = {
+      login:    document.getElementById('f-login'),
+      register: document.getElementById('f-register'),
+      verify:   document.getElementById('f-verify'),
+    };
+
+    // direção da animação: registrar entra da direita, login da esquerda
+    const dir = (to === 'register') ? 'slide-from-right'
+              : (to === 'login')    ? 'slide-from-left'
+              : '';
+
+    Object.entries(forms).forEach(([key, el]) => {
+      if (!el) return;
+      el.classList.remove('is-active', 'slide-from-right', 'slide-from-left');
+      if (key === to) {
+        el.classList.add('is-active');
+        if (dir) el.classList.add(dir);
+      }
+    });
+
+    // Atualiza tabs (visíveis apenas em login/register)
+    const tabsWrap = document.getElementById('auth-tabs');
+    if (tabsWrap) {
+      if (isVerify) {
+        tabsWrap.classList.add('is-locked');
+      } else {
+        tabsWrap.classList.remove('is-locked');
+        tabsWrap.dataset.active = isReg ? 'register' : 'login';
+        tabsWrap.querySelectorAll('.auth-tab').forEach(t => {
+          t.classList.toggle('is-active', t.dataset.target === to);
+        });
+      }
+    }
+
+    // Subtítulo dinâmico
+    const sub = document.getElementById('login-subtitle');
+    if (sub) {
+      sub.textContent = isVerify
+        ? 'Quase lá!'
+        : isReg
+          ? 'Crie sua conta gratuita'
+          : 'Bem-vindo de volta';
+    }
 
     const old = document.querySelector('.login-error');
     if (old) old.remove();
@@ -401,6 +443,51 @@ const LoginPage = {
     window.verifyCode     = ()  => LoginPage.verifyCode();
     window.resendCode     = ()  => LoginPage.resendCode();
     window.backToLogin    = ()  => LoginPage.backToLogin();
+  },
+
+  /* ── Tab switcher ── */
+  _initTabs() {
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.target;
+        if (!target || this.currentForm === target) return;
+        this.swapForm(target);
+      });
+    });
+  },
+
+  /* ── Toggle visibilidade de senha ── */
+  _initPasswordToggles() {
+    document.querySelectorAll('[data-toggle-pass]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-toggle-pass');
+        const inp = document.getElementById(id);
+        if (!inp) return;
+        const show = inp.type === 'password';
+        inp.type = show ? 'text' : 'password';
+        btn.classList.toggle('is-on', show);
+        btn.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
+      });
+    });
+  },
+
+  /* ── Medidor de força de senha (cadastro) ── */
+  _initPasswordMeter() {
+    const inp   = document.getElementById('r-pass');
+    const meter = document.getElementById('pass-meter');
+    if (!inp || !meter) return;
+    const score = (v) => {
+      let s = 0;
+      if (!v) return 0;
+      if (v.length >= 4)  s++;
+      if (v.length >= 8)  s++;
+      if (/[A-Z]/.test(v) && /[a-z]/.test(v)) s++;
+      if (/\d/.test(v) || /[^A-Za-z0-9]/.test(v)) s++;
+      return Math.min(4, s);
+    };
+    inp.addEventListener('input', () => {
+      meter.dataset.strength = String(score(inp.value));
+    });
   }
 };
 
