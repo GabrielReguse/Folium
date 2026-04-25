@@ -64,6 +64,8 @@ const LoginPage = {
 
     const old = document.querySelector('.login-error');
     if (old) old.remove();
+    const oldSuccess = document.querySelector('.login-success');
+    if (oldSuccess) oldSuccess.remove();
   },
 
   showVerification(email) {

@@ -531,12 +531,14 @@
     filter: blur(0.4px);
   }
   .leaf-1 {
+    --r: 35deg;
     width: 90px; height: 90px;
     top: 12%; right: 8%;
     transform: rotate(35deg);
     animation: leaf-float 9s ease-in-out infinite;
   }
   .leaf-2 {
+    --r: -15deg;
     width: 56px; height: 56px;
     bottom: 16%; right: 22%;
     transform: rotate(-15deg);
@@ -545,6 +547,7 @@
     animation: leaf-float 11s ease-in-out infinite -2s;
   }
   .leaf-3 {
+    --r: 70deg;
     width: 70px; height: 70px;
     top: 48%; right: 6%;
     transform: rotate(70deg);
