@@ -447,7 +447,7 @@
     animation: fadeUp 0.55s var(--ease) 0.10s both;
   }
   .brand-mark__logo {
-    height: 96px;
+    height: 126px;
     width: auto;
     object-fit: contain;
     filter: drop-shadow(0 8px 24px rgba(92,61,46,0.18));
