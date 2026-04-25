@@ -262,6 +262,43 @@
     display: none;
   }
 
+  /* Botão de menu no topo direito — abre a sidebar no desktop */
+  .desk-burger {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--r-sm);
+    background: rgba(253, 250, 243, 0.85);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: calc(var(--z-nav) + 1);
+    color: var(--text-mid);
+    transition: background var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
+    box-shadow: var(--sh-sm);
+  }
+
+  .desk-burger:hover {
+    background: var(--surface);
+    border-color: var(--tan);
+    color: var(--caramel);
+  }
+
+  .desk-burger:active {
+    transform: scale(0.96);
+  }
+
+  .desk-burger svg {
+    width: 20px;
+    height: 20px;
+  }
+
   .dash-hero {
     display: none;
   }

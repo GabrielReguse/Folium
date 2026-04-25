@@ -10,15 +10,65 @@ const Router = {
     suporte: '../html/suporte.html',
   },
 
+  // Browsers com View Transitions API cross-document (Chrome 126+) fazem
+  // cross-fade automático entre a página de saída e a de entrada — a
+  // antiga congela, a nova já aparece por cima sendo animada. Quando
+  // disponível, pulamos nosso fade-out manual pra não somar animações.
+  _hasNativeViewTransitions() {
+    try {
+      return (
+        typeof window !== 'undefined' &&
+        typeof CSS !== 'undefined' &&
+        typeof CSS.supports === 'function' &&
+        CSS.supports('(view-transition-name: none)')
+      );
+    } catch (_) {
+      return false;
+    }
+  },
+
   go(route, ctx = {}) {
     Object.entries(ctx).forEach(([k, v]) => Storage.setContext(k, v));
     const dest = this.routes[route] || route;
-    // Fade-out suave: o html tem background creme, então ao deixar o
-    // body opacity=0 o navegador revela o creme em vez de pintar branco
-    // durante a navegação. 160ms é curto o suficiente pra não travar
-    // o clique, mas longo pra o fade ser percebido como suave.
+
+    // Se o browser tem View Transitions cross-document, deixa ele fazer
+    // o cross-fade: navega imediatamente — nem um frame de atraso.
+    if (this._hasNativeViewTransitions()) {
+      window.location.href = dest;
+      return;
+    }
+
+    // Fallback: fade-out curtíssimo revelando o creme do <html> (sem
+    // flash branco) antes de trocar a URL. Mantemos um pequeno atraso
+    // pra o fade ser perceptível em navegadores sem View Transitions.
     document.body.classList.add('is-leaving');
-    setTimeout(() => { window.location.href = dest; }, 160);
+    setTimeout(() => { window.location.href = dest; }, 90);
+  },
+
+  /* Prefetch das outras rotas em background — quando o browser estiver
+     ocioso, baixa os HTMLs das outras páginas pra que a próxima
+     navegação seja praticamente instantânea. Usa <link rel="prefetch">
+     quando suportado; caso contrário faz fetch() silencioso. */
+  _prefetchRoutes() {
+    const current = (window.location.pathname.split('/').pop() || '').toLowerCase();
+    const urls = Object.values(this.routes).filter(u => {
+      const file = u.split('/').pop().toLowerCase();
+      return file && file !== current;
+    });
+    const schedule = window.requestIdleCallback || ((fn) => setTimeout(fn, 400));
+    schedule(() => {
+      urls.forEach(href => {
+        try {
+          const link = document.createElement('link');
+          link.rel = 'prefetch';
+          link.as = 'document';
+          link.href = href;
+          document.head.appendChild(link);
+        } catch (_) {
+          fetch(href, { credentials: 'same-origin' }).catch(() => {});
+        }
+      });
+    });
   },
 
   back() {
@@ -64,6 +114,14 @@ const Router = {
     // pagehide roda ao sair da página (inclusive antes de entrar
     // no bfcache). Não removemos is-leaving aqui porque o usuário
     // ainda deve ver o fade-out; pageshow acima cobre o retorno.
+
+    // Pré-busca as outras rotas em background pra acelerar navegações
+    // futuras.
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => this._prefetchRoutes(), { once: true });
+    } else {
+      this._prefetchRoutes();
+    }
   }
 };
 

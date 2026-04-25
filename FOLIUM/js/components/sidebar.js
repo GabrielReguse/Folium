@@ -23,8 +23,8 @@ const Sidebar = {
 
     panel.innerHTML = `
       <div class="sb-head">
-        <div>
-          <img src="../assets/images/logo-folium.png" alt="Folium" style="height:48px;width:auto;display:block;margin-bottom:6px">
+        <div class="sb-head-brand">
+          <img src="../assets/images/logo-folium.png" alt="Folium" class="sb-logo">
           <div class="sb-tagline">Seus resumos inteligentes</div>
         </div>
         <button class="sb-close" onclick="Sidebar.close()" aria-label="Fechar">

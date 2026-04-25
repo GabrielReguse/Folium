@@ -25,17 +25,30 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
-/* ── Transição de páginas (JS-driven, consistente em todos os browsers) ──
-   Ao clicar num link/dock, Router.go adiciona .is-leaving no body,
-   faz fade pra revelar o creme do html (em vez de branco) e depois
-   navega. No page load, body entra animado de baixa opacidade pra 1
-   (fadein suave), terminando a sensação de continuidade. */
+/* ── Transição de páginas ────────────────────────────────────────────
+   1) Browsers modernos (Chrome 126+, Edge 126+) com View Transitions
+      API cross-document fazem cross-fade automático: a página antiga
+      fica congelada e a nova já aparece por cima animando, sem nenhum
+      frame de branco/vazio no meio.
+   2) Browsers sem suporte usam o fallback JS: Router.go aplica a
+      classe .is-leaving (fade-out rápido revelando o creme do <html>)
+      e, ao chegar na nova página, o body entra com folium-page-in. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 body{
-  animation:folium-page-in 240ms cubic-bezier(0.22,1,0.36,1) both;
+  animation:folium-page-in 180ms cubic-bezier(0.22,1,0.36,1) both;
 }
 body.is-leaving{
   opacity:0;
-  transition:opacity 160ms ease-out;
+  transition:opacity 90ms ease-out;
   animation:none;
 }
 @keyframes folium-page-in{
@@ -45,6 +58,8 @@ body.is-leaving{
 @media (prefers-reduced-motion: reduce){
   body{ animation:none }
   body.is-leaving{ transition:none; opacity:1 }
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none !important; }
 }
 a{color:inherit;text-decoration:none}
 button{cursor:pointer;font-family:var(--font-sans);border:none;background:none}

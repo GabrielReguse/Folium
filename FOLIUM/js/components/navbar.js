@@ -140,7 +140,7 @@ const Navbar = {
           mask-size: 2000px 100%;
           -webkit-mask-repeat: no-repeat;
           mask-repeat: no-repeat;
-          transition: -webkit-mask-position 0.4s cubic-bezier(0.4, 0, 0.2, 1), mask-position 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: -webkit-mask-position 0.24s cubic-bezier(0.4, 0, 0.2, 1), mask-position 0.24s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .dock-slider {
@@ -149,7 +149,7 @@ const Navbar = {
           left: 0;
           width: 100px;
           height: 100px;
-          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
           z-index: 2;
           pointer-events: none;
         }
@@ -265,16 +265,14 @@ const Navbar = {
       btn.addEventListener('click', () => {
         const route = it.route;
         if (route === nav.dataset.active) return;
-        // 1) Dispara a animação de 0.4s: a bolha + meia-lua deslizam
+        // 1) Dispara a animação de ~0.24s: a bolha + meia-lua deslizam
         //    horizontalmente juntas até o item clicado.
         this._animateBubbleTo(nav, btn, route);
-        // 2) Só depois da animação completar (~420ms) chamamos
-        //    Router.go, que então faz o fade-out de 160ms e navega.
-        //    O usuário vê: bolha desliza até o destino -> página faz
-        //    fade pra creme -> nova página faz fade-in (já com a
-        //    bolha posicionada no mesmo ponto pelo _positionBubble
-        //    instantâneo).
-        setTimeout(() => Router.go(route), 420);
+        // 2) Logo que a bolha chega no destino (~260ms) chamamos
+        //    Router.go — em navegadores modernos o View Transitions
+        //    API faz o cross-fade entre esta página (já com a bolha
+        //    no lugar) e a próxima, sem flash entre as duas.
+        setTimeout(() => Router.go(route), 260);
       });
       itemsContainer.appendChild(btn);
     });

@@ -7,14 +7,6 @@ const HomePage = {
     const page = document.querySelector('.page');
     if (page) page.classList.add('page-home');
 
-    // Na primeira visita (localStorage.folium_subjects nunca foi
-    // escrito), semeia uma atividade de boas-vindas para que o
-    // bloco de "Atividade recente" não fique vazio e o usuário
-    // veja a animação dos cards subindo. Não re-semeia depois que
-    // o usuário criar/apagar atividades (a própria setSubjects
-    // marca a chave no storage).
-    this._seedWelcomeIfFirstVisit();
-
     if (window.innerWidth >= 900) {
       this._buildDesktop();
     } else {
@@ -24,36 +16,6 @@ const HomePage = {
     Navbar.renderBottom('home');
     Sidebar.init();
     this._runEntryAnimations();
-  },
-
-  _seedWelcomeIfFirstVisit() {
-    if (localStorage.getItem('folium_subjects') !== null) return;
-    const now = new Date();
-    const demoFolha = {
-      id:            `sh_demo_${now.getTime()}`,
-      titulo:        'Boas-vindas ao Folium',
-      tema:          'Visão geral',
-      nivel:         'ensino-medio',
-      nivelLabel:    'Ensino médio',
-      topicos: [
-        { titulo: 'Como criar sua primeira folha', resumo: 'Clique em Criar e informe matéria, tema e nível.' },
-        { titulo: 'Resumos automáticos com IA',    resumo: 'A IA gera um resumo rápido a partir do tema.' },
-        { titulo: 'Organize por matérias',         resumo: 'Cada matéria agrupa folhas e tópicos.' },
-      ],
-      resultado:     null,
-      favorita:      false,
-      criadaEm:      now.toISOString(),
-      dataFormatada: now.toLocaleDateString('pt-BR'),
-    };
-    const demoSubject = {
-      id:              `bio_demo_${now.getTime()}`,
-      nomeOriginal:    'Introdução',
-      nomeNormalizado: 'Introdução',
-      favorita:        false,
-      criadaEm:        now.toISOString(),
-      folhas:          [demoFolha],
-    };
-    Storage.setSubjects([demoSubject]);
   },
 
   /* ═══════════════════════════════════════
@@ -220,6 +182,20 @@ const HomePage = {
     vinicius.className = 'desk-vinicius';
     vinicius.setAttribute('aria-hidden', 'true');
     page.appendChild(vinicius);
+
+    /* ── Botão de menu (sidebar) no canto superior direito ── */
+    const burger = document.createElement('button');
+    burger.className = 'desk-burger fade-down';
+    burger.setAttribute('aria-label', 'Abrir menu');
+    burger.onclick = () => Sidebar.toggle();
+    burger.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round">
+        <line x1="3"  y1="7"  x2="21" y2="7"/>
+        <line x1="3"  y1="12" x2="21" y2="12"/>
+        <line x1="3"  y1="17" x2="21" y2="17"/>
+      </svg>`;
+    page.appendChild(burger);
 
     /* ── Layout em grid 3 colunas ── */
     const layout = document.createElement('div');
