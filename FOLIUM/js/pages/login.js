@@ -409,11 +409,10 @@ const LoginPage = {
   _showError(msg) {
     const old = document.querySelector('.login-error');
     if (old) old.remove();
-    const el   = DOM.create('div', { class: 'login-error', text: msg });
-    const card = document.querySelector('.login-card');
+    const el = DOM.create('div', { class: 'login-error', text: msg });
     const formId = this.currentForm === 'register' ? '#f-register' : this.currentForm === 'verify' ? '#f-verify' : '#f-login';
     const form = DOM.$(formId);
-    card.insertBefore(el, form);
+    if (form) form.insertAdjacentElement('beforebegin', el);
     setTimeout(() => el.remove(), 5000);
   },
 
@@ -421,9 +420,8 @@ const LoginPage = {
     const old = document.querySelector('.login-success');
     if (old) old.remove();
     const el = DOM.create('div', { class: 'login-success', text: msg });
-    const card = document.querySelector('.login-card');
     const form = DOM.$('#f-verify');
-    card.insertBefore(el, form);
+    if (form) form.insertAdjacentElement('beforebegin', el);
     setTimeout(() => el.remove(), 3000);
   },
 
