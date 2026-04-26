@@ -2,6 +2,242 @@
 
 const AI2 = {
 
+  /* ─────────────────────────────────────────────────────────────────
+     VISUAL HINTS (A3)
+     Mapa por matéria com palavras-chave (`match`), termos que indicam
+     uma figura didática útil (`allow`) e termos que indicam ruído
+     (`deny`, ex. capa de livro, brasão, retrato). Usado para enriquecer
+     a query no Wikimedia Commons e para pontuar candidatos.
+     ───────────────────────────────────────────────────────────────── */
+  _VISUAL_HINTS: {
+    computacao: {
+      match: [
+        'java', 'python', 'javascript', 'c++', 'kotlin', 'rust', 'typescript',
+        'programa', 'programaç', 'código', 'algoritmo', 'algoritmos',
+        'poo', 'orientada a objetos', 'orientação a objetos', 'uml',
+        'computaç', 'software', 'banco de dados', 'sql', 'estrutura de dados',
+        'sistema operacional', 'rede de computador', 'compilador', 'api', 'http',
+        'engenharia de software', 'classe', 'interface', 'herança',
+      ],
+      allow: [
+        'diagram', 'uml', 'class diagram', 'flowchart', 'sequence diagram',
+        'screenshot', 'pseudocode', 'graph', 'tree', 'data structure',
+        'algorithm', 'state machine', 'er diagram',
+      ],
+      deny: [
+        'book cover', 'novel', 'magazine cover', 'album cover', 'movie poster',
+        'film poster', 'painting', 'portrait', 'sculpture',
+        'coat of arms', 'flag of', 'stamp', 'banknote', 'coin',
+        'apl logo', 'apl (programming language)',
+      ],
+    },
+    matematica: {
+      match: [
+        'matemática', 'álgebra', 'cálculo', 'geometria', 'trigonometria',
+        'estatística', 'probabilidade', 'função', 'matriz', 'integral',
+        'derivada', 'logaritmo', 'equação', 'polinômio', 'limite',
+      ],
+      allow: [
+        'graph', 'plot', 'diagram', 'chart', 'theorem', 'formula',
+        'function', 'curve', 'geometric', 'angle', 'triangle', 'cartesian',
+      ],
+      deny: [
+        'book cover', 'portrait', 'painting', 'flag of', 'coat of arms',
+        'stamp', 'novel', 'album cover',
+      ],
+    },
+    fisica: {
+      match: [
+        'física', 'mecânica', 'óptica', 'optica', 'termodinâmica',
+        'eletricidade', 'magnetismo', 'cinemática', 'dinâmica', 'ondas',
+        'energia', 'força', 'cinética', 'potencial', 'eletromagnetismo',
+        'relatividade', 'quântica',
+      ],
+      allow: [
+        'diagram', 'experiment', 'apparatus', 'schematic', 'graph',
+        'wave', 'circuit', 'physics diagram', 'free body diagram',
+        'ray diagram', 'vector',
+      ],
+      deny: [
+        'book cover', 'portrait', 'painting', 'flag of', 'coat of arms',
+        'stamp', 'novel', 'album cover',
+      ],
+    },
+    quimica: {
+      match: [
+        'química', 'átomo', 'molécula', 'reação', 'orgânica', 'inorgânica',
+        'tabela periódica', 'ligação química', 'íon', 'ácido', 'base',
+        'eletrólise', 'estequiometria', 'cinética química', 'soluç',
+      ],
+      allow: [
+        'molecule', 'molecular', 'structure', 'crystal', 'reaction',
+        'periodic', 'orbital', 'chemical', 'atom', 'bond', 'lewis',
+      ],
+      deny: [
+        'book cover', 'portrait', 'painting', 'flag of', 'coat of arms',
+        'stamp', 'novel', 'album cover',
+      ],
+    },
+    biologia: {
+      match: [
+        'biologia', 'célula', 'genética', 'dna', 'rna', 'evolução',
+        'ecologia', 'fisiologia', 'anatomia', 'botânica', 'zoologia',
+        'microbiologia', 'cromossomo', 'mitose', 'meiose', 'organel',
+        'tecido', 'embriologia', 'sistema imun', 'sistema nervoso',
+        'sistema circulat', 'sistema digest',
+      ],
+      allow: [
+        'diagram', 'anatomy', 'cell', 'organism', 'microscope', 'specimen',
+        'biological', 'micrograph', 'illustration', 'organ', 'tissue',
+        'chromosome', 'pedigree chart', 'cross section',
+      ],
+      deny: [
+        'book cover', 'portrait', 'painting', 'flag of', 'coat of arms',
+        'stamp', 'novel', 'album cover', 'logo', 'family tree',
+        'genealogy', 'church', 'cathedral', 'forest', 'tree (plant)',
+        'family pedigree of',
+      ],
+    },
+    historia: {
+      match: [
+        'história', 'guerra', 'império', 'revolução', 'antiguidade',
+        'medieval', 'colonial', 'independência', 'feudal', 'república',
+        'monarquia', 'ditadura', 'civilizaç',
+      ],
+      allow: [
+        'painting', 'engraving', 'illustration', 'map', 'photograph',
+        'document', 'manuscript', 'historical', 'lithograph',
+      ],
+      deny: ['book cover', 'modern logo', 'album cover', 'film poster'],
+    },
+    geografia: {
+      match: [
+        'geografia', 'mapa', 'clima', 'relevo', 'região', 'país', 'continente',
+        'hidrografia', 'urbanização', 'demografia', 'biom', 'vegetaç',
+      ],
+      allow: [
+        'map', 'satellite', 'photograph', 'landscape', 'topography',
+        'aerial', 'globe', 'cartographic',
+      ],
+      deny: ['book cover', 'portrait', 'painting', 'album cover'],
+    },
+    portugues: {
+      match: [
+        'português', 'gramática', 'literatura', 'redação', 'sintaxe',
+        'morfologia', 'fonética', 'semântica', 'estilística', 'oraç',
+      ],
+      allow: ['manuscript', 'document', 'diagram'],
+      deny: ['book cover', 'album cover'],
+    },
+  },
+
+  _HINT_DEFAULT: {
+    match: [],
+    allow: [],
+    deny: [
+      'book cover', 'flag of', 'coat of arms', 'stamp', 'banknote', 'coin',
+      'album cover', 'movie poster', 'film poster',
+    ],
+  },
+
+  _HINT_STOPWORDS: new Set([
+    'para', 'pelo', 'pela', 'com', 'sem', 'dos', 'das', 'que', 'sua',
+    'seu', 'seus', 'suas', 'por', 'como', 'sobre', 'entre', 'este',
+    'esta', 'isso', 'aquele', 'aquela', 'também', 'mais', 'menos',
+    'the', 'and', 'for', 'with', 'from', 'into', 'this', 'that', 'are',
+    'java', 'python',  // tokens muito genéricos no Commons; mantemos via materia
+  ]),
+
+  _resolveHint(materia, tema, topicoTitulo) {
+    const haystack = `${materia || ''} ${tema || ''} ${topicoTitulo || ''}`.toLowerCase();
+    let best = null, bestScore = 0;
+    for (const h of Object.values(AI2._VISUAL_HINTS)) {
+      let score = 0;
+      for (const term of (h.match || [])) {
+        if (haystack.includes(term.toLowerCase())) score++;
+      }
+      if (score > bestScore) { bestScore = score; best = h; }
+    }
+    return best || AI2._HINT_DEFAULT;
+  },
+
+  _extractKwTokens(ctx, busca) {
+    const tokens = new Set();
+    const add = s => (s || '').toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')      // sem acentos
+      .split(/[\s\-_,.;:/()<>"'`]+/)
+      .forEach(t => {
+        if (t.length >= 3 && !AI2._HINT_STOPWORDS.has(t)) tokens.add(t);
+      });
+    add(busca);
+    if (ctx?.topicoTitulo) add(ctx.topicoTitulo);
+    if (Array.isArray(ctx?.palavras_chave)) ctx.palavras_chave.forEach(add);
+    return [...tokens];
+  },
+
+  /* Padrões em nomes de arquivo que são quase sempre ruído. */
+  _NAME_PENALTIES: [
+    /\bcover\b/i, /coat[_-]of[_-]arms/i, /flag[_-]of[_-]/i,
+    /\bstamp\b/i, /portrait[_-]of[_-]/i, /\blogo\b/i,
+    /\balbum\b/i, /banknote/i, /\bcoin\b/i,
+    /book[_-]?cover/i, /front[_-]cover/i,
+    /\bposter\b/i, /movie[_-]?poster/i,
+  ],
+
+  /* A2 — score composto. Substitui width DESC. */
+  _scoreImageCandidate(page, ctx, hint, kwTokens) {
+    const info = page.imageinfo?.[0];
+    if (!info) return -Infinity;
+    const w = info.width || 0;
+    const h = info.height || 0;
+    if (!w || !h) return -Infinity;
+
+    const ratio = h / w;
+    let score = 0;
+
+    // aspecto razoável: penaliza panoramas ultra-largos e tirinhas verticais
+    if (ratio >= 0.5 && ratio <= 2.0) score += 1.0;
+    else if (ratio >= 0.4 && ratio <= 2.5) score += 0.4;
+    else score -= 0.3;
+
+    // banda de tamanho: 300–2000px é o "ponto doce" pra figura didática
+    if (w >= 300 && w <= 2000) score += 1.0;
+    else if (w >= 200 && w <= 3000) score += 0.4;
+    else if (w < 200) score -= 0.5;
+    else if (w > 4000) score -= 0.4;   // capas e pôsteres são quase sempre enormes
+
+    const titleRaw = page.title || '';
+    const title = titleRaw.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    // sobreposição com palavras-chave do contexto (cap em +1.2)
+    let kwHits = 0;
+    for (const kw of kwTokens) {
+      if (title.includes(kw)) kwHits++;
+    }
+    score += Math.min(kwHits * 0.4, 1.2);
+
+    // termos que sinalizam figura didática
+    const allow = hint.allow || [];
+    for (const a of allow) {
+      if (title.includes(a.toLowerCase())) { score += 0.6; break; }
+    }
+    if (/(diagram|schematic|figure|illustration|chart|graph)/i.test(title)) {
+      score += 0.5;
+    }
+
+    // termos da denylist no título (matéria + default)
+    const deny = (hint.deny || []).concat(AI2._HINT_DEFAULT.deny);
+    for (const d of deny) {
+      if (title.includes(d.toLowerCase())) { score -= 1.5; break; }
+    }
+
+    // padrões no nome do arquivo
+    if (AI2._NAME_PENALTIES.some(re => re.test(titleRaw))) score -= 2.0;
+
+    return score;
+  },
+
   /* API */
   async gerarFolha(materia, tema, nivel, topicos) {
     const token = Storage.getToken();
@@ -25,8 +261,19 @@ const AI2 = {
   },
 
   /* RENDER PRINCIPAL */
-  renderFolha(container, materia, tema, nivel, resultado, showHeader = true) {
+  renderFolha(container, materia, tema, nivel, resultado, showHeader = true, topicos = []) {
     container.innerHTML = '';
+
+    /* Indexa palavras_chave por título de tópico (quando vierem do criar.js).
+       Ao renderizar cada bloco, cruzamos com bloco.titulo via includes().
+       Folhas salvas (materia.js) chegam só com strings → degradam para [].  */
+    const planoIdx = (Array.isArray(topicos) ? topicos : [])
+      .map(t => {
+        const txt = typeof t === 'string' ? t : (t?.txt || '');
+        const kws = t?.plano_pesquisa?.palavras_chave || [];
+        return { txt: (txt || '').toLowerCase(), kws };
+      })
+      .filter(t => t.txt);
 
     const nivelLabel = {
       fundamental_1: 'Fund. I', fundamental_2: 'Fund. II',
@@ -45,7 +292,17 @@ const AI2 = {
       container.appendChild(header);
     }
 
-    resultado.blocos.forEach(bloco => container.appendChild(AI2._renderBloco(bloco)));
+    resultado.blocos.forEach(bloco => {
+      const tituloBaixo = (bloco.titulo || '').toLowerCase();
+      const match = planoIdx.find(p =>
+        tituloBaixo.includes(p.txt) || p.txt.includes(tituloBaixo));
+      const ctx = {
+        materia, tema, nivel,
+        topicoTitulo: bloco.titulo || '',
+        palavras_chave: match?.kws || [],
+      };
+      container.appendChild(AI2._renderBloco(bloco, ctx));
+    });
 
     if (resultado.resumo_geral) {
       const summary = document.createElement('div');
@@ -56,7 +313,7 @@ const AI2 = {
   },
 
   /* BLOCO DE TÓPICO */
-  _renderBloco(bloco) {
+  _renderBloco(bloco, ctx) {
     const sec = document.createElement('div');
     sec.className = 'sh-section';
 
@@ -72,7 +329,7 @@ const AI2 = {
       ${dicaHTML}`;
 
     if (bloco.visual) {
-      const el = AI2._renderVisual(bloco.visual);
+      const el = AI2._renderVisual(bloco.visual, ctx);
       if (el) sec.appendChild(el);
     }
 
@@ -120,7 +377,7 @@ const AI2 = {
   },
 
   /* DISPATCHER DE VISUAL */
-  _renderVisual(visual) {
+  _renderVisual(visual, ctx) {
     if (!visual?.tipo) return null;
 
     const wrap = document.createElement('div');
@@ -145,7 +402,7 @@ const AI2 = {
         case 'grafico_barras': el = AI2._chartBarras(visual.dados); break;
         case 'grafico_pizza': el = AI2._chartPizza(visual.dados); break;
         case 'svg': el = AI2._renderSVG(visual.codigo); break;
-        case 'imagem_wiki': el = AI2._renderWiki(visual.busca); break;
+        case 'imagem_wiki': el = AI2._renderWiki(visual.busca, ctx); break;
         default: return null;
       }
       if (!el) return null;
@@ -279,14 +536,14 @@ const AI2 = {
   },
 
   /* WIKIMEDIA COMMONS */
-  _renderWiki(busca) {
+  _renderWiki(busca, ctx) {
     if (!busca?.trim()) return null;
 
     const ph = document.createElement('div');
     ph.className = 'visual-wiki-loading';
     ph.innerHTML = `<span class="loader loader-sm"></span><span>Buscando ilustração…</span>`;
 
-    AI2._fetchWiki(busca).then(result => {
+    AI2._fetchWiki(busca, ctx).then(result => {
       if (!result) { ph.remove(); return; }
       const fig = document.createElement('figure');
       fig.className = 'visual-wiki';
@@ -309,14 +566,31 @@ const AI2 = {
     return ph;
   },
 
-  async _fetchWiki(busca) {
-    const q = encodeURIComponent(busca);
+  /* Pontuação mínima aceitável. Abaixo disso, descartamos a imagem em
+     vez de exibir lixo (capa de livro, bandeira lisa, retrato aleatório). */
+  _SCORE_THRESHOLD: 0.5,
+
+  async _fetchWiki(busca, ctx) {
+    const buscaTrim = (busca || '').trim();
+    if (!buscaTrim) return null;
+
+    const hint = AI2._resolveHint(ctx?.materia, ctx?.tema, ctx?.topicoTitulo);
+    const kwTokens = AI2._extractKwTokens(ctx, buscaTrim);
+
+    /* A1 — query enriquecida com termos negativos (Commons aceita -"phrase").
+       Cada deny vira um -"...". Isso já filtra ~70% dos casos óbvios. */
+    const denyOps = (hint.deny || AI2._HINT_DEFAULT.deny)
+      .slice(0, 6)
+      .map(t => `-"${t}"`)
+      .join(' ');
+    const enriched = denyOps ? `${buscaTrim} ${denyOps}` : buscaTrim;
+    const q = encodeURIComponent(enriched);
 
     /* 1. Wikimedia Commons */
     try {
       const url =
         `https://commons.wikimedia.org/w/api.php` +
-        `?action=query&generator=search&gsrsearch=${q}&gsrnamespace=6&gsrlimit=12` +
+        `?action=query&generator=search&gsrsearch=${q}&gsrnamespace=6&gsrlimit=20` +
         `&prop=imageinfo&iiprop=url|size|mime&iiurlwidth=640&format=json&origin=*`;
 
       const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
@@ -324,7 +598,7 @@ const AI2 = {
         const data = await res.json();
         const pages = Object.values(data?.query?.pages || {});
 
-        const images = pages
+        const candidates = pages
           .filter(p => {
             const info = p.imageinfo?.[0];
             if (!info?.thumburl) return false;
@@ -333,43 +607,58 @@ const AI2 = {
               !mime.includes('svg') &&
               !mime.includes('gif');
           })
-          .sort((a, b) => {
-            const wa = a.imageinfo?.[0]?.width ?? 0;
-            const wb = b.imageinfo?.[0]?.width ?? 0;
-            return wb - wa;
-          });
+          .map(p => ({
+            page: p,
+            score: AI2._scoreImageCandidate(p, ctx, hint, kwTokens),
+          }))
+          .sort((a, b) => b.score - a.score);
 
-        if (images.length) {
-          const best = images[0];
+        const best = candidates[0];
+        if (best && best.score >= AI2._SCORE_THRESHOLD) {
           return {
-            url: best.imageinfo[0].thumburl,
-            title: (best.title || '').replace('File:', '').replace(/\.[^.]+$/, ''),
+            url: best.page.imageinfo[0].thumburl,
+            title: (best.page.title || '').replace('File:', '').replace(/\.[^.]+$/, ''),
           };
         }
       }
     } catch { /* continua */ }
 
-    /* 2. Fallback: Wikipedia thumbnails (pt → en) */
+    /* 2. Fallback: Wikipedia thumbnails (pt → en).
+       Aqui a query original é mais útil (sem operadores Commons-específicos);
+       mas ainda aplicamos filtros de denylist no título da página. */
+    const denyTitle = (hint.deny || []).concat(AI2._HINT_DEFAULT.deny);
+    const allowTitle = hint.allow || [];
+    const qPlain = encodeURIComponent(buscaTrim);
     for (const lang of ['pt', 'en']) {
       try {
         const url =
           `https://${lang}.wikipedia.org/w/api.php` +
-          `?action=query&generator=search&gsrsearch=${q}&gsrlimit=10` +
+          `?action=query&generator=search&gsrsearch=${qPlain}&gsrlimit=10` +
           `&prop=pageimages&pithumbsize=640&format=json&origin=*`;
 
         const res = await fetch(url, { signal: AbortSignal.timeout(7000) });
         if (!res.ok) continue;
 
         const data = await res.json();
-        const pages = Object.values(data?.query?.pages || {});
-        const sorted = pages
-          .filter(p => p.thumbnail?.source)
-          .sort((a, b) => (b.thumbnail?.width ?? 0) - (a.thumbnail?.width ?? 0));
+        const pages = Object.values(data?.query?.pages || {})
+          .filter(p => p.thumbnail?.source);
 
-        if (sorted.length) return {
-          url: sorted[0].thumbnail.source,
-          title: sorted[0].title,
-        };
+        const scored = pages.map(p => {
+          const titleLow = (p.title || '').toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          let s = 0;
+          if (p.thumbnail?.width >= 200 && p.thumbnail?.width <= 1500) s += 0.5;
+          for (const kw of kwTokens) if (titleLow.includes(kw)) { s += 0.4; break; }
+          for (const a of allowTitle) if (titleLow.includes(a)) { s += 0.3; break; }
+          for (const d of denyTitle) if (titleLow.includes(d)) { s -= 1.5; break; }
+          if (AI2._NAME_PENALTIES.some(re => re.test(p.title || ''))) s -= 1.5;
+          return { p, s };
+        }).sort((a, b) => b.s - a.s);
+
+        const top = scored[0];
+        if (top && top.s >= 0) {
+          return { url: top.p.thumbnail.source, title: top.p.title };
+        }
       } catch { /* tenta próximo */ }
     }
 
