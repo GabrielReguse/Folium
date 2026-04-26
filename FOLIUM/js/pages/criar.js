@@ -348,7 +348,9 @@ const CriarPage = {
 
       this._stopQueuePolling();
       Modal.hideLoading();
-      AI2.renderFolha(out, this.materia, this.tema, this.nivel, resultado);
+      /* 7º param = tópicos com plano_pesquisa.palavras_chave; AI2 usa pra
+         pontuar imagens do Wikimedia (mata capas/bandeiras/retratos). */
+      AI2.renderFolha(out, this.materia, this.tema, this.nivel, resultado, true, selecionados);
 
       sessionStorage.setItem('folium_plano_ia2', JSON.stringify({
         materia:   this.materia,
