@@ -140,7 +140,11 @@ EXEMPLO INVÁLIDO: retângulo com "Cromossomo X" escrito — isso é imagem_wiki
 
 
 def _parse_json_response(raw: str) -> Any:
-    """Limpa markdown fencing e faz json.loads. Levanta 502 se inválido."""
+    """
+    Limpa markdown fencing e faz json.loads.
+    Retorna None se o JSON for inválido — o chamador decide se cai pro próximo
+    provedor da cadeia ou se aborta.
+    """
     clean = raw.strip()
     if clean.startswith("```"):
         clean = clean.split("```", 2)[1]
@@ -152,7 +156,7 @@ def _parse_json_response(raw: str) -> Any:
         return json.loads(clean)
     except json.JSONDecodeError:
         print(f"[AI2] JSON inválido:\n{clean[:400]}")
-        raise HTTPException(502, "IA retornou resposta inválida. Tente novamente.")
+        return None
 
 
 async def _call_provider(
@@ -236,7 +240,6 @@ async def call_ai2(system: str, user: str) -> Any:
             continue
 
         if resp.status_code == 200:
-            print(f"[AI2] ✓ Sucesso com {provider}/{model}")
             data = resp.json()
             try:
                 raw = data["choices"][0]["message"]["content"]
@@ -244,7 +247,16 @@ async def call_ai2(system: str, user: str) -> Any:
                 last_error = f"resposta malformada de {provider}/{model}"
                 print(f"[AI2] ⚠ {last_error}")
                 continue
-            return _parse_json_response(raw)
+
+            parsed = _parse_json_response(raw)
+            if parsed is None:
+                # Resposta 200 mas JSON inválido/truncado (ex: hit no max_tokens).
+                # Cai pro próximo provedor em vez de abortar a requisição inteira.
+                last_error = f"JSON inválido de {provider}/{model}"
+                continue
+
+            print(f"[AI2] ✓ Sucesso com {provider}/{model}")
+            return parsed
 
         # Rate limit / quota → tenta o próximo da cadeia
         if resp.status_code in (429, 503):
@@ -276,6 +288,8 @@ async def call_ai2(system: str, user: str) -> Any:
     # Esgotou a cadeia inteira sem sucesso
     if last_error and "rate-limit" in last_error:
         raise HTTPException(429, "Limite de uso da IA atingido. Aguarde cerca de 1 minuto e tente novamente.")
+    if last_error and "JSON inválido" in last_error:
+        raise HTTPException(502, "IA retornou resposta inválida. Tente novamente.")
     raise HTTPException(502, f"Todas as IAs falharam. Último erro: {last_error}.")
 
 
