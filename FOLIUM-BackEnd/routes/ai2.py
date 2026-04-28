@@ -2,6 +2,15 @@
 #  FOLIUM — routes/ai2.py
 #  IA 2: Geradora da Folha de Estudos
 # ═══════════════════════════════════════════════
+#
+# Multi-provider chain (tudo 100% gratuito, sem cartão):
+#   Primário  Gemini 2.5 Pro     — qualidade máxima, 5 RPM / 100 RPD / 250k TPM
+#   Fallback  Gemini 2.5 Flash   — cota mais ampla, 10 RPM / 250 RPD / 250k TPM
+#   Último    Cerebras Llama 3.3 — 30 RPM / 1M tok dia (mesma família do antigo Groq)
+#
+# Todos os provedores usam a API OpenAI-compatível, então o client é comum.
+# Usamos response_format=json_object para forçar JSON válido na saída
+# (elimina boa parte dos erros "IA retornou resposta inválida").
 
 import os, json, asyncio
 from typing import Any
@@ -11,25 +20,31 @@ from fastapi import APIRouter, HTTPException, Header, Depends
 from pydantic import BaseModel
 from jose import jwt, JWTError
 
-from fastapi.responses import JSONResponse
-from limiter import groq_call_with_queue, queue_position, MAX_CONCURRENT
+from limiter import ai2_call_with_queue, queue_position_ai2, MAX_CONCURRENT_AI2
 
 router = APIRouter()
 
-GROQ_API = "https://api.groq.com/openai/v1/chat/completions"
-
-# Cadeia de modelos: tenta na ordem, passa pro próximo se der 429 ou 413
-# llama-3.3-70b-versatile → qualidade máxima (principal)
-# gemma2-9b-it           → ~15k TPM no plano free, bom fallback de qualidade
-# llama-3.1-8b-instant   → último recurso, bem mais rápido mas menos preciso
-MODEL_CHAIN = [
-    {"model": "llama-3.3-70b-versatile", "max_tokens": 4500},
-    {"model": "gemma2-9b-it",            "max_tokens": 3500},
-    {"model": "llama-3.1-8b-instant",    "max_tokens": 2500},
+# ── Cadeia de modelos ─────────────────────────────────────────
+# A ordem é: melhor qualidade → mais generoso → mais rápido.
+# Cada entrada inclui o teto de output tokens e o timeout adequado
+# (Gemini Pro é mais lento; Cerebras é quase instantâneo).
+PROVIDER_CHAIN = [
+    {"provider": "gemini",   "model": "gemini-2.5-pro",    "max_tokens": 8000, "timeout": 120.0},
+    {"provider": "gemini",   "model": "gemini-2.5-flash",  "max_tokens": 6500, "timeout": 90.0},
+    {"provider": "cerebras", "model": "llama-3.3-70b",     "max_tokens": 4500, "timeout": 60.0},
 ]
 
-# Alias pra compatibilidade com partes do código que referenciam GROQ_MODEL
-GROQ_MODEL = MODEL_CHAIN[0]["model"]
+# Endpoints OpenAI-compatíveis e variáveis de ambiente por provedor.
+PROVIDER_CONFIG: dict[str, dict[str, str]] = {
+    "gemini": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+        "env": "GEMINI_API_KEY",
+    },
+    "cerebras": {
+        "url": "https://api.cerebras.ai/v1/chat/completions",
+        "env": "CEREBRAS_API_KEY",
+    },
+}
 
 NIVEL_MAP = {
   "fundamental_1": "Fundamental I — linguagem simples, sem fórmulas, analogias do cotidiano",
@@ -124,79 +139,8 @@ EXEMPLO INVÁLIDO: retângulo com "Cromossomo X" escrito — isso é imagem_wiki
 """.strip()
 
 
-async def call_groq(system: str, user: str, max_tokens: int = 4500, model: str = GROQ_MODEL) -> Any:
-    api_key = os.getenv("GROQ_API_KEY")
-    if not api_key:
-        raise HTTPException(503, "Serviço de IA não configurado no servidor.")
-
-    # Monta a cadeia a partir do modelo solicitado
-    # Se pediram o principal, tenta toda a cadeia. Se pediram outro específico, começa dele.
-    start_index = next((i for i, m in enumerate(MODEL_CHAIN) if m["model"] == model), 0)
-    chain = MODEL_CHAIN[start_index:]
-
-    resp = None
-    last_error = None
-
-    for attempt, entry in enumerate(chain):
-        current_model      = entry["model"]
-        current_max_tokens = entry["max_tokens"]
-
-        if attempt > 0:
-            print(f"[AI2] Modelo {chain[attempt-1]['model']} falhou ({last_error}). "
-                  f"Aguardando 8s → tentando: {current_model} (max_tokens={current_max_tokens})...")
-            await asyncio.sleep(8)
-
-        payload = {
-            "model":    current_model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user",   "content": user},
-            ],
-            "temperature": 0.25,
-            "max_tokens":  current_max_tokens,
-        }
-
-        async with httpx.AsyncClient(timeout=90.0) as client:
-            resp = await client.post(
-                GROQ_API,
-                headers={
-                    "Content-Type":  "application/json",
-                    "Authorization": f"Bearer {api_key}",
-                },
-                json=payload,
-            )
-
-        # ── 200: sucesso ──────────────────────────────────────────
-        if resp.status_code == 200:
-            print(f"[AI2] ✓ Sucesso com: {current_model}")
-            break
-
-        # ── 429: rate limit → próximo modelo da cadeia ────────────
-        if resp.status_code == 429:
-            last_error = "429 rate-limit"
-            print(f"[AI2] Rate limit em {current_model}.")
-            if attempt < len(chain) - 1:
-                continue
-            raise HTTPException(429, "Limite de uso da IA atingido. Aguarde cerca de 1 minuto e tente novamente.")
-
-        # ── 413: request muito grande → próximo modelo usa menos tokens ──
-        if resp.status_code == 413:
-            last_error = "413 request-too-large"
-            print(f"[AI2] Request muito grande em {current_model} (max_tokens={current_max_tokens}).")
-            if attempt < len(chain) - 1:
-                continue
-            raise HTTPException(413, "Conteúdo muito extenso para a IA processar. Reduza o número de tópicos e tente novamente.")
-
-        # ── qualquer outro erro → para imediatamente ──────────────
-        print(f"[AI2] Erro inesperado {resp.status_code} em {current_model}: {resp.text[:300]}")
-        raise HTTPException(502, f"Erro ao comunicar com a IA (código {resp.status_code}).")
-
-    data = resp.json()
-    try:
-        raw = data["choices"][0]["message"]["content"]
-    except (KeyError, IndexError):
-        raise HTTPException(502, "IA retornou resposta inválida.")
-
+def _parse_json_response(raw: str) -> Any:
+    """Limpa markdown fencing e faz json.loads. Levanta 502 se inválido."""
     clean = raw.strip()
     if clean.startswith("```"):
         clean = clean.split("```", 2)[1]
@@ -209,6 +153,130 @@ async def call_groq(system: str, user: str, max_tokens: int = 4500, model: str =
     except json.JSONDecodeError:
         print(f"[AI2] JSON inválido:\n{clean[:400]}")
         raise HTTPException(502, "IA retornou resposta inválida. Tente novamente.")
+
+
+async def _call_provider(
+    provider: str,
+    model: str,
+    system: str,
+    user: str,
+    max_tokens: int,
+    timeout: float,
+) -> httpx.Response:
+    """Faz a chamada HTTP para um provedor OpenAI-compatível."""
+    config  = PROVIDER_CONFIG[provider]
+    api_key = os.getenv(config["env"])
+    if not api_key:
+        # Esta entrada da cadeia não está configurada; pula.
+        return None  # type: ignore[return-value]
+
+    payload = {
+        "model":    model,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user",   "content": user},
+        ],
+        "temperature":     0.25,
+        "max_tokens":      max_tokens,
+        "response_format": {"type": "json_object"},
+    }
+
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        return await client.post(
+            config["url"],
+            headers={
+                "Content-Type":  "application/json",
+                "Authorization": f"Bearer {api_key}",
+            },
+            json=payload,
+        )
+
+
+async def call_ai2(system: str, user: str) -> Any:
+    """
+    Percorre PROVIDER_CHAIN até obter uma resposta 200 válida.
+    Pula entradas sem chave configurada. Cai para o próximo em 429/413/5xx.
+    """
+    last_error: str | None = None
+    tried_any = False
+
+    for attempt, entry in enumerate(PROVIDER_CHAIN):
+        provider = entry["provider"]
+        model    = entry["model"]
+
+        if not os.getenv(PROVIDER_CONFIG[provider]["env"]):
+            print(f"[AI2] {provider}/{model} pulado (env {PROVIDER_CONFIG[provider]['env']} não configurada)")
+            continue
+
+        tried_any = True
+
+        if attempt > 0 and last_error:
+            print(f"[AI2] {last_error} — aguardando 3s e tentando {provider}/{model}...")
+            await asyncio.sleep(3)
+
+        try:
+            resp = await _call_provider(
+                provider   = provider,
+                model      = model,
+                system     = system,
+                user       = user,
+                max_tokens = entry["max_tokens"],
+                timeout    = entry["timeout"],
+            )
+        except httpx.TimeoutException:
+            last_error = f"timeout em {provider}/{model}"
+            print(f"[AI2] ⏱ {last_error}")
+            continue
+        except httpx.HTTPError as e:
+            last_error = f"erro de rede em {provider}/{model}: {type(e).__name__}"
+            print(f"[AI2] ⚠ {last_error}")
+            continue
+
+        if resp is None:
+            continue
+
+        if resp.status_code == 200:
+            print(f"[AI2] ✓ Sucesso com {provider}/{model}")
+            data = resp.json()
+            try:
+                raw = data["choices"][0]["message"]["content"]
+            except (KeyError, IndexError):
+                last_error = f"resposta malformada de {provider}/{model}"
+                print(f"[AI2] ⚠ {last_error}")
+                continue
+            return _parse_json_response(raw)
+
+        # Rate limit / quota → tenta o próximo da cadeia
+        if resp.status_code in (429, 503):
+            last_error = f"{resp.status_code} rate-limit em {provider}/{model}"
+            print(f"[AI2] {last_error}")
+            continue
+
+        # Request muito grande → tenta o próximo (que tem max_tokens menor)
+        if resp.status_code == 413:
+            last_error = f"413 request-too-large em {provider}/{model}"
+            print(f"[AI2] {last_error}")
+            continue
+
+        # Erros de autenticação/autorização são específicos da chave,
+        # não faz sentido ficar tentando mais daquele provedor.
+        if resp.status_code in (401, 403):
+            last_error = f"{resp.status_code} autenticação falhou em {provider}/{model}"
+            print(f"[AI2] ⚠ {last_error}: {resp.text[:200]}")
+            continue
+
+        # Outro erro → loga e tenta o próximo
+        last_error = f"{resp.status_code} em {provider}/{model}"
+        print(f"[AI2] ⚠ {last_error}: {resp.text[:200]}")
+        continue
+
+    if not tried_any:
+        raise HTTPException(503, "Serviço de IA não configurado no servidor.")
+
+    # Esgotou a cadeia inteira sem sucesso
+    if last_error and "rate-limit" in last_error:
+        raise HTTPException(429, "Limite de uso da IA atingido. Aguarde cerca de 1 minuto e tente novamente.")
+    raise HTTPException(502, f"Todas as IAs falharam. Último erro: {last_error}.")
 
 
 class TopicItem(BaseModel):
@@ -228,12 +296,11 @@ async def get_queue_status(_=Depends(require_auth)):
     Retorna quantas requisições estão na fila agora.
     O frontend faz polling desse endpoint enquanto o loading está ativo.
     """
-    waiting  = await queue_position()
-    occupied = MAX_CONCURRENT - (MAX_CONCURRENT - waiting)  # slots em uso
+    waiting = await queue_position_ai2()
     return {
-        "waiting":      waiting,
-        "max_slots":    MAX_CONCURRENT,
-        "busy":         waiting > 0,
+        "waiting":   waiting,
+        "max_slots": MAX_CONCURRENT_AI2,
+        "busy":      waiting > 0,
     }
 
 
@@ -256,7 +323,15 @@ async def generate_sheet(body: SheetBody, user=Depends(require_auth)):
             if p.get("profundidade"):    extras.append(f"prof: {p['profundidade']}")
             if p.get("formato_exemplo"): extras.append(f"fmt: {p['formato_exemplo']}")
             kw = p.get("palavras_chave", [])
-            if kw: extras.append(f"kw: {', '.join(kw[:3])}")
+            if kw: extras.append(f"kw: {', '.join(kw[:4])}")
+            sub = p.get("sub_topicos", [])
+            if sub: extras.append(f"sub: {', '.join(sub[:4])}")
+            form = p.get("formulas_chave", [])
+            if form: extras.append(f"fórmulas: {', '.join(form[:3])}")
+            anc = p.get("ancora_visual")
+            if anc: extras.append(f"visual: {anc}")
+            peg = p.get("armadilha")
+            if peg: extras.append(f"pegadinha: {peg}")
             if extras:
                 line += f"  [{'; '.join(extras)}]"
         topicos_lines.append(line)
@@ -270,11 +345,11 @@ async def generate_sheet(body: SheetBody, user=Depends(require_auth)):
 
     print(f"[AI2] /sheet — user:{user.get('id')} materia:\"{body.materia}\" nivel:\"{body.nivel}\" topicos:{len(body.topicos)}")
 
-    # Entra na fila global — no máximo MAX_CONCURRENT chamadas simultâneas ao Groq
-    # e cooldown de 45s por usuário para não monopolizar a cota
-    result = await groq_call_with_queue(
+    # Entra na fila global — no máximo MAX_CONCURRENT_AI2 chamadas simultâneas
+    # e cooldown de COOLDOWN_SECONDS por usuário
+    result = await ai2_call_with_queue(
         user.get("id", "anon"),
-        call_groq(SYS_SHEET, prompt),
+        call_ai2(SYS_SHEET, prompt),
     )
 
     if not result.get("blocos"):

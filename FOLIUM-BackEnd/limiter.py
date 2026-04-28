@@ -2,6 +2,20 @@
 #  FOLIUM — limiter.py
 #  Controle de concorrência e cooldown por usuário
 # ═══════════════════════════════════════════════
+#
+# A IA 1 (tópicos) e a IA 2 (folha) usam fornecedores diferentes e
+# portanto têm cotas independentes. Cada uma tem seu próprio semáforo.
+#
+# IA 1 — Groq Llama 3.3 70B (~12k TPM no free tier)
+#   Sem a IA 2 competindo pela cota, 3 chamadas paralelas são seguras.
+#
+# IA 2 — Gemini 2.5 Pro → Flash → Cerebras 70B
+#   Gemini 2.5 Pro é o gargalo: 5 RPM no free tier. Com concorrência de 2 e
+#   respostas levando 15-30s, ficamos confortavelmente dentro do limite.
+#
+# Cooldown por usuário: impede que um único usuário monopolize a cota da
+# IA 2 (que é a mais cara/lenta). 30s dá margem para acordar o Render
+# (primeiro request demora ~30s) e gerar a próxima folha.
 
 
 import asyncio
@@ -10,43 +24,44 @@ from fastapi import HTTPException
 
 # ── Configuração ───────────────────────────────
 
-# Quantas chamadas ao Groq podem acontecer ao mesmo tempo.
-# Com 3 chamadas × 5.000 tokens = 15.000 tokens/min → cabe no limite de 12k TPM
-# (na prática as chamadas não terminam todas no mesmo segundo, então 3 é seguro)
-MAX_CONCURRENT = 3
+MAX_CONCURRENT_AI1 = 3     # IA 1 (tópicos) — Groq
+MAX_CONCURRENT_AI2 = 2     # IA 2 (folha)   — Gemini/Cerebras
+COOLDOWN_SECONDS   = 30    # mínimo entre duas folhas do mesmo usuário
 
-# Segundos mínimos entre duas chamadas do MESMO usuário.
-# Evita que um único usuário consuma toda a cota.
-COOLDOWN_SECONDS = 45
+# Alias mantido para compatibilidade com código externo
+MAX_CONCURRENT = MAX_CONCURRENT_AI2
 
-# ── Estado global (em memória, compartilhado entre workers uvicorn) ───────────
-# Nota: funciona para 1 worker (padrão do Render free). Com múltiplos workers
-# seria necessário Redis. Para escala pequena, isso é suficiente.
-
-_semaphore: asyncio.Semaphore | None = None
-_user_last_call: dict[str, float] = {}   # user_id → timestamp da última chamada
+# ── Estado global (em memória) ─────────────────
+_sem_ai1: asyncio.Semaphore | None = None
+_sem_ai2: asyncio.Semaphore | None = None
+_user_last_call: dict[str, float] = {}
 
 
-def get_semaphore() -> asyncio.Semaphore:
-    """Cria o semáforo na primeira chamada (lazy, dentro do event loop)."""
-    global _semaphore
-    if _semaphore is None:
-        _semaphore = asyncio.Semaphore(MAX_CONCURRENT)
-    return _semaphore
+def _get_sem_ai1() -> asyncio.Semaphore:
+    global _sem_ai1
+    if _sem_ai1 is None:
+        _sem_ai1 = asyncio.Semaphore(MAX_CONCURRENT_AI1)
+    return _sem_ai1
+
+
+def _get_sem_ai2() -> asyncio.Semaphore:
+    global _sem_ai2
+    if _sem_ai2 is None:
+        _sem_ai2 = asyncio.Semaphore(MAX_CONCURRENT_AI2)
+    return _sem_ai2
 
 
 def check_user_cooldown(user_id: str) -> None:
     """
-    Lança HTTPException 429 se o usuário gerou folha há menos de COOLDOWN_SECONDS.
-    Não registra timestamp — isso é feito só dentro do semáforo (mark_user_call),
-    para não penalizar o usuário se a chamada nem chegou a ser executada.
+    Lança HTTPException 429 se o usuário gerou folha há menos de
+    COOLDOWN_SECONDS. O timestamp só é registrado dentro do semáforo
+    (mark_user_call), para não penalizar quem nem chegou a executar.
     """
     now  = time.time()
     last = _user_last_call.get(str(user_id))
 
     if last is not None:
-        elapsed   = now - last
-        remaining = int(COOLDOWN_SECONDS - elapsed)
+        remaining = int(COOLDOWN_SECONDS - (now - last))
         if remaining > 0:
             raise HTTPException(
                 429,
@@ -56,35 +71,44 @@ def check_user_cooldown(user_id: str) -> None:
 
 
 def mark_user_call(user_id: str) -> None:
-    """Registra o timestamp da chamada (só chamado após entrar no semáforo)."""
+    """Registra timestamp (chamado após entrar no semáforo da IA 2)."""
     _user_last_call[str(user_id)] = time.time()
 
 
-async def queue_position() -> int:
-    """Retorna quantas chamadas estão esperando no semáforo agora."""
-    sem     = get_semaphore()
+async def queue_position_ai2() -> int:
+    """Retorna quantas requisições esperam no semáforo da IA 2."""
+    sem     = _get_sem_ai2()
     waiters = getattr(sem, '_waiters', None)
     return len(waiters) if waiters else 0
 
 
-async def groq_call_with_queue(user_id: str, coro):
+# Alias mantido para compatibilidade
+async def queue_position() -> int:
+    return await queue_position_ai2()
+
+
+async def ai2_call_with_queue(user_id: str, coro):
     """
-    Para a IA 2 (geração de folha) — aplica cooldown + semáforo.
-    Verifica cooldown ANTES de entrar na fila para rejeitar rápido.
+    IA 2 (geração da folha) — aplica cooldown + semáforo próprio.
+    Verifica cooldown ANTES da fila para falhar rápido.
     Registra timestamp DENTRO do semáforo, só após garantir execução.
     """
     check_user_cooldown(user_id)
 
-    async with get_semaphore():
+    async with _get_sem_ai2():
         mark_user_call(user_id)
         return await coro
 
 
-async def groq_topics_call(coro):
+async def ai1_call(coro):
     """
-    Para a IA 1 (sugestão de tópicos) — SEM cooldown por usuário.
-    A IA 1 é leve (~2k tokens) e faz parte do fluxo normal antes da IA 2.
-    Ainda usa o semáforo global para não sobrecarregar o Groq.
+    IA 1 (curadoria de tópicos) — sem cooldown por usuário.
+    Usa semáforo próprio para não sobrecarregar o Groq.
     """
-    async with get_semaphore():
+    async with _get_sem_ai1():
         return await coro
+
+
+# Aliases mantidos para compatibilidade com código legado
+groq_call_with_queue = ai2_call_with_queue
+groq_topics_call     = ai1_call

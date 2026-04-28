@@ -11,7 +11,9 @@ services:
       - key: NODE_ENV
         value: production
       # Preencha no painel do Render:
-      # JWT_SECRET       → frase longa e aleatória
-      # ALLOWED_ORIGIN   → https://seu-projeto.vercel.app
-      # DATABASE_URL     → preenchido automaticamente pelo Render
-      # ANTHROPIC_API_KEY → sua chave sk-ant-...
+      # JWT_SECRET        → frase longa e aleatória
+      # ALLOWED_ORIGIN    → https://seu-projeto.vercel.app
+      # DATABASE_URL      → preenchido automaticamente pelo Render
+      # GROQ_API_KEY      → chave do Groq (IA 1 — tópicos)
+      # GEMINI_API_KEY    → chave do Google AI Studio (IA 2 — folha, primário)
+      # CEREBRAS_API_KEY  → chave do Cerebras Cloud (IA 2 — fallback)

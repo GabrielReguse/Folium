@@ -2,6 +2,10 @@
 #  FOLIUM — routes/ai.py
 #  IA 1: Curadoria de tópicos e verificação
 # ═══════════════════════════════════════════════
+#
+# Depois que a IA 2 saiu do Groq, a IA 1 tem toda a cota do Groq pra ela.
+# Isso libera produzir um briefing muito mais denso e dirigido que a IA 2
+# (agora Gemini Pro) pode consumir para gerar folhas de maior qualidade.
 
 import os, json, asyncio
 from typing import Any
@@ -11,7 +15,7 @@ from fastapi import APIRouter, HTTPException, Header, Depends
 from pydantic import BaseModel
 from jose import jwt, JWTError
 
-from limiter import groq_topics_call
+from limiter import ai1_call
 
 router = APIRouter()
 
@@ -43,32 +47,46 @@ def require_auth(authorization: str = Header(default="")) -> dict:
 SYS_GENERATE = """
 Você é a IA 1 do Folium — curador de tópicos de estudo para estudantes brasileiros.
 
-Recebe matéria, tema e nível escolar. Retorna tópicos relevantes adaptados ao nível.
+Recebe matéria, tema e nível escolar. Retorna tópicos relevantes adaptados ao nível
+e, para cada um, um BRIEFING DE PESQUISA denso que orienta a IA 2 (geradora da folha)
+sobre EXATAMENTE o que explicar, com que profundidade e quais exemplos usar.
 
 REGRAS:
 - Responda APENAS com JSON válido — sem texto antes, sem depois, sem markdown
-- Entre 5 e 8 tópicos
+- Entre 7 e 10 tópicos, ordenados do mais fundamental ao mais avançado
 - Nomes concisos, máximo 6 palavras, em português
 - Adapte profundidade ao nível: fundamental = concreto/básico, médio = completo, superior = aprofundado
-- O campo "foco" deve descrever EXATAMENTE o que explicar sobre AQUELE tópico específico, não uma frase genérica
+- Cada plano_pesquisa deve ser ESPECÍFICO daquele tópico, não genérico
+- O briefing é o que a IA 2 vai ler: quanto mais concreto e direcionado, melhor a folha final
 
-FORMATO:
+FORMATO (JSON):
 {
   "topicos": [
     {
       "txt": "Nome do tópico",
       "plano_pesquisa": {
-        "foco": "Descrição específica do que explicar sobre este tópico concreto",
+        "foco": "Descrição específica do que explicar sobre este tópico concreto (1-2 frases)",
         "profundidade": "basico",
         "formato_exemplo": "tabela_comparativa",
-        "palavras_chave": ["termo1", "termo2", "termo3"]
+        "palavras_chave": ["termo1", "termo2", "termo3", "termo4"],
+        "sub_topicos": ["sub1", "sub2", "sub3"],
+        "formulas_chave": ["fórmula ou processo esperado 1", "fórmula 2"],
+        "ancora_visual": "termo 3-5 palavras para busca de imagem OU descrição de um diagrama geométrico calculável",
+        "armadilha": "pegadinha/erro comum específico que a IA 2 deve destacar na dica_prova"
       }
     }
   ]
 }
 
-Valores para profundidade: basico | intermediario | avancado
-Valores para formato_exemplo: tabela_comparativa | lista_numerada | caso_pratico | formula
+VALORES:
+- profundidade: basico | intermediario | avancado
+- formato_exemplo: tabela_comparativa | lista_numerada | caso_pratico | formula | passo_a_passo
+
+DICAS:
+- formulas_chave: liste apenas se existirem (matemática, física, química). Pode ser vazio pra humanas/biológicas.
+- ancora_visual: termo concreto e específico (ex: "cromossomo X estrutura diagrama", NÃO "célula"). Se nada visual fizer sentido, deixe null.
+- armadilha: erro concreto de prova (ex: "trocar seno por cosseno em 30°/60°"), NÃO genérico ("confundir conceitos").
+- sub_topicos: pontos específicos dentro do tópico (ex: para "Função Quadrática" → ["vértice", "discriminante", "raízes"]).
 """.strip()
 
 SYS_CHECK = """
@@ -98,14 +116,18 @@ FORMATO (JSON válido, sem markdown):
     "foco": "Descrição específica e real do que este tópico aborda",
     "profundidade": "basico",
     "formato_exemplo": "lista_numerada",
-    "palavras_chave": ["termo real 1", "termo real 2"]
+    "palavras_chave": ["termo real 1", "termo real 2", "termo real 3"],
+    "sub_topicos": ["sub1", "sub2"],
+    "formulas_chave": [],
+    "ancora_visual": "termo de busca ou null",
+    "armadilha": "erro comum ou null"
   }
 }
 """.strip()
 
 GROQ_MODEL_FALLBACK = "llama-3.1-8b-instant"
 
-async def call_groq(system: str, user: str, max_tokens: int = 1024) -> Any:
+async def call_groq(system: str, user: str, max_tokens: int = 4000) -> Any:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise HTTPException(503, "Serviço de IA não configurado no servidor.")
@@ -116,8 +138,9 @@ async def call_groq(system: str, user: str, max_tokens: int = 1024) -> Any:
             {"role": "system", "content": system},
             {"role": "user",   "content": user},
         ],
-        "temperature": 0.5,
-        "max_tokens":  max_tokens,
+        "temperature":     0.5,
+        "max_tokens":      max_tokens,
+        "response_format": {"type": "json_object"},
     }
 
     for attempt, current_model in enumerate([GROQ_MODEL, GROQ_MODEL_FALLBACK]):
@@ -126,7 +149,7 @@ async def call_groq(system: str, user: str, max_tokens: int = 1024) -> Any:
             await asyncio.sleep(15)
             payload["model"] = current_model
 
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=90.0) as client:
             resp = await client.post(
                 GROQ_API,
                 headers={
@@ -188,8 +211,8 @@ async def topics(body: TopicsBody, user=Depends(require_auth)):
 
     print(f"[AI1] /topics — user:{user.get('id')} materia:\"{body.materia}\" nivel:\"{body.nivel}\"")
 
-    result = await groq_topics_call(
-        call_groq(SYS_GENERATE, prompt, max_tokens=1500),
+    result = await ai1_call(
+        call_groq(SYS_GENERATE, prompt, max_tokens=4000),
     )
 
     topicos = [
@@ -230,7 +253,7 @@ async def check_topic(body: CheckBody, user=Depends(require_auth)):
     print(f"[AI1] /check-topic — user:{user.get('id')} topico:\"{body.novoTopico}\"")
 
     try:
-        result = await call_groq(SYS_CHECK, prompt, max_tokens=600)
+        result = await call_groq(SYS_CHECK, prompt, max_tokens=1200)
         return {
             "compativel":     result.get("compativel", True),
             "aviso":          result.get("aviso"),
