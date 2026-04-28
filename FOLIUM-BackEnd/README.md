@@ -39,6 +39,9 @@ API de autenticação do Folium com **Python + FastAPI + PostgreSQL + bcrypt + J
 | `SMTP_PASSWORD` | Senha de App do Gmail |
 | `SMTP_HOST` | `smtp.gmail.com` |
 | `SMTP_PORT` | `587` |
+| `GROQ_API_KEY` | Chave do Groq (usada pela IA 1 — tópicos) |
+| `GEMINI_API_KEY` | Chave do Google AI Studio (IA 2 — folha, primário) |
+| `CEREBRAS_API_KEY` | Chave do Cerebras Cloud (IA 2 — fallback final) |
 
 4. Clique em **Create Web Service**
 
@@ -76,6 +79,31 @@ uvicorn main:app --reload --port 3001
 | `POST` | `/api/auth/verify-code` | Verifica o código e retorna JWT |
 | `POST` | `/api/auth/resend-code` | Reenvia o código de verificação |
 | `GET` | `/api/auth/me` | Dados do usuário (requer token) |
+
+---
+
+## 🤖 Configuração das IAs
+
+O Folium usa duas IAs em provedores diferentes — ambas com planos gratuitos, sem cartão:
+
+### IA 1 — Curadoria de tópicos (`/api/ai/topics`, `/api/ai/check-topic`)
+- **Provedor:** Groq (`llama-3.3-70b-versatile` → fallback `llama-3.1-8b-instant`)
+- **Chave:** `GROQ_API_KEY` — https://console.groq.com/keys
+- Gera até 10 tópicos com briefing enriquecido (foco, sub-tópicos, fórmulas-chave,
+  âncora visual e pegadinhas) que alimenta a IA 2.
+
+### IA 2 — Geradora da folha (`/api/ai2/sheet`)
+Cadeia com fallback automático em caso de 429/413/timeout:
+
+1. **Gemini 2.5 Pro** (primário, qualidade máxima) — 5 RPM · 100 RPD · 250k TPM
+2. **Gemini 2.5 Flash** (fallback) — 10 RPM · 250 RPD · 250k TPM
+3. **Cerebras Llama 3.3 70B** (último recurso) — 30 RPM · 1M tok/dia
+
+- **Chave Gemini:** `GEMINI_API_KEY` — https://aistudio.google.com/apikey
+- **Chave Cerebras:** `CEREBRAS_API_KEY` — https://cloud.cerebras.ai
+
+Basta ter **pelo menos uma** das chaves da IA 2 configurada; entradas da cadeia
+sem chave são puladas automaticamente.
 
 ---
 
