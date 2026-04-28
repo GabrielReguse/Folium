@@ -142,6 +142,8 @@ def google_login(body: GoogleBody):
 
     sent = _send_code(user["email"])
     if not sent:
+        if not existing:
+            db.delete_user_by_id(user["id"])
         raise HTTPException(500, "Erro ao enviar código de verificação.")
 
     print(f"[AUTH] Google login pendente de verificação: {user['email']}")
