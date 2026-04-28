@@ -25,13 +25,10 @@ from limiter import ai2_call_with_queue, queue_position_ai2, MAX_CONCURRENT_AI2
 router = APIRouter()
 
 # ── Cadeia de modelos ─────────────────────────────────────────
-# A ordem é: melhor qualidade → mais generoso → mais rápido.
-# Cada entrada inclui o teto de output tokens e o timeout adequado
-# (Gemini Pro é mais lento; Cerebras é quase instantâneo).
 PROVIDER_CHAIN = [
-    {"provider": "gemini",   "model": "gemini-2.5-pro",    "max_tokens": 8000, "timeout": 120.0},
-    {"provider": "gemini",   "model": "gemini-2.5-flash",  "max_tokens": 6500, "timeout": 90.0},
-    {"provider": "cerebras", "model": "llama-3.3-70b",     "max_tokens": 4500, "timeout": 60.0},
+    {"provider": "gemini",   "model": "gemini-2.5-flash", "max_tokens": 16000, "timeout": 90.0},
+    {"provider": "cerebras", "model": "gpt-oss-120b",     "max_tokens": 16000, "timeout": 60.0},
+    {"provider": "gemini",   "model": "gemini-2.5-pro",   "max_tokens": 16000, "timeout": 90.0},
 ]
 
 # Endpoints OpenAI-compatíveis e variáveis de ambiente por provedor.
