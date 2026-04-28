@@ -177,10 +177,3 @@ def delete_verification_codes(email: str):
         conn.commit()
     finally:
         conn.close()
-
-# Inicializa o banco ao importar
-try:
-    init_db()
-except Exception as e:
-    print(f"[DB] ERRO ao inicializar banco: {e}")
-    raise

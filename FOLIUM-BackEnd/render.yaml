@@ -1,3 +1,9 @@
+databases:
+  - name: folium-db
+    plan: free
+    databaseName: folium_db
+    user: folium_db_user
+
 services:
   - type: web
     name: folium-api
@@ -6,14 +12,19 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     plan: free
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
       - key: JWT_EXPIRES_DAYS
         value: "7"
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: folium-db
+          property: connectionString
       # Preencha no painel do Render:
-      # JWT_SECRET        → frase longa e aleatória
-      # ALLOWED_ORIGIN    → https://seu-projeto.vercel.app
-      # DATABASE_URL      → preenchido automaticamente pelo Render
-      # GROQ_API_KEY      → chave do Groq (IA 1 — tópicos)
-      # GEMINI_API_KEY    → chave do Google AI Studio (IA 2 — folha, primário)
-      # CEREBRAS_API_KEY  → chave do Cerebras Cloud (IA 2 — fallback)
+      # JWT_SECRET → frase longa e aleatória
+      # ALLOWED_ORIGIN → https://seu-projeto.vercel.app
+      # GROQ_API_KEY → chave do Groq (IA 1 — tópicos)
+      # GEMINI_API_KEY → chave do Google AI Studio (IA 2 — primário)
+      # CEREBRAS_API_KEY → chave do Cerebras Cloud (IA 2 — fallback)
