@@ -4,13 +4,16 @@
 # ═══════════════════════════════════════════════
 #
 # Multi-provider chain (tudo 100% gratuito, sem cartão):
-#   Primário  Gemini 2.5 Pro     — qualidade máxima, 5 RPM / 100 RPD / 250k TPM
-#   Fallback  Gemini 2.5 Flash   — cota mais ampla, 10 RPM / 250 RPD / 250k TPM
-#   Último    Cerebras Llama 3.3 — 30 RPM / 1M tok dia (mesma família do antigo Groq)
+#   Primário  Gemini 2.5 Flash   — cota mais ampla, 10 RPM / 250 RPD / 250k TPM
+#   Fallback  Cerebras Llama 3.1 — 30 RPM / 1M tok dia (production tier, sempre disponível)
+#   Último    Gemini 2.5 Pro     — qualidade máxima, 5 RPM / 100 RPD / 250k TPM
 #
 # Todos os provedores usam a API OpenAI-compatível, então o client é comum.
 # Usamos response_format=json_object para forçar JSON válido na saída
 # (elimina boa parte dos erros "IA retornou resposta inválida").
+#
+# max_tokens precisa ser alto o bastante para 8 tópicos densos (~15-25k tokens
+# de saída). Valores baixos cortam a resposta no meio e quebram o JSON.
 
 import os, json, asyncio
 from typing import Any
@@ -26,9 +29,9 @@ router = APIRouter()
 
 # ── Cadeia de modelos ─────────────────────────────────────────
 PROVIDER_CHAIN = [
-    {"provider": "gemini",   "model": "gemini-2.5-flash", "max_tokens": 16000, "timeout": 90.0},
-    {"provider": "cerebras", "model": "gpt-oss-120b",     "max_tokens": 16000, "timeout": 60.0},
-    {"provider": "gemini",   "model": "gemini-2.5-pro",   "max_tokens": 16000, "timeout": 90.0},
+    {"provider": "gemini",   "model": "gemini-2.5-flash", "max_tokens": 32000, "timeout": 120.0},
+    {"provider": "cerebras", "model": "llama3.1-8b",      "max_tokens": 8000,  "timeout": 60.0},
+    {"provider": "gemini",   "model": "gemini-2.5-pro",   "max_tokens": 32000, "timeout": 120.0},
 ]
 
 # Endpoints OpenAI-compatíveis e variáveis de ambiente por provedor.
@@ -239,20 +242,29 @@ async def call_ai2(system: str, user: str) -> Any:
         if resp.status_code == 200:
             data = resp.json()
             try:
-                raw = data["choices"][0]["message"]["content"]
+                choice = data["choices"][0]
+                raw    = choice["message"]["content"]
+                finish = choice.get("finish_reason")
             except (KeyError, IndexError):
                 last_error = f"resposta malformada de {provider}/{model}"
                 print(f"[AI2] ⚠ {last_error}")
                 continue
 
+            if finish == "length":
+                # Saída truncada por max_tokens — JSON sempre vai estar quebrado.
+                # Loga claro e cai pro próximo provedor.
+                last_error = f"resposta truncada (finish=length) em {provider}/{model}"
+                print(f"[AI2] ✂ {last_error} — bump max_tokens se isso virar comum")
+                continue
+
             parsed = _parse_json_response(raw)
             if parsed is None:
-                # Resposta 200 mas JSON inválido/truncado (ex: hit no max_tokens).
+                # Resposta 200 mas JSON inválido (ex: modelo ignorou o schema).
                 # Cai pro próximo provedor em vez de abortar a requisição inteira.
                 last_error = f"JSON inválido de {provider}/{model}"
                 continue
 
-            print(f"[AI2] ✓ Sucesso com {provider}/{model}")
+            print(f"[AI2] ✓ Sucesso com {provider}/{model} (finish={finish})")
             return parsed
 
         # Rate limit / quota → tenta o próximo da cadeia
@@ -265,6 +277,13 @@ async def call_ai2(system: str, user: str) -> Any:
         if resp.status_code == 413:
             last_error = f"413 request-too-large em {provider}/{model}"
             print(f"[AI2] {last_error}")
+            continue
+
+        # Modelo inexistente / sem acesso → loga claro para o operador
+        # consertar a chain (ex: nome de modelo desativado).
+        if resp.status_code == 404:
+            last_error = f"404 modelo indisponível em {provider}/{model}"
+            print(f"[AI2] ⚠ {last_error}: {resp.text[:200]}")
             continue
 
         # Erros de autenticação/autorização são específicos da chave,
