@@ -38,9 +38,24 @@ def init_db():
                     id         SERIAL PRIMARY KEY,
                     email      TEXT        NOT NULL,
                     code       TEXT        NOT NULL,
+                    purpose    TEXT        NOT NULL DEFAULT 'login',
                     expires_at TIMESTAMPTZ NOT NULL,
                     created_at TIMESTAMPTZ DEFAULT NOW()
                 );
+            """)
+
+            # Migração: adicionar purpose se a tabela já existia sem essa coluna
+            cur.execute("""
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = 'verification_codes' AND column_name = 'purpose'
+                    ) THEN
+                        ALTER TABLE verification_codes
+                            ADD COLUMN purpose TEXT NOT NULL DEFAULT 'login';
+                    END IF;
+                END $$;
             """)
 
             # Migração: adicionar google_id se não existir
@@ -155,37 +170,48 @@ def update_user_password(user_id: int, password_hash: str):
 
 # ── Verificação por código ─────────────────────
 
-def save_verification_code(email: str, code: str, expires_at):
+def save_verification_code(email: str, code: str, expires_at, purpose: str = "login"):
     conn = get_conn()
     try:
         with conn.cursor() as cur:
-            cur.execute("DELETE FROM verification_codes WHERE LOWER(email) = %s", (email.lower(),))
+            # Limpa apenas códigos do mesmo propósito — códigos de outro
+            # fluxo (ex: login pendente vs reset de senha) coexistem.
             cur.execute(
-                "INSERT INTO verification_codes (email, code, expires_at) VALUES (%s, %s, %s)",
-                (email.lower(), code, expires_at)
+                "DELETE FROM verification_codes WHERE LOWER(email) = %s AND purpose = %s",
+                (email.lower(), purpose)
+            )
+            cur.execute(
+                "INSERT INTO verification_codes (email, code, purpose, expires_at) VALUES (%s, %s, %s, %s)",
+                (email.lower(), code, purpose, expires_at)
             )
         conn.commit()
     finally:
         conn.close()
 
-def get_verification_code(email: str, code: str) -> dict | None:
+def get_verification_code(email: str, code: str, purpose: str = "login") -> dict | None:
     conn = get_conn()
     try:
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT * FROM verification_codes WHERE LOWER(email) = %s AND code = %s ORDER BY created_at DESC LIMIT 1",
-                (email.lower(), code)
+                "SELECT * FROM verification_codes WHERE LOWER(email) = %s AND code = %s AND purpose = %s ORDER BY created_at DESC LIMIT 1",
+                (email.lower(), code, purpose)
             )
             row = cur.fetchone()
             return dict(row) if row else None
     finally:
         conn.close()
 
-def delete_verification_codes(email: str):
+def delete_verification_codes(email: str, purpose: str | None = None):
     conn = get_conn()
     try:
         with conn.cursor() as cur:
-            cur.execute("DELETE FROM verification_codes WHERE LOWER(email) = %s", (email.lower(),))
+            if purpose is None:
+                cur.execute("DELETE FROM verification_codes WHERE LOWER(email) = %s", (email.lower(),))
+            else:
+                cur.execute(
+                    "DELETE FROM verification_codes WHERE LOWER(email) = %s AND purpose = %s",
+                    (email.lower(), purpose)
+                )
         conn.commit()
     finally:
         conn.close()

@@ -28,10 +28,16 @@ def _make_token(user: dict) -> str:
     }
     return jwt.encode(payload, secret, algorithm="HS256")
 
-def _send_code(email: str) -> bool:
+# Propósitos dos códigos de verificação — mantemos códigos de fluxos
+# diferentes em buckets separados pra que um código de login não possa
+# ser usado pra redefinir senha (e vice-versa).
+PURPOSE_LOGIN = "login"
+PURPOSE_RESET = "password_reset"
+
+def _send_code(email: str, purpose: str = PURPOSE_LOGIN) -> bool:
     code = generate_code()
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
-    db.save_verification_code(email, code, expires_at)
+    db.save_verification_code(email, code, expires_at, purpose=purpose)
     return send_verification_email(email, code)
 
 # ── Models ─────────────────────────────────────
@@ -191,15 +197,15 @@ def verify_code(body: VerifyCodeBody):
     if not body.email or not body.code:
         raise HTTPException(400, "E-mail e código são obrigatórios.")
 
-    record = db.get_verification_code(body.email.strip(), body.code.strip())
+    record = db.get_verification_code(body.email.strip(), body.code.strip(), purpose=PURPOSE_LOGIN)
     if not record:
         raise HTTPException(401, "Código inválido.")
 
     if record["expires_at"].replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
-        db.delete_verification_codes(body.email)
+        db.delete_verification_codes(body.email, purpose=PURPOSE_LOGIN)
         raise HTTPException(401, "Código expirado. Solicite um novo.")
 
-    db.delete_verification_codes(body.email)
+    db.delete_verification_codes(body.email, purpose=PURPOSE_LOGIN)
 
     user = db.get_user_by_email(body.email.strip())
     if not user:
@@ -213,30 +219,36 @@ def verify_code(body: VerifyCodeBody):
         "user": {"id": user["id"], "name": user["name"], "email": user["email"]}
     }
 
+GENERIC_FORGOT_RESPONSE = {
+    "message": "Se este e-mail estiver cadastrado, você receberá um código para redefinir a senha.",
+}
+
 @router.post("/forgot-password")
 def forgot_password(body: ForgotPasswordBody):
     if not body.email:
         raise HTTPException(400, "E-mail é obrigatório.")
 
-    user = db.get_user_by_email(body.email.strip())
-    # Não vazamos se a conta existe ou não — sempre devolvemos a mesma
-    # resposta para evitar enumeração de e-mails.
+    email_norm = body.email.strip().lower()
+    user = db.get_user_by_email(email_norm)
+
+    # Sempre devolvemos a mesma resposta (mesmo status, mesmo body) tanto
+    # para contas existentes quanto inexistentes — inclusive em caso de
+    # falha do SMTP — pra não vazar a existência da conta via diferenças
+    # de status code/mensagem (anti-enumeration).
     if not user:
-        print(f"[AUTH] Forgot password (e-mail inexistente): {body.email}")
-        return {
-            "message": "Se este e-mail estiver cadastrado, você receberá um código para redefinir a senha.",
-            "email": body.email.strip().lower(),
-        }
+        print(f"[AUTH] Forgot password (e-mail inexistente): {email_norm}")
+        return {**GENERIC_FORGOT_RESPONSE, "email": email_norm}
 
-    sent = _send_code(user["email"])
-    if not sent:
-        raise HTTPException(500, "Erro ao enviar código de redefinição.")
+    try:
+        sent = _send_code(user["email"], purpose=PURPOSE_RESET)
+        if not sent:
+            print(f"[AUTH] Forgot password: SMTP falhou para {user['email']}")
+        else:
+            print(f"[AUTH] Forgot password: código enviado para {user['email']}")
+    except Exception as e:  # noqa: BLE001
+        print(f"[AUTH] Forgot password: erro inesperado ao enviar para {user['email']}: {e}")
 
-    print(f"[AUTH] Forgot password: código enviado para {user['email']}")
-    return {
-        "message": "Se este e-mail estiver cadastrado, você receberá um código para redefinir a senha.",
-        "email": user["email"],
-    }
+    return {**GENERIC_FORGOT_RESPONSE, "email": user["email"]}
 
 @router.post("/reset-password")
 def reset_password(body: ResetPasswordBody):
@@ -245,15 +257,15 @@ def reset_password(body: ResetPasswordBody):
     if len(body.new_password) < 4:
         raise HTTPException(400, "Senha deve ter pelo menos 4 caracteres.")
 
-    record = db.get_verification_code(body.email.strip(), body.code.strip())
+    record = db.get_verification_code(body.email.strip(), body.code.strip(), purpose=PURPOSE_RESET)
     if not record:
         raise HTTPException(401, "Código inválido.")
 
     if record["expires_at"].replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
-        db.delete_verification_codes(body.email)
+        db.delete_verification_codes(body.email, purpose=PURPOSE_RESET)
         raise HTTPException(401, "Código expirado. Solicite um novo.")
 
-    db.delete_verification_codes(body.email)
+    db.delete_verification_codes(body.email, purpose=PURPOSE_RESET)
 
     user = db.get_user_by_email(body.email.strip())
     if not user:
