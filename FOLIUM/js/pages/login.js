@@ -17,11 +17,14 @@ const LoginPage = {
     this.currentForm = to;
     const isReg = to === 'register';
     const isVerify = to === 'verify';
+    const isAuxiliary = to === 'verify' || to === 'forgot' || to === 'reset';
 
     const forms = {
       login:    document.getElementById('f-login'),
       register: document.getElementById('f-register'),
       verify:   document.getElementById('f-verify'),
+      forgot:   document.getElementById('f-forgot'),
+      reset:    document.getElementById('f-reset'),
     };
 
     // direção da animação: registrar entra da direita, login da esquerda
@@ -41,7 +44,7 @@ const LoginPage = {
     // Atualiza tabs (visíveis apenas em login/register)
     const tabsWrap = document.getElementById('auth-tabs');
     if (tabsWrap) {
-      if (isVerify) {
+      if (isAuxiliary) {
         tabsWrap.classList.add('is-locked');
       } else {
         tabsWrap.classList.remove('is-locked');
@@ -57,9 +60,13 @@ const LoginPage = {
     if (sub) {
       sub.textContent = isVerify
         ? 'Quase lá!'
-        : isReg
-          ? 'Crie sua conta gratuita'
-          : 'Bem-vindo de volta';
+        : (to === 'forgot')
+          ? 'Esqueceu a senha?'
+          : (to === 'reset')
+            ? 'Defina uma nova senha'
+            : isReg
+              ? 'Crie sua conta gratuita'
+              : 'Bem-vindo de volta';
     }
 
     const old = document.querySelector('.login-error');
@@ -173,6 +180,11 @@ const LoginPage = {
         DOM.markError(emailEl);
         DOM.markError(passEl);
         this._showError(data.detail || 'E-mail ou senha incorretos.');
+        // Conta criada via Google sem senha definida — oferece o fluxo de
+        // 'esqueci minha senha' já com o e-mail preenchido.
+        if (data.code === 'google_only' || data.code === 'no_password') {
+          this._prefillForgotEmail(data.email || emailEl.value.trim());
+        }
         return;
       }
 
@@ -287,6 +299,147 @@ const LoginPage = {
     }
   },
 
+  /* ── Esqueci minha senha ── */
+
+  goToForgotPassword() {
+    const lEmail = DOM.$('#l-email');
+    const fpEmail = DOM.$('#fp-email');
+    if (fpEmail && !fpEmail.value && lEmail) fpEmail.value = lEmail.value.trim();
+    this.swapForm('forgot');
+    if (fpEmail) fpEmail.focus();
+  },
+
+  _prefillForgotEmail(email) {
+    const fpEmail = DOM.$('#fp-email');
+    if (fpEmail && email) fpEmail.value = email;
+  },
+
+  async sendForgotCode() {
+    const emailEl = DOM.$('#fp-email');
+    if (!emailEl || !Helpers.isValidEmail(emailEl.value)) {
+      DOM.markError(emailEl);
+      this._showError('E-mail inválido.');
+      return;
+    }
+
+    Modal.showLoading('Conectando ao servidor…', 'Isso pode levar até 1 minuto na primeira vez');
+    const online = await this._wakeServer();
+    if (!online) {
+      Modal.hideLoading();
+      this._showError('Servidor indisponível. Tente novamente em instantes.');
+      return;
+    }
+    Modal.showLoading('Enviando código...', 'Verifique sua caixa de entrada em instantes');
+
+    try {
+      const res = await fetch(`${Config.API}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailEl.value.trim() }),
+      });
+      const data = await res.json();
+      Modal.hideLoading();
+
+      if (!res.ok) {
+        this._showError(data.detail || 'Erro ao enviar código de redefinição.');
+        return;
+      }
+
+      this.pendingEmail = data.email || emailEl.value.trim();
+      this.showResetPassword(this.pendingEmail);
+    } catch (err) {
+      Modal.hideLoading();
+      this._showError('Erro de conexão. Tente novamente.');
+    }
+  },
+
+  async resendResetCode() {
+    if (!this.pendingEmail) return;
+    const btn = DOM.$('#btn-resend-reset');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    try {
+      const res = await fetch(`${Config.API}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: this.pendingEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        this._showError(data.detail || 'Erro ao reenviar código.');
+      } else {
+        this._showSuccess('Novo código enviado!');
+        this._clearResetCodeInputs();
+      }
+    } catch (err) {
+      this._showError('Erro de conexão.');
+    }
+
+    let countdown = 30;
+    btn.textContent = `Reenviar (${countdown}s)`;
+    const timer = setInterval(() => {
+      countdown--;
+      btn.textContent = `Reenviar (${countdown}s)`;
+      if (countdown <= 0) {
+        clearInterval(timer);
+        btn.disabled = false;
+        btn.textContent = 'Reenviar código';
+      }
+    }, 1000);
+  },
+
+  showResetPassword(email) {
+    this.pendingEmail = email;
+    DOM.$('#reset-email-display').textContent = email;
+    this.swapForm('reset');
+    this._clearResetCodeInputs();
+    const first = DOM.$('.reset-code-digit[data-idx="0"]');
+    if (first) first.focus();
+  },
+
+  async submitResetPassword() {
+    const code = this._getResetCodeValue();
+    const passEl = DOM.$('#rp-pass');
+    if (code.length !== 6) {
+      this._showError('Digite o código de 6 dígitos.');
+      return;
+    }
+    if (!passEl || passEl.value.length < 4) {
+      DOM.markError(passEl);
+      this._showError('A nova senha deve ter pelo menos 4 caracteres.');
+      return;
+    }
+
+    Modal.showLoading('Salvando nova senha...', 'Quase lá!');
+
+    try {
+      const res = await fetch(`${Config.API}/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: this.pendingEmail,
+          code,
+          new_password: passEl.value,
+        }),
+      });
+      const data = await res.json();
+      Modal.hideLoading();
+
+      if (!res.ok) {
+        this._showError(data.detail || 'Não foi possível redefinir a senha.');
+        this._clearResetCodeInputs();
+        return;
+      }
+
+      Storage.setAuth({ id: data.user.id, name: data.user.name, email: data.user.email }, data.token);
+      Router.go('home');
+    } catch (err) {
+      Modal.hideLoading();
+      this._showError('Erro de conexão. Tente novamente.');
+    }
+  },
+
   /* ── Verificação de código ── */
 
   async verifyCode() {
@@ -370,13 +523,24 @@ const LoginPage = {
   /* ── Code inputs ── */
 
   _initCodeInputs() {
-    const digits = document.querySelectorAll('.code-digit');
+    this._wireCodeInputs('.code-digit', () => this.verifyCode());
+    this._wireCodeInputs('.reset-code-digit', () => {
+      // No fluxo de reset, não auto-submete — o usuário ainda precisa
+      // digitar a nova senha antes de salvar.
+      const passEl = DOM.$('#rp-pass');
+      if (passEl) passEl.focus();
+    });
+  },
+
+  _wireCodeInputs(selector, onComplete) {
+    const digits = document.querySelectorAll(selector);
     digits.forEach((inp, i) => {
       inp.addEventListener('input', (e) => {
         const val = e.target.value.replace(/\D/g, '');
         e.target.value = val.slice(0, 1);
         if (val && i < digits.length - 1) digits[i + 1].focus();
-        if (this._getCodeValue().length === 6) this.verifyCode();
+        const all = Array.from(digits).map(d => d.value).join('');
+        if (all.length === 6 && typeof onComplete === 'function') onComplete();
       });
       inp.addEventListener('keydown', (e) => {
         if (e.key === 'Backspace' && !e.target.value && i > 0) {
@@ -390,7 +554,7 @@ const LoginPage = {
         text.split('').forEach((ch, idx) => {
           if (digits[idx]) digits[idx].value = ch;
         });
-        if (text.length === 6) this.verifyCode();
+        if (text.length === 6 && typeof onComplete === 'function') onComplete();
         else if (digits[text.length]) digits[text.length].focus();
       });
     });
@@ -400,9 +564,19 @@ const LoginPage = {
     return Array.from(document.querySelectorAll('.code-digit')).map(i => i.value).join('');
   },
 
+  _getResetCodeValue() {
+    return Array.from(document.querySelectorAll('.reset-code-digit')).map(i => i.value).join('');
+  },
+
   _clearCodeInputs() {
     document.querySelectorAll('.code-digit').forEach(i => { i.value = ''; });
     const first = DOM.$('.code-digit[data-idx="0"]');
+    if (first) first.focus();
+  },
+
+  _clearResetCodeInputs() {
+    document.querySelectorAll('.reset-code-digit').forEach(i => { i.value = ''; });
+    const first = DOM.$('.reset-code-digit[data-idx="0"]');
     if (first) first.focus();
   },
 
@@ -412,37 +586,55 @@ const LoginPage = {
     const old = document.querySelector('.login-error');
     if (old) old.remove();
     const el = DOM.create('div', { class: 'login-error', text: msg });
-    const formId = this.currentForm === 'register' ? '#f-register' : this.currentForm === 'verify' ? '#f-verify' : '#f-login';
+    const formIdMap = {
+      register: '#f-register',
+      verify:   '#f-verify',
+      forgot:   '#f-forgot',
+      reset:    '#f-reset',
+      login:    '#f-login',
+    };
+    const formId = formIdMap[this.currentForm] || '#f-login';
     const form = DOM.$(formId);
     if (form) form.insertAdjacentElement('beforebegin', el);
-    setTimeout(() => el.remove(), 5000);
+    setTimeout(() => el.remove(), 6000);
   },
 
   _showSuccess(msg) {
     const old = document.querySelector('.login-success');
     if (old) old.remove();
     const el = DOM.create('div', { class: 'login-success', text: msg });
-    const form = DOM.$('#f-verify');
+    const formIdMap = {
+      verify: '#f-verify',
+      reset:  '#f-reset',
+      forgot: '#f-forgot',
+    };
+    const formId = formIdMap[this.currentForm] || '#f-verify';
+    const form = DOM.$(formId);
     if (form) form.insertAdjacentElement('beforebegin', el);
     setTimeout(() => el.remove(), 3000);
   },
 
   _bindEnterKey() {
     document.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        if (this.currentForm === 'verify') this.verifyCode();
-        else this.doAuth();
-      }
+      if (e.key !== 'Enter') return;
+      if (this.currentForm === 'verify') this.verifyCode();
+      else if (this.currentForm === 'forgot') this.sendForgotCode();
+      else if (this.currentForm === 'reset') this.submitResetPassword();
+      else this.doAuth();
     });
   },
 
   _bindForms() {
-    window.swapForm       = to => LoginPage.swapForm(to);
-    window.doAuth         = ()  => LoginPage.doAuth();
-    window.loginWithGoogle = ()  => LoginPage.loginWithGoogle();
-    window.verifyCode     = ()  => LoginPage.verifyCode();
-    window.resendCode     = ()  => LoginPage.resendCode();
-    window.backToLogin    = ()  => LoginPage.backToLogin();
+    window.swapForm             = to => LoginPage.swapForm(to);
+    window.doAuth               = ()  => LoginPage.doAuth();
+    window.loginWithGoogle      = ()  => LoginPage.loginWithGoogle();
+    window.verifyCode           = ()  => LoginPage.verifyCode();
+    window.resendCode           = ()  => LoginPage.resendCode();
+    window.backToLogin          = ()  => LoginPage.backToLogin();
+    window.goToForgotPassword   = ()  => LoginPage.goToForgotPassword();
+    window.sendForgotCode       = ()  => LoginPage.sendForgotCode();
+    window.resendResetCode      = ()  => LoginPage.resendResetCode();
+    window.submitResetPassword  = ()  => LoginPage.submitResetPassword();
   },
 
   /* ── Tab switcher ── */

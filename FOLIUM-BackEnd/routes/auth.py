@@ -2,6 +2,7 @@ import os, re, bcrypt
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, HTTPException, Header
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from jose import jwt, JWTError
 
@@ -27,10 +28,16 @@ def _make_token(user: dict) -> str:
     }
     return jwt.encode(payload, secret, algorithm="HS256")
 
-def _send_code(email: str) -> bool:
+# Propósitos dos códigos de verificação — mantemos códigos de fluxos
+# diferentes em buckets separados pra que um código de login não possa
+# ser usado pra redefinir senha (e vice-versa).
+PURPOSE_LOGIN = "login"
+PURPOSE_RESET = "password_reset"
+
+def _send_code(email: str, purpose: str = PURPOSE_LOGIN) -> bool:
     code = generate_code()
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
-    db.save_verification_code(email, code, expires_at)
+    db.save_verification_code(email, code, expires_at, purpose=purpose)
     return send_verification_email(email, code)
 
 # ── Models ─────────────────────────────────────
@@ -53,6 +60,14 @@ class VerifyCodeBody(BaseModel):
 
 class ResendCodeBody(BaseModel):
     email: str
+
+class ForgotPasswordBody(BaseModel):
+    email: str
+
+class ResetPasswordBody(BaseModel):
+    email: str
+    code:  str
+    new_password: str
 
 # ── Endpoints ──────────────────────────────────
 
@@ -90,7 +105,32 @@ def login(body: LoginBody):
         raise HTTPException(400, "E-mail e senha são obrigatórios.")
 
     user = db.get_user_by_email(body.email.strip())
-    if not user or not user.get("password") or not _verify(body.password, user["password"]):
+    if not user:
+        raise HTTPException(401, "E-mail ou senha incorretos.")
+
+    # Conta sem senha (criada via Google OAuth) — diferencia para o usuário
+    # entender que precisa usar 'Continuar com Google' ou definir uma senha
+    # via 'Esqueci minha senha'.
+    if not user.get("password"):
+        if user.get("google_id"):
+            return JSONResponse(
+                status_code=401,
+                content={
+                    "detail": "Esta conta foi criada com Login Google. Use 'Continuar com Google' ou clique em 'Esqueci minha senha' para definir uma senha.",
+                    "code": "google_only",
+                    "email": user["email"],
+                },
+            )
+        return JSONResponse(
+            status_code=401,
+            content={
+                "detail": "Esta conta não tem senha definida. Use 'Esqueci minha senha' para criar uma.",
+                "code": "no_password",
+                "email": user["email"],
+            },
+        )
+
+    if not _verify(body.password, user["password"]):
         raise HTTPException(401, "E-mail ou senha incorretos.")
 
     sent = _send_code(user["email"])
@@ -157,17 +197,18 @@ def verify_code(body: VerifyCodeBody):
     if not body.email or not body.code:
         raise HTTPException(400, "E-mail e código são obrigatórios.")
 
-    record = db.get_verification_code(body.email.strip(), body.code.strip())
+    email_norm = body.email.strip()
+    record = db.get_verification_code(email_norm, body.code.strip(), purpose=PURPOSE_LOGIN)
     if not record:
         raise HTTPException(401, "Código inválido.")
 
     if record["expires_at"].replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
-        db.delete_verification_codes(body.email)
+        db.delete_verification_codes(email_norm, purpose=PURPOSE_LOGIN)
         raise HTTPException(401, "Código expirado. Solicite um novo.")
 
-    db.delete_verification_codes(body.email)
+    db.delete_verification_codes(email_norm, purpose=PURPOSE_LOGIN)
 
-    user = db.get_user_by_email(body.email.strip())
+    user = db.get_user_by_email(email_norm)
     if not user:
         raise HTTPException(404, "Usuário não encontrado.")
 
@@ -177,6 +218,70 @@ def verify_code(body: VerifyCodeBody):
         "message": "Verificação concluída!",
         "token": token,
         "user": {"id": user["id"], "name": user["name"], "email": user["email"]}
+    }
+
+GENERIC_FORGOT_RESPONSE = {
+    "message": "Se este e-mail estiver cadastrado, você receberá um código para redefinir a senha.",
+}
+
+@router.post("/forgot-password")
+def forgot_password(body: ForgotPasswordBody):
+    if not body.email:
+        raise HTTPException(400, "E-mail é obrigatório.")
+
+    email_norm = body.email.strip().lower()
+    user = db.get_user_by_email(email_norm)
+
+    # Sempre devolvemos a mesma resposta (mesmo status, mesmo body) tanto
+    # para contas existentes quanto inexistentes — inclusive em caso de
+    # falha do SMTP — pra não vazar a existência da conta via diferenças
+    # de status code/mensagem (anti-enumeration).
+    if not user:
+        print(f"[AUTH] Forgot password (e-mail inexistente): {email_norm}")
+        return {**GENERIC_FORGOT_RESPONSE, "email": email_norm}
+
+    try:
+        sent = _send_code(user["email"], purpose=PURPOSE_RESET)
+        if not sent:
+            print(f"[AUTH] Forgot password: SMTP falhou para {user['email']}")
+        else:
+            print(f"[AUTH] Forgot password: código enviado para {user['email']}")
+    except Exception as e:  # noqa: BLE001
+        print(f"[AUTH] Forgot password: erro inesperado ao enviar para {user['email']}: {e}")
+
+    return {**GENERIC_FORGOT_RESPONSE, "email": user["email"]}
+
+@router.post("/reset-password")
+def reset_password(body: ResetPasswordBody):
+    if not body.email or not body.code or not body.new_password:
+        raise HTTPException(400, "E-mail, código e nova senha são obrigatórios.")
+    if len(body.new_password) < 4:
+        raise HTTPException(400, "Senha deve ter pelo menos 4 caracteres.")
+
+    email_norm = body.email.strip()
+    record = db.get_verification_code(email_norm, body.code.strip(), purpose=PURPOSE_RESET)
+    if not record:
+        raise HTTPException(401, "Código inválido.")
+
+    if record["expires_at"].replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+        db.delete_verification_codes(email_norm, purpose=PURPOSE_RESET)
+        raise HTTPException(401, "Código expirado. Solicite um novo.")
+
+    db.delete_verification_codes(email_norm, purpose=PURPOSE_RESET)
+
+    user = db.get_user_by_email(email_norm)
+    if not user:
+        raise HTTPException(404, "Usuário não encontrado.")
+
+    new_hashed = _hash(body.new_password)
+    db.update_user_password(user["id"], new_hashed)
+
+    token = _make_token(user)
+    print(f"[AUTH] Senha redefinida: {user['email']}")
+    return {
+        "message": "Senha redefinida com sucesso!",
+        "token": token,
+        "user": {"id": user["id"], "name": user["name"], "email": user["email"]},
     }
 
 @router.post("/resend-code")

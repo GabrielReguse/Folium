@@ -506,7 +506,8 @@
   margin: 4px 0 6px;
 }
 
-.code-digit {
+.code-digit,
+.reset-code-digit {
   width: 44px;
   height: 54px;
   border: 1.5px solid var(--border);
@@ -523,7 +524,8 @@
     transform var(--t-fast) ease;
 }
 
-.code-digit:focus {
+.code-digit:focus,
+.reset-code-digit:focus {
   border-color: var(--caramel);
   box-shadow: 0 0 0 3px var(--focus-ring);
   transform: translateY(-1px);
@@ -880,7 +882,8 @@
     padding: 34px 24px 26px;
   }
 
-  .code-digit {
+  .code-digit,
+  .reset-code-digit {
     width: 38px;
     height: 48px;
     font-size: 1.2rem;
@@ -923,4 +926,14 @@
   .btn-shine::before {
     display: none;
   }
+}
+/* Linha do link "Esqueci minha senha" abaixo do botão Entrar */
+.forgot-pass-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.forgot-pass-row .btn-link {
+  font-size: 13px;
 }
