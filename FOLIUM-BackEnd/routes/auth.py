@@ -2,6 +2,7 @@ import os, re, bcrypt
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, HTTPException, Header
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from jose import jwt, JWTError
 
@@ -54,6 +55,14 @@ class VerifyCodeBody(BaseModel):
 class ResendCodeBody(BaseModel):
     email: str
 
+class ForgotPasswordBody(BaseModel):
+    email: str
+
+class ResetPasswordBody(BaseModel):
+    email: str
+    code:  str
+    new_password: str
+
 # ── Endpoints ──────────────────────────────────
 
 @router.post("/register", status_code=201)
@@ -90,7 +99,32 @@ def login(body: LoginBody):
         raise HTTPException(400, "E-mail e senha são obrigatórios.")
 
     user = db.get_user_by_email(body.email.strip())
-    if not user or not user.get("password") or not _verify(body.password, user["password"]):
+    if not user:
+        raise HTTPException(401, "E-mail ou senha incorretos.")
+
+    # Conta sem senha (criada via Google OAuth) — diferencia para o usuário
+    # entender que precisa usar 'Continuar com Google' ou definir uma senha
+    # via 'Esqueci minha senha'.
+    if not user.get("password"):
+        if user.get("google_id"):
+            return JSONResponse(
+                status_code=401,
+                content={
+                    "detail": "Esta conta foi criada com Login Google. Use 'Continuar com Google' ou clique em 'Esqueci minha senha' para definir uma senha.",
+                    "code": "google_only",
+                    "email": user["email"],
+                },
+            )
+        return JSONResponse(
+            status_code=401,
+            content={
+                "detail": "Esta conta não tem senha definida. Use 'Esqueci minha senha' para criar uma.",
+                "code": "no_password",
+                "email": user["email"],
+            },
+        )
+
+    if not _verify(body.password, user["password"]):
         raise HTTPException(401, "E-mail ou senha incorretos.")
 
     sent = _send_code(user["email"])
@@ -177,6 +211,63 @@ def verify_code(body: VerifyCodeBody):
         "message": "Verificação concluída!",
         "token": token,
         "user": {"id": user["id"], "name": user["name"], "email": user["email"]}
+    }
+
+@router.post("/forgot-password")
+def forgot_password(body: ForgotPasswordBody):
+    if not body.email:
+        raise HTTPException(400, "E-mail é obrigatório.")
+
+    user = db.get_user_by_email(body.email.strip())
+    # Não vazamos se a conta existe ou não — sempre devolvemos a mesma
+    # resposta para evitar enumeração de e-mails.
+    if not user:
+        print(f"[AUTH] Forgot password (e-mail inexistente): {body.email}")
+        return {
+            "message": "Se este e-mail estiver cadastrado, você receberá um código para redefinir a senha.",
+            "email": body.email.strip().lower(),
+        }
+
+    sent = _send_code(user["email"])
+    if not sent:
+        raise HTTPException(500, "Erro ao enviar código de redefinição.")
+
+    print(f"[AUTH] Forgot password: código enviado para {user['email']}")
+    return {
+        "message": "Se este e-mail estiver cadastrado, você receberá um código para redefinir a senha.",
+        "email": user["email"],
+    }
+
+@router.post("/reset-password")
+def reset_password(body: ResetPasswordBody):
+    if not body.email or not body.code or not body.new_password:
+        raise HTTPException(400, "E-mail, código e nova senha são obrigatórios.")
+    if len(body.new_password) < 4:
+        raise HTTPException(400, "Senha deve ter pelo menos 4 caracteres.")
+
+    record = db.get_verification_code(body.email.strip(), body.code.strip())
+    if not record:
+        raise HTTPException(401, "Código inválido.")
+
+    if record["expires_at"].replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+        db.delete_verification_codes(body.email)
+        raise HTTPException(401, "Código expirado. Solicite um novo.")
+
+    db.delete_verification_codes(body.email)
+
+    user = db.get_user_by_email(body.email.strip())
+    if not user:
+        raise HTTPException(404, "Usuário não encontrado.")
+
+    new_hashed = _hash(body.new_password)
+    db.update_user_password(user["id"], new_hashed)
+
+    token = _make_token(user)
+    print(f"[AUTH] Senha redefinida: {user['email']}")
+    return {
+        "message": "Senha redefinida com sucesso!",
+        "token": token,
+        "user": {"id": user["id"], "name": user["name"], "email": user["email"]},
     }
 
 @router.post("/resend-code")

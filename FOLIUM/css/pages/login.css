@@ -924,3 +924,13 @@
     display: none;
   }
 }
+/* Linha do link "Esqueci minha senha" abaixo do botão Entrar */
+.forgot-pass-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.forgot-pass-row .btn-link {
+  font-size: 13px;
+}

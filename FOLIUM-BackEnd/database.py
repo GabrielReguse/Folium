@@ -141,6 +141,18 @@ def link_google_id(user_id: int, google_id: str):
     finally:
         conn.close()
 
+def update_user_password(user_id: int, password_hash: str):
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE users SET password = %s WHERE id = %s",
+                (password_hash, user_id)
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
 # ── Verificação por código ─────────────────────
 
 def save_verification_code(email: str, code: str, expires_at):
