@@ -197,17 +197,18 @@ def verify_code(body: VerifyCodeBody):
     if not body.email or not body.code:
         raise HTTPException(400, "E-mail e código são obrigatórios.")
 
-    record = db.get_verification_code(body.email.strip(), body.code.strip(), purpose=PURPOSE_LOGIN)
+    email_norm = body.email.strip()
+    record = db.get_verification_code(email_norm, body.code.strip(), purpose=PURPOSE_LOGIN)
     if not record:
         raise HTTPException(401, "Código inválido.")
 
     if record["expires_at"].replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
-        db.delete_verification_codes(body.email, purpose=PURPOSE_LOGIN)
+        db.delete_verification_codes(email_norm, purpose=PURPOSE_LOGIN)
         raise HTTPException(401, "Código expirado. Solicite um novo.")
 
-    db.delete_verification_codes(body.email, purpose=PURPOSE_LOGIN)
+    db.delete_verification_codes(email_norm, purpose=PURPOSE_LOGIN)
 
-    user = db.get_user_by_email(body.email.strip())
+    user = db.get_user_by_email(email_norm)
     if not user:
         raise HTTPException(404, "Usuário não encontrado.")
 
@@ -257,17 +258,18 @@ def reset_password(body: ResetPasswordBody):
     if len(body.new_password) < 4:
         raise HTTPException(400, "Senha deve ter pelo menos 4 caracteres.")
 
-    record = db.get_verification_code(body.email.strip(), body.code.strip(), purpose=PURPOSE_RESET)
+    email_norm = body.email.strip()
+    record = db.get_verification_code(email_norm, body.code.strip(), purpose=PURPOSE_RESET)
     if not record:
         raise HTTPException(401, "Código inválido.")
 
     if record["expires_at"].replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
-        db.delete_verification_codes(body.email, purpose=PURPOSE_RESET)
+        db.delete_verification_codes(email_norm, purpose=PURPOSE_RESET)
         raise HTTPException(401, "Código expirado. Solicite um novo.")
 
-    db.delete_verification_codes(body.email, purpose=PURPOSE_RESET)
+    db.delete_verification_codes(email_norm, purpose=PURPOSE_RESET)
 
-    user = db.get_user_by_email(body.email.strip())
+    user = db.get_user_by_email(email_norm)
     if not user:
         raise HTTPException(404, "Usuário não encontrado.")
 
