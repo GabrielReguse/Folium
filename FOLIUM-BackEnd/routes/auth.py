@@ -164,7 +164,9 @@ def google_login(body: GoogleBody):
         email = idinfo.get("email", "").lower()
         name  = idinfo.get("name", email.split("@")[0])
         gid   = idinfo.get("sub", "")
-        email_verified = bool(idinfo.get("email_verified", False))
+        # Comparação estrita com `is True` evita que valores não-bool
+        # (ex.: a string "false") sejam tratados como verdadeiros.
+        email_verified = idinfo.get("email_verified") is True
 
         if not email:
             raise HTTPException(400, "Não foi possível obter o e-mail da conta Google.")
