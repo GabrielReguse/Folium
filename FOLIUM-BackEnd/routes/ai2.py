@@ -2,18 +2,6 @@
 #  FOLIUM — routes/ai2.py
 #  IA 2: Geradora da Folha de Estudos
 # ═══════════════════════════════════════════════
-#
-# Multi-provider chain (tudo 100% gratuito, sem cartão):
-#   Primário  Gemini 2.5 Flash   — cota mais ampla, 10 RPM / 250 RPD / 250k TPM
-#   Fallback  Cerebras Llama 3.1 — 30 RPM / 1M tok dia (production tier, sempre disponível)
-#   Último    Gemini 2.5 Pro     — qualidade máxima, 5 RPM / 100 RPD / 250k TPM
-#
-# Todos os provedores usam a API OpenAI-compatível, então o client é comum.
-# Usamos response_format=json_object para forçar JSON válido na saída
-# (elimina boa parte dos erros "IA retornou resposta inválida").
-#
-# max_tokens precisa ser alto o bastante para 8 tópicos densos (~15-25k tokens
-# de saída). Valores baixos cortam a resposta no meio e quebram o JSON.
 
 import os, json, asyncio
 from typing import Any
