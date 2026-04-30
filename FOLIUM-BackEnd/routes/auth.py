@@ -164,6 +164,9 @@ def google_login(body: GoogleBody):
         email = idinfo.get("email", "").lower()
         name  = idinfo.get("name", email.split("@")[0])
         gid   = idinfo.get("sub", "")
+        # Comparação estrita com `is True` evita que valores não-bool
+        # (ex.: a string "false") sejam tratados como verdadeiros.
+        email_verified = idinfo.get("email_verified") is True
 
         if not email:
             raise HTTPException(400, "Não foi possível obter o e-mail da conta Google.")
@@ -180,6 +183,21 @@ def google_login(body: GoogleBody):
     else:
         user = db.create_google_user(name, email, gid)
 
+    # Google já autenticou o usuário e confirmou o e-mail (email_verified).
+    # Mandar um código por e-mail seria redundante (mesmo canal já validado
+    # pelo IdP) e cria dependência indevida do SMTP — quando o SMTP falha,
+    # o login com Google fica inutilizável. Emite o JWT direto.
+    if email_verified:
+        token = _make_token(user)
+        print(f"[AUTH] Google login concluído: {user['email']}")
+        return {
+            "message": "Login realizado com sucesso.",
+            "token": token,
+            "user": {"id": user["id"], "name": user["name"], "email": user["email"]},
+        }
+
+    # Fallback raro: Google reportou email_verified=False — cai no fluxo
+    # de código por e-mail pra confirmar a posse do endereço.
     sent = _send_code(user["email"])
     if not sent:
         raise HTTPException(500, "Erro ao enviar código de verificação.")
