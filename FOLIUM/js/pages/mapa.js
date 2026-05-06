@@ -321,14 +321,19 @@ const MapaPage = {
     el.dataset.nodeId = node.id;
     el.style.cssText  = 'left:' + node.x + 'px;top:' + node.y + 'px;width:' + node.w + 'px;height:' + node.h + 'px';
 
-    el.innerHTML = '<div class="mp-node__header">' + node.label + '</div>' +
-      '<div class="mp-node__body"></div>' +
-      (!node.isCenter ?
+    if (node.isCenter) {
+      /* Centro: sem header separado — apenas label centralizado no nó inteiro */
+      el.innerHTML =
+        '<div class="mp-node__center-label">' + node.label + '</div>';
+    } else {
+      el.innerHTML =
+        '<div class="mp-node__header">' + node.label + '</div>' +
+        '<div class="mp-node__body"></div>' +
         '<div class="mp-resize-handle mp-resize-handle--se" data-dir="se"></div>' +
         '<div class="mp-resize-handle mp-resize-handle--sw" data-dir="sw"></div>' +
         '<div class="mp-resize-handle mp-resize-handle--ne" data-dir="ne"></div>' +
-        '<div class="mp-resize-handle mp-resize-handle--nw" data-dir="nw"></div>'
-      : '');
+        '<div class="mp-resize-handle mp-resize-handle--nw" data-dir="nw"></div>';
+    }
 
     /* CLICK → dropdown (modo Ordem) */
     el.addEventListener('click', (e) => {
@@ -590,22 +595,31 @@ const MapaPage = {
       el.dataset.nodeId = n.id;
       el.style.cssText  = 'left:' + n.x + 'px;top:' + n.y + 'px;width:' + n.w + 'px;height:' + n.h + 'px';
 
-      const area = n.w * n.h;
       let body;
       if (n.isCenter) {
-        body = '<div class="mp-node__body" style="display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:13px;font-weight:600;color:var(--text);text-align:center">' + n.label + '</div>';
-      } else if (area < 4000) {
-        body = '<div class="mp-node__body mp-node--result-insufficient">Espaço insuf.</div>';
+        /* Apenas o label centralizado — sem header separado */
+        body = '<div class="mp-node__center-label">' + n.label + '</div>';
+      } else if ((n.w * n.h) < 4000) {
+        body = '<div class="mp-node__header">' + n.label + '</div>' +
+               '<div class="mp-node__body mp-node--result-insufficient">Espaço insuf.</div>';
       } else {
+        /* Truncagem baseada no espaço visual real:
+           header ~30px, corpo = H-30, line-height ~16px, charWidth ~6px */
+        const bodyH    = Math.max(0, n.h - 30);
+        const lines    = Math.floor(bodyH / 16);
+        const charsPerLine = Math.floor(n.w / 6.2);
+        const maxChars = Math.max(10, lines * charsPerLine);
+
         let texto = (this.aiContent && this.aiContent[n.label])
           ? this.aiContent[n.label]
-          : MOCK_MAP_CONTENT.gerarConteudoPorTopico(n.label, area);
-        const max = Math.floor(area / 13);
-        if (texto.length > max) texto = texto.slice(0, max) + '…';
-        body = '<div class="mp-node__body" contenteditable="true" title="Duplo clique para editar">' + texto + '</div>';
+          : MOCK_MAP_CONTENT.gerarConteudoPorTopico(n.label, n.w * n.h);
+        if (texto.length > maxChars) texto = texto.slice(0, maxChars - 1) + '…';
+
+        body = '<div class="mp-node__header">' + n.label + '</div>' +
+               '<div class="mp-node__body" contenteditable="true" title="Duplo clique para editar">' + texto + '</div>';
       }
 
-      el.innerHTML = '<div class="mp-node__header">' + n.label + '</div>' + body;
+      el.innerHTML = body;
       el.addEventListener('dblclick', () => el.classList.toggle('mp-node--editing'));
       el.addEventListener('blur', () => el.classList.remove('mp-node--editing'), true);
       resCanvas.appendChild(el);

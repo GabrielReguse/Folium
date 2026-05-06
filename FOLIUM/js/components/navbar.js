@@ -246,7 +246,7 @@ const Navbar = {
         <circle cx="50" cy="50" r="18" fill="#6CAB69" />
       </svg>
       <div class="dock-slider-icon">
-        ${NavIcons[active] || ''}
+        ${(items.find(it => it.route === active) || {}).icon || NavIcons[active] || ''}
       </div>
     `;
     nav.appendChild(slider);
@@ -332,7 +332,11 @@ const Navbar = {
   _animateBubbleTo(nav, targetBtn, route) {
     nav.dataset.active = route;
     const iconEl = nav.querySelector('.dock-slider-icon');
-    if (iconEl) iconEl.innerHTML = NavIcons[route] || '';
+    /* Use the clicked button's icon content directly */
+    if (iconEl) {
+      const btnIconEl = targetBtn.querySelector('.di-icon-wrapper');
+      iconEl.innerHTML = btnIconEl ? btnIconEl.innerHTML : (NavIcons[route] || '');
+    }
     nav.querySelectorAll('.dock-item').forEach(el => el.classList.remove('active'));
     targetBtn.classList.add('active');
     this._positionBubble(nav, route);
