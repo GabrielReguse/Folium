@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Folium — Criar</title>
+  <link rel="icon" type="image/png" href="../assets/images/favicon-folium.png">
+  <link rel="apple-touch-icon" href="../assets/images/favicon-folium.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/animations.css">
+  <link rel="stylesheet" href="../css/pages/criar.css">
+  <link rel="stylesheet" href="../css/pages/escolher.css">
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+
+  <div id="loading-overlay">
+    <div class="loading-box">
+      <div class="loader loader-lg"></div>
+      <h3 id="ld-title">Carregando...</h3>
+      <p id="ld-sub">Aguarde um momento</p>
+    </div>
+  </div>
+
+  <div class="page page-escolher">
+    <main class="page-body esc-shell">
+
+      <section class="esc-hero au">
+        <span class="cr-eyebrow">Criar · Folium</span>
+        <h1 class="cr-title">O que você quer <em>criar</em>?</h1>
+        <p class="cr-lede">Escolha o formato ideal para o seu estudo.</p>
+      </section>
+
+      <div class="esc-cards au">
+
+        <!-- FOLHA DE ESTUDOS -->
+        <button class="esc-card" onclick="Router.go('criar')">
+          <div class="esc-card__icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="6" width="32" height="36" rx="4" fill="currentColor" opacity=".12"/>
+              <rect x="8" y="6" width="32" height="36" rx="4" stroke="currentColor" stroke-width="2"/>
+              <line x1="16" y1="16" x2="32" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="16" y1="22" x2="32" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="16" y1="28" x2="26" y2="28" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="16" cy="35" r="2" fill="currentColor" opacity=".4"/>
+              <circle cx="22" cy="35" r="2" fill="currentColor" opacity=".4"/>
+              <circle cx="28" cy="35" r="2" fill="currentColor" opacity=".4"/>
+            </svg>
+          </div>
+          <div class="esc-card__body">
+            <h2 class="esc-card__title">Folha de Estudos</h2>
+            <p class="esc-card__desc">Resumo estruturado com tópicos, explicações e exemplos — ideal para revisão antes de provas.</p>
+            <div class="esc-card__tags">
+              <span class="esc-tag">Texto</span>
+              <span class="esc-tag">Exemplos</span>
+              <span class="esc-tag">Resumo geral</span>
+            </div>
+          </div>
+          <div class="esc-card__arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>
+            </svg>
+          </div>
+        </button>
+
+        <!-- MAPA MENTAL -->
+        <button class="esc-card esc-card--accent" onclick="Router.go('mapa')">
+          <div class="esc-card__icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="24" cy="24" r="6" fill="currentColor" opacity=".15"/>
+              <circle cx="24" cy="24" r="6" stroke="currentColor" stroke-width="2"/>
+              <circle cx="8"  cy="12" r="4" fill="currentColor" opacity=".10"/>
+              <circle cx="8"  cy="12" r="4" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="40" cy="12" r="4" fill="currentColor" opacity=".10"/>
+              <circle cx="40" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="8"  cy="36" r="4" fill="currentColor" opacity=".10"/>
+              <circle cx="8"  cy="36" r="4" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="40" cy="36" r="4" fill="currentColor" opacity=".10"/>
+              <circle cx="40" cy="36" r="4" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="19" y1="20" x2="12" y2="15" stroke="currentColor" stroke-width="1.5" opacity=".6"/>
+              <line x1="29" y1="20" x2="36" y2="15" stroke="currentColor" stroke-width="1.5" opacity=".6"/>
+              <line x1="19" y1="28" x2="12" y2="33" stroke="currentColor" stroke-width="1.5" opacity=".6"/>
+              <line x1="29" y1="28" x2="36" y2="33" stroke="currentColor" stroke-width="1.5" opacity=".6"/>
+            </svg>
+          </div>
+          <div class="esc-card__body">
+            <h2 class="esc-card__title">Mapa Mental</h2>
+            <p class="esc-card__desc">Visualização em nós conectados — ideal para organizar ideias, conceitos e relações de forma visual.</p>
+            <div class="esc-card__tags">
+              <span class="esc-tag">Visual</span>
+              <span class="esc-tag">Conectado</span>
+              <span class="esc-tag">Interativo</span>
+            </div>
+          </div>
+          <div class="esc-card__badge">Novo</div>
+          <div class="esc-card__arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>
+            </svg>
+          </div>
+        </button>
+
+      </div>
+
+      <button class="esc-back btn btn-ghost" onclick="Router.go('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px">
+          <path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/>
+        </svg>
+        Voltar ao início
+      </button>
+
+    </main>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/utils/dom.js"></script>
+  <script src="../js/utils/storage.js"></script>
+  <script src="../js/utils/helpers.js"></script>
+  <script src="../js/mock.js"></script>
+  <script src="../js/router.js"></script>
+  <script src="../js/components/modal.js"></script>
+  <script src="../js/components/confirm.js"></script>
+  <script src="../js/components/navbar.js"></script>
+  <script src="../js/components/sidebar.js"></script>
+  <script src="../js/components/card.js"></script>
+  <script src="../js/components/button.js"></script>
+  <script src="../js/app.js"></script>
+  <script src="../js/pages/escolher.js"></script>
+</body>
+</html>

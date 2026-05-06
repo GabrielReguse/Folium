@@ -2,12 +2,14 @@
 
 const Router = {
   routes: {
-    login:   '../html/login.html',
-    home:    '../html/home.html',
-    criar:   '../html/criar.html',
-    folhas:  '../html/folhas.html',
-    materia: '../html/materia.html',
-    suporte: '../html/suporte.html',
+    login:    '../html/login.html',
+    home:     '../html/home.html',
+    escolher: '../html/escolher.html',
+    criar:    '../html/criar.html',
+    mapa:     '../html/mapa.html',
+    folhas:   '../html/folhas.html',
+    materia:  '../html/materia.html',
+    suporte:  '../html/suporte.html',
   },
 
   // Browsers com View Transitions API cross-document (Chrome 126+) fazem

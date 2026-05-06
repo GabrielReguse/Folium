@@ -53,7 +53,7 @@ const Navbar = {
   _renderMobileNav(active = 'home') {
     const items = [
       { route: 'home',    icon: NavIcons.home,    label: 'Início'  },
-      { route: 'criar',   icon: NavIcons.criar,   label: 'Criar'   },
+      { route: 'escolher', icon: NavIcons.criar,   label: 'Criar'   },
       { route: 'folhas',  icon: NavIcons.folhas,  label: 'Folhas'  },
       { route: 'suporte', icon: NavIcons.suporte, label: 'Suporte' },
     ];
@@ -88,7 +88,7 @@ const Navbar = {
   _renderDock(active = 'home') {
     const items = [
       { route: 'home',    icon: NavIcons.home,    label: 'Início'  },
-      { route: 'criar',   icon: NavIcons.criar,   label: 'Criar'   },
+      { route: 'escolher', icon: NavIcons.criar,   label: 'Criar'   },
       { route: 'folhas',  icon: NavIcons.folhas,  label: 'Folhas'  },
       { route: 'suporte', icon: NavIcons.suporte, label: 'Suporte' },
     ];

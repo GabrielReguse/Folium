@@ -25,7 +25,7 @@ const CriarPage = {
   init() {
     if (!Router.requireAuth()) return;
     Navbar.renderTop({ title:'<em>Nova Folha</em>'});
-    Navbar.renderBottom('criar');
+    Navbar.renderBottom('escolher');
     Sidebar.init();
     this.goStep(1);
     this._runStepperIntro();

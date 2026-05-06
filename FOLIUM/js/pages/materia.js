@@ -93,6 +93,46 @@ const MateriaPage = {
       card.classList.add('au');
       body.appendChild(card);
     });
+
+    /* ── Mapas Mentais desta matéria ── */
+    const mapas = this.subject.mapas || [];
+    if (mapas.length > 0) {
+      const mapaLbl = document.createElement('p');
+      mapaLbl.className = 't-label mb-16';
+      mapaLbl.style.marginTop = '28px';
+      mapaLbl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:var(--caramel)"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        ${mapas.length} mapa${mapas.length !== 1 ? 's' : ''} mental${mapas.length !== 1 ? 'is' : ''}
+      </span>`;
+      body.appendChild(mapaLbl);
+
+      mapas.forEach((mp, i) => {
+        const card = document.createElement('div');
+        card.className = 'subject-card au';
+        card.style.animationDelay = `${i * 0.07}s`;
+        card.style.cssText += ';border-left:3px solid var(--caramel);cursor:pointer;';
+        card.innerHTML = `
+          <div class="sc-left">
+            <div class="sc-icon" style="background:var(--caramel-lt)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;stroke:var(--caramel)">
+                <circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+              </svg>
+            </div>
+            <div class="sc-info">
+              <div class="sc-name">${mp.titulo}</div>
+              <div class="sc-meta">Mapa ${mp.template ? '· ' + mp.template.charAt(0).toUpperCase() + mp.template.slice(1) : ''} · ${mp.dataFormatada || ''}</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text-light);padding:4px 8px;background:var(--caramel-lt);border-radius:999px;white-space:nowrap">
+            ${(mp.topicos || []).length} nós
+          </div>`;
+        card.addEventListener('click', () => {
+          /* Abrir visualização do mapa — por ora mostra alert de WIP */
+          alert(`Mapa: ${mp.titulo}\nTemplate: ${mp.template}\nTópicos: ${(mp.topicos||[]).join(', ')}`);
+        });
+        body.appendChild(card);
+      });
+    }
   },
 
   /* ── Download de folha (PDF ou DOC) ── */
