@@ -5,6 +5,19 @@
 
 .page-mapa #bg-canvas { display: none; }
 
+/* ═══ LAYOUT OVERRIDE — mapa usa pane único (sem aside nos steps 2-5) ═══ */
+@media (min-width: 900px) {
+  #mpane2.active,
+  #mpane3.active,
+  #mpane4.active,
+  #mpane5.active {
+    grid-template-columns: 1fr !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    width: 100%;
+  }
+}
+
 /* ═══ PANE 1 — número ═══ */
 .mp-num-row {
   display: flex;
@@ -206,26 +219,25 @@
   font-style: italic;
 }
 
-/* Canvas wrapper — maintains A4 landscape ratio */
+/* Canvas wrapper — fits the card width, no scrollbar */
 .mp-canvas-wrap {
   width: 100%;
   background: var(--linen);
   border: 1.5px solid var(--border);
   border-radius: var(--r-sm);
-  overflow: auto;
+  overflow: hidden;   /* ← sem scrollbar */
   margin-bottom: 16px;
+  /* height set by JS after scale computed */
 }
 .mp-canvas {
-  /* A4 landscape: 297×210mm ≈ 1.414:1 */
+  /* A4 landscape: 900×636px logically; scaled to fit by JS */
   position: relative;
   width: 900px;
-  height: 636px; /* 900 / 1.414 */
+  height: 636px;
   background: white;
   box-shadow: 0 2px 16px rgba(92,61,46,0.10);
-  margin: 16px auto;
-}
-@media (max-width: 900px) {
-  .mp-canvas-wrap { overflow-x: auto; }
+  transform-origin: top left;  /* scale anchor */
+  /* margin: 16px auto; removido — JS cuida do offset */
 }
 .mp-canvas-svg {
   position: absolute;
