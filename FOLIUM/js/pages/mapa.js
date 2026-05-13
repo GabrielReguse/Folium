@@ -31,6 +31,10 @@ const MP_CANVAS_W = 900;
 const MP_CANVAS_H = 636;
 const MP_CONNECTOR_GAP = 10;
 const MP_ROUTE_STEP = 10;
+const MP_ROUTE_LINE_GAP = 10;
+const MP_ROUTE_HALO_WIDTH = 7;
+const MP_ROUTE_CROSS_PENALTY = 9000;
+const MP_ROUTE_NEAR_PENALTY = 650;
 const MP_NODE_MIN_W = 158;
 const MP_NODE_MAX_W = 220;
 const MP_NODE_DEFAULT_H = 96;
@@ -815,6 +819,15 @@ const MapaPage = {
     const routeMeta = new Map();
     Object.entries(sides).forEach(([side, nodes]) => {
       const isHorizontal = side === "left" || side === "right";
+      const centerEdge = isHorizontal
+        ? side === "right"
+          ? center.x + center.w
+          : center.x
+        : side === "bottom"
+          ? center.y + center.h
+          : center.y;
+      const sideDir = side === "right" || side === "bottom" ? 1 : -1;
+
       nodes
         .sort((a, b) =>
           isHorizontal
@@ -822,33 +835,65 @@ const MapaPage = {
             : a.x + a.w / 2 - (b.x + b.w / 2),
         )
         .forEach((node, idx) => {
+          const lane = mpClamp(
+            centerEdge + sideDir * (MP_CONNECTOR_GAP + MP_ROUTE_LINE_GAP * (idx + 1)),
+            2,
+            isHorizontal ? MP_CANVAS_W - 2 : MP_CANVAS_H - 2,
+          );
           routeMeta.set(node.id, {
             side,
             slot: (idx + 1) / (nodes.length + 1),
+            laneX: isHorizontal ? lane : null,
+            laneY: isHorizontal ? null : lane,
           });
         });
     });
 
-    const usedCells = new Set();
-    topics.forEach((node) => {
+    const routeContext = { cells: new Set(), segments: [] };
+    const orderedTopics = [...topics].sort((a, b) => {
+      const acx = a.x + a.w / 2;
+      const acy = a.y + a.h / 2;
+      const bcx = b.x + b.w / 2;
+      const bcy = b.y + b.h / 2;
+      const ccx = center.x + center.w / 2;
+      const ccy = center.y + center.h / 2;
+      return Math.hypot(bcx - ccx, bcy - ccy) - Math.hypot(acx - ccx, acy - ccy);
+    });
+
+    orderedTopics.forEach((node) => {
       const meta = routeMeta.get(node.id) || {
         side: this._connectionSide(center, node),
         slot: 0.5,
+        laneX: null,
+        laneY: null,
       };
       const points = this._bestConnectorRoute(
         center,
         node,
         meta.side,
         meta.slot,
-        usedCells,
-        { fast },
+        routeContext,
+        { fast, laneX: meta.laneX, laneY: meta.laneY },
       );
+      const d = this._pathToD(points);
+
+      const halo = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "path",
+      );
+      halo.setAttribute("d", d);
+      halo.setAttribute("fill", "none");
+      halo.setAttribute("stroke", "rgba(255,255,255,0.92)");
+      halo.setAttribute("stroke-width", String(MP_ROUTE_HALO_WIDTH));
+      halo.setAttribute("stroke-linecap", "round");
+      halo.setAttribute("stroke-linejoin", "round");
+      svg.appendChild(halo);
 
       const path = document.createElementNS(
         "http://www.w3.org/2000/svg",
         "path",
       );
-      path.setAttribute("d", this._pathToD(points));
+      path.setAttribute("d", d);
       path.setAttribute("fill", "none");
       path.setAttribute("stroke", "rgba(155,107,66,0.46)");
       path.setAttribute("stroke-width", "1.7");
@@ -856,7 +901,7 @@ const MapaPage = {
       path.setAttribute("stroke-linejoin", "round");
       path.setAttribute("marker-end", "url(#arr-" + svgId + ")");
       svg.appendChild(path);
-      if (!fast) this._markRouteUsage(points, usedCells);
+      this._markRouteUsage(points, routeContext);
     });
   },
 
@@ -874,20 +919,20 @@ const MapaPage = {
     const leftGap = source.x - (target.x + target.w);
     const hasVerticalGap = belowGap >= minGap || aboveGap >= minGap;
     const hasHorizontalGap = rightGap >= minGap || leftGap >= minGap;
-    const preferVertical = Math.abs(dy) >= Math.abs(dx) * 0.55;
-    const preferHorizontal = Math.abs(dx) >= Math.abs(dy) * 0.55;
+    const preferHorizontal = Math.abs(dx) >= Math.abs(dy) * 0.72;
+    const preferVertical = Math.abs(dy) > Math.abs(dx) * 0.72;
 
-    if (dy >= 0 && belowGap >= minGap && (preferVertical || !hasHorizontalGap)) {
-      return "bottom";
-    }
-    if (dy < 0 && aboveGap >= minGap && (preferVertical || !hasHorizontalGap)) {
-      return "top";
-    }
     if (dx >= 0 && rightGap >= minGap && (preferHorizontal || !hasVerticalGap)) {
       return "right";
     }
     if (dx < 0 && leftGap >= minGap && (preferHorizontal || !hasVerticalGap)) {
       return "left";
+    }
+    if (dy >= 0 && belowGap >= minGap && (preferVertical || !hasHorizontalGap)) {
+      return "bottom";
+    }
+    if (dy < 0 && aboveGap >= minGap && (preferVertical || !hasHorizontalGap)) {
+      return "top";
     }
     if (dy >= 0 && belowGap >= minGap) return "bottom";
     if (dy < 0 && aboveGap >= minGap) return "top";
@@ -1007,54 +1052,89 @@ const MapaPage = {
     target,
     preferredSide,
     preferredSlot,
-    usedCells,
+    routeContext,
     options = {},
   ) {
-    const useFast = options.fast === true;
+    const context = this._normalizeRouteContext(routeContext);
     const mainSide = preferredSide || this._connectionSide(source, target);
     const fallbackSides =
       mainSide === "left" || mainSide === "right"
         ? ["top", "bottom"]
         : ["left", "right"];
-    const slotOrder = (useFast
-      ? [preferredSlot || 0.5]
-      : [preferredSlot || 0.5, 0.5]
-    ).filter((slot, idx, arr) => arr.indexOf(slot) === idx);
+    const slotOrder = [preferredSlot || 0.5, 0.38, 0.62, 0.5].filter(
+      (slot, idx, arr) => arr.indexOf(slot) === idx,
+    );
+    const attempts = [];
+    const seen = new Set();
+    const addAttempt = (side, slot, sidePenaltyOffset) => {
+      if (!side) return;
+      const key = side + ":" + slot.toFixed(3);
+      if (seen.has(key)) return;
+      seen.add(key);
+      attempts.push({ side, slot, sidePenaltyOffset });
+    };
 
-    const evaluateSides = (sides, sidePenaltyOffset) => {
+    addAttempt(mainSide, preferredSlot || 0.5, 0);
+    slotOrder.slice(1).forEach((slot) => addAttempt(mainSide, slot, 0.25));
+    fallbackSides.forEach((side, sideIdx) => {
+      addAttempt(side, preferredSlot || 0.5, 1 + sideIdx * 0.25);
+    });
+    fallbackSides.forEach((side, sideIdx) => {
+      slotOrder.slice(1).forEach((slot) => addAttempt(side, slot, 1.35 + sideIdx * 0.25));
+    });
+
+    const evaluateAttempts = (allowPairs) => {
       let best = null;
-      sides
-        .filter((side, idx, arr) => side && arr.indexOf(side) === idx)
-        .forEach((side, sideIdx) => {
-          slotOrder.forEach((slot) => {
-            const ports = this._connectionPorts(source, target, side, slot);
-            const route = this._routeConnector(
-              ports.start,
-              ports.end,
-              source,
-              target,
-              usedCells,
-              options,
-            );
-            const fullPath = this._assembleFullPath(ports, route);
-            if (!this._pathIsClear(fullPath, source.id, target.id, true)) return;
-            const penalty = useFast ? 0 : this._pathUsagePenalty(fullPath, usedCells);
-            const score =
-              this._pathLength(fullPath) +
-              penalty * 3 +
-              this._turnCount(fullPath) * 7 +
-              (sidePenaltyOffset + sideIdx) * 28;
-            if (!best || score < best.score) best = { path: fullPath, score };
-          });
-        });
+      for (const attempt of attempts) {
+        const ports = this._connectionPorts(
+          source,
+          target,
+          attempt.side,
+          attempt.slot,
+        );
+        const route = this._routeConnector(
+          ports.start,
+          ports.end,
+          source,
+          target,
+          context,
+          { ...options, side: attempt.side, allowPairs },
+        );
+        const fullPath = this._assembleFullPath(ports, route);
+        if (!this._pathIsClear(fullPath, source.id, target.id, true)) continue;
+
+        const usagePenalty = this._pathUsagePenalty(fullPath, context.cells);
+        const linePenalty = this._pathLineConflictPenalty(
+          fullPath,
+          context.segments,
+        );
+        const score =
+          this._pathLength(fullPath) +
+          usagePenalty * 14 +
+          linePenalty +
+          this._turnCount(fullPath) * 9 +
+          attempt.sidePenaltyOffset * 34;
+        const candidate = { path: fullPath, score, linePenalty, usagePenalty };
+        if (!best || candidate.score < best.score) best = candidate;
+        if (linePenalty < MP_ROUTE_CROSS_PENALTY) {
+          return { ...candidate, done: true };
+        }
+      }
       return best;
     };
 
-    const mainBest = evaluateSides([mainSide], 0);
-    if (mainBest) return mainBest.path;
+    const simpleBest = evaluateAttempts(false);
+    if (
+      simpleBest?.done ||
+      simpleBest?.linePenalty < MP_ROUTE_CROSS_PENALTY ||
+      (options.fast && simpleBest)
+    ) {
+      return simpleBest.path;
+    }
 
-    const fallbackBest = evaluateSides(fallbackSides, 1);
-    if (fallbackBest) return fallbackBest.path;
+    const pairedBest = evaluateAttempts(true);
+    if (pairedBest) return pairedBest.path;
+    if (simpleBest) return simpleBest.path;
 
     const ports = this._connectionPorts(
       source,
@@ -1067,61 +1147,91 @@ const MapaPage = {
       ports.end,
       source,
       target,
-      usedCells,
-      options,
+      context,
+      { ...options, side: mainSide },
     );
     return this._assembleFullPath(ports, route);
   },
 
-  _routeConnector(start, end, source, target, usedCells, options = {}) {
-    const candidates = this._buildRouteCandidates(start, end, false);
-    const clearCandidates = candidates
-      .map((path) => this._simplifyPath(path))
-      .filter((path) => this._pathIsClear(path, source.id, target.id, false));
-
-    const ranked = clearCandidates
-      .map((path) => ({
-        path,
-        penalty: options.fast ? 0 : this._pathUsagePenalty(path, usedCells),
-        length: this._pathLength(path),
-        turns: this._turnCount(path),
-      }))
-      .sort(
-        (a, b) =>
-          a.penalty - b.penalty ||
-          a.turns - b.turns ||
-          a.length - b.length,
+  _routeConnector(start, end, source, target, routeContext, options = {}) {
+    const context = this._normalizeRouteContext(routeContext);
+    const evaluateCandidates = (includePairs) => {
+      const candidates = this._buildRouteCandidates(
+        start,
+        end,
+        includePairs,
+        context,
+        options,
       );
+      let best = null;
+      for (const rawPath of candidates) {
+        const path = this._simplifyPath(rawPath);
+        if (!this._pathIsClear(path, source.id, target.id, false)) continue;
+        const usagePenalty = this._pathUsagePenalty(path, context.cells);
+        const linePenalty = this._pathLineConflictPenalty(
+          path,
+          context.segments,
+        );
+        const turns = this._turnCount(path);
+        const length = this._pathLength(path);
+        const candidate = {
+          path,
+          usagePenalty,
+          linePenalty,
+          turns,
+          length,
+          score: linePenalty + usagePenalty * 14 + turns * 9 + length,
+        };
+        if (!best || candidate.score < best.score) best = candidate;
+        if (linePenalty < MP_ROUTE_CROSS_PENALTY) {
+          return { best: candidate, done: true };
+        }
+      }
+      return { best, done: false };
+    };
 
-    if (ranked.length) return ranked[0].path;
+    const simple = evaluateCandidates(false);
+    if (
+      simple.done ||
+      (simple.best && simple.best.linePenalty < MP_ROUTE_CROSS_PENALTY)
+    ) {
+      return simple.best.path;
+    }
 
-    const pairedCandidates = this._buildRouteCandidates(start, end, true)
-      .map((path) => this._simplifyPath(path))
-      .filter((path) => this._pathIsClear(path, source.id, target.id, false))
-      .map((path) => ({
-        path,
-        penalty: options.fast ? 0 : this._pathUsagePenalty(path, usedCells),
-        length: this._pathLength(path),
-        turns: this._turnCount(path),
-      }))
-      .sort(
-        (a, b) =>
-          a.penalty - b.penalty ||
-          a.turns - b.turns ||
-          a.length - b.length,
+    if (options.allowPairs === false) {
+      if (simple.best) return simple.best.path;
+      return this._simplifyPath([start, { x: start.x, y: end.y }, end]);
+    }
+
+    const paired = evaluateCandidates(true);
+    if (paired.best) return paired.best.path;
+
+    if (!options.fast) {
+      const gridRoute = this._buildGridRoute(
+        start,
+        end,
+        source.id,
+        target.id,
+        context.cells,
       );
+      if (gridRoute && this._pathIsClear(gridRoute, source.id, target.id, false)) {
+        return gridRoute;
+      }
+    }
 
-    if (pairedCandidates.length) return pairedCandidates[0].path;
-
+    if (simple.best) return simple.best.path;
     return this._simplifyPath([start, { x: start.x, y: end.y }, end]);
   },
 
-  _buildRouteCandidates(start, end, includePairs) {
+  _buildRouteCandidates(start, end, includePairs, routeContext, options = {}) {
     const midX = (start.x + end.x) / 2;
     const midY = (start.y + end.y) / 2;
     const railGap = MP_CONNECTOR_GAP * 2;
     const xRails = [start.x, end.x, midX, railGap, MP_CANVAS_W - railGap];
     const yRails = [start.y, end.y, midY, railGap, MP_CANVAS_H - railGap];
+
+    if (Number.isFinite(options.laneX)) xRails.unshift(options.laneX);
+    if (Number.isFinite(options.laneY)) yRails.unshift(options.laneY);
 
     this.nodes.forEach((node) => {
       const rect = this._expandedRect(node, MP_CONNECTOR_GAP);
@@ -1129,12 +1239,79 @@ const MapaPage = {
       yRails.push(rect.y, rect.y + rect.h);
     });
 
-    const xs = this._uniqueSortedCoordinates(xRails, 2, MP_CANVAS_W - 2);
-    const ys = this._uniqueSortedCoordinates(yRails, 2, MP_CANVAS_H - 2);
-    const candidates = [
+    (routeContext?.segments || []).forEach((segment) => {
+      if (segment.orientation === "h") {
+        yRails.push(
+          segment.y1 - MP_ROUTE_LINE_GAP,
+          segment.y1 + MP_ROUTE_LINE_GAP,
+        );
+        xRails.push(segment.minX, segment.maxX, (segment.minX + segment.maxX) / 2);
+      } else if (segment.orientation === "v") {
+        xRails.push(
+          segment.x1 - MP_ROUTE_LINE_GAP,
+          segment.x1 + MP_ROUTE_LINE_GAP,
+        );
+        yRails.push(segment.minY, segment.maxY, (segment.minY + segment.maxY) / 2);
+      }
+    });
+
+    const allXs = this._uniqueSortedCoordinates(xRails, 2, MP_CANVAS_W - 2);
+    const allYs = this._uniqueSortedCoordinates(yRails, 2, MP_CANVAS_H - 2);
+    const railLimit = includePairs ? 14 : 18;
+    const xs = this._limitRouteRails(
+      allXs,
+      [start.x, end.x, midX, options.laneX, railGap, MP_CANVAS_W - railGap],
+      railLimit,
+    );
+    const ys = this._limitRouteRails(
+      allYs,
+      [start.y, end.y, midY, options.laneY, railGap, MP_CANVAS_H - railGap],
+      railLimit,
+    );
+    const candidates = [];
+    if (Number.isFinite(options.laneY)) {
+      candidates.push([
+        start,
+        { x: start.x, y: options.laneY },
+        { x: end.x, y: options.laneY },
+        end,
+      ]);
+    }
+    if (Number.isFinite(options.laneX)) {
+      candidates.push([
+        start,
+        { x: options.laneX, y: start.y },
+        { x: options.laneX, y: end.y },
+        end,
+      ]);
+    }
+    candidates.push(
       [start, { x: end.x, y: start.y }, end],
       [start, { x: start.x, y: end.y }, end],
-    ];
+    );
+
+    if (Number.isFinite(options.laneY)) {
+      xs.forEach((x) => {
+        candidates.push([
+          start,
+          { x: start.x, y: options.laneY },
+          { x, y: options.laneY },
+          { x, y: end.y },
+          end,
+        ]);
+      });
+    }
+    if (Number.isFinite(options.laneX)) {
+      ys.forEach((y) => {
+        candidates.push([
+          start,
+          { x: options.laneX, y: start.y },
+          { x: options.laneX, y },
+          { x: end.x, y },
+          end,
+        ]);
+      });
+    }
 
     xs.forEach((x) => {
       candidates.push([start, { x, y: start.y }, { x, y: end.y }, end]);
@@ -1144,8 +1321,6 @@ const MapaPage = {
     });
 
     if (includePairs) {
-      // Dois trilhos (um vertical e um horizontal) resolvem casos em que uma rota
-      // simples ficaria presa entre caixas. Só são avaliados quando necessário.
       xs.forEach((x) => {
         ys.forEach((y) => {
           candidates.push([
@@ -1176,6 +1351,33 @@ const MapaPage = {
       if (!out.some((x) => Math.abs(x - v) < 1)) out.push(v);
     });
     return out.sort((a, b) => a - b);
+  },
+
+  _limitRouteRails(values, anchors, limit) {
+    if (values.length <= limit) return values;
+    const safeAnchors = anchors.filter((value) => Number.isFinite(value));
+    const selected = new Set();
+    safeAnchors.forEach((anchor) => {
+      let best = null;
+      values.forEach((value) => {
+        const dist = Math.abs(value - anchor);
+        if (!best || dist < best.dist) best = { value, dist };
+      });
+      if (best) selected.add(best.value);
+    });
+
+    const ranked = values
+      .map((value) => ({
+        value,
+        score: Math.min(...safeAnchors.map((anchor) => Math.abs(value - anchor))),
+      }))
+      .sort((a, b) => a.score - b.score);
+
+    ranked.forEach((item) => {
+      if (selected.size < limit) selected.add(item.value);
+    });
+
+    return [...selected].sort((a, b) => a - b);
   },
 
   _turnCount(points) {
@@ -1398,6 +1600,112 @@ const MapaPage = {
     return false;
   },
 
+  _normalizeRouteContext(routeContext) {
+    if (routeContext && routeContext.cells && routeContext.segments) {
+      return routeContext;
+    }
+    if (routeContext instanceof Set) {
+      return { cells: routeContext, segments: [] };
+    }
+    return { cells: new Set(), segments: [] };
+  },
+
+  _pathLineConflictPenalty(points, usedSegments) {
+    if (!usedSegments || !usedSegments.length) return 0;
+    const segments = this._pathSegments(points);
+    let penalty = 0;
+    segments.forEach((segment) => {
+      usedSegments.forEach((used) => {
+        penalty += this._segmentRouteConflictPenalty(segment, used);
+      });
+    });
+    return penalty;
+  },
+
+  _pathSegments(points) {
+    const segments = [];
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1];
+      const b = points[i];
+      const len = Math.hypot(b.x - a.x, b.y - a.y);
+      if (len < 0.5) continue;
+      const isVertical = Math.abs(a.x - b.x) < 0.01;
+      const isHorizontal = Math.abs(a.y - b.y) < 0.01;
+      segments.push({
+        x1: a.x,
+        y1: a.y,
+        x2: b.x,
+        y2: b.y,
+        minX: Math.min(a.x, b.x),
+        maxX: Math.max(a.x, b.x),
+        minY: Math.min(a.y, b.y),
+        maxY: Math.max(a.y, b.y),
+        length: len,
+        orientation: isVertical ? "v" : isHorizontal ? "h" : "d",
+      });
+    }
+    return segments;
+  },
+
+  _segmentRouteConflictPenalty(a, b) {
+    const eps = 0.75;
+    if (a.length < 1 || b.length < 1) return 0;
+
+    if (a.orientation === "h" && b.orientation === "h") {
+      const overlap = Math.min(a.maxX, b.maxX) - Math.max(a.minX, b.minX);
+      if (overlap <= eps) return 0;
+      return Math.abs(a.y1 - b.y1) <= eps
+        ? MP_ROUTE_CROSS_PENALTY + overlap * 26
+        : 0;
+    }
+
+    if (a.orientation === "v" && b.orientation === "v") {
+      const overlap = Math.min(a.maxY, b.maxY) - Math.max(a.minY, b.minY);
+      if (overlap <= eps) return 0;
+      return Math.abs(a.x1 - b.x1) <= eps
+        ? MP_ROUTE_CROSS_PENALTY + overlap * 26
+        : 0;
+    }
+
+    const h = a.orientation === "h" ? a : b.orientation === "h" ? b : null;
+    const v = a.orientation === "v" ? a : b.orientation === "v" ? b : null;
+    if (!h || !v) return 0;
+
+    const crosses =
+      v.x1 >= h.minX - eps &&
+      v.x1 <= h.maxX + eps &&
+      h.y1 >= v.minY - eps &&
+      h.y1 <= v.maxY + eps;
+    return crosses ? MP_ROUTE_CROSS_PENALTY : 0;
+  },
+
+  _nearSegmentPenalty(a, b, gap) {
+    return 0;
+  },
+
+  _segmentBoxDistance(a, b) {
+    const dx =
+      a.maxX < b.minX
+        ? b.minX - a.maxX
+        : b.maxX < a.minX
+          ? a.minX - b.maxX
+          : 0;
+    const dy =
+      a.maxY < b.minY
+        ? b.minY - a.maxY
+        : b.maxY < a.minY
+          ? a.minY - b.maxY
+          : 0;
+    return Math.hypot(dx, dy);
+  },
+
+  _pointToEndpointDistance(point, segment) {
+    return Math.min(
+      Math.hypot(point.x - segment.x1, point.y - segment.y1),
+      Math.hypot(point.x - segment.x2, point.y - segment.y2),
+    );
+  },
+
   _pathUsagePenalty(points, usedCells) {
     if (!usedCells || !usedCells.size) return 0;
     let penalty = 0;
@@ -1419,10 +1727,12 @@ const MapaPage = {
     return penalty;
   },
 
-  _markRouteUsage(points, usedCells) {
+  _markRouteUsage(points, routeContext) {
+    const context = this._normalizeRouteContext(routeContext);
     this._samplePathCells(points).forEach((cell) => {
-      usedCells.add(this._gridKey(cell.gx, cell.gy));
+      context.cells.add(this._gridKey(cell.gx, cell.gy));
     });
+    context.segments.push(...this._pathSegments(points));
   },
 
   _samplePathCells(points) {
