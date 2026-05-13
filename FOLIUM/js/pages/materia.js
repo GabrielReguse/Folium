@@ -1,61 +1,58 @@
-/* ═══════════════════════════════════════
-   FOLIUM — pages/materia.js
-   Lista de folhas de uma matéria
-   + visualização de folha individual
-═══════════════════════════════════════ */
-
 const MateriaPage = {
   subject: null,
-  sheet:   null,
+  sheet: null,
 
   init() {
     if (!Router.requireAuth()) return;
 
-    const subjectId = Storage.getContext('subjectId');
-    const sheetId   = Storage.getContext('sheetId');
-    const viewSheet = Storage.getContext('viewSheet');
+    const subjectId = Storage.getContext("subjectId");
+    const sheetId = Storage.getContext("sheetId");
+    const viewSheet = Storage.getContext("viewSheet");
 
     const subjects = Storage.getSubjects();
-    this.subject = subjects.find(s => s.id === subjectId) || null;
+    this.subject = subjects.find((s) => s.id === subjectId) || null;
 
-    if (!this.subject) { Router.go('folhas'); return; }
+    if (!this.subject) {
+      Router.go("folhas");
+      return;
+    }
 
     if (viewSheet && sheetId) {
-      this.sheet = this.subject.folhas.find(f => f.id === sheetId) || null;
-      if (!this.sheet) { this._renderSheetList(); return; }
+      this.sheet = this.subject.folhas.find((f) => f.id === sheetId) || null;
+      if (!this.sheet) {
+        this._renderSheetList();
+        return;
+      }
       this._renderSheetView();
     } else {
       this._renderSheetList();
     }
   },
 
-  /* ── Lista de folhas da matéria ── */
   _renderSheetList() {
     Sidebar.init();
-    Storage.clearContext('sheetId');
-    Storage.clearContext('viewSheet');
+    Storage.clearContext("sheetId");
+    Storage.clearContext("viewSheet");
 
     Navbar.renderTop({
-      backRoute: 'folhas',
-      backLabel: 'Matérias',
-      title: `<em>${this.subject.nomeNormalizado}</em>`
+      backRoute: "folhas",
+      backLabel: "Matérias",
+      title: `<em>${this.subject.nomeNormalizado}</em>`,
     });
 
-    const body = DOM.$('#materia-body');
+    const body = DOM.$("#materia-body");
     if (!body) return;
 
-    /* FIX: limpa antes de renderizar para evitar duplicação em re-renders */
     DOM.clear(body);
 
-    /* Ordenação: favoritas primeiro, depois por data decrescente */
-    const folhas = [...this.subject.folhas].sort((a, b) =>
-      (b.favorita ? 1 : 0) - (a.favorita ? 1 : 0) ||
-      new Date(b.criadaEm) - new Date(a.criadaEm)
+    const folhas = [...this.subject.folhas].sort(
+      (a, b) =>
+        (b.favorita ? 1 : 0) - (a.favorita ? 1 : 0) ||
+        new Date(b.criadaEm) - new Date(a.criadaEm),
     );
 
-    /* Breadcrumb */
-    const bread = document.createElement('div');
-    bread.className = 'bread-row au';
+    const bread = document.createElement("div");
+    bread.className = "bread-row au";
     bread.innerHTML = `
       <button class="bread-back" onclick="Router.go('folhas')">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -65,14 +62,14 @@ const MateriaPage = {
       <span class="bread-current">${this.subject.nomeNormalizado}</span>`;
     body.appendChild(bread);
 
-    const lbl = document.createElement('p');
-    lbl.className = 't-label mb-16';
-    lbl.textContent = `${folhas.length} folha${folhas.length !== 1 ? 's' : ''}`;
+    const lbl = document.createElement("p");
+    lbl.className = "t-label mb-16";
+    lbl.textContent = `${folhas.length} folha${folhas.length !== 1 ? "s" : ""}`;
     body.appendChild(lbl);
 
     if (!folhas.length) {
-      const empty = document.createElement('div');
-      empty.className = 'empty-state';
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
       empty.innerHTML = `
         <div class="ei"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;stroke:var(--tan)" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></div>
         <h3>Nenhuma folha aqui</h3>
@@ -84,33 +81,33 @@ const MateriaPage = {
     folhas.forEach((sh, i) => {
       const card = Card.sheet({
         ...sh,
-        subjectId:  this.subject.id,
+        subjectId: this.subject.id,
         onFavorite: () => this._toggleFavorite(sh.id),
-        onDelete:   () => this._deleteSheet(sh.id),
+        onDelete: () => this._deleteSheet(sh.id),
         onDownload: (format) => this._downloadSheet(sh.id, format),
       });
       card.style.animationDelay = `${i * 0.07}s`;
-      card.classList.add('au');
+      card.classList.add("au");
       body.appendChild(card);
     });
 
-    /* ── Mapas Mentais desta matéria ── */
     const mapas = this.subject.mapas || [];
     if (mapas.length > 0) {
-      const mapaLbl = document.createElement('p');
-      mapaLbl.className = 't-label mb-16';
-      mapaLbl.style.marginTop = '28px';
+      const mapaLbl = document.createElement("p");
+      mapaLbl.className = "t-label mb-16";
+      mapaLbl.style.marginTop = "28px";
       mapaLbl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:var(--caramel)"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        ${mapas.length} mapa${mapas.length !== 1 ? 's' : ''} mental${mapas.length !== 1 ? 'is' : ''}
+        ${mapas.length} mapa${mapas.length !== 1 ? "s" : ""} mental${mapas.length !== 1 ? "is" : ""}
       </span>`;
       body.appendChild(mapaLbl);
 
       mapas.forEach((mp, i) => {
-        const card = document.createElement('div');
-        card.className = 'subject-card au';
+        const card = document.createElement("div");
+        card.className = "subject-card au";
         card.style.animationDelay = `${i * 0.07}s`;
-        card.style.cssText += ';border-left:3px solid var(--caramel);cursor:pointer;';
+        card.style.cssText +=
+          ";border-left:3px solid var(--caramel);cursor:pointer;";
         card.innerHTML = `
           <div class="sc-left">
             <div class="sc-icon" style="background:var(--caramel-lt)">
@@ -120,76 +117,129 @@ const MateriaPage = {
             </div>
             <div class="sc-info">
               <div class="sc-name">${mp.titulo}</div>
-              <div class="sc-meta">Mapa ${mp.template ? '· ' + mp.template.charAt(0).toUpperCase() + mp.template.slice(1) : ''} · ${mp.dataFormatada || ''}</div>
+              <div class="sc-meta">Mapa ${mp.template ? "· " + mp.template.charAt(0).toUpperCase() + mp.template.slice(1) : ""} · ${mp.dataFormatada || ""}</div>
             </div>
           </div>
           <div style="font-size:11px;color:var(--text-light);padding:4px 8px;background:var(--caramel-lt);border-radius:999px;white-space:nowrap">
             ${(mp.topicos || []).length} nós
           </div>`;
-        card.addEventListener('click', () => {
-          /* Abrir visualização do mapa — por ora mostra alert de WIP */
-          alert(`Mapa: ${mp.titulo}\nTemplate: ${mp.template}\nTópicos: ${(mp.topicos||[]).join(', ')}`);
+        card.addEventListener("click", () => {
+          alert(
+            `Mapa: ${mp.titulo}\nTemplate: ${mp.template}\nTópicos: ${(mp.topicos || []).join(", ")}`,
+          );
         });
         body.appendChild(card);
       });
     }
   },
 
-  /* ── Download de folha (PDF ou DOC) ── */
   async _downloadSheet(sheetId, format) {
-    const folha = this.subject.folhas.find(f => f.id === sheetId);
+    const folha = this.subject.folhas.find((f) => f.id === sheetId);
     if (!folha) return;
 
-    const safeName = (folha.titulo || 'folha')
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-zA-Z0-9_\- ]/g, '').replace(/\s+/g, '_').slice(0, 80) || 'folha';
+    const safeName =
+      (folha.titulo || "folha")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9_\- ]/g, "")
+        .replace(/\s+/g, "_")
+        .slice(0, 80) || "folha";
 
     const bodyHTML = await this._buildSheetHTML(folha);
 
-    if (format === 'doc') {
+    if (format === "doc") {
       this._downloadDoc(bodyHTML, `${safeName}.doc`, folha.titulo);
     } else {
       await this._downloadPdf(bodyHTML, `${safeName}.pdf`);
     }
   },
 
-  /* Constrói HTML da folha para export (async para capturar visuais) */
   async _buildSheetHTML(folha) {
-    const esc = (s) => String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const esc = (s) =>
+      String(s == null ? "" : s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
 
     const parts = [];
-    parts.push(`<h1 style="font-family:Georgia,serif;margin:0 0 4px">${esc(folha.titulo || 'Folha')}</h1>`);
-    const subtitle = [this.subject.nomeNormalizado, folha.tema].filter(Boolean).map(esc).join(' — ');
-    if (subtitle) parts.push(`<p style="margin:0 0 4px;color:#555"><em>${subtitle}</em></p>`);
-    const meta = [folha.dataFormatada, folha.nivelLabel].filter(Boolean).map(esc).join(' · ');
-    if (meta) parts.push(`<p style="margin:0 0 18px;color:#888;font-size:12px">${meta}</p>`);
+    parts.push(
+      `<h1 style="font-family:Georgia,serif;margin:0 0 4px">${esc(folha.titulo || "Folha")}</h1>`,
+    );
+    const subtitle = [this.subject.nomeNormalizado, folha.tema]
+      .filter(Boolean)
+      .map(esc)
+      .join(" — ");
+    if (subtitle)
+      parts.push(
+        `<p style="margin:0 0 4px;color:#555"><em>${subtitle}</em></p>`,
+      );
+    const meta = [folha.dataFormatada, folha.nivelLabel]
+      .filter(Boolean)
+      .map(esc)
+      .join(" · ");
+    if (meta)
+      parts.push(
+        `<p style="margin:0 0 18px;color:#888;font-size:12px">${meta}</p>`,
+      );
 
     const r = folha.resultado;
     if (r && Array.isArray(r.blocos) && r.blocos.length) {
       for (const b of r.blocos) {
-        parts.push(`<h2 style="font-family:Georgia,serif;margin:18px 0 6px">${esc(b.titulo || '')}</h2>`);
-        if (b.explicacao) parts.push(`<p style="margin:0 0 8px;line-height:1.5">${esc(b.explicacao)}</p>`);
+        parts.push(
+          `<h2 style="font-family:Georgia,serif;margin:18px 0 6px">${esc(b.titulo || "")}</h2>`,
+        );
+        if (b.explicacao)
+          parts.push(
+            `<p style="margin:0 0 8px;line-height:1.5">${esc(b.explicacao)}</p>`,
+          );
 
         const ex = b.exemplo;
         if (ex && ex.tipo) {
-          const rotulo = esc(ex.rotulo || (ex.tipo === 'pratico' ? 'Exemplo' : ex.tipo === 'tabela' ? 'Tabela' : 'Resumo'));
-          if (ex.tipo === 'pratico' && ex.texto) {
-            parts.push(`<div style="margin:8px 0;padding:10px 12px;background:#f6f2ec;border-left:3px solid #b08a5a"><strong>${rotulo}:</strong> ${esc(ex.texto)}</div>`);
-          } else if (ex.tipo === 'lista' && Array.isArray(ex.itens) && ex.itens.length) {
-            parts.push(`<div style="margin:8px 0"><strong>${rotulo}</strong><ul>${ex.itens.filter(Boolean).map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>`);
-          } else if (ex.tipo === 'tabela' && Array.isArray(ex.colunas) && Array.isArray(ex.linhas)) {
-            const thead = `<tr>${ex.colunas.map(c => `<th style="border:1px solid #aaa;padding:4px 8px;background:#eee;text-align:left">${esc(c)}</th>`).join('')}</tr>`;
-            const tbody = ex.linhas.map(row => {
-              const cells = Array.isArray(row) ? row : [];
-              return `<tr>${cells.map(c => `<td style="border:1px solid #aaa;padding:4px 8px">${esc(c)}</td>`).join('')}</tr>`;
-            }).join('');
-            parts.push(`<div style="margin:8px 0"><strong>${rotulo}</strong><table style="border-collapse:collapse;margin-top:4px">${thead}${tbody}</table></div>`);
+          const rotulo = esc(
+            ex.rotulo ||
+              (ex.tipo === "pratico"
+                ? "Exemplo"
+                : ex.tipo === "tabela"
+                  ? "Tabela"
+                  : "Resumo"),
+          );
+          if (ex.tipo === "pratico" && ex.texto) {
+            parts.push(
+              `<div style="margin:8px 0;padding:10px 12px;background:#f6f2ec;border-left:3px solid #b08a5a"><strong>${rotulo}:</strong> ${esc(ex.texto)}</div>`,
+            );
+          } else if (
+            ex.tipo === "lista" &&
+            Array.isArray(ex.itens) &&
+            ex.itens.length
+          ) {
+            parts.push(
+              `<div style="margin:8px 0"><strong>${rotulo}</strong><ul>${ex.itens
+                .filter(Boolean)
+                .map((i) => `<li>${esc(i)}</li>`)
+                .join("")}</ul></div>`,
+            );
+          } else if (
+            ex.tipo === "tabela" &&
+            Array.isArray(ex.colunas) &&
+            Array.isArray(ex.linhas)
+          ) {
+            const thead = `<tr>${ex.colunas.map((c) => `<th style="border:1px solid #aaa;padding:4px 8px;background:#eee;text-align:left">${esc(c)}</th>`).join("")}</tr>`;
+            const tbody = ex.linhas
+              .map((row) => {
+                const cells = Array.isArray(row) ? row : [];
+                return `<tr>${cells.map((c) => `<td style="border:1px solid #aaa;padding:4px 8px">${esc(c)}</td>`).join("")}</tr>`;
+              })
+              .join("");
+            parts.push(
+              `<div style="margin:8px 0"><strong>${rotulo}</strong><table style="border-collapse:collapse;margin-top:4px">${thead}${tbody}</table></div>`,
+            );
           }
         }
 
         if (b.dica_prova) {
-          parts.push(`<div style="margin:8px 0;padding:8px 12px;background:#fff8e1;border-left:3px solid #e0a800"><strong>Dica de prova:</strong> ${esc(b.dica_prova)}</div>`);
+          parts.push(
+            `<div style="margin:8px 0;padding:8px 12px;background:#fff8e1;border-left:3px solid #e0a800"><strong>Dica de prova:</strong> ${esc(b.dica_prova)}</div>`,
+          );
         }
 
         if (b.visual) {
@@ -199,50 +249,52 @@ const MateriaPage = {
       }
 
       if (r.resumo_geral) {
-        parts.push(`<h2 style="font-family:Georgia,serif;margin:22px 0 6px">Resumo Geral</h2>`);
-        parts.push(`<p style="margin:0;line-height:1.5">${esc(r.resumo_geral)}</p>`);
+        parts.push(
+          `<h2 style="font-family:Georgia,serif;margin:22px 0 6px">Resumo Geral</h2>`,
+        );
+        parts.push(
+          `<p style="margin:0;line-height:1.5">${esc(r.resumo_geral)}</p>`,
+        );
       }
     } else if (Array.isArray(folha.topicos) && folha.topicos.length) {
-      parts.push('<h2 style="font-family:Georgia,serif;margin:18px 0 6px">Tópicos</h2>');
-      parts.push('<ul>' + folha.topicos.map(t => `<li>${esc(t)}</li>`).join('') + '</ul>');
+      parts.push(
+        '<h2 style="font-family:Georgia,serif;margin:18px 0 6px">Tópicos</h2>',
+      );
+      parts.push(
+        "<ul>" +
+          folha.topicos.map((t) => `<li>${esc(t)}</li>`).join("") +
+          "</ul>",
+      );
     } else {
-      parts.push('<p><em>Conteúdo não disponível.</em></p>');
+      parts.push("<p><em>Conteúdo não disponível.</em></p>");
     }
 
-    return parts.join('\n');
+    return parts.join("\n");
   },
 
-  /* Baixa como .doc — MHTML (multipart/related) com imagens como partes
-     MIME separadas. Usa URLs absolutas idênticas entre o src da <img> e o
-     Content-Location da parte de imagem, que é o formato que o Microsoft
-     Word (desktop e Online) espera e resolve corretamente. data: URIs não
-     funcionam no Word Online, por isso convertemos para referências MHTML. */
   _downloadDoc(bodyHTML, filename, title) {
-    /* Base absoluta única pra este documento. Word exige que o src da <img>
-       seja EXATAMENTE igual ao Content-Location do anexo — caminho relativo
-       falha em versões mais novas que não fazem resolução contra o location
-       da parte HTML. */
-    const baseUrl  = 'file:///C:/folium/';
-    const htmlLoc  = baseUrl + 'folium.htm';
+    const baseUrl = "file:///C:/folium/";
+    const htmlLoc = baseUrl + "folium.htm";
 
-    /* Extrai imagens em data URI do HTML e substitui por URLs absolutas
-       que apontam pras partes MIME anexadas. */
     const images = [];
     const processedHTML = bodyHTML.replace(
       /<img([^>]*?)src=(["'])data:image\/([a-zA-Z0-9+.-]+);base64,([^"']+)\2([^>]*)>/gi,
       (_m, pre, _q, ext, b64, post) => {
-        const norm    = ext.toLowerCase();
-        const mime    = 'image/' + (norm === 'svg+xml' ? 'svg+xml' : norm === 'jpg' ? 'jpeg' : norm);
-        const fileExt = norm === 'svg+xml' ? 'svg' : norm === 'jpeg' ? 'jpg' : norm;
-        const idx     = images.length + 1;
-        const name    = `image${String(idx).padStart(3, '0')}.${fileExt}`;
-        const url     = baseUrl + name;
-        images.push({ name, url, mime, data: b64.replace(/\s+/g, '') });
+        const norm = ext.toLowerCase();
+        const mime =
+          "image/" +
+          (norm === "svg+xml" ? "svg+xml" : norm === "jpg" ? "jpeg" : norm);
+        const fileExt =
+          norm === "svg+xml" ? "svg" : norm === "jpeg" ? "jpg" : norm;
+        const idx = images.length + 1;
+        const name = `image${String(idx).padStart(3, "0")}.${fileExt}`;
+        const url = baseUrl + name;
+        images.push({ name, url, mime, data: b64.replace(/\s+/g, "") });
         return `<img${pre}src="${url}"${post}>`;
-      }
+      },
     );
 
-    const safeTitle = (title || 'Folium').replace(/</g, '&lt;');
+    const safeTitle = (title || "Folium").replace(/</g, "&lt;");
     const htmlPart = `<!DOCTYPE html>
 <html xmlns:o="urn:schemas-microsoft-com:office:office"
       xmlns:w="urn:schemas-microsoft-com:office:word"
@@ -257,152 +309,157 @@ const MateriaPage = {
 <body>${processedHTML}</body>
 </html>`;
 
-    /* Sem imagens → HTML simples com BOM UTF-8, que o Word abre como
-       "Página da Web" e exibe corretamente. */
     if (!images.length) {
-      const blob = new Blob(['\ufeff', htmlPart], { type: 'application/msword' });
+      const blob = new Blob(["\ufeff", htmlPart], {
+        type: "application/msword",
+      });
       this._triggerDownload(blob, filename);
       return;
     }
 
-    /* Monta MHTML: HTML em base64 + cada imagem como parte separada, todas
-       com Content-Location absoluto. */
-    const boundary = '----=_NextPart_Folium_' + Date.now().toString(36);
-    const htmlB64  = this._utf8ToBase64(htmlPart).match(/.{1,76}/g).join('\r\n');
+    const boundary = "----=_NextPart_Folium_" + Date.now().toString(36);
+    const htmlB64 = this._utf8ToBase64(htmlPart)
+      .match(/.{1,76}/g)
+      .join("\r\n");
 
     const parts = [
-      'MIME-Version: 1.0',
+      "MIME-Version: 1.0",
       `Content-Type: multipart/related; boundary="${boundary}"; type="text/html"`,
-      '',
+      "",
       `--${boundary}`,
       'Content-Type: text/html; charset="utf-8"',
-      'Content-Transfer-Encoding: base64',
+      "Content-Transfer-Encoding: base64",
       `Content-Location: ${htmlLoc}`,
-      '',
+      "",
       htmlB64,
-      ''
+      "",
     ];
 
     for (const img of images) {
-      const dataB64 = img.data.match(/.{1,76}/g).join('\r\n');
+      const dataB64 = img.data.match(/.{1,76}/g).join("\r\n");
       parts.push(
         `--${boundary}`,
         `Content-Type: ${img.mime}`,
-        'Content-Transfer-Encoding: base64',
-        'Content-Disposition: inline',
+        "Content-Transfer-Encoding: base64",
+        "Content-Disposition: inline",
         `Content-Location: ${img.url}`,
-        '',
+        "",
         dataB64,
-        ''
+        "",
       );
     }
-    parts.push(`--${boundary}--`, '');
+    parts.push(`--${boundary}--`, "");
 
-    const mhtml = parts.join('\r\n');
-    const blob = new Blob([mhtml], { type: 'application/msword' });
+    const mhtml = parts.join("\r\n");
+    const blob = new Blob([mhtml], { type: "application/msword" });
     this._triggerDownload(blob, filename);
   },
 
-  /* UTF-8 seguro para btoa */
   _utf8ToBase64(str) {
     const bytes = new TextEncoder().encode(str);
-    let bin = '';
+    let bin = "";
     for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
     return btoa(bin);
   },
 
-  /* Baixa como .pdf usando html2canvas + jsPDF diretamente.
-     html2pdf.js 0.10.1 produzia PDF em branco (~3KB com content stream vazio)
-     independente da configuração do container — o pipeline interno dele
-     falha ao converter o canvas pra página. Usando as duas libs diretamente
-     o fluxo é estável: captura o canvas, embute como JPEG e pagina à mão
-     deslocando a mesma imagem verticalmente. */
   async _downloadPdf(bodyHTML, filename) {
-    const loadScript = (src) => new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = src;
-      s.onload = resolve;
-      s.onerror = reject;
-      document.head.appendChild(s);
-    });
+    const loadScript = (src) =>
+      new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
 
     try {
-      if (typeof html2canvas === 'undefined') {
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+      if (typeof html2canvas === "undefined") {
+        await loadScript(
+          "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+        );
       }
       if (!(window.jspdf && window.jspdf.jsPDF)) {
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+        await loadScript(
+          "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+        );
       }
     } catch {
-      alert('Falha ao carregar o gerador de PDF.');
+      alert("Falha ao carregar o gerador de PDF.");
       return;
     }
 
     const JSPDF = window.jspdf && window.jspdf.jsPDF;
-    if (typeof html2canvas === 'undefined' || !JSPDF) {
-      alert('Não foi possível carregar o gerador de PDF. Verifique sua conexão.');
+    if (typeof html2canvas === "undefined" || !JSPDF) {
+      alert(
+        "Não foi possível carregar o gerador de PDF. Verifique sua conexão.",
+      );
       return;
     }
 
-    /* Container off-screen em fluxo normal (sem z-index negativo nem
-       position:fixed, que atrapalham o html2canvas). */
-    const container = document.createElement('div');
+    const container = document.createElement("div");
     container.style.cssText = [
-      'position:absolute',
-      'left:-10000px',
-      'top:0',
-      'width:780px',
-      'padding:18px',
-      'font-family:Arial,sans-serif',
-      'color:#222',
-      'background:#fff',
-      'box-sizing:border-box'
-    ].join(';');
+      "position:absolute",
+      "left:-10000px",
+      "top:0",
+      "width:780px",
+      "padding:18px",
+      "font-family:Arial,sans-serif",
+      "color:#222",
+      "background:#fff",
+      "box-sizing:border-box",
+    ].join(";");
     container.innerHTML = bodyHTML;
     document.body.appendChild(container);
 
-    /* Aguarda imagens carregarem antes de capturar */
-    const imgs = container.querySelectorAll('img');
+    const imgs = container.querySelectorAll("img");
     if (imgs.length) {
-      await Promise.all(Array.from(imgs).map(img =>
-        img.complete && img.naturalWidth > 0
-          ? Promise.resolve()
-          : new Promise(r => { img.onload = r; img.onerror = r; })
-      ));
+      await Promise.all(
+        Array.from(imgs).map((img) =>
+          img.complete && img.naturalWidth > 0
+            ? Promise.resolve()
+            : new Promise((r) => {
+                img.onload = r;
+                img.onerror = r;
+              }),
+        ),
+      );
     }
-    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    await new Promise((r) =>
+      requestAnimationFrame(() => requestAnimationFrame(r)),
+    );
 
     try {
       const canvas = await html2canvas(container, {
         scale: 2,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: '#ffffff',
+        backgroundColor: "#ffffff",
         logging: false,
-        windowWidth: 780
+        windowWidth: 780,
       });
 
-      const pdf    = new JSPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-      const pageW  = pdf.internal.pageSize.getWidth();
-      const pageH  = pdf.internal.pageSize.getHeight();
+      const pdf = new JSPDF({
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+      });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
       const margin = 10;
-      const imgW   = pageW - margin * 2;
-      const imgH   = canvas.height * imgW / canvas.width;
+      const imgW = pageW - margin * 2;
+      const imgH = (canvas.height * imgW) / canvas.width;
       const usable = pageH - margin * 2;
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
 
-      /* Paginação: desloca a MESMA imagem verticalmente e usa o clipping
-         da página pra mostrar só a faixa correspondente. Evita rasterizar
-         em tiras (que geralmente corta linhas no meio). */
       let heightLeft = imgH;
-      let position   = margin;
-      pdf.addImage(imgData, 'JPEG', margin, position, imgW, imgH);
+      let position = margin;
+      pdf.addImage(imgData, "JPEG", margin, position, imgW, imgH);
       heightLeft -= usable;
       while (heightLeft > 0) {
         position = margin - (imgH - heightLeft);
         pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', margin, position, imgW, imgH);
+        pdf.addImage(imgData, "JPEG", margin, position, imgW, imgH);
         heightLeft -= usable;
       }
 
@@ -412,54 +469,61 @@ const MateriaPage = {
     }
   },
 
-  /* Constrói HTML para um visual (chart, SVG, imagem wiki) */
   async _buildVisualHTML(visual) {
-    if (!visual?.tipo) return '';
+    if (!visual?.tipo) return "";
     try {
       switch (visual.tipo) {
-        case 'grafico_funcao':
-        case 'grafico_barras':
-        case 'grafico_pizza':
+        case "grafico_funcao":
+        case "grafico_barras":
+        case "grafico_pizza":
           return await this._chartToImgHTML(visual);
-        case 'svg':
+        case "svg":
           return await this._svgToImgHTML(visual.codigo);
-        case 'imagem_wiki':
+        case "imagem_wiki":
           return await this._wikiToImgHTML(visual.busca);
         default:
-          return '';
+          return "";
       }
     } catch (e) {
-      console.warn('[Download] visual falhou:', e.message);
-      return '';
+      console.warn("[Download] visual falhou:", e.message);
+      return "";
     }
   },
 
-  /* Renderiza Chart.js em canvas temporário e converte para base64 PNG */
   async _chartToImgHTML(visual) {
-    if (typeof Chart === 'undefined') return '';
+    if (typeof Chart === "undefined") return "";
     const d = visual.dados;
-    if (!d) return '';
+    if (!d) return "";
 
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     canvas.width = 800;
     canvas.height = 450;
-    const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'position:fixed;left:0;top:0;width:800px;height:450px;z-index:-9999;pointer-events:none';
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText =
+      "position:fixed;left:0;top:0;width:800px;height:450px;z-index:-9999;pointer-events:none";
     wrapper.appendChild(canvas);
     document.body.appendChild(wrapper);
 
     let chartConfig;
 
-    if (visual.tipo === 'grafico_funcao') {
-      if (!d.funcao) { wrapper.remove(); return ''; }
+    if (visual.tipo === "grafico_funcao") {
+      if (!d.funcao) {
+        wrapper.remove();
+        return "";
+      }
       const n = d.passos || 100;
       const xMin = d.dominio?.[0] ?? -10;
       const xMax = d.dominio?.[1] ?? 10;
       const step = (xMax - xMin) / n;
       let fn;
-      try { fn = new Function('x', `"use strict";return (${d.funcao});`); }
-      catch { wrapper.remove(); return ''; }
-      const labels = [], values = [];
+      try {
+        fn = new Function("x", `"use strict";return (${d.funcao});`);
+      } catch {
+        wrapper.remove();
+        return "";
+      }
+      const labels = [],
+        values = [];
       for (let i = 0; i <= n; i++) {
         const x = xMin + i * step;
         const y = fn(x);
@@ -467,77 +531,154 @@ const MateriaPage = {
         values.push(isFinite(y) ? parseFloat(y.toFixed(4)) : null);
       }
       chartConfig = {
-        type: 'line',
-        data: { labels, datasets: [{ label: d.label || 'f(x)', data: values, borderColor: '#9B6B42', backgroundColor: 'rgba(155,107,66,0.08)', borderWidth: 2.5, pointRadius: 0, tension: 0.4, fill: true, spanGaps: false }] },
-        options: { ...AI2._chartOpts(d.label || ''), animation: false, responsive: false },
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: d.label || "f(x)",
+              data: values,
+              borderColor: "#9B6B42",
+              backgroundColor: "rgba(155,107,66,0.08)",
+              borderWidth: 2.5,
+              pointRadius: 0,
+              tension: 0.4,
+              fill: true,
+              spanGaps: false,
+            },
+          ],
+        },
+        options: {
+          ...AI2._chartOpts(d.label || ""),
+          animation: false,
+          responsive: false,
+        },
       };
-    } else if (visual.tipo === 'grafico_barras') {
-      if (!d.labels || !d.datasets) { wrapper.remove(); return ''; }
-      const palette = ['#9B6B42', '#7A5035', '#C4A882', '#5C3D2E'];
+    } else if (visual.tipo === "grafico_barras") {
+      if (!d.labels || !d.datasets) {
+        wrapper.remove();
+        return "";
+      }
+      const palette = ["#9B6B42", "#7A5035", "#C4A882", "#5C3D2E"];
       chartConfig = {
-        type: 'bar',
-        data: { labels: d.labels, datasets: d.datasets.map((ds, i) => ({ label: ds.label, data: ds.valores, backgroundColor: palette[i % palette.length] + 'BB', borderColor: palette[i % palette.length], borderWidth: 1.5, borderRadius: 6 })) },
-        options: { ...AI2._chartOpts(d.titulo || ''), animation: false, responsive: false },
+        type: "bar",
+        data: {
+          labels: d.labels,
+          datasets: d.datasets.map((ds, i) => ({
+            label: ds.label,
+            data: ds.valores,
+            backgroundColor: palette[i % palette.length] + "BB",
+            borderColor: palette[i % palette.length],
+            borderWidth: 1.5,
+            borderRadius: 6,
+          })),
+        },
+        options: {
+          ...AI2._chartOpts(d.titulo || ""),
+          animation: false,
+          responsive: false,
+        },
       };
-    } else if (visual.tipo === 'grafico_pizza') {
-      if (!d.labels || !d.valores) { wrapper.remove(); return ''; }
-      const palette = ['#9B6B42', '#7A5035', '#C4A882', '#D4B896', '#5C3D2E', '#B8906A'];
+    } else if (visual.tipo === "grafico_pizza") {
+      if (!d.labels || !d.valores) {
+        wrapper.remove();
+        return "";
+      }
+      const palette = [
+        "#9B6B42",
+        "#7A5035",
+        "#C4A882",
+        "#D4B896",
+        "#5C3D2E",
+        "#B8906A",
+      ];
       chartConfig = {
-        type: 'doughnut',
-        data: { labels: d.labels, datasets: [{ data: d.valores, backgroundColor: palette.map(c => c + 'CC'), borderColor: '#fff', borderWidth: 3, hoverOffset: 6 }] },
-        options: { ...AI2._chartOpts(d.titulo || ''), animation: false, responsive: false, cutout: '52%', scales: {} },
+        type: "doughnut",
+        data: {
+          labels: d.labels,
+          datasets: [
+            {
+              data: d.valores,
+              backgroundColor: palette.map((c) => c + "CC"),
+              borderColor: "#fff",
+              borderWidth: 3,
+              hoverOffset: 6,
+            },
+          ],
+        },
+        options: {
+          ...AI2._chartOpts(d.titulo || ""),
+          animation: false,
+          responsive: false,
+          cutout: "52%",
+          scales: {},
+        },
       };
     }
 
-    if (!chartConfig) { wrapper.remove(); return ''; }
+    if (!chartConfig) {
+      wrapper.remove();
+      return "";
+    }
 
     const chart = new Chart(canvas, chartConfig);
-    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-    const dataUrl = canvas.toDataURL('image/png');
+    await new Promise((r) =>
+      requestAnimationFrame(() => requestAnimationFrame(r)),
+    );
+    const dataUrl = canvas.toDataURL("image/png");
     chart.destroy();
     wrapper.remove();
 
     return `<div style="margin:12px 0;text-align:center"><img src="${dataUrl}" style="max-width:100%;height:auto" alt="Gráfico"></div>`;
   },
 
-  /* Converte SVG inline para imagem PNG (melhor compatibilidade com Word) */
   async _svgToImgHTML(codigo) {
-    if (!codigo?.trim().toLowerCase().startsWith('<svg')) return '';
+    if (!codigo?.trim().toLowerCase().startsWith("<svg")) return "";
 
     try {
       const parser = new DOMParser();
-      const doc = parser.parseFromString(codigo.trim(), 'image/svg+xml');
-      const svgEl = doc.querySelector('svg');
-      if (!svgEl) return '';
+      const doc = parser.parseFromString(codigo.trim(), "image/svg+xml");
+      const svgEl = doc.querySelector("svg");
+      if (!svgEl) return "";
 
-      let w = 500, h = 300;
-      const vb = svgEl.getAttribute('viewBox');
+      let w = 500,
+        h = 300;
+      const vb = svgEl.getAttribute("viewBox");
       if (vb) {
         const p = vb.split(/[\s,]+/).map(Number);
-        if (p.length >= 4 && p[2] > 0 && p[3] > 0) { w = p[2]; h = p[3]; }
+        if (p.length >= 4 && p[2] > 0 && p[3] > 0) {
+          w = p[2];
+          h = p[3];
+        }
       }
-      if (!svgEl.getAttribute('width'))  svgEl.setAttribute('width', w);
-      if (!svgEl.getAttribute('height')) svgEl.setAttribute('height', h);
+      if (!svgEl.getAttribute("width")) svgEl.setAttribute("width", w);
+      if (!svgEl.getAttribute("height")) svgEl.setAttribute("height", h);
 
       const serialized = new XMLSerializer().serializeToString(svgEl);
-      const blob = new Blob([serialized], { type: 'image/svg+xml;charset=utf-8' });
+      const blob = new Blob([serialized], {
+        type: "image/svg+xml;charset=utf-8",
+      });
       const url = URL.createObjectURL(blob);
 
       const dataUrl = await new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
           const scale = 2;
-          const c = document.createElement('canvas');
-          c.width = w * scale; c.height = h * scale;
-          const ctx = c.getContext('2d');
+          const c = document.createElement("canvas");
+          c.width = w * scale;
+          c.height = h * scale;
+          const ctx = c.getContext("2d");
           ctx.scale(scale, scale);
-          ctx.fillStyle = '#ffffff';
+          ctx.fillStyle = "#ffffff";
           ctx.fillRect(0, 0, w, h);
           ctx.drawImage(img, 0, 0, w, h);
           URL.revokeObjectURL(url);
-          resolve(c.toDataURL('image/png'));
+          resolve(c.toDataURL("image/png"));
         };
-        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('SVG render failed')); };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error("SVG render failed"));
+        };
         img.src = url;
       });
 
@@ -547,42 +688,42 @@ const MateriaPage = {
     }
   },
 
-  /* Busca imagem da Wikipedia/Wikimedia e gera tag img.
-     Baixa o binário e embute como data URI — referência a URL remota
-     não funciona no export (DOC não consegue fetchar offline; html2canvas
-     falha por CORS mesmo com crossorigin="anonymous"). */
   async _wikiToImgHTML(busca) {
-    if (!busca?.trim()) return '';
+    if (!busca?.trim()) return "";
     try {
       const result = await AI2._fetchWiki(busca);
-      if (!result?.url) return '';
+      if (!result?.url) return "";
 
-      let dataUrl = '';
+      let dataUrl = "";
       try {
-        const resp = await fetch(result.url, { mode: 'cors' });
+        const resp = await fetch(result.url, { mode: "cors" });
         if (resp.ok) {
           const blob = await resp.blob();
           dataUrl = await new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload  = () => resolve(reader.result);
-            reader.onerror = () => reject(new Error('read fail'));
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error("read fail"));
             reader.readAsDataURL(blob);
           });
         }
-      } catch { /* cai pro fallback abaixo */ }
+      } catch {}
 
-      const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      const esc = (s) =>
+        String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
       const src = dataUrl || result.url;
       return `<div style="margin:12px 0;text-align:center"><img src="${esc(src)}" style="max-width:480px;width:100%;height:auto" alt="${esc(busca)}" crossorigin="anonymous"><p style="font-size:10px;color:#888;margin-top:4px">${esc(result.title || busca)} · Wikimedia Commons</p></div>`;
     } catch {
-      return '';
+      return "";
     }
   },
 
-  /* Dispara o download de um blob */
   _triggerDownload(blob, filename) {
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
@@ -591,148 +732,139 @@ const MateriaPage = {
     setTimeout(() => URL.revokeObjectURL(url), 1500);
   },
 
-  /* ── Alternar favorito de uma folha ── */
   _toggleFavorite(sheetId) {
     const subjects = Storage.getSubjects();
-    const subj = subjects.find(s => s.id === this.subject.id);
+    const subj = subjects.find((s) => s.id === this.subject.id);
     if (!subj) return;
 
-    const folha = subj.folhas.find(f => f.id === sheetId);
+    const folha = subj.folhas.find((f) => f.id === sheetId);
     if (!folha) return;
 
     folha.favorita = !folha.favorita;
     Storage.setSubjects(subjects);
 
     this.subject = subj;
-    this._renderSheetList();   /* DOM.clear está dentro — sem duplicação */
+    this._renderSheetList();
   },
 
-  /* ── Apagar folha ── */
   _deleteSheet(sheetId) {
-    const fTitle = this.subject.folhas.find(f => f.id === sheetId)?.titulo || 'esta folha';
+    const fTitle =
+      this.subject.folhas.find((f) => f.id === sheetId)?.titulo || "esta folha";
     Confirm.show({
-      title: 'Apagar folha?',
+      title: "Apagar folha?",
       text: `"${fTitle}" será removida permanentemente.`,
-      confirmLabel: 'Apagar',
+      confirmLabel: "Apagar",
       onConfirm: () => {
         const subjects = Storage.getSubjects();
-        const subj = subjects.find(s => s.id === this.subject.id);
+        const subj = subjects.find((s) => s.id === this.subject.id);
         if (!subj) return;
-        subj.folhas = subj.folhas.filter(f => f.id !== sheetId);
+        subj.folhas = subj.folhas.filter((f) => f.id !== sheetId);
         Storage.setSubjects(subjects);
         this.subject = subj;
         if (!subj.folhas.length) {
-          // Matéria sem folhas — volta para lista de matérias
-          const allSubj = Storage.getSubjects().filter(s => s.id !== subj.id);
+          const allSubj = Storage.getSubjects().filter((s) => s.id !== subj.id);
           Storage.setSubjects(allSubj);
-          Router.go('folhas');
+          Router.go("folhas");
         } else {
           this._renderSheetList();
         }
-      }
+      },
     });
   },
 
-  /* ── Visualização completa da folha ── */
   _renderSheetView() {
-    history.pushState({ foliumSheet: true }, '', window.location.href);
+    history.pushState({ foliumSheet: true }, "", window.location.href);
     Navbar.renderTop({
       backRoute: null,
       backLabel: null,
-      title: `<em>${this.subject.nomeNormalizado}</em>`
+      title: `<em>${this.subject.nomeNormalizado}</em>`,
     });
 
-    /* Injeta botão de voltar na navbar */
-    const nav = DOM.$('.top-nav');
+    const nav = DOM.$(".top-nav");
     if (nav) {
       const wrapper = nav.firstElementChild;
       if (wrapper) {
-        const backBtn = document.createElement('button');
-        backBtn.className = 'nav-back';
+        const backBtn = document.createElement("button");
+        backBtn.className = "nav-back";
         backBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" style="flex-shrink:0"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> ${this.subject.nomeNormalizado}`;
-        backBtn.addEventListener('click', () => {
-          /* FIX nav circular: limpa contexto ANTES de navegar */
-          Storage.clearContext('sheetId');
-          Storage.clearContext('viewSheet');
-          Router.go('materia', { subjectId: this.subject.id });
+        backBtn.addEventListener("click", () => {
+          Storage.clearContext("sheetId");
+          Storage.clearContext("viewSheet");
+          Router.go("materia", { subjectId: this.subject.id });
         });
         DOM.clear(wrapper);
         wrapper.appendChild(backBtn);
       }
     }
 
-    const body = DOM.$('#materia-body');
+    const body = DOM.$("#materia-body");
     if (!body) return;
 
-    /* FIX: limpa antes de renderizar */
     DOM.clear(body);
 
     const isFav = !!this.sheet.favorita;
 
-    const header = document.createElement('div');
-    header.className = 'sheet-view-header';
+    const header = document.createElement("div");
+    header.className = "sheet-view-header";
     header.innerHTML = `
       <div class="shv-badges">
         <span class="badge badge-accent">Folha de estudo</span>
-        ${this.sheet.nivelLabel ? `<span class="badge badge-nivel">${this.sheet.nivelLabel}</span>` : ''}
-        <button class="fav-btn-header ${isFav ? 'on' : ''}" id="fav-header-btn"
-                title="${isFav ? 'Remover favorito' : 'Favoritar'}">
+        ${this.sheet.nivelLabel ? `<span class="badge badge-nivel">${this.sheet.nivelLabel}</span>` : ""}
+        <button class="fav-btn-header ${isFav ? "on" : ""}" id="fav-header-btn"
+                title="${isFav ? "Remover favorito" : "Favoritar"}">
           ${isFav ? '<svg viewBox="0 0 24 24" fill="#f5a623" stroke="#f5a623" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;stroke:var(--text-light)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'}
         </button>
       </div>
       <h2 class="t-section" style="margin-top:10px;margin-bottom:6px">${this.sheet.titulo}</h2>
-      <p class="t-sub">Criada em ${this.sheet.dataFormatada} · ${this.sheet.topicos.length} tópico${this.sheet.topicos.length !== 1 ? 's' : ''}</p>`;
+      <p class="t-sub">Criada em ${this.sheet.dataFormatada} · ${this.sheet.topicos.length} tópico${this.sheet.topicos.length !== 1 ? "s" : ""}</p>`;
     body.appendChild(header);
 
-    /* Bind do botão de favoritar no header */
-    const favBtn = header.querySelector('#fav-header-btn');
+    const favBtn = header.querySelector("#fav-header-btn");
     if (favBtn) {
-      favBtn.addEventListener('click', () => {
+      favBtn.addEventListener("click", () => {
         const subjects = Storage.getSubjects();
-        const subj = subjects.find(s => s.id === this.subject.id);
+        const subj = subjects.find((s) => s.id === this.subject.id);
         if (!subj) return;
-        const folha = subj.folhas.find(f => f.id === this.sheet.id);
+        const folha = subj.folhas.find((f) => f.id === this.sheet.id);
         if (!folha) return;
         folha.favorita = !folha.favorita;
         Storage.setSubjects(subjects);
         this.sheet.favorita = folha.favorita;
-        favBtn.innerHTML = folha.favorita ? '<svg viewBox="0 0 24 24" fill="#f5a623" stroke="#f5a623" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;stroke:var(--text-light)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
-        favBtn.classList.toggle('on', folha.favorita);
-        favBtn.title = folha.favorita ? 'Remover favorito' : 'Favoritar';
+        favBtn.innerHTML = folha.favorita
+          ? '<svg viewBox="0 0 24 24" fill="#f5a623" stroke="#f5a623" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;stroke:var(--text-light)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+        favBtn.classList.toggle("on", folha.favorita);
+        favBtn.title = folha.favorita ? "Remover favorito" : "Favoritar";
       });
     }
 
-    /* Container filho exclusivo para o AI2 — NÃO é o body */
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'sheet-view-body';
+    const contentDiv = document.createElement("div");
+    contentDiv.className = "sheet-view-body";
     body.appendChild(contentDiv);
 
-    /* Renderiza conteúdo da folha */
     if (this.sheet.resultado) {
-      /* AI2.renderFolha limpa contentDiv (não body) — header preservado */
       AI2.renderFolha(
         contentDiv,
         this.subject.nomeNormalizado,
         this.sheet.tema,
         this.sheet.nivel,
         this.sheet.resultado,
-        false   /* showHeader=false — header já renderizado acima */
+        false,
       );
     } else {
-      /* Folha antiga sem resultado estruturado */
-      this.sheet.topicos.forEach(tp => {
-        const sec = document.createElement('div');
-        sec.className = 'sh-section';
+      this.sheet.topicos.forEach((tp) => {
+        const sec = document.createElement("div");
+        sec.className = "sh-section";
         sec.innerHTML = `<h3 class="t-topic">${tp}</h3>
           <p class="sh-explain t-sub">Conteúdo não disponível — esta folha foi salva sem o resultado completo da IA.</p>`;
         contentDiv.appendChild(sec);
       });
     }
 
-    const spacer = document.createElement('div');
-    spacer.style.height = '40px';
+    const spacer = document.createElement("div");
+    spacer.style.height = "40px";
     body.appendChild(spacer);
-  }
+  },
 };
 
-document.addEventListener('DOMContentLoaded', () => MateriaPage.init());
+document.addEventListener("DOMContentLoaded", () => MateriaPage.init());

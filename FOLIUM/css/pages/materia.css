@@ -1,110 +1,340 @@
-/* FOLIUM v3 — pages/materia.css */
-.materia-body{flex:1;overflow-y:auto;padding:22px;max-width:700px;margin:0 auto;width:100%}
-
-@media(min-width:900px){.materia-body{padding:36px 40px;max-width:none}}
-
-/* ── Breadcrumb melhorado ── */
-.bread-row{
-  display:flex;align-items:center;gap:8px;
-  margin-bottom:22px;padding:10px 14px;
-  background:var(--linen);border-radius:var(--r-sm);
-  border:1px solid var(--border);
-}
-.bread-back{
-  display:flex;align-items:center;gap:6px;
-  font-size:13px;font-weight:500;color:var(--caramel);
-  cursor:pointer;background:none;border:none;
-  font-family:var(--font-sans);transition:opacity var(--t-fast);
-  padding:0;white-space:nowrap;text-decoration:none;
-}
-.bread-back:hover{opacity:0.7}
-.bread-back svg{flex-shrink:0;stroke:var(--caramel)}
-.bread-sep{color:var(--tan);font-size:14px}
-.bread-current{font-size:13px;font-weight:600;color:var(--text);font-family:var(--font-serif)}
-
-/* ── Card de folha individual ── */
-.sheet-card-item{
-  display:flex;align-items:flex-start;gap:14px;
-  padding:18px 18px;
-  background:var(--surface);border-radius:var(--r);
-  box-shadow:var(--sh-sm);cursor:pointer;
-  border:1px solid var(--border);
-  width:100%;text-align:left;font-family:var(--font-sans);
-  text-decoration:none;color:inherit;
-  transition:box-shadow var(--t-mid),transform var(--t-mid),border-color var(--t-mid);
-  margin-bottom:10px;
-  position:relative;
-}
-.sheet-card-item:hover{box-shadow:var(--sh);transform:translateY(-2px);border-color:var(--border-act)}
-
-.sc-icon{width:44px;height:44px;border-radius:13px;background:var(--caramel-lt);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.sc-icon svg{width:20px;height:20px;stroke:var(--caramel)}
-.sc-info{flex:1;min-width:0}
-.sc-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:5px;line-height:1.35;word-break:break-word;white-space:normal} /* Sem truncamento — mostra nome completo */
-.sc-meta{display:flex;align-items:center;flex-wrap:wrap;gap:5px;font-size:11.5px;color:var(--text-light)}
-.sc-nivel{font-size:10.5px;background:var(--linen);color:var(--brown-mid);padding:2px 8px;border-radius:20px;font-weight:500;border:1px solid var(--border)}
-
-/* ── Ações do card ── */
-.sc-actions{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-top:1px}
-.sc-arr{width:17px;height:17px;opacity:0.3;transition:opacity var(--t-fast),transform var(--t-fast)}
-.sheet-card-item:hover .sc-arr{opacity:0.6;transform:translateX(2px)}
-
-.fav-btn{background:none;border:none;cursor:pointer;padding:5px 6px;border-radius:8px;transition:transform var(--t-fast),background var(--t-fast);display:flex;align-items:center}
-.fav-btn svg{width:17px;height:17px;stroke:var(--text-light);fill:none;transition:stroke var(--t-fast),fill var(--t-fast)}
-.fav-btn:hover{background:var(--hover-bg);transform:scale(1.15)}
-.fav-btn.on svg{stroke:#d97706;fill:#d97706}
-
-/* Botão delete */
-.del-btn{background:none;border:none;cursor:pointer;padding:5px 6px;border-radius:8px;transition:background var(--t-fast),color var(--t-fast);display:flex;align-items:center;color:var(--text-light)}
-.del-btn svg{width:15px;height:15px;stroke:currentColor}
-.del-btn:hover{background:#fff0ec;color:#b91c1c}
-
-/* Botão download (PDF / DOC) */
-.dl-btn{background:none;border:none;cursor:pointer;padding:5px 6px;border-radius:8px;transition:background var(--t-fast),color var(--t-fast);display:flex;align-items:center;color:var(--text-light)}
-.dl-btn svg{width:17px;height:17px;stroke:currentColor}
-.dl-btn:hover{background:var(--hover-bg);color:var(--caramel)}
-
-/* Botão kebab (três pontos) — só visível em mobile */
-.sc-kebab{display:none;background:none;border:none;cursor:pointer;padding:5px 6px;border-radius:8px;color:var(--text-light);align-items:center;justify-content:center}
-.sc-kebab svg{width:18px;height:18px;fill:currentColor}
-.sc-kebab:hover{background:var(--hover-bg);color:var(--text)}
-
-/* Mobile: esconde os ícones de desktop, mostra o kebab */
-@media (max-width:899px){
-  .sc-actions .sc-desktop{display:none !important}
-  .sc-kebab{display:flex}
+.materia-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px;
+  max-width: 700px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-/* Menu flutuante do kebab */
-.sc-menu{
-  position:absolute;
-  z-index:1000;
-  min-width:180px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:12px;
-  box-shadow:0 8px 24px rgba(0,0,0,.12);
-  padding:6px;
-  display:flex;flex-direction:column;gap:2px;
-  font-family:var(--font-sans);
+@media (min-width: 900px) {
+  .materia-body {
+    padding: 36px 40px;
+    max-width: none;
+  }
 }
-.sc-menu-item{
-  display:flex;align-items:center;
-  padding:10px 12px;
-  background:none;border:none;cursor:pointer;
-  text-align:left;font-size:14px;color:var(--text);
-  border-radius:8px;
-  font-family:inherit;
-  transition:background var(--t-fast),color var(--t-fast);
-}
-.sc-menu-item:hover{background:var(--hover-bg)}
-.sc-menu-item.danger{color:#b91c1c}
-.sc-menu-item.danger:hover{background:#fff0ec}
 
-/* ── View da folha ── */
-.shv-badges{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.sheet-view-body{padding-bottom:56px}
-.fav-btn-header{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:10px;transition:transform var(--t-fast),background var(--t-fast);display:flex;align-items:center}
-.fav-btn-header svg{width:22px;height:22px;stroke:var(--text-light);fill:none;transition:stroke var(--t-fast),fill var(--t-fast)}
-.fav-btn-header:hover{background:var(--hover-bg);transform:scale(1.1)}
-.fav-btn-header.on svg{stroke:#d97706;fill:#d97706}
+.bread-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 22px;
+  padding: 10px 14px;
+  background: var(--linen);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+}
+.bread-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--caramel);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--font-sans);
+  transition: opacity var(--t-fast);
+  padding: 0;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.bread-back:hover {
+  opacity: 0.7;
+}
+.bread-back svg {
+  flex-shrink: 0;
+  stroke: var(--caramel);
+}
+.bread-sep {
+  color: var(--tan);
+  font-size: 14px;
+}
+.bread-current {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: var(--font-serif);
+}
+
+.sheet-card-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 18px;
+  background: var(--surface);
+  border-radius: var(--r);
+  box-shadow: var(--sh-sm);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-sans);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    box-shadow var(--t-mid),
+    transform var(--t-mid),
+    border-color var(--t-mid);
+  margin-bottom: 10px;
+  position: relative;
+}
+.sheet-card-item:hover {
+  box-shadow: var(--sh);
+  transform: translateY(-2px);
+  border-color: var(--border-act);
+}
+
+.sc-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: var(--caramel-lt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.sc-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--caramel);
+}
+.sc-info {
+  flex: 1;
+  min-width: 0;
+}
+.sc-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 5px;
+  line-height: 1.35;
+  word-break: break-word;
+  white-space: normal;
+}
+.sc-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--text-light);
+}
+.sc-nivel {
+  font-size: 10.5px;
+  background: var(--linen);
+  color: var(--brown-mid);
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+}
+
+.sc-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.sc-arr {
+  width: 17px;
+  height: 17px;
+  opacity: 0.3;
+  transition:
+    opacity var(--t-fast),
+    transform var(--t-fast);
+}
+.sheet-card-item:hover .sc-arr {
+  opacity: 0.6;
+  transform: translateX(2px);
+}
+
+.fav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 6px;
+  border-radius: 8px;
+  transition:
+    transform var(--t-fast),
+    background var(--t-fast);
+  display: flex;
+  align-items: center;
+}
+.fav-btn svg {
+  width: 17px;
+  height: 17px;
+  stroke: var(--text-light);
+  fill: none;
+  transition:
+    stroke var(--t-fast),
+    fill var(--t-fast);
+}
+.fav-btn:hover {
+  background: var(--hover-bg);
+  transform: scale(1.15);
+}
+.fav-btn.on svg {
+  stroke: #d97706;
+  fill: #d97706;
+}
+
+.del-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 6px;
+  border-radius: 8px;
+  transition:
+    background var(--t-fast),
+    color var(--t-fast);
+  display: flex;
+  align-items: center;
+  color: var(--text-light);
+}
+.del-btn svg {
+  width: 15px;
+  height: 15px;
+  stroke: currentColor;
+}
+.del-btn:hover {
+  background: #fff0ec;
+  color: #b91c1c;
+}
+
+.dl-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 6px;
+  border-radius: 8px;
+  transition:
+    background var(--t-fast),
+    color var(--t-fast);
+  display: flex;
+  align-items: center;
+  color: var(--text-light);
+}
+.dl-btn svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+}
+.dl-btn:hover {
+  background: var(--hover-bg);
+  color: var(--caramel);
+}
+
+.sc-kebab {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 6px;
+  border-radius: 8px;
+  color: var(--text-light);
+  align-items: center;
+  justify-content: center;
+}
+.sc-kebab svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+.sc-kebab:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+@media (max-width: 899px) {
+  .sc-actions .sc-desktop {
+    display: none !important;
+  }
+  .sc-kebab {
+    display: flex;
+  }
+}
+
+.sc-menu {
+  position: absolute;
+  z-index: 1000;
+  min-width: 180px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-sans);
+}
+.sc-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+  color: var(--text);
+  border-radius: 8px;
+  font-family: inherit;
+  transition:
+    background var(--t-fast),
+    color var(--t-fast);
+}
+.sc-menu-item:hover {
+  background: var(--hover-bg);
+}
+.sc-menu-item.danger {
+  color: #b91c1c;
+}
+.sc-menu-item.danger:hover {
+  background: #fff0ec;
+}
+
+.shv-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.sheet-view-body {
+  padding-bottom: 56px;
+}
+.fav-btn-header {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 10px;
+  transition:
+    transform var(--t-fast),
+    background var(--t-fast);
+  display: flex;
+  align-items: center;
+}
+.fav-btn-header svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--text-light);
+  fill: none;
+  transition:
+    stroke var(--t-fast),
+    fill var(--t-fast);
+}
+.fav-btn-header:hover {
+  background: var(--hover-bg);
+  transform: scale(1.1);
+}
+.fav-btn-header.on svg {
+  stroke: #d97706;
+  fill: #d97706;
+}

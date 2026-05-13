@@ -15,8 +15,7 @@ load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Inicializa o banco no startup; se falhar, loga mas deixa o app subir
-    # para que /api/health continue respondendo e o erro fique visível.
+
     try:
         init_db()
     except Exception as e:
@@ -35,10 +34,6 @@ app.add_middleware(
 )
 
 
-# ── Handler global: garante CORS mesmo em erros 500 ───────────
-# Sem isso, exceções não tratadas retornam 500 sem header
-# Access-Control-Allow-Origin, e o browser mostra "CORS error"
-# em vez do erro real.
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     origin = request.headers.get("origin", "*")

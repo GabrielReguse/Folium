@@ -22,9 +22,3 @@ services:
         fromDatabase:
           name: folium-db
           property: connectionString
-      # Preencha no painel do Render:
-      # JWT_SECRET → frase longa e aleatória
-      # ALLOWED_ORIGIN → https://seu-projeto.vercel.app
-      # GROQ_API_KEY → chave do Groq (IA 1 — tópicos)
-      # GEMINI_API_KEY → chave do Google AI Studio (IA 2 — primário)
-      # CEREBRAS_API_KEY → chave do Cerebras Cloud (IA 2 — fallback)

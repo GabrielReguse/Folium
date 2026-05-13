@@ -1,11 +1,7 @@
-/* ════════════════════════════════════════════════════════
-   FOLIUM — pages/mapa.css
-   Estilos específicos do fluxo de Mapa Mental
-   ════════════════════════════════════════════════════════ */
+.page-mapa #bg-canvas {
+  display: none;
+}
 
-.page-mapa #bg-canvas { display: none; }
-
-/* ═══ LAYOUT OVERRIDE — mapa usa pane único (sem aside nos steps 2-5) ═══ */
 @media (min-width: 900px) {
   #mpane2.active,
   #mpane3.active,
@@ -18,7 +14,6 @@
   }
 }
 
-/* ═══ PANE 1 — número ═══ */
 .mp-num-row {
   display: flex;
   align-items: center;
@@ -27,10 +22,11 @@
   border: 1.5px solid var(--border);
   border-radius: var(--r-sm);
   overflow: hidden;
-  background: #FBF5E3;
+  background: #fbf5e3;
 }
 .mp-num-btn {
-  width: 40px; height: 40px;
+  width: 40px;
+  height: 40px;
   border: none;
   background: none;
   cursor: pointer;
@@ -40,7 +36,9 @@
   transition: background 0.15s;
   flex-shrink: 0;
 }
-.mp-num-btn:hover { background: var(--caramel-lt); }
+.mp-num-btn:hover {
+  background: var(--caramel-lt);
+}
 .mp-num-inp {
   width: 52px;
   text-align: center;
@@ -52,13 +50,14 @@
   font-size: 17px !important;
   font-weight: 600;
   color: var(--text);
-  background: #FBF5E3 !important;
+  background: #fbf5e3 !important;
   -moz-appearance: textfield;
 }
 .mp-num-inp::-webkit-inner-spin-button,
-.mp-num-inp::-webkit-outer-spin-button { -webkit-appearance: none; }
+.mp-num-inp::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
 
-/* ═══ TOGGLE MODO ═══ */
 .mp-toggle {
   display: flex;
   gap: 8px;
@@ -71,7 +70,7 @@
   padding: 11px 16px;
   border: 1.5px solid var(--border);
   border-radius: var(--r-sm);
-  background: #FBF5E3;
+  background: #fbf5e3;
   color: var(--text-mid);
   font-family: var(--font-sans);
   font-size: 13.5px;
@@ -81,24 +80,33 @@
   flex: 1;
   justify-content: center;
 }
-.mp-toggle-btn svg { width: 15px; height: 15px; opacity: .7; }
-.mp-toggle-btn:hover { border-color: var(--tan); background: var(--linen); }
+.mp-toggle-btn svg {
+  width: 15px;
+  height: 15px;
+  opacity: 0.7;
+}
+.mp-toggle-btn:hover {
+  border-color: var(--tan);
+  background: var(--linen);
+}
 .mp-toggle-btn.active {
   border-color: var(--caramel);
   background: var(--caramel-lt);
   color: var(--caramel);
   font-weight: 600;
 }
-.mp-toggle-btn.active svg { opacity: 1; }
+.mp-toggle-btn.active svg {
+  opacity: 1;
+}
 
-/* campos manuais de tópico */
 .mp-manual-field {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 .mp-manual-field .mp-field-num {
-  width: 26px; height: 26px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: var(--caramel-lt);
   color: var(--caramel);
@@ -115,7 +123,7 @@
   font-size: 14px;
 }
 
-/* ═══ TEMPLATES ═══ */
+/* TEMPLATES */
 .mp-templates {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -123,7 +131,9 @@
   margin-bottom: 28px;
 }
 @media (min-width: 640px) {
-  .mp-templates { grid-template-columns: repeat(4, 1fr); }
+  .mp-templates {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 .mp-tpl-card {
   display: flex;
@@ -133,7 +143,7 @@
   padding: 18px 12px 16px;
   border: 2px solid var(--border);
   border-radius: var(--r);
-  background: #FBF5E3;
+  background: #fbf5e3;
   cursor: pointer;
   transition: all 0.2s;
   text-align: center;
@@ -147,7 +157,7 @@
 .mp-tpl-card.selected {
   border-color: var(--caramel);
   background: var(--caramel-lt);
-  box-shadow: 0 0 0 3px rgba(155,107,66,0.12);
+  box-shadow: 0 0 0 3px rgba(155, 107, 66, 0.12);
 }
 .mp-tpl-preview {
   width: 100%;
@@ -157,7 +167,10 @@
   justify-content: center;
   color: var(--caramel);
 }
-.mp-tpl-preview svg { width: 100%; height: 100%; }
+.mp-tpl-preview svg {
+  width: 100%;
+  height: 100%;
+}
 .mp-tpl-name {
   font-family: var(--font-serif);
   font-size: 15px;
@@ -170,12 +183,13 @@
   line-height: 1.4;
 }
 
-/* ═══ EDITOR ═══ */
 .mp-editor-card {
   padding: 20px 18px 22px;
 }
 @media (min-width: 900px) {
-  .mp-editor-card { padding: 28px 32px 32px; }
+  .mp-editor-card {
+    padding: 28px 32px 32px;
+  }
 }
 
 .mp-editor-toolbar {
@@ -199,7 +213,7 @@
   padding: 9px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--r-sm);
-  background: #FBF5E3;
+  background: #fbf5e3;
   color: var(--text-mid);
   font-family: var(--font-sans);
   font-size: 13px;
@@ -207,7 +221,10 @@
   cursor: pointer;
   transition: all 0.18s;
 }
-.mp-mode-btn:hover { border-color: var(--tan); background: var(--linen); }
+.mp-mode-btn:hover {
+  border-color: var(--tan);
+  background: var(--linen);
+}
 .mp-mode-btn.active {
   border-color: var(--caramel);
   background: var(--caramel);
@@ -219,25 +236,21 @@
   font-style: italic;
 }
 
-/* Canvas wrapper — fits the card width, no scrollbar */
 .mp-canvas-wrap {
   width: 100%;
   background: var(--linen);
   border: 1.5px solid var(--border);
   border-radius: var(--r-sm);
-  overflow: hidden;   /* ← sem scrollbar */
+  overflow: hidden;
   margin-bottom: 16px;
-  /* height set by JS after scale computed */
 }
 .mp-canvas {
-  /* A4 landscape: 900×636px logically; scaled to fit by JS */
   position: relative;
   width: 900px;
   height: 636px;
   background: white;
-  box-shadow: 0 2px 16px rgba(92,61,46,0.10);
-  transform-origin: top left;  /* scale anchor */
-  /* margin: 16px auto; removido — JS cuida do offset */
+  box-shadow: 0 2px 16px rgba(92, 61, 46, 0.1);
+  transform-origin: top left;
 }
 .mp-canvas-svg {
   position: absolute;
@@ -248,16 +261,17 @@
   z-index: 1;
 }
 
-/* ═══ NÓS DO CANVAS ═══ */
 .mp-node {
   position: absolute;
   border: 2px solid var(--border);
   border-radius: 10px;
-  background: #FBF5E3;
+  background: #fbf5e3;
   z-index: 2;
   box-sizing: border-box;
   overflow: hidden;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 .mp-node--center {
   border-width: 2.5px;
@@ -265,7 +279,9 @@
   background: var(--linen);
   z-index: 3;
 }
-.mp-node:hover { box-shadow: var(--sh-sm); }
+.mp-node:hover {
+  box-shadow: var(--sh-sm);
+}
 
 .mp-node__header {
   padding: 6px 8px;
@@ -292,7 +308,6 @@
   overflow: hidden;
 }
 
-/* Nó central — label único sem header separado */
 .mp-node--center .mp-node__center-label {
   width: 100%;
   height: 100%;
@@ -309,18 +324,24 @@
   line-height: 1.35;
   letter-spacing: -0.01em;
 }
-/* Garante que corpo nunca vaze da caixa */
+
 .mp-node__body {
   overflow: hidden;
 }
-.mp-editor--layout .mp-node { cursor: grab; }
-.mp-editor--layout .mp-node:active { cursor: grabbing; }
-.mp-editor--ordem .mp-node { cursor: pointer; }
+.mp-editor--layout .mp-node {
+  cursor: grab;
+}
+.mp-editor--layout .mp-node:active {
+  cursor: grabbing;
+}
+.mp-editor--ordem .mp-node {
+  cursor: pointer;
+}
 
-/* Resize handles — shown in layout mode */
 .mp-resize-handle {
   position: absolute;
-  width: 10px; height: 10px;
+  width: 10px;
+  height: 10px;
   border-radius: 3px;
   background: var(--caramel);
   border: 1.5px solid white;
@@ -328,26 +349,48 @@
   opacity: 0;
   transition: opacity 0.15s;
 }
-.mp-editor--layout .mp-node:hover .mp-resize-handle { opacity: 1; }
-.mp-editor--layout .mp-node.dragging .mp-resize-handle { opacity: 0; }
-.mp-resize-handle--se { bottom: -5px; right: -5px; cursor: se-resize; }
-.mp-resize-handle--sw { bottom: -5px; left: -5px;  cursor: sw-resize; }
-.mp-resize-handle--ne { top:    -5px; right: -5px; cursor: ne-resize; }
-.mp-resize-handle--nw { top:    -5px; left:  -5px; cursor: nw-resize; }
+.mp-editor--layout .mp-node:hover .mp-resize-handle {
+  opacity: 1;
+}
+.mp-editor--layout .mp-node.dragging .mp-resize-handle {
+  opacity: 0;
+}
+.mp-resize-handle--se {
+  bottom: -5px;
+  right: -5px;
+  cursor: se-resize;
+}
+.mp-resize-handle--sw {
+  bottom: -5px;
+  left: -5px;
+  cursor: sw-resize;
+}
+.mp-resize-handle--ne {
+  top: -5px;
+  right: -5px;
+  cursor: ne-resize;
+}
+.mp-resize-handle--nw {
+  top: -5px;
+  left: -5px;
+  cursor: nw-resize;
+}
 
-/* Node states */
-.mp-node--warn-overflow { border-color: #e53e3e !important; }
-.mp-node--warn-overlap  { border-color: #d97706 !important; }
+.mp-node--warn-overflow {
+  border-color: #e53e3e !important;
+}
+.mp-node--warn-overlap {
+  border-color: #d97706 !important;
+}
 .mp-node--selected-ordem {
   border-color: var(--caramel) !important;
-  box-shadow: 0 0 0 3px rgba(155,107,66,0.2);
+  box-shadow: 0 0 0 3px rgba(155, 107, 66, 0.2);
 }
 .mp-node--unassigned .mp-node__header {
   color: var(--text-light);
-  background: rgba(196,168,130,0.12);
+  background: rgba(196, 168, 130, 0.12);
 }
 
-/* Warnings */
 .mp-editor-warnings {
   min-height: 0;
   display: flex;
@@ -363,11 +406,22 @@
   align-items: center;
   gap: 8px;
 }
-.mp-warn-item--red    { background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
-.mp-warn-item--orange { background: #fffaf0; color: #c05621; border: 1px solid #fbd38d; }
-.mp-warn-item--yellow { background: #fffff0; color: #975a16; border: 1px solid #f6e05e; }
+.mp-warn-item--red {
+  background: #fff5f5;
+  color: #c53030;
+  border: 1px solid #feb2b2;
+}
+.mp-warn-item--orange {
+  background: #fffaf0;
+  color: #c05621;
+  border: 1px solid #fbd38d;
+}
+.mp-warn-item--yellow {
+  background: #fffff0;
+  color: #975a16;
+  border: 1px solid #f6e05e;
+}
 
-/* Dropdown de seleção de tópico (modo ordem) */
 .mp-ordem-dropdown {
   position: fixed;
   z-index: 9999;
@@ -396,13 +450,16 @@
   color: var(--text);
   transition: background 0.15s;
 }
-.mp-ordem-opt:hover { background: var(--hover-bg); }
+.mp-ordem-opt:hover {
+  background: var(--hover-bg);
+}
 .mp-ordem-opt.assigned {
   color: var(--text-light);
   font-style: italic;
 }
 .mp-ordem-opt__dot {
-  width: 8px; height: 8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--caramel);
   flex-shrink: 0;
@@ -421,12 +478,22 @@
   margin-bottom: 4px;
 }
 
-/* ═══ RESULTADO ═══ */
-.mp-result-card { padding: 20px 18px; }
-@media (min-width: 900px) { .mp-result-card { padding: 28px 32px; } }
+/* RESULTADO */
+.mp-result-card {
+  padding: 20px 18px;
+}
+@media (min-width: 900px) {
+  .mp-result-card {
+    padding: 28px 32px;
+  }
+}
 
-.mp-canvas-wrap--result { cursor: default; }
-.mp-canvas-wrap--result .mp-node { cursor: default; }
+.mp-canvas-wrap--result {
+  cursor: default;
+}
+.mp-canvas-wrap--result .mp-node {
+  cursor: default;
+}
 
 .mp-node--result .mp-node__body {
   font-size: 10.5px;
@@ -459,25 +526,24 @@
   margin: 0;
 }
 
-/* Inline editing on result */
-.mp-node--editing { cursor: text !important; }
+.mp-node--editing {
+  cursor: text !important;
+}
 .mp-node--editing .mp-node__body {
   outline: none;
   border-top: 1px dashed var(--caramel);
   background: #fffff8;
 }
 
-/* Intro do stepper do mapa: mesma animacao da criacao de folha,
-   estendida para 5 etapas (#mdot1..5 / #mln1..4). */
 #mapa-stepper.cs-anim-init #mdot1 .cs-num {
   border-color: transparent;
   background: transparent;
   color: transparent;
   transform: scale(0.4);
   animation:
-    csBorderGrow 0.30s 0.00s cubic-bezier(.6,0,.3,1.3) forwards,
-    csFillCaramel 0.28s 0.40s ease-out forwards,
-    csNumReveal 0.20s 0.60s ease-out forwards;
+    csBorderGrow 0.3s 0s cubic-bezier(0.6, 0, 0.3, 1.3) forwards,
+    csFillCaramel 0.28s 0.4s ease-out forwards,
+    csNumReveal 0.2s 0.6s ease-out forwards;
 }
 #mapa-stepper.cs-anim-init #mdot1 .cs-label {
   opacity: 0;
@@ -489,7 +555,7 @@
   transform-origin: left center;
   transform: scaleX(0);
   background: linear-gradient(90deg, var(--tan), var(--caramel));
-  animation: csLineDraw 0.45s 0.88s cubic-bezier(.5,0,.4,1) forwards;
+  animation: csLineDraw 0.45s 0.88s cubic-bezier(0.5, 0, 0.4, 1) forwards;
 }
 
 #mapa-stepper.cs-anim-init #mdot2 .cs-num {
@@ -498,9 +564,9 @@
   color: transparent;
   transform: scale(0.4);
   animation:
-    csBorderGrow 0.30s 1.40s cubic-bezier(.6,0,.3,1.3) forwards,
+    csBorderGrow 0.3s 1.4s cubic-bezier(0.6, 0, 0.3, 1.3) forwards,
     csFillLinen 0.28s 1.75s ease-out forwards,
-    csNumRevealLight 0.20s 1.90s ease-out forwards;
+    csNumRevealLight 0.2s 1.9s ease-out forwards;
 }
 #mapa-stepper.cs-anim-init #mdot2 .cs-label {
   opacity: 0;
@@ -512,7 +578,7 @@
   transform-origin: left center;
   transform: scaleX(0);
   background: linear-gradient(90deg, var(--tan), var(--caramel));
-  animation: csLineDraw 0.45s 2.18s cubic-bezier(.5,0,.4,1) forwards;
+  animation: csLineDraw 0.45s 2.18s cubic-bezier(0.5, 0, 0.4, 1) forwards;
 }
 
 #mapa-stepper.cs-anim-init #mdot3 .cs-num {
@@ -521,21 +587,21 @@
   color: transparent;
   transform: scale(0.4);
   animation:
-    csBorderGrow 0.30s 2.70s cubic-bezier(.6,0,.3,1.3) forwards,
+    csBorderGrow 0.3s 2.7s cubic-bezier(0.6, 0, 0.3, 1.3) forwards,
     csFillLinen 0.28s 3.05s ease-out forwards,
-    csNumRevealLight 0.20s 3.20s ease-out forwards;
+    csNumRevealLight 0.2s 3.2s ease-out forwards;
 }
 #mapa-stepper.cs-anim-init #mdot3 .cs-label {
   opacity: 0;
   color: var(--text-mid);
-  animation: csLabelFadeIn 0.25s 3.30s ease-out forwards;
+  animation: csLabelFadeIn 0.25s 3.3s ease-out forwards;
 }
 
 #mapa-stepper.cs-anim-init #mln3 {
   transform-origin: left center;
   transform: scaleX(0);
   background: linear-gradient(90deg, var(--tan), var(--caramel));
-  animation: csLineDraw 0.45s 3.43s cubic-bezier(.5,0,.4,1) forwards;
+  animation: csLineDraw 0.45s 3.43s cubic-bezier(0.5, 0, 0.4, 1) forwards;
 }
 
 #mapa-stepper.cs-anim-init #mdot4 .cs-num {
@@ -544,9 +610,9 @@
   color: transparent;
   transform: scale(0.4);
   animation:
-    csBorderGrow 0.30s 3.95s cubic-bezier(.6,0,.3,1.3) forwards,
-    csFillLinen 0.28s 4.30s ease-out forwards,
-    csNumRevealLight 0.20s 4.45s ease-out forwards;
+    csBorderGrow 0.3s 3.95s cubic-bezier(0.6, 0, 0.3, 1.3) forwards,
+    csFillLinen 0.28s 4.3s ease-out forwards,
+    csNumRevealLight 0.2s 4.45s ease-out forwards;
 }
 #mapa-stepper.cs-anim-init #mdot4 .cs-label {
   opacity: 0;
@@ -558,7 +624,7 @@
   transform-origin: left center;
   transform: scaleX(0);
   background: linear-gradient(90deg, var(--tan), var(--caramel));
-  animation: csLineDraw 0.45s 4.68s cubic-bezier(.5,0,.4,1) forwards;
+  animation: csLineDraw 0.45s 4.68s cubic-bezier(0.5, 0, 0.4, 1) forwards;
 }
 
 #mapa-stepper.cs-anim-init #mdot5 .cs-num {
@@ -567,12 +633,12 @@
   color: transparent;
   transform: scale(0.4);
   animation:
-    csBorderGrow 0.30s 5.20s cubic-bezier(.6,0,.3,1.3) forwards,
+    csBorderGrow 0.3s 5.2s cubic-bezier(0.6, 0, 0.3, 1.3) forwards,
     csFillLinen 0.28s 5.55s ease-out forwards,
-    csNumRevealLight 0.20s 5.70s ease-out forwards;
+    csNumRevealLight 0.2s 5.7s ease-out forwards;
 }
 #mapa-stepper.cs-anim-init #mdot5 .cs-label {
   opacity: 0;
   color: var(--text-mid);
-  animation: csLabelFadeIn 0.25s 5.80s ease-out forwards;
+  animation: csLabelFadeIn 0.25s 5.8s ease-out forwards;
 }

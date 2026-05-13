@@ -1,28 +1,16 @@
-/* FOLIUM v6 — pages/home.css */
-
-/* ── Canvas (desabilitado) ── */
 #bg-canvas {
   display: none;
 }
 
-/* ── Fundo global da página home ── */
 .page-home {
   background-color: var(--cream);
-  background-image: url('../../assets/images/doodles-mobile.png');
+  background-image: url("../../assets/images/doodles-mobile.png");
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: 100% auto;
   min-height: 100dvh;
   position: relative;
 }
-
-/* Os círculos decorativos (::before e ::after) existem SOMENTE no mobile.
-   Ver bloco `@media (max-width: 899px)` mais abaixo. No desktop a
-   página home não tem halos decorativos. */
-
-/* ════════════════════════════════════════
-   MOBILE
-════════════════════════════════════════ */
 
 .home-top-nav {
   position: sticky;
@@ -35,7 +23,6 @@
   background: rgba(245, 237, 214, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  /* sem border-bottom — visual limpo */
 }
 
 .home-top-nav__spacer {
@@ -75,12 +62,15 @@
 
 .dash-hero {
   padding: 32px 22px 48px;
-  background: linear-gradient(160deg, var(--linen) 0%, var(--bg-deep) 50%, var(--sand-light) 100%);
+  background: linear-gradient(
+    160deg,
+    var(--linen) 0%,
+    var(--bg-deep) 50%,
+    var(--sand-light) 100%
+  );
   position: relative;
-  /* sem overflow:hidden — círculos devem sangrar para fora */
 }
 
-/* Conteúdo do hero acima dos círculos de fundo */
 .hero-greeting,
 .hero-name,
 .hero-sub,
@@ -118,7 +108,7 @@
 
 .hero-stats {
   display: flex;
-  background: rgba(255, 255, 255, 0.60);
+  background: rgba(255, 255, 255, 0.6);
   border-radius: var(--r-lg);
   overflow: hidden;
   border: 1px solid rgba(196, 168, 130, 0.28);
@@ -132,8 +122,8 @@
   position: relative;
 }
 
-.hstat+.hstat::before {
-  content: '';
+.hstat + .hstat::before {
+  content: "";
   position: absolute;
   left: 0;
   top: 22%;
@@ -169,7 +159,7 @@
 .dash-section-label {
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--caramel);
   margin-bottom: 16px;
@@ -190,7 +180,9 @@
   font-family: var(--font-sans);
   cursor: pointer;
   margin-bottom: 12px;
-  transition: box-shadow var(--t-mid), transform var(--t-mid);
+  transition:
+    box-shadow var(--t-mid),
+    transform var(--t-mid);
   position: relative;
   overflow: hidden;
 }
@@ -240,14 +232,9 @@
   line-height: 1.4;
 }
 
-/* ════════════════════════════════════════
-   DESKTOP (≥900px)
-════════════════════════════════════════ */
 @media (min-width: 900px) {
-
-  /* Fundo doodles desktop — path corrigido */
   .page-home {
-    background-image: url('../../assets/images/doodles-desktop.png');
+    background-image: url("../../assets/images/doodles-desktop.png");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -257,12 +244,10 @@
     margin-left: 0 !important;
   }
 
-  /* Oculta elementos mobile */
   .home-top-nav {
     display: none;
   }
 
-  /* Botão de menu no topo direito — abre a sidebar no desktop */
   .desk-burger {
     position: fixed;
     top: 20px;
@@ -280,7 +265,10 @@
     cursor: pointer;
     z-index: calc(var(--z-nav) + 1);
     color: var(--text-mid);
-    transition: background var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
+    transition:
+      background var(--t-fast),
+      border-color var(--t-fast),
+      transform var(--t-fast);
     box-shadow: var(--sh-sm);
   }
 
@@ -307,10 +295,6 @@
     display: none;
   }
 
-  /* ────────────────────────────────────────
-     VINICIUS — grande, fixo no canto inferior esquerdo
-     Cabeça deve quase tocar as estatísticas
-  ──────────────────────────────────────── */
   .desk-vinicius {
     display: block !important;
     position: fixed;
@@ -324,22 +308,20 @@
     pointer-events: none;
     user-select: none;
     z-index: 1;
-    opacity: 0.80;
+    opacity: 0.8;
     object-fit: contain;
     object-position: bottom left;
   }
 
-  /* ── Layout 3 colunas — colunas externas simétricas para centralizar a logo ── */
   .dash-desk-layout {
     display: grid;
-    grid-template-columns: 1fr 1.1fr 0.60fr;
+    grid-template-columns: 1fr 1.1fr 0.6fr;
     min-height: 100dvh;
     padding: 0;
     position: relative;
     z-index: 2;
   }
 
-  /* ── Coluna esquerda ── */
   .desk-col-left {
     padding: 56px 48px 120px 52px;
     display: flex;
@@ -374,7 +356,7 @@
     max-width: 360px;
     border-radius: var(--r-lg);
     background: rgba(255, 255, 255, 0.52);
-    border: 1px solid rgba(196, 168, 130, 0.30);
+    border: 1px solid rgba(196, 168, 130, 0.3);
     box-shadow: 0 4px 24px rgba(92, 61, 46, 0.07);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
@@ -392,7 +374,6 @@
     font-size: 10px;
   }
 
-  /* ── Coluna central: logo ── */
   .desk-col-center {
     display: flex;
     align-items: center;
@@ -413,29 +394,27 @@
     z-index: 2;
   }
 
-  /* ── Texto abaixo do logo ── */
   .desk-tagline {
-  position: fixed;
-  left: 50%;
-  top: calc(50% + 45px);
-  transform: translateX(-50%);
-  text-align: center;
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  font-size: 15px;
-  color: #2B1813;
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 2;
-}
+    position: fixed;
+    left: 50%;
+    top: calc(50% + 45px);
+    transform: translateX(-50%);
+    text-align: center;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 15px;
+    color: #2b1813;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 2;
+  }
 
-  /* ── Coluna direita: atividade recente ── */
   .desk-col-right {
     padding: 56px 48px 120px 28px;
     overflow-y: auto;
-    background: #F0E8D1;
-    border-left: 1.5px solid #E4DAC1;
+    background: #f0e8d1;
+    border-left: 1.5px solid #e4dac1;
     min-height: 100dvh;
   }
 
@@ -455,7 +434,6 @@
     margin-bottom: 22px;
   }
 
-  /* Cards com fundo mais escuro e borda mais visível */
   .recent-card {
     background: rgba(230, 218, 196, 0.82);
     border: 1.5px solid rgba(180, 148, 100, 0.55);
@@ -463,8 +441,11 @@
     padding: 18px 20px;
     margin-bottom: 10px;
     cursor: pointer;
-    transition: background var(--t-fast), box-shadow var(--t-mid), transform var(--t-mid);
-    box-shadow: 0 2px 16px rgba(92, 61, 46, 0.10);
+    transition:
+      background var(--t-fast),
+      box-shadow var(--t-mid),
+      transform var(--t-mid);
+    box-shadow: 0 2px 16px rgba(92, 61, 46, 0.1);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
   }
@@ -512,11 +493,6 @@
     font-weight: 600;
   }
 
-  /* ════════════════════════════════════════
-     DOCK NAV — pílula flutuante com bolha
-  ════════════════════════════════════════ */
-
-  /* Wrapper externo — fixo e centralizado */
   .dock-nav {
     position: fixed;
     bottom: 24px;
@@ -525,7 +501,6 @@
     z-index: var(--z-nav);
   }
 
-  /* Pílula */
   .dock-pill {
     display: flex;
     align-items: center;
@@ -534,14 +509,13 @@
     border-radius: 32px;
     padding: 10px 16px;
     gap: 0;
-    box-shadow: 0 8px 40px rgba(92, 61, 46, 0.20);
+    box-shadow: 0 8px 40px rgba(92, 61, 46, 0.2);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     position: relative;
     overflow: visible;
   }
 
-  /* Item de navegação */
   .dock-item {
     display: flex;
     flex-direction: column;
@@ -559,10 +533,9 @@
   }
 
   .dock-item:hover {
-    background: rgba(212, 184, 150, 0.20);
+    background: rgba(212, 184, 150, 0.2);
   }
 
-  /* Ícone inativo */
   .dock-item .di-icon {
     width: 22px;
     height: 22px;
@@ -583,7 +556,6 @@
     stroke: var(--caramel);
   }
 
-  /* Label */
   .dock-item .di-label {
     font-size: 11px;
     font-weight: 500;
@@ -596,25 +568,23 @@
     color: var(--caramel);
   }
 
-  /* Item ATIVO: ícone oculto (a bolha o mostra acima), label verde */
   .dock-item.active .di-icon {
     visibility: hidden;
   }
 
   .dock-item.active .di-label {
-    color: #4A6A30;
+    color: #4a6a30;
     font-weight: 700;
     font-size: 12px;
   }
 
-  /* ── BOLHA flutuante ── */
   .dock-bubble {
     position: absolute;
     top: -36px;
     width: 58px;
     height: 58px;
     border-radius: 50%;
-    background: #5A7A3E;
+    background: #5a7a3e;
     border: 1.5px solid rgba(180, 148, 100, 0.55);
     display: flex;
     align-items: center;
@@ -645,35 +615,28 @@
     fill: none;
   }
 
-  /* ── MÁSCARA DA ENTALHADA (notch mask) ── */
-  /* Apaga a borda superior da pílula onde a bolha cruza */
   .dock-notch-mask {
     position: absolute;
     top: -1.5px;
-    /* alinhado à borda superior da pílula */
+
     width: 66px;
     height: 4px;
     background: rgba(245, 237, 214, 0.97);
     z-index: 9;
-    /* acima da borda, abaixo da bolha (z:10) */
+
     transition: left 0.38s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* Remove qualquer bottom-nav mobile que possa existir */
   .page-home .bottom-nav {
     display: none !important;
   }
 
-  /* Garante que elementos de sidebar desktop somem */
   .nav-logo-desk,
   .nav-user-desk {
     display: none !important;
   }
 }
 
-/* ════════════════════════════════════════
-   MOBILE: oculta elementos desktop + refinamentos visuais
-════════════════════════════════════════ */
 @media (max-width: 899px) {
   .desk-vinicius {
     display: none;
@@ -687,21 +650,12 @@
     display: none;
   }
 
-  /* Evita scroll horizontal se um círculo encostar na borda */
   .page-home {
     overflow-x: clip;
   }
 
-  /* ── Círculos decorativos — EXCLUSIVOS DO MOBILE ──
-     Definidos inteiramente dentro deste media query. No desktop
-     os pseudo-elementos não têm `content`, então nem existem. */
-
-  /* Grande halo cremoso — posicionado completamente ABAIXO do
-     header (o topo do círculo começa depois da altura total da
-     navbar, ~106px, para que o círculo apareça inteiro, sem ser
-     coberto pelo fundo opaco + blur do header). */
   .page-home::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 118px;
     right: 8%;
@@ -711,22 +665,20 @@
     height: 78vw;
     max-height: 310px;
     border-radius: 50%;
-    background: radial-gradient(circle,
+    background: radial-gradient(
+      circle,
       rgba(255, 253, 236, 0.95) 0%,
       rgba(248, 235, 206, 0.72) 30%,
       rgba(238, 222, 188, 0.42) 56%,
       rgba(230, 215, 180, 0.18) 80%,
-      transparent 94%);
+      transparent 94%
+    );
     pointer-events: none;
     z-index: 0;
   }
 
-  /* Halo quente atrás das estatísticas — bem à esquerda,
-     com a borda esquerda saindo do viewport como na referência.
-     Posicionado para ficar ao nível das estatísticas (acima do
-     label "O QUE DESEJA FAZER?") e não invadir os cards. */
   .page-home::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 220px;
     left: -55px;
@@ -735,24 +687,22 @@
     height: 52vw;
     max-height: 200px;
     border-radius: 50%;
-    background: radial-gradient(circle,
+    background: radial-gradient(
+      circle,
       rgba(215, 193, 156, 0.65) 0%,
       rgba(212, 190, 152, 0.42) 40%,
       rgba(212, 190, 152, 0.16) 70%,
-      transparent 94%);
+      transparent 94%
+    );
     pointer-events: none;
     z-index: 0;
   }
 
-  /* Respiro entre hero e ações + fundo transparente para os círculos
-     aparecerem atrás da hero sem criar um bloco com cor diferente. */
   .dash-hero {
     padding: 28px 22px 56px;
     background: transparent;
   }
 
-  /* Espaço inferior para o dock (70px) + búlha suspensa (49px
-     acima da barra) + respiro adicional. */
   .dash-body {
     padding: 32px 18px 150px;
   }
@@ -761,7 +711,6 @@
     margin-bottom: 18px;
   }
 
-  /* Garante que o texto/hero fique visualmente acima dos círculos */
   .home-top-nav {
     position: relative;
     z-index: var(--z-nav);
@@ -781,8 +730,6 @@
     padding: 16px 14px;
   }
 
-  /* Em telas muito estreitas, círculos ligeiramente menores mas
-     mantendo o mesmo posicionamento (abaixo do header / bordas). */
   .page-home::before {
     width: 74vw;
     height: 74vw;

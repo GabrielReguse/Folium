@@ -1,370 +1,1188 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Folium — Mapa Mental</title>
-  <link rel="icon" type="image/png" href="../assets/images/favicon-folium.png">
-  <link rel="apple-touch-icon" href="../assets/images/favicon-folium.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/variables.css">
-  <link rel="stylesheet" href="../css/global.css">
-  <link rel="stylesheet" href="../css/layout.css">
-  <link rel="stylesheet" href="../css/components.css">
-  <link rel="stylesheet" href="../css/animations.css">
-  <link rel="stylesheet" href="../css/pages/criar.css">
-  <link rel="stylesheet" href="../css/pages/mapa.css">
-</head>
-<body>
-  <canvas id="bg-canvas"></canvas>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Folium — Mapa Mental</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="../assets/images/favicon-folium.png"
+    />
+    <link rel="apple-touch-icon" href="../assets/images/favicon-folium.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/variables.css" />
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/pages/criar.css" />
+    <link rel="stylesheet" href="../css/pages/mapa.css" />
+  </head>
+  <body>
+    <canvas id="bg-canvas"></canvas>
 
-  <div id="loading-overlay">
-    <div class="loading-box">
-      <div class="loader loader-lg"></div>
-      <h3 id="ld-title">Processando...</h3>
-      <p id="ld-sub">Aguarde um momento</p>
-    </div>
-  </div>
-
-  <div class="page page-criar page-mapa">
-    <main class="page-body cr-shell">
-
-      <!-- HERO -->
-      <section class="cr-hero au">
-        <span class="cr-eyebrow">Mapa Mental · Folium</span>
-        <h1 class="cr-title">Crie seu <em>mapa mental</em></h1>
-        <p class="cr-lede">Informe a matéria e o tema central — a IA sugere os tópicos e você monta o layout visual.</p>
-        <span class="cr-leaf" aria-hidden="true">
-          <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="60" cy="60" r="18" fill="currentColor" opacity=".15"/>
-            <circle cx="60" cy="60" r="18" stroke="currentColor" stroke-width="1.5" opacity=".4"/>
-            <circle cx="20" cy="30" r="10" fill="currentColor" opacity=".08"/>
-            <circle cx="20" cy="30" r="10" stroke="currentColor" stroke-width="1.2" opacity=".3"/>
-            <circle cx="100" cy="30" r="10" fill="currentColor" opacity=".08"/>
-            <circle cx="100" cy="30" r="10" stroke="currentColor" stroke-width="1.2" opacity=".3"/>
-            <circle cx="20" cy="90" r="10" fill="currentColor" opacity=".08"/>
-            <circle cx="20" cy="90" r="10" stroke="currentColor" stroke-width="1.2" opacity=".3"/>
-            <circle cx="100" cy="90" r="10" fill="currentColor" opacity=".08"/>
-            <circle cx="100" cy="90" r="10" stroke="currentColor" stroke-width="1.2" opacity=".3"/>
-            <line x1="42" y1="48" x2="29" y2="37" stroke="currentColor" stroke-width="1" opacity=".35"/>
-            <line x1="78" y1="48" x2="91" y2="37" stroke="currentColor" stroke-width="1" opacity=".35"/>
-            <line x1="42" y1="72" x2="29" y2="83" stroke="currentColor" stroke-width="1" opacity=".35"/>
-            <line x1="78" y1="72" x2="91" y2="83" stroke="currentColor" stroke-width="1" opacity=".35"/>
-          </svg>
-        </span>
-      </section>
-
-      <!-- STEPPER -->
-      <nav class="cr-stepper" aria-label="Etapas" id="mapa-stepper">
-        <div class="cs-step" id="mdot1">
-          <span class="cs-num">1</span>
-          <span class="cs-label">Configurar</span>
-        </div>
-        <div class="cs-line" id="mln1"></div>
-        <div class="cs-step" id="mdot2">
-          <span class="cs-num">2</span>
-          <span class="cs-label">Tópicos</span>
-        </div>
-        <div class="cs-line" id="mln2"></div>
-        <div class="cs-step" id="mdot3">
-          <span class="cs-num">3</span>
-          <span class="cs-label">Template</span>
-        </div>
-        <div class="cs-line" id="mln3"></div>
-        <div class="cs-step" id="mdot4">
-          <span class="cs-num">4</span>
-          <span class="cs-label">Editor</span>
-        </div>
-        <div class="cs-line" id="mln4"></div>
-        <div class="cs-step" id="mdot5">
-          <span class="cs-num">5</span>
-          <span class="cs-label">Resultado</span>
-        </div>
-      </nav>
-
-      <div class="cr-content" id="mapa-content">
-
-        <!-- ═══ PANE 1 — Configurar ═══ -->
-        <section class="step-pane cr-pane" id="mpane1">
-          <div class="cr-card cr-form-card">
-            <h2 class="cr-pane-title">Configure o mapa</h2>
-            <p class="cr-pane-sub">Defina a matéria, o título central e como quer adicionar os tópicos.</p>
-
-            <div class="cr-form">
-              <div class="inp-group">
-                <label class="inp-label" for="mp-materia">Matéria</label>
-                <input type="text" class="inp" id="mp-materia" placeholder="ex: Biologia, Matemática, História…" autocomplete="off">
-              </div>
-              <div class="inp-group">
-                <label class="inp-label" for="mp-titulo">Título central <span class="inp-hint">(tema do mapa)</span></label>
-                <input type="text" class="inp" id="mp-titulo" placeholder="ex: Fotossíntese, Revolução Francesa…" autocomplete="off">
-              </div>
-              <div class="inp-group">
-                <label class="inp-label" for="mp-num">Número de tópicos</label>
-                <div class="mp-num-row">
-                  <button class="mp-num-btn" id="mp-num-dec" onclick="MapaPage.changeNum(-1)" type="button">−</button>
-                  <input type="number" class="inp mp-num-inp" id="mp-num" value="5" min="2" max="10" readonly>
-                  <button class="mp-num-btn" id="mp-num-inc" onclick="MapaPage.changeNum(1)" type="button">+</button>
-                </div>
-                <p class="inp-hint" style="margin-top:6px">Entre 2 e 10 tópicos</p>
-              </div>
-              <div class="inp-group">
-                <label class="inp-label">Modo dos tópicos</label>
-                <div class="mp-toggle">
-                  <button class="mp-toggle-btn active" id="mp-modo-ia" onclick="MapaPage.setModo('ia')" type="button">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                    IA — sugerir tópicos
-                  </button>
-                  <button class="mp-toggle-btn" id="mp-modo-manual" onclick="MapaPage.setModo('manual')" type="button">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                    Manual — eu digito
-                  </button>
-                </div>
-              </div>
-
-              <!-- Campos manuais (aparecem quando modo=manual) -->
-              <div id="mp-manual-fields" style="display:none;flex-direction:column;gap:10px"></div>
-
-              <button class="btn btn-primary btn-full cr-btn-primary" id="mp-btn-avancar" onclick="MapaPage.avancar1()" type="button">
-                <span id="mp-btn-avancar-txt">Gerar sugestões com IA</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <aside class="cr-aside">
-            <h3 class="cr-aside-title">Como funciona</h3>
-            <ol class="cr-howto">
-              <li><span class="cr-howto-n">1</span><div><strong>Configure</strong><p>Matéria, título central e número de nós.</p></div></li>
-              <li><span class="cr-howto-n">2</span><div><strong>Tópicos</strong><p>A IA sugere — você edita à vontade.</p></div></li>
-              <li><span class="cr-howto-n">3</span><div><strong>Template</strong><p>Escolha o layout visual do mapa.</p></div></li>
-              <li><span class="cr-howto-n">4</span><div><strong>Edite</strong><p>Ajuste posição e tamanho dos nós.</p></div></li>
-              <li><span class="cr-howto-n">5</span><div><strong>Resultado</strong><p>IA preenche o conteúdo de cada nó.</p></div></li>
-            </ol>
-          </aside>
-        </section>
-
-        <!-- ═══ PANE 2 — Tópicos (IA) ═══ -->
-        <section class="step-pane cr-pane" id="mpane2">
-          <div class="cr-card cr-topics-card">
-            <div class="cr-pane-head">
-              <div>
-                <h2 class="cr-pane-title">Tópicos sugeridos</h2>
-                <p class="cr-pane-sub">Edite, remova ou adicione tópicos antes de continuar.</p>
-              </div>
-              <div class="cr-pane-meter">
-                <span id="mp-topic-count">0</span><span class="cr-meter-sep">/</span><span id="mp-topic-total">0</span>
-                <span class="cr-meter-lbl">selecionados</span>
-              </div>
-            </div>
-
-            <div id="mp-topics-list" class="cr-topics"></div>
-
-            <div class="add-row cr-add-row">
-              <input type="text" class="inp" id="mp-new-topic" placeholder="Adicionar tópico…" autocomplete="off">
-              <button class="btn btn-secondary cr-btn-add" id="mp-btn-add" onclick="MapaPage.addTopico()" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Adicionar
-              </button>
-            </div>
-
-            <div id="mp-topics-aviso" class="step-msg step-msg--warn" style="display:none;margin-top:14px"></div>
-
-            <div class="cr-step-actions">
-              <button class="btn btn-ghost cr-btn-back" onclick="MapaPage.goStep(1)" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg>
-                Voltar
-              </button>
-              <button class="btn btn-primary cr-btn-primary" onclick="MapaPage.goStep(3)" id="mp-btn-aprovar" type="button">
-                Aprovar e continuar
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- ═══ PANE 3 — Template ═══ -->
-        <section class="step-pane cr-pane" id="mpane3">
-          <div class="cr-card" style="max-width:860px;margin:0 auto;width:100%">
-            <h2 class="cr-pane-title">Escolha o template</h2>
-            <p class="cr-pane-sub">Define o layout inicial dos nós no canvas. Você pode ajustar depois.</p>
-
-            <div class="mp-templates" id="mp-templates">
-              <button class="mp-tpl-card" data-tpl="radial" onclick="MapaPage.selectTemplate('radial')" type="button">
-                <div class="mp-tpl-preview">
-                  <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="46" y="32" width="28" height="16" rx="4" fill="currentColor" opacity=".2" stroke="currentColor" stroke-width="1.5"/>
-                    <text x="60" y="43" text-anchor="middle" font-size="6" fill="currentColor" opacity=".7">Centro</text>
-                    <rect x="2" y="8" width="22" height="12" rx="3" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1"/>
-                    <rect x="96" y="8" width="22" height="12" rx="3" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1"/>
-                    <rect x="2" y="60" width="22" height="12" rx="3" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1"/>
-                    <rect x="96" y="60" width="22" height="12" rx="3" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1"/>
-                    <line x1="46" y1="40" x2="24" y2="14" stroke="currentColor" stroke-width="1" opacity=".5"/>
-                    <line x1="74" y1="40" x2="96" y2="14" stroke="currentColor" stroke-width="1" opacity=".5"/>
-                    <line x1="46" y1="40" x2="24" y2="66" stroke="currentColor" stroke-width="1" opacity=".5"/>
-                    <line x1="74" y1="40" x2="96" y2="66" stroke="currentColor" stroke-width="1" opacity=".5"/>
-                  </svg>
-                </div>
-                <div class="mp-tpl-name">Radial</div>
-                <div class="mp-tpl-desc">Tópicos ao redor do centro</div>
-              </button>
-
-              <button class="mp-tpl-card" data-tpl="linear" onclick="MapaPage.selectTemplate('linear')" type="button">
-                <div class="mp-tpl-preview">
-                  <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="40" y="6" width="40" height="16" rx="4" fill="currentColor" opacity=".2" stroke="currentColor" stroke-width="1.5"/>
-                    <text x="60" y="17" text-anchor="middle" font-size="6" fill="currentColor" opacity=".7">Centro</text>
-                    <rect x="4" y="38" width="24" height="13" rx="3" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1"/>
-                    <rect x="34" y="38" width="24" height="13" rx="3" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1"/>
-                    <rect x="64" y="38" width="24" height="13" rx="3" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1"/>
-                    <rect x="94" y="38" width="22" height="13" rx="3" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1"/>
-                    <line x1="60" y1="22" x2="16" y2="38" stroke="currentColor" stroke-width="1" opacity=".5"/>
-                    <line x1="60" y1="22" x2="46" y2="38" stroke="currentColor" stroke-width="1" opacity=".5"/>
-                    <line x1="60" y1="22" x2="76" y2="38" stroke="currentColor" stroke-width="1" opacity=".5"/>
-                    <line x1="60" y1="22" x2="105" y2="38" stroke="currentColor" stroke-width="1" opacity=".5"/>
-                    <rect x="4" y="60" width="24" height="13" rx="3" fill="currentColor" opacity=".08" stroke="currentColor" stroke-width="1"/>
-                    <rect x="64" y="60" width="24" height="13" rx="3" fill="currentColor" opacity=".08" stroke="currentColor" stroke-width="1"/>
-                  </svg>
-                </div>
-                <div class="mp-tpl-name">Linear</div>
-                <div class="mp-tpl-desc">Tópicos em grade abaixo</div>
-              </button>
-
-              <button class="mp-tpl-card" data-tpl="organico" onclick="MapaPage.selectTemplate('organico')" type="button">
-                <div class="mp-tpl-preview">
-                  <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="44" y="28" width="32" height="16" rx="4" fill="currentColor" opacity=".2" stroke="currentColor" stroke-width="1.5"/>
-                    <rect x="4" y="10" width="26" height="14" rx="3" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1"/>
-                    <rect x="86" y="4" width="28" height="14" rx="3" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1"/>
-                    <rect x="4" y="52" width="26" height="14" rx="3" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1"/>
-                    <rect x="88" y="54" width="26" height="14" rx="3" fill="currentColor" opacity=".1" stroke="currentColor" stroke-width="1"/>
-                    <rect x="38" y="60" width="24" height="13" rx="3" fill="currentColor" opacity=".08" stroke="currentColor" stroke-width="1"/>
-                    <line x1="44" y1="36" x2="30" y2="17" stroke="currentColor" stroke-width="1" opacity=".45"/>
-                    <line x1="76" y1="36" x2="86" y2="11" stroke="currentColor" stroke-width="1" opacity=".45"/>
-                    <line x1="44" y1="44" x2="30" y2="59" stroke="currentColor" stroke-width="1" opacity=".45"/>
-                    <line x1="76" y1="44" x2="88" y2="61" stroke="currentColor" stroke-width="1" opacity=".45"/>
-                    <line x1="60" y1="44" x2="50" y2="60" stroke="currentColor" stroke-width="1" opacity=".35"/>
-                  </svg>
-                </div>
-                <div class="mp-tpl-name">Orgânico</div>
-                <div class="mp-tpl-desc">Layout assimétrico</div>
-              </button>
-
-              <button class="mp-tpl-card" data-tpl="livre" onclick="MapaPage.selectTemplate('livre')" type="button">
-                <div class="mp-tpl-preview">
-                  <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="2" width="116" height="76" rx="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity=".3"/>
-                    <rect x="40" y="30" width="32" height="16" rx="4" fill="currentColor" opacity=".15" stroke="currentColor" stroke-width="1.5"/>
-                    <text x="56" y="41" text-anchor="middle" font-size="5" fill="currentColor" opacity=".6">Posicione</text>
-                    <text x="56" y="48" text-anchor="middle" font-size="5" fill="currentColor" opacity=".6">livremente</text>
-                    <circle cx="20" cy="20" r="6" fill="currentColor" opacity=".08" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2"/>
-                    <circle cx="100" cy="60" r="6" fill="currentColor" opacity=".08" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2"/>
-                  </svg>
-                </div>
-                <div class="mp-tpl-name">Livre</div>
-                <div class="mp-tpl-desc">Canvas vazio — você posiciona</div>
-              </button>
-            </div>
-
-            <div class="cr-step-actions">
-              <button class="btn btn-ghost cr-btn-back" onclick="MapaPage.goStep(2)" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg>
-                Voltar
-              </button>
-              <button class="btn btn-primary cr-btn-primary" id="mp-btn-usar-tpl" onclick="MapaPage.goStep(4)" type="button" disabled>
-                Usar este template
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- ═══ PANE 4 — Editor ═══ -->
-        <section class="step-pane cr-pane cr-pane-wide" id="mpane4">
-          <div class="cr-card mp-editor-card">
-            <div class="mp-editor-toolbar">
-              <div class="mp-mode-btns">
-                <button class="mp-mode-btn active" id="mp-mode-ordem" onclick="MapaPage.setEditorMode('ordem')" type="button">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                  Modo Ordem
-                </button>
-                <button class="mp-mode-btn" id="mp-mode-layout" onclick="MapaPage.setEditorMode('layout')" type="button">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-                  Modo Layout
-                </button>
-              </div>
-              <div id="mp-editor-hint" class="mp-editor-hint">Clique em um nó para atribuir um tópico</div>
-            </div>
-
-            <div class="mp-canvas-wrap" id="mp-canvas-wrap">
-              <div class="mp-canvas" id="mp-canvas">
-                <svg class="mp-canvas-svg" id="mp-canvas-svg" xmlns="http://www.w3.org/2000/svg"></svg>
-                <!-- Nós renderizados aqui via JS -->
-              </div>
-            </div>
-
-            <div id="mp-editor-warnings" class="mp-editor-warnings"></div>
-
-            <div class="cr-step-actions">
-              <button class="btn btn-ghost cr-btn-back" onclick="MapaPage.goStep(3)" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg>
-                Voltar
-              </button>
-              <button class="btn btn-primary cr-btn-primary" onclick="MapaPage.gerarMapa()" type="button">
-                Gerar Mapa com IA
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- ═══ PANE 5 — Resultado ═══ -->
-        <section class="step-pane cr-pane cr-pane-wide" id="mpane5">
-          <div class="cr-card mp-result-card">
-            <div id="mp-result-header"></div>
-            <div class="mp-canvas-wrap mp-canvas-wrap--result" id="mp-result-wrap">
-              <div class="mp-canvas" id="mp-result-canvas">
-                <svg class="mp-canvas-svg" id="mp-result-svg" xmlns="http://www.w3.org/2000/svg"></svg>
-              </div>
-            </div>
-            <div class="cr-step-actions">
-              <button class="btn btn-ghost cr-btn-back" onclick="MapaPage.goStep(4)" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg>
-                Editar layout
-              </button>
-              <button class="btn btn-primary cr-btn-primary" onclick="MapaPage.salvarMapa()" type="button">
-                Salvar mapa
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-              </button>
-            </div>
-          </div>
-        </section>
-
+    <div id="loading-overlay">
+      <div class="loading-box">
+        <div class="loader loader-lg"></div>
+        <h3 id="ld-title">Processando...</h3>
+        <p id="ld-sub">Aguarde um momento</p>
       </div>
-    </main>
-  </div>
+    </div>
 
-  <!-- Dropdown para seleção de tópico no modo Ordem -->
-  <div id="mp-ordem-dropdown" class="mp-ordem-dropdown" style="display:none">
-    <div class="mp-ordem-dropdown__inner" id="mp-ordem-list"></div>
-  </div>
+    <div class="page page-criar page-mapa">
+      <main class="page-body cr-shell">
+        <section class="cr-hero au">
+          <span class="cr-eyebrow">Mapa Mental · Folium</span>
+          <h1 class="cr-title">Crie seu <em>mapa mental</em></h1>
+          <p class="cr-lede">
+            Informe a matéria e o tema central — a IA sugere os tópicos e você
+            monta o layout visual.
+          </p>
+          <span class="cr-leaf" aria-hidden="true">
+            <svg
+              viewBox="0 0 120 120"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="60"
+                cy="60"
+                r="18"
+                fill="currentColor"
+                opacity=".15"
+              />
+              <circle
+                cx="60"
+                cy="60"
+                r="18"
+                stroke="currentColor"
+                stroke-width="1.5"
+                opacity=".4"
+              />
+              <circle
+                cx="20"
+                cy="30"
+                r="10"
+                fill="currentColor"
+                opacity=".08"
+              />
+              <circle
+                cx="20"
+                cy="30"
+                r="10"
+                stroke="currentColor"
+                stroke-width="1.2"
+                opacity=".3"
+              />
+              <circle
+                cx="100"
+                cy="30"
+                r="10"
+                fill="currentColor"
+                opacity=".08"
+              />
+              <circle
+                cx="100"
+                cy="30"
+                r="10"
+                stroke="currentColor"
+                stroke-width="1.2"
+                opacity=".3"
+              />
+              <circle
+                cx="20"
+                cy="90"
+                r="10"
+                fill="currentColor"
+                opacity=".08"
+              />
+              <circle
+                cx="20"
+                cy="90"
+                r="10"
+                stroke="currentColor"
+                stroke-width="1.2"
+                opacity=".3"
+              />
+              <circle
+                cx="100"
+                cy="90"
+                r="10"
+                fill="currentColor"
+                opacity=".08"
+              />
+              <circle
+                cx="100"
+                cy="90"
+                r="10"
+                stroke="currentColor"
+                stroke-width="1.2"
+                opacity=".3"
+              />
+              <line
+                x1="42"
+                y1="48"
+                x2="29"
+                y2="37"
+                stroke="currentColor"
+                stroke-width="1"
+                opacity=".35"
+              />
+              <line
+                x1="78"
+                y1="48"
+                x2="91"
+                y2="37"
+                stroke="currentColor"
+                stroke-width="1"
+                opacity=".35"
+              />
+              <line
+                x1="42"
+                y1="72"
+                x2="29"
+                y2="83"
+                stroke="currentColor"
+                stroke-width="1"
+                opacity=".35"
+              />
+              <line
+                x1="78"
+                y1="72"
+                x2="91"
+                y2="83"
+                stroke="currentColor"
+                stroke-width="1"
+                opacity=".35"
+              />
+            </svg>
+          </span>
+        </section>
 
-  <script src="../js/config.js"></script>
-  <script src="../js/utils/dom.js"></script>
-  <script src="../js/utils/storage.js"></script>
-  <script src="../js/utils/helpers.js"></script>
-  <script src="../js/mock.js"></script>
-  <script src="../js/router.js"></script>
-  <script src="../js/components/modal.js"></script>
-  <script src="../js/components/confirm.js"></script>
-  <script src="../js/components/navbar.js"></script>
-  <script src="../js/components/sidebar.js"></script>
-  <script src="../js/components/card.js"></script>
-  <script src="../js/components/button.js"></script>
-  <script src="../js/app.js"></script>
-  <script src="../js/ai1.js"></script>
-  <script src="../js/ai2.js"></script>
-  <script src="../js/pages/mapa.js"></script>
-</body>
+        <nav class="cr-stepper" aria-label="Etapas" id="mapa-stepper">
+          <div class="cs-step" id="mdot1">
+            <span class="cs-num">1</span>
+            <span class="cs-label">Configurar</span>
+          </div>
+          <div class="cs-line" id="mln1"></div>
+          <div class="cs-step" id="mdot2">
+            <span class="cs-num">2</span>
+            <span class="cs-label">Tópicos</span>
+          </div>
+          <div class="cs-line" id="mln2"></div>
+          <div class="cs-step" id="mdot3">
+            <span class="cs-num">3</span>
+            <span class="cs-label">Template</span>
+          </div>
+          <div class="cs-line" id="mln3"></div>
+          <div class="cs-step" id="mdot4">
+            <span class="cs-num">4</span>
+            <span class="cs-label">Editor</span>
+          </div>
+          <div class="cs-line" id="mln4"></div>
+          <div class="cs-step" id="mdot5">
+            <span class="cs-num">5</span>
+            <span class="cs-label">Resultado</span>
+          </div>
+        </nav>
+
+        <div class="cr-content" id="mapa-content">
+          <section class="step-pane cr-pane" id="mpane1">
+            <div class="cr-card cr-form-card">
+              <h2 class="cr-pane-title">Configure o mapa</h2>
+              <p class="cr-pane-sub">
+                Defina a matéria, o título central e como quer adicionar os
+                tópicos.
+              </p>
+
+              <div class="cr-form">
+                <div class="inp-group">
+                  <label class="inp-label" for="mp-materia">Matéria</label>
+                  <input
+                    type="text"
+                    class="inp"
+                    id="mp-materia"
+                    placeholder="ex: Biologia, Matemática, História…"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="inp-group">
+                  <label class="inp-label" for="mp-titulo"
+                    >Título central
+                    <span class="inp-hint">(tema do mapa)</span></label
+                  >
+                  <input
+                    type="text"
+                    class="inp"
+                    id="mp-titulo"
+                    placeholder="ex: Fotossíntese, Revolução Francesa…"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="inp-group">
+                  <label class="inp-label" for="mp-num"
+                    >Número de tópicos</label
+                  >
+                  <div class="mp-num-row">
+                    <button
+                      class="mp-num-btn"
+                      id="mp-num-dec"
+                      onclick="MapaPage.changeNum(-1)"
+                      type="button"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      class="inp mp-num-inp"
+                      id="mp-num"
+                      value="5"
+                      min="2"
+                      max="10"
+                      readonly
+                    />
+                    <button
+                      class="mp-num-btn"
+                      id="mp-num-inc"
+                      onclick="MapaPage.changeNum(1)"
+                      type="button"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <p class="inp-hint" style="margin-top: 6px">
+                    Entre 2 e 10 tópicos
+                  </p>
+                </div>
+                <div class="inp-group">
+                  <label class="inp-label">Modo dos tópicos</label>
+                  <div class="mp-toggle">
+                    <button
+                      class="mp-toggle-btn active"
+                      id="mp-modo-ia"
+                      onclick="MapaPage.setModo('ia')"
+                      type="button"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                          d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+                        />
+                      </svg>
+                      IA — sugerir tópicos
+                    </button>
+                    <button
+                      class="mp-toggle-btn"
+                      id="mp-modo-manual"
+                      onclick="MapaPage.setModo('manual')"
+                      type="button"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M12 20h9" />
+                        <path
+                          d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                        />
+                      </svg>
+                      Manual — eu digito
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  id="mp-manual-fields"
+                  style="display: none; flex-direction: column; gap: 10px"
+                ></div>
+
+                <button
+                  class="btn btn-primary btn-full cr-btn-primary"
+                  id="mp-btn-avancar"
+                  onclick="MapaPage.avancar1()"
+                  type="button"
+                >
+                  <span id="mp-btn-avancar-txt">Gerar sugestões com IA</span>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M13 6l6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <aside class="cr-aside">
+              <h3 class="cr-aside-title">Como funciona</h3>
+              <ol class="cr-howto">
+                <li>
+                  <span class="cr-howto-n">1</span>
+                  <div>
+                    <strong>Configure</strong>
+                    <p>Matéria, título central e número de nós.</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="cr-howto-n">2</span>
+                  <div>
+                    <strong>Tópicos</strong>
+                    <p>A IA sugere — você edita à vontade.</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="cr-howto-n">3</span>
+                  <div>
+                    <strong>Template</strong>
+                    <p>Escolha o layout visual do mapa.</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="cr-howto-n">4</span>
+                  <div>
+                    <strong>Edite</strong>
+                    <p>Ajuste posição e tamanho dos nós.</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="cr-howto-n">5</span>
+                  <div>
+                    <strong>Resultado</strong>
+                    <p>IA preenche o conteúdo de cada nó.</p>
+                  </div>
+                </li>
+              </ol>
+            </aside>
+          </section>
+
+          <section class="step-pane cr-pane" id="mpane2">
+            <div class="cr-card cr-topics-card">
+              <div class="cr-pane-head">
+                <div>
+                  <h2 class="cr-pane-title">Tópicos sugeridos</h2>
+                  <p class="cr-pane-sub">
+                    Edite, remova ou adicione tópicos antes de continuar.
+                  </p>
+                </div>
+                <div class="cr-pane-meter">
+                  <span id="mp-topic-count">0</span
+                  ><span class="cr-meter-sep">/</span
+                  ><span id="mp-topic-total">0</span>
+                  <span class="cr-meter-lbl">selecionados</span>
+                </div>
+              </div>
+
+              <div id="mp-topics-list" class="cr-topics"></div>
+
+              <div class="add-row cr-add-row">
+                <input
+                  type="text"
+                  class="inp"
+                  id="mp-new-topic"
+                  placeholder="Adicionar tópico…"
+                  autocomplete="off"
+                />
+                <button
+                  class="btn btn-secondary cr-btn-add"
+                  id="mp-btn-add"
+                  onclick="MapaPage.addTopico()"
+                  type="button"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  Adicionar
+                </button>
+              </div>
+
+              <div
+                id="mp-topics-aviso"
+                class="step-msg step-msg--warn"
+                style="display: none; margin-top: 14px"
+              ></div>
+
+              <div class="cr-step-actions">
+                <button
+                  class="btn btn-ghost cr-btn-back"
+                  onclick="MapaPage.goStep(1)"
+                  type="button"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M19 12H5" />
+                    <path d="M11 18l-6-6 6-6" />
+                  </svg>
+                  Voltar
+                </button>
+                <button
+                  class="btn btn-primary cr-btn-primary"
+                  onclick="MapaPage.goStep(3)"
+                  id="mp-btn-aprovar"
+                  type="button"
+                >
+                  Aprovar e continuar
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M13 6l6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="step-pane cr-pane" id="mpane3">
+            <div
+              class="cr-card"
+              style="max-width: 860px; margin: 0 auto; width: 100%"
+            >
+              <h2 class="cr-pane-title">Escolha o template</h2>
+              <p class="cr-pane-sub">
+                Define o layout inicial dos nós no canvas. Você pode ajustar
+                depois.
+              </p>
+
+              <div class="mp-templates" id="mp-templates">
+                <button
+                  class="mp-tpl-card"
+                  data-tpl="radial"
+                  onclick="MapaPage.selectTemplate('radial')"
+                  type="button"
+                >
+                  <div class="mp-tpl-preview">
+                    <svg
+                      viewBox="0 0 120 80"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        x="46"
+                        y="32"
+                        width="28"
+                        height="16"
+                        rx="4"
+                        fill="currentColor"
+                        opacity=".2"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <text
+                        x="60"
+                        y="43"
+                        text-anchor="middle"
+                        font-size="6"
+                        fill="currentColor"
+                        opacity=".7"
+                      >
+                        Centro
+                      </text>
+                      <rect
+                        x="2"
+                        y="8"
+                        width="22"
+                        height="12"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".1"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <rect
+                        x="96"
+                        y="8"
+                        width="22"
+                        height="12"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".1"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <rect
+                        x="2"
+                        y="60"
+                        width="22"
+                        height="12"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".1"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <rect
+                        x="96"
+                        y="60"
+                        width="22"
+                        height="12"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".1"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <line
+                        x1="46"
+                        y1="40"
+                        x2="24"
+                        y2="14"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".5"
+                      />
+                      <line
+                        x1="74"
+                        y1="40"
+                        x2="96"
+                        y2="14"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".5"
+                      />
+                      <line
+                        x1="46"
+                        y1="40"
+                        x2="24"
+                        y2="66"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".5"
+                      />
+                      <line
+                        x1="74"
+                        y1="40"
+                        x2="96"
+                        y2="66"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".5"
+                      />
+                    </svg>
+                  </div>
+                  <div class="mp-tpl-name">Radial</div>
+                  <div class="mp-tpl-desc">Tópicos ao redor do centro</div>
+                </button>
+
+                <button
+                  class="mp-tpl-card"
+                  data-tpl="linear"
+                  onclick="MapaPage.selectTemplate('linear')"
+                  type="button"
+                >
+                  <div class="mp-tpl-preview">
+                    <svg
+                      viewBox="0 0 120 80"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        x="40"
+                        y="6"
+                        width="40"
+                        height="16"
+                        rx="4"
+                        fill="currentColor"
+                        opacity=".2"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <text
+                        x="60"
+                        y="17"
+                        text-anchor="middle"
+                        font-size="6"
+                        fill="currentColor"
+                        opacity=".7"
+                      >
+                        Centro
+                      </text>
+                      <rect
+                        x="4"
+                        y="38"
+                        width="24"
+                        height="13"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".1"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <rect
+                        x="34"
+                        y="38"
+                        width="24"
+                        height="13"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".1"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <rect
+                        x="64"
+                        y="38"
+                        width="24"
+                        height="13"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".1"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <rect
+                        x="94"
+                        y="38"
+                        width="22"
+                        height="13"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".1"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <line
+                        x1="60"
+                        y1="22"
+                        x2="16"
+                        y2="38"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".5"
+                      />
+                      <line
+                        x1="60"
+                        y1="22"
+                        x2="46"
+                        y2="38"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".5"
+                      />
+                      <line
+                        x1="60"
+                        y1="22"
+                        x2="76"
+                        y2="38"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".5"
+                      />
+                      <line
+                        x1="60"
+                        y1="22"
+                        x2="105"
+                        y2="38"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".5"
+                      />
+                      <rect
+                        x="4"
+                        y="60"
+                        width="24"
+                        height="13"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".08"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <rect
+                        x="64"
+                        y="60"
+                        width="24"
+                        height="13"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".08"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                    </svg>
+                  </div>
+                  <div class="mp-tpl-name">Linear</div>
+                  <div class="mp-tpl-desc">Tópicos em grade abaixo</div>
+                </button>
+
+                <button
+                  class="mp-tpl-card"
+                  data-tpl="organico"
+                  onclick="MapaPage.selectTemplate('organico')"
+                  type="button"
+                >
+                  <div class="mp-tpl-preview">
+                    <svg
+                      viewBox="0 0 120 80"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        x="44"
+                        y="28"
+                        width="32"
+                        height="16"
+                        rx="4"
+                        fill="currentColor"
+                        opacity=".2"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <rect
+                        x="4"
+                        y="10"
+                        width="26"
+                        height="14"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".1"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <rect
+                        x="86"
+                        y="4"
+                        width="28"
+                        height="14"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".1"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <rect
+                        x="4"
+                        y="52"
+                        width="26"
+                        height="14"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".1"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <rect
+                        x="88"
+                        y="54"
+                        width="26"
+                        height="14"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".1"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <rect
+                        x="38"
+                        y="60"
+                        width="24"
+                        height="13"
+                        rx="3"
+                        fill="currentColor"
+                        opacity=".08"
+                        stroke="currentColor"
+                        stroke-width="1"
+                      />
+                      <line
+                        x1="44"
+                        y1="36"
+                        x2="30"
+                        y2="17"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".45"
+                      />
+                      <line
+                        x1="76"
+                        y1="36"
+                        x2="86"
+                        y2="11"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".45"
+                      />
+                      <line
+                        x1="44"
+                        y1="44"
+                        x2="30"
+                        y2="59"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".45"
+                      />
+                      <line
+                        x1="76"
+                        y1="44"
+                        x2="88"
+                        y2="61"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".45"
+                      />
+                      <line
+                        x1="60"
+                        y1="44"
+                        x2="50"
+                        y2="60"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        opacity=".35"
+                      />
+                    </svg>
+                  </div>
+                  <div class="mp-tpl-name">Orgânico</div>
+                  <div class="mp-tpl-desc">Layout assimétrico</div>
+                </button>
+
+                <button
+                  class="mp-tpl-card"
+                  data-tpl="livre"
+                  onclick="MapaPage.selectTemplate('livre')"
+                  type="button"
+                >
+                  <div class="mp-tpl-preview">
+                    <svg
+                      viewBox="0 0 120 80"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        x="2"
+                        y="2"
+                        width="116"
+                        height="76"
+                        rx="6"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-dasharray="4 3"
+                        opacity=".3"
+                      />
+                      <rect
+                        x="40"
+                        y="30"
+                        width="32"
+                        height="16"
+                        rx="4"
+                        fill="currentColor"
+                        opacity=".15"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <text
+                        x="56"
+                        y="41"
+                        text-anchor="middle"
+                        font-size="5"
+                        fill="currentColor"
+                        opacity=".6"
+                      >
+                        Posicione
+                      </text>
+                      <text
+                        x="56"
+                        y="48"
+                        text-anchor="middle"
+                        font-size="5"
+                        fill="currentColor"
+                        opacity=".6"
+                      >
+                        livremente
+                      </text>
+                      <circle
+                        cx="20"
+                        cy="20"
+                        r="6"
+                        fill="currentColor"
+                        opacity=".08"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        stroke-dasharray="2 2"
+                      />
+                      <circle
+                        cx="100"
+                        cy="60"
+                        r="6"
+                        fill="currentColor"
+                        opacity=".08"
+                        stroke="currentColor"
+                        stroke-width="1"
+                        stroke-dasharray="2 2"
+                      />
+                    </svg>
+                  </div>
+                  <div class="mp-tpl-name">Livre</div>
+                  <div class="mp-tpl-desc">Canvas vazio — você posiciona</div>
+                </button>
+              </div>
+
+              <div class="cr-step-actions">
+                <button
+                  class="btn btn-ghost cr-btn-back"
+                  onclick="MapaPage.goStep(2)"
+                  type="button"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M19 12H5" />
+                    <path d="M11 18l-6-6 6-6" />
+                  </svg>
+                  Voltar
+                </button>
+                <button
+                  class="btn btn-primary cr-btn-primary"
+                  id="mp-btn-usar-tpl"
+                  onclick="MapaPage.goStep(4)"
+                  type="button"
+                  disabled
+                >
+                  Usar este template
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M13 6l6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="step-pane cr-pane cr-pane-wide" id="mpane4">
+            <div class="cr-card mp-editor-card">
+              <div class="mp-editor-toolbar">
+                <div class="mp-mode-btns">
+                  <button
+                    class="mp-mode-btn active"
+                    id="mp-mode-ordem"
+                    onclick="MapaPage.setEditorMode('ordem')"
+                    type="button"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="width: 15px; height: 15px"
+                    >
+                      <path d="M12 20h9" />
+                      <path
+                        d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                      />
+                    </svg>
+                    Modo Ordem
+                  </button>
+                  <button
+                    class="mp-mode-btn"
+                    id="mp-mode-layout"
+                    onclick="MapaPage.setEditorMode('layout')"
+                    type="button"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="width: 15px; height: 15px"
+                    >
+                      <rect x="3" y="3" width="18" height="18" rx="2" />
+                      <path d="M3 9h18M9 21V9" />
+                    </svg>
+                    Modo Layout
+                  </button>
+                </div>
+                <div id="mp-editor-hint" class="mp-editor-hint">
+                  Clique em um nó para atribuir um tópico
+                </div>
+              </div>
+
+              <div class="mp-canvas-wrap" id="mp-canvas-wrap">
+                <div class="mp-canvas" id="mp-canvas">
+                  <svg
+                    class="mp-canvas-svg"
+                    id="mp-canvas-svg"
+                    xmlns="http://www.w3.org/2000/svg"
+                  ></svg>
+                </div>
+              </div>
+
+              <div id="mp-editor-warnings" class="mp-editor-warnings"></div>
+
+              <div class="cr-step-actions">
+                <button
+                  class="btn btn-ghost cr-btn-back"
+                  onclick="MapaPage.goStep(3)"
+                  type="button"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M19 12H5" />
+                    <path d="M11 18l-6-6 6-6" />
+                  </svg>
+                  Voltar
+                </button>
+                <button
+                  class="btn btn-primary cr-btn-primary"
+                  onclick="MapaPage.gerarMapa()"
+                  type="button"
+                >
+                  Gerar Mapa com IA
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M13 6l6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="step-pane cr-pane cr-pane-wide" id="mpane5">
+            <div class="cr-card mp-result-card">
+              <div id="mp-result-header"></div>
+              <div
+                class="mp-canvas-wrap mp-canvas-wrap--result"
+                id="mp-result-wrap"
+              >
+                <div class="mp-canvas" id="mp-result-canvas">
+                  <svg
+                    class="mp-canvas-svg"
+                    id="mp-result-svg"
+                    xmlns="http://www.w3.org/2000/svg"
+                  ></svg>
+                </div>
+              </div>
+              <div class="cr-step-actions">
+                <button
+                  class="btn btn-ghost cr-btn-back"
+                  onclick="MapaPage.goStep(4)"
+                  type="button"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M19 12H5" />
+                    <path d="M11 18l-6-6 6-6" />
+                  </svg>
+                  Editar layout
+                </button>
+                <button
+                  class="btn btn-primary cr-btn-primary"
+                  onclick="MapaPage.salvarMapa()"
+                  type="button"
+                >
+                  Salvar mapa
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path
+                      d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+                    />
+                    <polyline points="17 21 17 13 7 13 7 21" />
+                    <polyline points="7 3 7 8 15 8" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <div id="mp-ordem-dropdown" class="mp-ordem-dropdown" style="display: none">
+      <div class="mp-ordem-dropdown__inner" id="mp-ordem-list"></div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/utils/dom.js"></script>
+    <script src="../js/utils/storage.js"></script>
+    <script src="../js/utils/helpers.js"></script>
+    <script src="../js/mock.js"></script>
+    <script src="../js/router.js"></script>
+    <script src="../js/components/modal.js"></script>
+    <script src="../js/components/confirm.js"></script>
+    <script src="../js/components/navbar.js"></script>
+    <script src="../js/components/sidebar.js"></script>
+    <script src="../js/components/card.js"></script>
+    <script src="../js/components/button.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/ai1.js"></script>
+    <script src="../js/ai2.js"></script>
+    <script src="../js/pages/mapa.js"></script>
+  </body>
 </html>

@@ -1,30 +1,30 @@
-/* FOLIUM — js/config.js */
-
 const Config = {
-  API_BASE: 'https://folium-py.onrender.com/api',
+  API_BASE: "https://folium-py.onrender.com/api",
 
-  GOOGLE_CLIENT_ID: '280915033344-crvu4es3204726pfvf0rktuf4phv91of.apps.googleusercontent.com',
+  GOOGLE_CLIENT_ID:
+    "280915033344-crvu4es3204726pfvf0rktuf4phv91of.apps.googleusercontent.com",
 
   get API() {
     const isLocal =
-      window.location.hostname === 'localhost' ||
-      window.location.hostname === '127.0.0.1' ||
-      window.location.protocol === 'file:';
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.protocol === "file:";
 
-    return isLocal
-      ? 'http://localhost:3001/api'
-      : this.API_BASE;
+    return isLocal ? "http://localhost:3001/api" : this.API_BASE;
   },
 
   _wakePromise: null,
   _wakeAt: 0,
-  WAKE_TTL_MS: 3 * 60 * 1000, // 3 minutos
+  WAKE_TTL_MS: 3 * 60 * 1000,
 
   wake({ maxWaitMs = 90000, intervalMs = 3000, force = false } = {}) {
-    /* poll em andamento → reusa */
     if (this._wakePromise) return this._wakePromise;
-    /* sucesso recente → válido por TTL */
-    if (!force && this._wakeAt && Date.now() - this._wakeAt < this.WAKE_TTL_MS) {
+
+    if (
+      !force &&
+      this._wakeAt &&
+      Date.now() - this._wakeAt < this.WAKE_TTL_MS
+    ) {
       return Promise.resolve(true);
     }
     const start = Date.now();
@@ -32,17 +32,16 @@ const Config = {
       try {
         while (Date.now() - start < maxWaitMs) {
           try {
-            const res = await fetch(`${this.API}/health`, { method: 'GET' });
+            const res = await fetch(`${this.API}/health`, { method: "GET" });
             if (res.ok) {
               this._wakeAt = Date.now();
               return true;
             }
-          } catch (_) { /* sleeping ou rede off */ }
-          await new Promise(r => setTimeout(r, intervalMs));
+          } catch (_) {}
+          await new Promise((r) => setTimeout(r, intervalMs));
         }
         return false;
       } finally {
-        /* sempre libera o slot — o resultado fica em _wakeAt */
         this._wakePromise = null;
       }
     })();
@@ -50,7 +49,6 @@ const Config = {
   },
 
   warmInBackground() {
-    /* não faz await — só dispara o ping pra acordar o servidor. */
     this.wake().catch(() => {});
   },
 };

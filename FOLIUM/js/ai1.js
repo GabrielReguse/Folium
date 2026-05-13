@@ -1,23 +1,20 @@
 const AI1 = {
-
-  /* HELPER */
   async _post(endpoint, body) {
     const token = Storage.getToken();
 
     if (!token) {
-      throw new Error('Usuário não autenticado.');
+      throw new Error("Usuário não autenticado.");
     }
 
     const res = await fetch(`${Config.API}/ai/${endpoint}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(body),
     });
 
-    /* Tenta ler o JSON mesmo em caso de erro, para pegar a mensagem */
     let data;
     try {
       data = await res.json();
@@ -27,8 +24,8 @@ const AI1 = {
 
     if (res.status === 401) {
       Storage.clearUser();
-      Router.go('login');
-      throw new Error('Sessão expirada. Faça login novamente.');
+      Router.go("login");
+      throw new Error("Sessão expirada. Faça login novamente.");
     }
 
     if (!res.ok) {
@@ -38,12 +35,10 @@ const AI1 = {
     return data;
   },
 
-  /* MÉTODO 1 — Gerar lista inicial de tópicos */
   async gerarTopicos(materia, tema, nivel = "") {
-    const data = await this._post('topics', { materia, tema });
+    const data = await this._post("topics", { materia, tema });
 
-    /* O backend já valida e normaliza - apenas garantimos o shape */
-    return (data.topicos ?? []).map(t => ({
+    return (data.topicos ?? []).map((t) => ({
       txt: t.txt,
       on: true,
       plano_pesquisa: t.plano_pesquisa ?? null,
@@ -51,13 +46,18 @@ const AI1 = {
     }));
   },
 
-  /* MÉTODO 2 — Verificar compatibilidade de tópico manual */
-  async verificarTopico(novoTopico, materia, tema, topicosExistentes, nivel = "") {
-    const data = await this._post('check-topic', {
+  async verificarTopico(
+    novoTopico,
+    materia,
+    tema,
+    topicosExistentes,
+    nivel = "",
+  ) {
+    const data = await this._post("check-topic", {
       novoTopico,
       materia,
       tema,
-      topicosExistentes: topicosExistentes.map(t => t.txt),
+      topicosExistentes: topicosExistentes.map((t) => t.txt),
     });
 
     return {
@@ -67,11 +67,10 @@ const AI1 = {
     };
   },
 
-  /* MÉTODO 3 — Exportar plano de pesquisa para a IA 2 */
   exportarPlano(topicList) {
     return topicList
-      .filter(t => t.on)
-      .map(t => ({
+      .filter((t) => t.on)
+      .map((t) => ({
         txt: t.txt,
         plano_pesquisa: t.plano_pesquisa,
       }));

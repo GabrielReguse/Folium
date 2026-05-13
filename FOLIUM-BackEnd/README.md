@@ -28,20 +28,20 @@ API de autenticação do Folium com **Python + FastAPI + PostgreSQL + bcrypt + J
    - **Plan:** Free
 3. Em **Environment Variables**, adicione:
 
-| Variável | Valor |
-|---|---|
-| `JWT_SECRET` | Uma frase longa e aleatória (ex: `folium_xK9#mP2...`) |
-| `JWT_EXPIRES_DAYS` | `7` |
-| `ALLOWED_ORIGIN` | `https://seu-projeto.vercel.app` |
-| `DATABASE_URL` | A URL que você copiou do PostgreSQL |
-| `GOOGLE_CLIENT_ID` | Seu Google OAuth Client ID |
-| `SMTP_EMAIL` | `suporte.folium@gmail.com` |
-| `SMTP_PASSWORD` | Senha de App do Gmail |
-| `SMTP_HOST` | `smtp.gmail.com` |
-| `SMTP_PORT` | `587` |
-| `GROQ_API_KEY` | Chave do Groq (usada pela IA 1 — tópicos) |
-| `GEMINI_API_KEY` | Chave do Google AI Studio (IA 2 — folha, primário) |
-| `CEREBRAS_API_KEY` | Chave do Cerebras Cloud (IA 2 — fallback final) |
+| Variável           | Valor                                                 |
+| ------------------ | ----------------------------------------------------- |
+| `JWT_SECRET`       | Uma frase longa e aleatória (ex: `folium_xK9#mP2...`) |
+| `JWT_EXPIRES_DAYS` | `7`                                                   |
+| `ALLOWED_ORIGIN`   | `https://seu-projeto.vercel.app`                      |
+| `DATABASE_URL`     | A URL que você copiou do PostgreSQL                   |
+| `GOOGLE_CLIENT_ID` | Seu Google OAuth Client ID                            |
+| `SMTP_EMAIL`       | `suporte.folium@gmail.com`                            |
+| `SMTP_PASSWORD`    | Senha de App do Gmail                                 |
+| `SMTP_HOST`        | `smtp.gmail.com`                                      |
+| `SMTP_PORT`        | `587`                                                 |
+| `GROQ_API_KEY`     | Chave do Groq (usada pela IA 1 — tópicos)             |
+| `GEMINI_API_KEY`   | Chave do Google AI Studio (IA 2 — folha, primário)    |
+| `CEREBRAS_API_KEY` | Chave do Cerebras Cloud (IA 2 — fallback final)       |
 
 4. Clique em **Create Web Service**
 
@@ -50,10 +50,12 @@ API de autenticação do Folium com **Python + FastAPI + PostgreSQL + bcrypt + J
 ## ▲ Frontend no Vercel
 
 1. Abra `FOLIUM/js/config.js` e configure:
+
 ```js
 API_BASE: 'https://folium-api.onrender.com/api',
 GOOGLE_CLIENT_ID: 'seu-google-client-id.apps.googleusercontent.com',
 ```
+
 2. Suba o frontend no Vercel apontando para a pasta `FOLIUM/`
 
 ---
@@ -70,15 +72,15 @@ uvicorn main:app --reload --port 3001
 
 ## 🔑 Endpoints
 
-| Método | Rota | Descrição |
-|---|---|---|
-| `GET` | `/api/health` | Status da API |
-| `POST` | `/api/auth/register` | Cadastro (envia código de verificação) |
-| `POST` | `/api/auth/login` | Login (envia código de verificação) |
-| `POST` | `/api/auth/google` | Login com Google (envia código de verificação) |
-| `POST` | `/api/auth/verify-code` | Verifica o código e retorna JWT |
-| `POST` | `/api/auth/resend-code` | Reenvia o código de verificação |
-| `GET` | `/api/auth/me` | Dados do usuário (requer token) |
+| Método | Rota                    | Descrição                                      |
+| ------ | ----------------------- | ---------------------------------------------- |
+| `GET`  | `/api/health`           | Status da API                                  |
+| `POST` | `/api/auth/register`    | Cadastro (envia código de verificação)         |
+| `POST` | `/api/auth/login`       | Login (envia código de verificação)            |
+| `POST` | `/api/auth/google`      | Login com Google (envia código de verificação) |
+| `POST` | `/api/auth/verify-code` | Verifica o código e retorna JWT                |
+| `POST` | `/api/auth/resend-code` | Reenvia o código de verificação                |
+| `GET`  | `/api/auth/me`          | Dados do usuário (requer token)                |
 
 ---
 
@@ -87,12 +89,14 @@ uvicorn main:app --reload --port 3001
 O Folium usa duas IAs em provedores diferentes — ambas com planos gratuitos, sem cartão:
 
 ### IA 1 — Curadoria de tópicos (`/api/ai/topics`, `/api/ai/check-topic`)
+
 - **Provedor:** Groq (`llama-3.3-70b-versatile` → fallback `llama-3.1-8b-instant`)
 - **Chave:** `GROQ_API_KEY` — https://console.groq.com/keys
 - Gera até 10 tópicos com briefing enriquecido (foco, sub-tópicos, fórmulas-chave,
   âncora visual e pegadinhas) que alimenta a IA 2.
 
 ### IA 2 — Geradora da folha (`/api/ai2/sheet`)
+
 Cadeia com fallback automático em caso de 429/413/timeout:
 
 1. **Gemini 2.5 Pro** (primário, qualidade máxima) — 5 RPM · 100 RPD · 250k TPM

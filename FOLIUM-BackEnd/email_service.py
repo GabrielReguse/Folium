@@ -1,8 +1,3 @@
-# ═══════════════════════════════════════════════
-#  FOLIUM — email_service.py
-#  Envio de e-mails via SMTP (Gmail)
-# ═══════════════════════════════════════════════
-
 import os
 import secrets
 import smtplib

@@ -1,12 +1,3 @@
-# ═══════════════════════════════════════════════
-#  FOLIUM — routes/ai.py
-#  IA 1: Curadoria de tópicos e verificação
-# ═══════════════════════════════════════════════
-#
-# Depois que a IA 2 saiu do Groq, a IA 1 tem toda a cota do Groq pra ela.
-# Isso libera produzir um briefing muito mais denso e dirigido que a IA 2
-# (agora Gemini Pro) pode consumir para gerar folhas de maior qualidade.
-
 import os, json, asyncio
 from typing import Any
 
@@ -20,17 +11,18 @@ from limiter import ai1_call
 router = APIRouter()
 
 GROQ_MODEL = "llama-3.3-70b-versatile"
-GROQ_API   = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_API = "https://api.groq.com/openai/v1/chat/completions"
 
 NIVEL_MAP = {
-  "fundamental_1": "Ensino Fundamental I (1º ao 5º ano) — linguagem simples, conceitos básicos, sem abstrações",
-  "fundamental_2": "Ensino Fundamental II (6º ao 9º ano) — conceitos intermediários, linguagem acessível",
-  "medio":         "Ensino Médio — nível padrão vestibular, conteúdo completo da grade curricular",
-  "vestibular":    "Vestibular/ENEM — foco no que mais cai, profundidade média-alta, atenção a pegadinhas",
-  "tecnico":       "Ensino Técnico — foco aplicado e prático, linguagem técnica moderada",
-  "superior":      "Ensino Superior — linguagem acadêmica, profundidade alta, pode incluir teoria avançada",
-  "pos":           "Pós-graduação — nível especialista, terminologia técnica, profundidade máxima",
+    "fundamental_1": "Ensino Fundamental I (1º ao 5º ano) — linguagem simples, conceitos básicos, sem abstrações",
+    "fundamental_2": "Ensino Fundamental II (6º ao 9º ano) — conceitos intermediários, linguagem acessível",
+    "medio": "Ensino Médio — nível padrão vestibular, conteúdo completo da grade curricular",
+    "vestibular": "Vestibular/ENEM — foco no que mais cai, profundidade média-alta, atenção a pegadinhas",
+    "tecnico": "Ensino Técnico — foco aplicado e prático, linguagem técnica moderada",
+    "superior": "Ensino Superior — linguagem acadêmica, profundidade alta, pode incluir teoria avançada",
+    "pos": "Pós-graduação — nível especialista, terminologia técnica, profundidade máxima",
 }
+
 
 def require_auth(authorization: str = Header(default="")) -> dict:
     if not authorization.startswith("Bearer "):
@@ -43,6 +35,7 @@ def require_auth(authorization: str = Header(default="")) -> dict:
         )
     except JWTError:
         raise HTTPException(401, "Token inválido ou expirado.")
+
 
 SYS_GENERATE = """
 Você é a IA 1 do Folium — curador de tópicos de estudo para estudantes brasileiros.
@@ -127,6 +120,7 @@ FORMATO (JSON válido, sem markdown):
 
 GROQ_MODEL_FALLBACK = "llama-3.1-8b-instant"
 
+
 async def call_groq(system: str, user: str, max_tokens: int = 4000) -> Any:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
@@ -136,10 +130,10 @@ async def call_groq(system: str, user: str, max_tokens: int = 4000) -> Any:
         "model": GROQ_MODEL,
         "messages": [
             {"role": "system", "content": system},
-            {"role": "user",   "content": user},
+            {"role": "user", "content": user},
         ],
-        "temperature":     0.5,
-        "max_tokens":      max_tokens,
+        "temperature": 0.5,
+        "max_tokens": max_tokens,
         "response_format": {"type": "json_object"},
     }
 
@@ -153,7 +147,7 @@ async def call_groq(system: str, user: str, max_tokens: int = 4000) -> Any:
             resp = await client.post(
                 GROQ_API,
                 headers={
-                    "Content-Type":  "application/json",
+                    "Content-Type": "application/json",
                     "Authorization": f"Bearer {api_key}",
                 },
                 json=payload,
@@ -162,7 +156,10 @@ async def call_groq(system: str, user: str, max_tokens: int = 4000) -> Any:
         if resp.status_code == 429:
             if attempt == 0:
                 continue
-            raise HTTPException(429, "Limite de uso da IA atingido. Aguarde cerca de 1 minuto e tente novamente.")
+            raise HTTPException(
+                429,
+                "Limite de uso da IA atingido. Aguarde cerca de 1 minuto e tente novamente.",
+            )
 
         if resp.status_code != 200:
             print(f"[AI1] Groq error {resp.status_code}: {resp.text[:200]}")
@@ -184,17 +181,20 @@ async def call_groq(system: str, user: str, max_tokens: int = 4000) -> Any:
         print(f"[AI1] JSON inválido: {clean[:200]}")
         raise HTTPException(502, "IA retornou resposta inválida. Tente novamente.")
 
+
 class TopicsBody(BaseModel):
     materia: str
-    tema:    str = ""
-    nivel:   str = ""
+    tema: str = ""
+    nivel: str = ""
+
 
 class CheckBody(BaseModel):
-    novoTopico:        str
-    materia:           str
-    tema:              str = ""
-    nivel:             str = ""
+    novoTopico: str
+    materia: str
+    tema: str = ""
+    nivel: str = ""
     topicosExistentes: list[str] = []
+
 
 @router.post("/topics")
 async def topics(body: TopicsBody, user=Depends(require_auth)):
@@ -209,7 +209,9 @@ async def topics(body: TopicsBody, user=Depends(require_auth)):
         f"Nível escolar: {nivel_desc}"
     )
 
-    print(f"[AI1] /topics — user:{user.get('id')} materia:\"{body.materia}\" nivel:\"{body.nivel}\"")
+    print(
+        f"[AI1] /topics — user:{user.get('id')} materia:\"{body.materia}\" nivel:\"{body.nivel}\""
+    )
 
     result = await ai1_call(
         call_groq(SYS_GENERATE, prompt, max_tokens=4000),
@@ -217,10 +219,10 @@ async def topics(body: TopicsBody, user=Depends(require_auth)):
 
     topicos = [
         {
-            "txt":            str(t.get("txt", "")).strip(),
-            "on":             True,
+            "txt": str(t.get("txt", "")).strip(),
+            "on": True,
             "plano_pesquisa": t.get("plano_pesquisa"),
-            "aviso":          None,
+            "aviso": None,
         }
         for t in result.get("topicos", [])
         if str(t.get("txt", "")).strip()
@@ -230,6 +232,7 @@ async def topics(body: TopicsBody, user=Depends(require_auth)):
         raise HTTPException(502, "IA não retornou tópicos válidos. Tente novamente.")
 
     return {"topicos": topicos}
+
 
 @router.post("/check-topic")
 async def check_topic(body: CheckBody, user=Depends(require_auth)):
@@ -246,8 +249,8 @@ async def check_topic(body: CheckBody, user=Depends(require_auth)):
         f"Tema da folha: {body.tema.strip() or 'geral'}\n"
         f"Nível escolar: {nivel_desc}\n"
         f"Tópicos já na lista: {existentes}\n"
-        f"Novo tópico adicionado pelo usuário: \"{body.novoTopico.strip()}\"\n\n"
-        f"Gere o plano_pesquisa sobre o que \"{body.novoTopico.strip()}\" REALMENTE é, independentemente de ser compatível ou não com o tema."
+        f'Novo tópico adicionado pelo usuário: "{body.novoTopico.strip()}"\n\n'
+        f'Gere o plano_pesquisa sobre o que "{body.novoTopico.strip()}" REALMENTE é, independentemente de ser compatível ou não com o tema.'
     )
 
     print(f"[AI1] /check-topic — user:{user.get('id')} topico:\"{body.novoTopico}\"")
@@ -255,8 +258,8 @@ async def check_topic(body: CheckBody, user=Depends(require_auth)):
     try:
         result = await call_groq(SYS_CHECK, prompt, max_tokens=1200)
         return {
-            "compativel":     result.get("compativel", True),
-            "aviso":          result.get("aviso"),
+            "compativel": result.get("compativel", True),
+            "aviso": result.get("aviso"),
             "plano_pesquisa": result.get("plano_pesquisa"),
         }
     except HTTPException:

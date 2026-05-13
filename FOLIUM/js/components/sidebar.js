@@ -1,24 +1,24 @@
-/* FOLIUM v5 — components/sidebar.js — only logout */
-
 const Sidebar = {
-  _panel: null, _overlay: null, _ready: false,
+  _panel: null,
+  _overlay: null,
+  _ready: false,
 
   init() {
     if (this._ready) return;
     this._ready = true;
 
-    const overlay = document.createElement('div');
-    overlay.id = 'sb-overlay';
-    overlay.className = 'sidebar-overlay';
-    overlay.addEventListener('click', () => Sidebar.close());
+    const overlay = document.createElement("div");
+    overlay.id = "sb-overlay";
+    overlay.className = "sidebar-overlay";
+    overlay.addEventListener("click", () => Sidebar.close());
 
-    const panel = document.createElement('div');
-    panel.id = 'sb-panel';
-    panel.className = 'sidebar-panel';
+    const panel = document.createElement("div");
+    panel.id = "sb-panel";
+    panel.className = "sidebar-panel";
 
-    const user  = Storage.getUser() || {};
-    const name  = user.name || user.nome || 'Usuário';
-    const email = user.email || '';
+    const user = Storage.getUser() || {};
+    const name = user.name || user.nome || "Usuário";
+    const email = user.email || "";
     const first = name.trim().charAt(0).toUpperCase();
 
     panel.innerHTML = `
@@ -38,7 +38,7 @@ const Sidebar = {
         <div class="sb-avatar">${first}</div>
         <div>
           <div class="sb-user-name">${name}</div>
-          ${email ? `<div class="sb-user-email">${email}</div>` : ''}
+          ${email ? `<div class="sb-user-email">${email}</div>` : ""}
         </div>
       </div>
       <div class="sb-body">
@@ -59,17 +59,19 @@ const Sidebar = {
     this._overlay = overlay;
   },
 
-  open()   {
+  open() {
     this.init();
-    this._panel.classList.add('open');
-    this._overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    this._panel.classList.add("open");
+    this._overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
   },
-  close()  {
+  close() {
     if (!this._panel) return;
-    this._panel.classList.remove('open');
-    this._overlay.classList.remove('open');
-    document.body.style.overflow = '';
+    this._panel.classList.remove("open");
+    this._overlay.classList.remove("open");
+    document.body.style.overflow = "";
   },
-  toggle() { this._panel?.classList.contains('open') ? this.close() : this.open(); }
+  toggle() {
+    this._panel?.classList.contains("open") ? this.close() : this.open();
+  },
 };

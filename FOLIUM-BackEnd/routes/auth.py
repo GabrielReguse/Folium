@@ -11,28 +11,30 @@ from email_service import generate_code, send_verification_email
 
 router = APIRouter()
 
+
 def _hash(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
 
 def _verify(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode(), hashed.encode())
 
+
 def _make_token(user: dict) -> str:
-    secret  = os.getenv("JWT_SECRET", "dev_secret")
+    secret = os.getenv("JWT_SECRET", "dev_secret")
     expires = int(os.getenv("JWT_EXPIRES_DAYS", "7"))
     payload = {
-        "id":    user["id"],
-        "name":  user["name"],
+        "id": user["id"],
+        "name": user["name"],
         "email": user["email"],
-        "exp":   datetime.now(timezone.utc) + timedelta(days=expires),
+        "exp": datetime.now(timezone.utc) + timedelta(days=expires),
     }
     return jwt.encode(payload, secret, algorithm="HS256")
 
-# Propósitos dos códigos de verificação — mantemos códigos de fluxos
-# diferentes em buckets separados pra que um código de login não possa
-# ser usado pra redefinir senha (e vice-versa).
+
 PURPOSE_LOGIN = "login"
 PURPOSE_RESET = "password_reset"
+
 
 def _send_code(email: str, purpose: str = PURPOSE_LOGIN) -> bool:
     code = generate_code()
@@ -40,36 +42,40 @@ def _send_code(email: str, purpose: str = PURPOSE_LOGIN) -> bool:
     db.save_verification_code(email, code, expires_at, purpose=purpose)
     return send_verification_email(email, code)
 
-# ── Models ─────────────────────────────────────
 
 class RegisterBody(BaseModel):
-    name:     str
-    email:    str
+    name: str
+    email: str
     password: str
 
+
 class LoginBody(BaseModel):
-    email:    str
+    email: str
     password: str
+
 
 class GoogleBody(BaseModel):
     credential: str
 
+
 class VerifyCodeBody(BaseModel):
     email: str
-    code:  str
+    code: str
+
 
 class ResendCodeBody(BaseModel):
     email: str
 
+
 class ForgotPasswordBody(BaseModel):
     email: str
 
+
 class ResetPasswordBody(BaseModel):
     email: str
-    code:  str
+    code: str
     new_password: str
 
-# ── Endpoints ──────────────────────────────────
 
 @router.post("/register", status_code=201)
 def register(body: RegisterBody):
@@ -84,7 +90,7 @@ def register(body: RegisterBody):
         raise HTTPException(409, "Este e-mail já está cadastrado.")
 
     hashed = _hash(body.password)
-    user   = db.create_user(body.name.strip(), body.email.strip(), hashed)
+    user = db.create_user(body.name.strip(), body.email.strip(), hashed)
 
     sent = _send_code(user["email"])
     if not sent:
@@ -96,8 +102,9 @@ def register(body: RegisterBody):
         "message": "Código de verificação enviado para seu e-mail.",
         "pending_verification": True,
         "email": user["email"],
-        "user": {"id": user["id"], "name": user["name"], "email": user["email"]}
+        "user": {"id": user["id"], "name": user["name"], "email": user["email"]},
     }
+
 
 @router.post("/login")
 def login(body: LoginBody):
@@ -108,9 +115,6 @@ def login(body: LoginBody):
     if not user:
         raise HTTPException(401, "E-mail ou senha incorretos.")
 
-    # Conta sem senha (criada via Google OAuth) — diferencia para o usuário
-    # entender que precisa usar 'Continuar com Google' ou definir uma senha
-    # via 'Esqueci minha senha'.
     if not user.get("password"):
         if user.get("google_id"):
             return JSONResponse(
@@ -142,8 +146,9 @@ def login(body: LoginBody):
         "message": "Código de verificação enviado para seu e-mail.",
         "pending_verification": True,
         "email": user["email"],
-        "user": {"id": user["id"], "name": user["name"], "email": user["email"]}
+        "user": {"id": user["id"], "name": user["name"], "email": user["email"]},
     }
+
 
 @router.post("/google")
 def google_login(body: GoogleBody):
@@ -156,16 +161,13 @@ def google_login(body: GoogleBody):
             raise HTTPException(500, "GOOGLE_CLIENT_ID não configurado no servidor.")
 
         idinfo = id_token.verify_oauth2_token(
-            body.credential,
-            google_requests.Request(),
-            client_id
+            body.credential, google_requests.Request(), client_id
         )
 
         email = idinfo.get("email", "").lower()
-        name  = idinfo.get("name", email.split("@")[0])
-        gid   = idinfo.get("sub", "")
-        # Comparação estrita com `is True` evita que valores não-bool
-        # (ex.: a string "false") sejam tratados como verdadeiros.
+        name = idinfo.get("name", email.split("@")[0])
+        gid = idinfo.get("sub", "")
+
         email_verified = idinfo.get("email_verified") is True
 
         if not email:
@@ -183,10 +185,6 @@ def google_login(body: GoogleBody):
     else:
         user = db.create_google_user(name, email, gid)
 
-    # Google já autenticou o usuário e confirmou o e-mail (email_verified).
-    # Mandar um código por e-mail seria redundante (mesmo canal já validado
-    # pelo IdP) e cria dependência indevida do SMTP — quando o SMTP falha,
-    # o login com Google fica inutilizável. Emite o JWT direto.
     if email_verified:
         token = _make_token(user)
         print(f"[AUTH] Google login concluído: {user['email']}")
@@ -196,8 +194,6 @@ def google_login(body: GoogleBody):
             "user": {"id": user["id"], "name": user["name"], "email": user["email"]},
         }
 
-    # Fallback raro: Google reportou email_verified=False — cai no fluxo
-    # de código por e-mail pra confirmar a posse do endereço.
     sent = _send_code(user["email"])
     if not sent:
         raise HTTPException(500, "Erro ao enviar código de verificação.")
@@ -207,8 +203,9 @@ def google_login(body: GoogleBody):
         "message": "Código de verificação enviado para seu e-mail.",
         "pending_verification": True,
         "email": user["email"],
-        "user": {"id": user["id"], "name": user["name"], "email": user["email"]}
+        "user": {"id": user["id"], "name": user["name"], "email": user["email"]},
     }
+
 
 @router.post("/verify-code")
 def verify_code(body: VerifyCodeBody):
@@ -216,7 +213,9 @@ def verify_code(body: VerifyCodeBody):
         raise HTTPException(400, "E-mail e código são obrigatórios.")
 
     email_norm = body.email.strip()
-    record = db.get_verification_code(email_norm, body.code.strip(), purpose=PURPOSE_LOGIN)
+    record = db.get_verification_code(
+        email_norm, body.code.strip(), purpose=PURPOSE_LOGIN
+    )
     if not record:
         raise HTTPException(401, "Código inválido.")
 
@@ -235,12 +234,14 @@ def verify_code(body: VerifyCodeBody):
     return {
         "message": "Verificação concluída!",
         "token": token,
-        "user": {"id": user["id"], "name": user["name"], "email": user["email"]}
+        "user": {"id": user["id"], "name": user["name"], "email": user["email"]},
     }
+
 
 GENERIC_FORGOT_RESPONSE = {
     "message": "Se este e-mail estiver cadastrado, você receberá um código para redefinir a senha.",
 }
+
 
 @router.post("/forgot-password")
 def forgot_password(body: ForgotPasswordBody):
@@ -250,10 +251,6 @@ def forgot_password(body: ForgotPasswordBody):
     email_norm = body.email.strip().lower()
     user = db.get_user_by_email(email_norm)
 
-    # Sempre devolvemos a mesma resposta (mesmo status, mesmo body) tanto
-    # para contas existentes quanto inexistentes — inclusive em caso de
-    # falha do SMTP — pra não vazar a existência da conta via diferenças
-    # de status code/mensagem (anti-enumeration).
     if not user:
         print(f"[AUTH] Forgot password (e-mail inexistente): {email_norm}")
         return {**GENERIC_FORGOT_RESPONSE, "email": email_norm}
@@ -264,10 +261,13 @@ def forgot_password(body: ForgotPasswordBody):
             print(f"[AUTH] Forgot password: SMTP falhou para {user['email']}")
         else:
             print(f"[AUTH] Forgot password: código enviado para {user['email']}")
-    except Exception as e:  # noqa: BLE001
-        print(f"[AUTH] Forgot password: erro inesperado ao enviar para {user['email']}: {e}")
+    except Exception as e:
+        print(
+            f"[AUTH] Forgot password: erro inesperado ao enviar para {user['email']}: {e}"
+        )
 
     return {**GENERIC_FORGOT_RESPONSE, "email": user["email"]}
+
 
 @router.post("/reset-password")
 def reset_password(body: ResetPasswordBody):
@@ -277,7 +277,9 @@ def reset_password(body: ResetPasswordBody):
         raise HTTPException(400, "Senha deve ter pelo menos 4 caracteres.")
 
     email_norm = body.email.strip()
-    record = db.get_verification_code(email_norm, body.code.strip(), purpose=PURPOSE_RESET)
+    record = db.get_verification_code(
+        email_norm, body.code.strip(), purpose=PURPOSE_RESET
+    )
     if not record:
         raise HTTPException(401, "Código inválido.")
 
@@ -302,6 +304,7 @@ def reset_password(body: ResetPasswordBody):
         "user": {"id": user["id"], "name": user["name"], "email": user["email"]},
     }
 
+
 @router.post("/resend-code")
 def resend_code(body: ResendCodeBody):
     if not body.email:
@@ -317,6 +320,7 @@ def resend_code(body: ResendCodeBody):
 
     return {"message": "Novo código enviado para seu e-mail."}
 
+
 @router.get("/me")
 def me(authorization: str = Header(default="")):
     if not authorization.startswith("Bearer "):
@@ -325,7 +329,7 @@ def me(authorization: str = Header(default="")):
         payload = jwt.decode(
             authorization.split(" ")[1],
             os.getenv("JWT_SECRET", "dev_secret"),
-            algorithms=["HS256"]
+            algorithms=["HS256"],
         )
         user = db.get_user_by_id(payload["id"])
         if not user:
@@ -333,7 +337,7 @@ def me(authorization: str = Header(default="")):
         return {"user": user}
     except JWTError:
         raise HTTPException(401, "Token inválido ou expirado.")
-    
+
 
 @router.delete("/admin/reset-user")
 def reset_user(email: str):

@@ -1,8 +1,3 @@
-# ═══════════════════════════════════════════════
-#  FOLIUM — routes/ai2.py
-#  IA 2: Geradora da Folha de Estudos
-# ═══════════════════════════════════════════════
-
 import os, json, asyncio
 from typing import Any
 
@@ -15,14 +10,27 @@ from limiter import ai2_call_with_queue, queue_position_ai2, MAX_CONCURRENT_AI2
 
 router = APIRouter()
 
-# ── Cadeia de modelos ─────────────────────────────────────────
 PROVIDER_CHAIN = [
-    {"provider": "gemini",   "model": "gemini-2.5-flash", "max_tokens": 32000, "timeout": 120.0},
-    {"provider": "cerebras", "model": "llama3.1-8b",      "max_tokens": 8000,  "timeout": 60.0},
-    {"provider": "gemini",   "model": "gemini-2.5-pro",   "max_tokens": 32000, "timeout": 120.0},
+    {
+        "provider": "gemini",
+        "model": "gemini-2.5-flash",
+        "max_tokens": 32000,
+        "timeout": 120.0,
+    },
+    {
+        "provider": "cerebras",
+        "model": "llama3.1-8b",
+        "max_tokens": 8000,
+        "timeout": 60.0,
+    },
+    {
+        "provider": "gemini",
+        "model": "gemini-2.5-pro",
+        "max_tokens": 32000,
+        "timeout": 120.0,
+    },
 ]
 
-# Endpoints OpenAI-compatíveis e variáveis de ambiente por provedor.
 PROVIDER_CONFIG: dict[str, dict[str, str]] = {
     "gemini": {
         "url": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
@@ -35,14 +43,15 @@ PROVIDER_CONFIG: dict[str, dict[str, str]] = {
 }
 
 NIVEL_MAP = {
-  "fundamental_1": "Fundamental I — linguagem simples, sem fórmulas, analogias do cotidiano",
-  "fundamental_2": "Fundamental II — conceitos introdutórios, exemplos concretos",
-  "medio":         "Ensino Médio — linguagem clara, fórmulas básicas, exemplos numéricos",
-  "vestibular":    "Vestibular/ENEM — fórmulas completas, exemplos resolvidos, dicas de pegadinhas",
-  "tecnico":       "Técnico — linguagem aplicada, foco prático",
-  "superior":      "Superior — linguagem acadêmica, teoria aprofundada",
-  "pos":           "Pós-graduação — especialista, terminologia avançada",
+    "fundamental_1": "Fundamental I — linguagem simples, sem fórmulas, analogias do cotidiano",
+    "fundamental_2": "Fundamental II — conceitos introdutórios, exemplos concretos",
+    "medio": "Ensino Médio — linguagem clara, fórmulas básicas, exemplos numéricos",
+    "vestibular": "Vestibular/ENEM — fórmulas completas, exemplos resolvidos, dicas de pegadinhas",
+    "tecnico": "Técnico — linguagem aplicada, foco prático",
+    "superior": "Superior — linguagem acadêmica, teoria aprofundada",
+    "pos": "Pós-graduação — especialista, terminologia avançada",
 }
+
 
 def require_auth(authorization: str = Header(default="")) -> dict:
     if not authorization.startswith("Bearer "):
@@ -55,6 +64,7 @@ def require_auth(authorization: str = Header(default="")) -> dict:
         )
     except JWTError:
         raise HTTPException(401, "Token inválido ou expirado.")
+
 
 SYS_SHEET = """
 Professor de cursinho gerando folha de estudos densa. Direto, sem enrolação, conteúdo real.
@@ -156,20 +166,20 @@ async def _call_provider(
     timeout: float,
 ) -> httpx.Response:
     """Faz a chamada HTTP para um provedor OpenAI-compatível."""
-    config  = PROVIDER_CONFIG[provider]
+    config = PROVIDER_CONFIG[provider]
     api_key = os.getenv(config["env"])
     if not api_key:
-        # Esta entrada da cadeia não está configurada; pula.
-        return None  # type: ignore[return-value]
+
+        return None
 
     payload = {
-        "model":    model,
+        "model": model,
         "messages": [
             {"role": "system", "content": system},
-            {"role": "user",   "content": user},
+            {"role": "user", "content": user},
         ],
-        "temperature":     0.25,
-        "max_tokens":      max_tokens,
+        "temperature": 0.25,
+        "max_tokens": max_tokens,
         "response_format": {"type": "json_object"},
     }
 
@@ -177,7 +187,7 @@ async def _call_provider(
         return await client.post(
             config["url"],
             headers={
-                "Content-Type":  "application/json",
+                "Content-Type": "application/json",
                 "Authorization": f"Bearer {api_key}",
             },
             json=payload,
@@ -194,26 +204,30 @@ async def call_ai2(system: str, user: str) -> Any:
 
     for attempt, entry in enumerate(PROVIDER_CHAIN):
         provider = entry["provider"]
-        model    = entry["model"]
+        model = entry["model"]
 
         if not os.getenv(PROVIDER_CONFIG[provider]["env"]):
-            print(f"[AI2] {provider}/{model} pulado (env {PROVIDER_CONFIG[provider]['env']} não configurada)")
+            print(
+                f"[AI2] {provider}/{model} pulado (env {PROVIDER_CONFIG[provider]['env']} não configurada)"
+            )
             continue
 
         tried_any = True
 
         if attempt > 0 and last_error:
-            print(f"[AI2] {last_error} — aguardando 3s e tentando {provider}/{model}...")
+            print(
+                f"[AI2] {last_error} — aguardando 3s e tentando {provider}/{model}..."
+            )
             await asyncio.sleep(3)
 
         try:
             resp = await _call_provider(
-                provider   = provider,
-                model      = model,
-                system     = system,
-                user       = user,
-                max_tokens = entry["max_tokens"],
-                timeout    = entry["timeout"],
+                provider=provider,
+                model=model,
+                system=system,
+                user=user,
+                max_tokens=entry["max_tokens"],
+                timeout=entry["timeout"],
             )
         except httpx.TimeoutException:
             last_error = f"timeout em {provider}/{model}"
@@ -231,7 +245,7 @@ async def call_ai2(system: str, user: str) -> Any:
             data = resp.json()
             try:
                 choice = data["choices"][0]
-                raw    = choice["message"]["content"]
+                raw = choice["message"]["content"]
                 finish = choice.get("finish_reason")
             except (KeyError, IndexError):
                 last_error = f"resposta malformada de {provider}/{model}"
@@ -239,49 +253,40 @@ async def call_ai2(system: str, user: str) -> Any:
                 continue
 
             if finish == "length":
-                # Saída truncada por max_tokens — JSON sempre vai estar quebrado.
-                # Loga claro e cai pro próximo provedor.
+
                 last_error = f"resposta truncada (finish=length) em {provider}/{model}"
                 print(f"[AI2] ✂ {last_error} — bump max_tokens se isso virar comum")
                 continue
 
             parsed = _parse_json_response(raw)
             if parsed is None:
-                # Resposta 200 mas JSON inválido (ex: modelo ignorou o schema).
-                # Cai pro próximo provedor em vez de abortar a requisição inteira.
+
                 last_error = f"JSON inválido de {provider}/{model}"
                 continue
 
             print(f"[AI2] ✓ Sucesso com {provider}/{model} (finish={finish})")
             return parsed
 
-        # Rate limit / quota → tenta o próximo da cadeia
         if resp.status_code in (429, 503):
             last_error = f"{resp.status_code} rate-limit em {provider}/{model}"
             print(f"[AI2] {last_error}")
             continue
 
-        # Request muito grande → tenta o próximo (que tem max_tokens menor)
         if resp.status_code == 413:
             last_error = f"413 request-too-large em {provider}/{model}"
             print(f"[AI2] {last_error}")
             continue
 
-        # Modelo inexistente / sem acesso → loga claro para o operador
-        # consertar a chain (ex: nome de modelo desativado).
         if resp.status_code == 404:
             last_error = f"404 modelo indisponível em {provider}/{model}"
             print(f"[AI2] ⚠ {last_error}: {resp.text[:200]}")
             continue
 
-        # Erros de autenticação/autorização são específicos da chave,
-        # não faz sentido ficar tentando mais daquele provedor.
         if resp.status_code in (401, 403):
             last_error = f"{resp.status_code} autenticação falhou em {provider}/{model}"
             print(f"[AI2] ⚠ {last_error}: {resp.text[:200]}")
             continue
 
-        # Outro erro → loga e tenta o próximo
         last_error = f"{resp.status_code} em {provider}/{model}"
         print(f"[AI2] ⚠ {last_error}: {resp.text[:200]}")
         continue
@@ -289,22 +294,25 @@ async def call_ai2(system: str, user: str) -> Any:
     if not tried_any:
         raise HTTPException(503, "Serviço de IA não configurado no servidor.")
 
-    # Esgotou a cadeia inteira sem sucesso
     if last_error and "rate-limit" in last_error:
-        raise HTTPException(429, "Limite de uso da IA atingido. Aguarde cerca de 1 minuto e tente novamente.")
+        raise HTTPException(
+            429,
+            "Limite de uso da IA atingido. Aguarde cerca de 1 minuto e tente novamente.",
+        )
     if last_error and "JSON inválido" in last_error:
         raise HTTPException(502, "IA retornou resposta inválida. Tente novamente.")
     raise HTTPException(502, f"Todas as IAs falharam. Último erro: {last_error}.")
 
 
 class TopicItem(BaseModel):
-    txt:            str
+    txt: str
     plano_pesquisa: dict | None = None
+
 
 class SheetBody(BaseModel):
     materia: str
-    tema:    str = ""
-    nivel:   str = ""
+    tema: str = ""
+    nivel: str = ""
     topicos: list[TopicItem]
 
 
@@ -316,9 +324,9 @@ async def get_queue_status(_=Depends(require_auth)):
     """
     waiting = await queue_position_ai2()
     return {
-        "waiting":   waiting,
+        "waiting": waiting,
         "max_slots": MAX_CONCURRENT_AI2,
-        "busy":      waiting > 0,
+        "busy": waiting > 0,
     }
 
 
@@ -327,7 +335,7 @@ async def generate_sheet(body: SheetBody, user=Depends(require_auth)):
     if not body.materia.strip():
         raise HTTPException(400, 'Campo "materia" é obrigatório.')
     if not body.topicos:
-        raise HTTPException(400, 'Lista de tópicos não pode estar vazia.')
+        raise HTTPException(400, "Lista de tópicos não pode estar vazia.")
 
     nivel_desc = NIVEL_MAP.get(body.nivel, "Ensino Médio — nível padrão")
 
@@ -337,19 +345,27 @@ async def generate_sheet(body: SheetBody, user=Depends(require_auth)):
         if t.plano_pesquisa:
             p = t.plano_pesquisa
             extras = []
-            if p.get("foco"):            extras.append(f"foco: {p['foco']}")
-            if p.get("profundidade"):    extras.append(f"prof: {p['profundidade']}")
-            if p.get("formato_exemplo"): extras.append(f"fmt: {p['formato_exemplo']}")
+            if p.get("foco"):
+                extras.append(f"foco: {p['foco']}")
+            if p.get("profundidade"):
+                extras.append(f"prof: {p['profundidade']}")
+            if p.get("formato_exemplo"):
+                extras.append(f"fmt: {p['formato_exemplo']}")
             kw = p.get("palavras_chave", [])
-            if kw: extras.append(f"kw: {', '.join(kw[:4])}")
+            if kw:
+                extras.append(f"kw: {', '.join(kw[:4])}")
             sub = p.get("sub_topicos", [])
-            if sub: extras.append(f"sub: {', '.join(sub[:4])}")
+            if sub:
+                extras.append(f"sub: {', '.join(sub[:4])}")
             form = p.get("formulas_chave", [])
-            if form: extras.append(f"fórmulas: {', '.join(form[:3])}")
+            if form:
+                extras.append(f"fórmulas: {', '.join(form[:3])}")
             anc = p.get("ancora_visual")
-            if anc: extras.append(f"visual: {anc}")
+            if anc:
+                extras.append(f"visual: {anc}")
             peg = p.get("armadilha")
-            if peg: extras.append(f"pegadinha: {peg}")
+            if peg:
+                extras.append(f"pegadinha: {peg}")
             if extras:
                 line += f"  [{'; '.join(extras)}]"
         topicos_lines.append(line)
@@ -361,10 +377,10 @@ async def generate_sheet(body: SheetBody, user=Depends(require_auth)):
         f"Tópicos:\n" + "\n".join(topicos_lines)
     )
 
-    print(f"[AI2] /sheet — user:{user.get('id')} materia:\"{body.materia}\" nivel:\"{body.nivel}\" topicos:{len(body.topicos)}")
+    print(
+        f"[AI2] /sheet — user:{user.get('id')} materia:\"{body.materia}\" nivel:\"{body.nivel}\" topicos:{len(body.topicos)}"
+    )
 
-    # Entra na fila global — no máximo MAX_CONCURRENT_AI2 chamadas simultâneas
-    # e cooldown de COOLDOWN_SECONDS por usuário
     result = await ai2_call_with_queue(
         user.get("id", "anon"),
         call_ai2(SYS_SHEET, prompt),

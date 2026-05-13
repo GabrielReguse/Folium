@@ -1,11 +1,8 @@
-/* FOLIUM — pages/home.js  (v5 — fiel ao design de referência) */
-
 const HomePage = {
-
   init() {
     if (!Router.requireAuth()) return;
-    const page = document.querySelector('.page');
-    if (page) page.classList.add('page-home');
+    const page = document.querySelector(".page");
+    if (page) page.classList.add("page-home");
 
     if (window.innerWidth >= 900) {
       this._buildDesktop();
@@ -13,37 +10,35 @@ const HomePage = {
       this._buildMobile();
     }
 
-    Navbar.renderBottom('home');
+    Navbar.renderBottom("home");
     Sidebar.init();
     this._runEntryAnimations();
   },
 
-  /* ═══════════════════════════════════════
-     ENTRY ANIMATIONS — count-up + stagger
-  ═══════════════════════════════════════ */
   _runEntryAnimations() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    // 1) Stagger dos cards de atividade recente
-    document.querySelectorAll('.recent-card, .recent-empty').forEach((card, i) => {
-      card.classList.add('home-anim-rise');
-      card.style.animationDelay = `${0.55 + i * 0.08}s`;
-    });
+    document
+      .querySelectorAll(".recent-card, .recent-empty")
+      .forEach((card, i) => {
+        card.classList.add("home-anim-rise");
+        card.style.animationDelay = `${0.55 + i * 0.08}s`;
+      });
 
-    // 2) Count-up nos números das estatísticas
-    document.querySelectorAll('.hstat-num').forEach((el) => {
+    document.querySelectorAll(".hstat-num").forEach((el) => {
       const target = parseInt(el.dataset.target || el.textContent, 10) || 0;
-      el.textContent = '0';
-      // delay para começar depois que o bloco esquerdo entrou
+      el.textContent = "0";
+
       setTimeout(() => this._countUp(el, target), 220);
     });
   },
 
   _countUp(el, target) {
-    if (target <= 0) { el.textContent = '0'; return; }
-    // Duração fixa de 1400ms — valores maiores incrementam mais
-    // rápido por tick; valores menores rodam devagarzinho. Ease
-    // out-cubic pra sensação de "chegando" no final.
+    if (target <= 0) {
+      el.textContent = "0";
+      return;
+    }
+
     const duration = 1400;
     const start = performance.now();
     const ease = (t) => 1 - Math.pow(1 - t, 3);
@@ -55,21 +50,17 @@ const HomePage = {
     requestAnimationFrame(tick);
   },
 
-  /* ═══════════════════════════════════════
-     MOBILE — nav topo + hero + ação cards
-  ═══════════════════════════════════════ */
   _buildMobile() {
-    const page = document.querySelector('.page');
+    const page = document.querySelector(".page");
     if (!page) return;
 
     const totals = this._getTotals();
     const user = Storage.getUser() || {};
-    const name = (user.name || user.nome || 'Estudante').split(' ')[0];
+    const name = (user.name || user.nome || "Estudante").split(" ")[0];
     const greeting = Helpers.greeting();
 
-    /* ── Top nav com logo imagem ── */
-    const topNav = document.createElement('div');
-    topNav.className = 'home-top-nav fade-down';
+    const topNav = document.createElement("div");
+    topNav.className = "home-top-nav fade-down";
     topNav.innerHTML = `
       <div class="home-top-nav__spacer"></div>
       <img src="../assets/images/logo-folium.png"
@@ -84,9 +75,8 @@ const HomePage = {
       </button>`;
     page.appendChild(topNav);
 
-    /* ── Hero ── */
-    const hero = document.createElement('div');
-    hero.className = 'dash-hero home-anim-left';
+    const hero = document.createElement("div");
+    hero.className = "dash-hero home-anim-left";
     hero.innerHTML = `
       <p class="hero-greeting">${greeting}</p>
       <h2 class="hero-name">${name}</h2>
@@ -107,14 +97,13 @@ const HomePage = {
       </div>`;
     page.appendChild(hero);
 
-    /* ── Body com action cards ── */
-    const body = document.createElement('div');
-    body.className = 'dash-body';
+    const body = document.createElement("div");
+    body.className = "dash-body";
     page.appendChild(body);
 
-    const label = document.createElement('p');
-    label.className = 'dash-section-label';
-    label.textContent = 'O QUE DESEJA FAZER?';
+    const label = document.createElement("p");
+    label.className = "dash-section-label";
+    label.textContent = "O QUE DESEJA FAZER?";
     body.appendChild(label);
 
     this._appendMobileActions(body);
@@ -124,21 +113,21 @@ const HomePage = {
     const actions = [
       {
         svg: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
-        title: 'Criar folha',
-        sub: 'Gere um resumo com IA em segundos',
-        route: 'escolher',
+        title: "Criar folha",
+        sub: "Gere um resumo com IA em segundos",
+        route: "escolher",
       },
       {
         svg: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/></svg>`,
-        title: 'Minhas folhas',
-        sub: 'Acesse seus resumos salvos',
-        route: 'folhas',
+        title: "Minhas folhas",
+        sub: "Acesse seus resumos salvos",
+        route: "folhas",
       },
       {
         svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/></svg>`,
-        title: 'Suporte',
-        sub: 'Dúvidas e ajuda rápida',
-        route: 'suporte',
+        title: "Suporte",
+        sub: "Dúvidas e ajuda rápida",
+        route: "suporte",
       },
     ];
 
@@ -148,8 +137,8 @@ const HomePage = {
     </svg>`;
 
     actions.forEach((a, i) => {
-      const card = document.createElement('button');
-      card.className = 'home-act-card au';
+      const card = document.createElement("button");
+      card.className = "home-act-card au";
       card.style.animationDelay = `${i * 0.08}s`;
       card.innerHTML = `
         <div class="home-act-icon">${a.svg}</div>
@@ -158,35 +147,30 @@ const HomePage = {
           <div class="home-act-sub">${a.sub}</div>
         </div>
         ${ARROW}`;
-      card.addEventListener('click', () => Router.go(a.route));
+      card.addEventListener("click", () => Router.go(a.route));
       container.appendChild(card);
     });
   },
 
-  /* ═══════════════════════════════════════
-     DESKTOP — 3 colunas + logo central + dock
-  ═══════════════════════════════════════ */
   _buildDesktop() {
-    const page = document.querySelector('.page');
+    const page = document.querySelector(".page");
     if (!page) return;
 
     const totals = this._getTotals();
     const user = Storage.getUser() || {};
-    const name = user.name || user.nome || 'Estudante';
+    const name = user.name || user.nome || "Estudante";
     const greeting = Helpers.greeting();
 
-    /* ── Imagem do vinicius no background esquerdo ── */
-    const vinicius = document.createElement('img');
-    vinicius.src = '../assets/images/vinicius-fundo.png';
-    vinicius.alt = '';
-    vinicius.className = 'desk-vinicius';
-    vinicius.setAttribute('aria-hidden', 'true');
+    const vinicius = document.createElement("img");
+    vinicius.src = "../assets/images/vinicius-fundo.png";
+    vinicius.alt = "";
+    vinicius.className = "desk-vinicius";
+    vinicius.setAttribute("aria-hidden", "true");
     page.appendChild(vinicius);
 
-    /* ── Botão de menu (sidebar) no canto superior direito ── */
-    const burger = document.createElement('button');
-    burger.className = 'desk-burger fade-down';
-    burger.setAttribute('aria-label', 'Abrir menu');
+    const burger = document.createElement("button");
+    burger.className = "desk-burger fade-down";
+    burger.setAttribute("aria-label", "Abrir menu");
     burger.onclick = () => Sidebar.toggle();
     burger.innerHTML = `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -197,11 +181,9 @@ const HomePage = {
       </svg>`;
     page.appendChild(burger);
 
-    /* ── Layout em grid 3 colunas ── */
-    const layout = document.createElement('div');
-    layout.className = 'dash-desk-layout';
+    const layout = document.createElement("div");
+    layout.className = "dash-desk-layout";
     layout.innerHTML = `
-      <!-- Coluna esquerda: saudação + stats -->
       <div class="desk-col-left home-anim-left">
         <p class="hero-greeting">${greeting}</p>
         <h2 class="hero-name desk-name">${name}</h2>
@@ -227,30 +209,38 @@ const HomePage = {
        alt="Folium" class="desk-logo home-anim-logo">
   <p class="desk-tagline fade-in" style="animation-delay:.35s">Transforme qualquer conteúdo em uma<br>folha de estudos inteligente.</p>
 </div>
-
-      <!-- Coluna direita: atividade recente -->
       <div class="desk-col-right home-anim-right-panel" id="desk-recent"></div>`;
 
     page.appendChild(layout);
-    this._buildRecentPanel(document.getElementById('desk-recent'));
+    this._buildRecentPanel(document.getElementById("desk-recent"));
   },
 
   _buildRecentPanel(el) {
     if (!el) return;
     const subjects = Storage.getSubjects() || [];
     const recentes = subjects
-      .flatMap(s => (s.folhas || []).map(f => ({ ...f, sid: s.id, materia: s.nomeNormalizado })))
+      .flatMap((s) =>
+        (s.folhas || []).map((f) => ({
+          ...f,
+          sid: s.id,
+          materia: s.nomeNormalizado,
+        })),
+      )
       .sort((a, b) => new Date(b.criadaEm) - new Date(a.criadaEm))
       .slice(0, 5);
 
     const cards = recentes.length
-      ? recentes.map(f => `
+      ? recentes
+          .map(
+            (f) => `
           <div class="recent-card"
                onclick="Router.go('materia',{subjectId:'${f.sid}',sheetId:'${f.id}',viewSheet:true})">
             <div class="rc-tag">${f.materia}</div>
-            <div class="rc-title">${f.titulo || 'Folha'}</div>
-            <div class="rc-meta">${f.dataFormatada || ''} &middot; ${(f.topicos || []).length} tópicos</div>
-          </div>`).join('')
+            <div class="rc-title">${f.titulo || "Folha"}</div>
+            <div class="rc-meta">${f.dataFormatada || ""} &middot; ${(f.topicos || []).length} tópicos</div>
+          </div>`,
+          )
+          .join("")
       : `<div class="recent-empty">
            <p>Nenhuma folha criada ainda.</p>
            <p>Use o botão <strong>Criar</strong> para começar.</p>
@@ -262,17 +252,18 @@ const HomePage = {
       ${cards}`;
   },
 
-  /* ── Totais ── */
   _getTotals() {
     const subjects = Storage.getSubjects() || [];
-    let sheets = 0, topics = 0;
+    let sheets = 0,
+      topics = 0;
     for (const s of subjects) {
       const folhas = Array.isArray(s.folhas) ? s.folhas : [];
       sheets += folhas.length;
-      for (const f of folhas) topics += Array.isArray(f.topicos) ? f.topicos.length : 0;
+      for (const f of folhas)
+        topics += Array.isArray(f.topicos) ? f.topicos.length : 0;
     }
     return { sheets, subjects: subjects.length, topics };
-  }
+  },
 };
 
-document.addEventListener('DOMContentLoaded', () => HomePage.init());
+document.addEventListener("DOMContentLoaded", () => HomePage.init());

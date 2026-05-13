@@ -1,25 +1,15 @@
-/* ═══════════════════════════════════════
-   FOLIUM — pages/folhas.js
-   Biblioteca pessoal: matérias, recentes, favoritas.
-   Animações: hero/toolbar entram com fadeUp,
-   stats fazem count-up, cards sobem em stagger.
-═══════════════════════════════════════ */
-
 const FolhasPage = {
-  /* estado: 'subjects' | 'recent' | 'fav' */
-  _tab:        'subjects',
-  _query:      '',
-  _subjects:   [],
-  /* Controla se já rodou a animação de entrada da página
-     (hero/toolbar fadeUp + count-up) — trocar de aba só
-     reanima os cards, não o hero. */
+  _tab: "subjects",
+  _query: "",
+  _subjects: [],
+
   _heroAnimated: false,
 
   init() {
     if (!Router.requireAuth()) return;
 
-    Navbar.renderTop({ title: '<em>Minhas Folhas</em>' });
-    Navbar.renderBottom('folhas');
+    Navbar.renderTop({ title: "<em>Minhas Folhas</em>" });
+    Navbar.renderBottom("folhas");
     Sidebar.init();
 
     this._subjects = Storage.getSubjects() || [];
@@ -29,27 +19,26 @@ const FolhasPage = {
     this._runEntryAnimations();
   },
 
-  /* ═══════════════════════════════════════
-     ENTRY ANIMATIONS — count-up nos stats
-     (cards animam dentro de _renderContent)
-  ═══════════════════════════════════════ */
   _runEntryAnimations() {
     if (this._heroAnimated) return;
     this._heroAnimated = true;
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    document.querySelectorAll('.fh-stat-num').forEach((el) => {
+    document.querySelectorAll(".fh-stat-num").forEach((el) => {
       const target = parseInt(el.dataset.target || el.textContent, 10) || 0;
-      el.textContent = '0';
-      // delay para começar depois do fadeUp do hero terminar
+      el.textContent = "0";
+
       setTimeout(() => this._countUp(el, target), 260);
     });
   },
 
   _countUp(el, target) {
-    if (target <= 0) { el.textContent = '0'; return; }
-    // Ease out-cubic — sensação de chegada suave no valor final.
+    if (target <= 0) {
+      el.textContent = "0";
+      return;
+    }
+
     const duration = 1200;
     const start = performance.now();
     const ease = (t) => 1 - Math.pow(1 - t, 3);
@@ -61,31 +50,27 @@ const FolhasPage = {
     requestAnimationFrame(tick);
   },
 
-  /* ─────────────────────────────────────────
-     SHELL — hero + toolbar + container
-  ───────────────────────────────────────── */
   _buildShell() {
-    const page = DOM.$('.page-folhas');
+    const page = DOM.$(".page-folhas");
     if (!page) return;
 
-    /* limpa qualquer conteúdo prévio (re-render) */
-    let body = page.querySelector('.folhas-body');
+    let body = page.querySelector(".folhas-body");
     if (body) DOM.clear(body);
     else {
-      body = document.createElement('div');
-      body.className = 'folhas-body page-body';
+      body = document.createElement("div");
+      body.className = "folhas-body page-body";
       page.appendChild(body);
     }
 
-    const shell = document.createElement('div');
-    shell.className = 'fh-shell';
+    const shell = document.createElement("div");
+    shell.className = "fh-shell";
 
     shell.appendChild(this._buildHero());
     shell.appendChild(this._buildToolbar());
 
-    const content = document.createElement('div');
-    content.className = 'fh-content';
-    content.id = 'fh-content';
+    const content = document.createElement("div");
+    content.className = "fh-content";
+    content.id = "fh-content";
     shell.appendChild(content);
 
     body.appendChild(shell);
@@ -94,8 +79,8 @@ const FolhasPage = {
   _buildHero() {
     const totals = this._getTotals();
 
-    const hero = document.createElement('section');
-    hero.className = 'fh-hero au';
+    const hero = document.createElement("section");
+    hero.className = "fh-hero au";
     hero.innerHTML = `
       <span class="fh-eyebrow">Biblioteca pessoal</span>
       <h1 class="fh-title">Sua <em>biblioteca</em> de folhas</h1>
@@ -130,8 +115,8 @@ const FolhasPage = {
   },
 
   _buildToolbar() {
-    const bar = document.createElement('section');
-    bar.className = 'fh-toolbar au au1';
+    const bar = document.createElement("section");
+    bar.className = "fh-toolbar au au1";
     bar.innerHTML = `
       <div class="fh-search">
         <svg class="fh-search-icon" viewBox="0 0 24 24" fill="none"
@@ -166,18 +151,20 @@ const FolhasPage = {
       </button>
     `;
 
-    bar.querySelector('.fh-cta').addEventListener('click', () => Router.go('criar'));
+    bar
+      .querySelector(".fh-cta")
+      .addEventListener("click", () => Router.go("criar"));
 
-    bar.querySelectorAll('.fh-tab').forEach(btn => {
-      btn.addEventListener('click', () => {
+    bar.querySelectorAll(".fh-tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
         this._tab = btn.dataset.tab;
         this._renderContent();
       });
     });
 
-    const input = bar.querySelector('#fh-search-input');
-    input.addEventListener('input', (e) => {
-      this._query = (e.target.value || '').trim().toLowerCase();
+    const input = bar.querySelector("#fh-search-input");
+    input.addEventListener("input", (e) => {
+      this._query = (e.target.value || "").trim().toLowerCase();
       this._renderContent();
     });
 
@@ -185,19 +172,16 @@ const FolhasPage = {
   },
 
   _syncTabs() {
-    document.querySelectorAll('.fh-tab').forEach(t => {
+    document.querySelectorAll(".fh-tab").forEach((t) => {
       const isActive = t.dataset.tab === this._tab;
-      t.classList.toggle('active', isActive);
-      t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      t.classList.toggle("active", isActive);
+      t.setAttribute("aria-selected", isActive ? "true" : "false");
     });
   },
 
-  /* ─────────────────────────────────────────
-     CONTEÚDO por aba
-  ───────────────────────────────────────── */
   _renderContent() {
     this._syncTabs();
-    const box = DOM.$('#fh-content');
+    const box = DOM.$("#fh-content");
     if (!box) return;
     DOM.clear(box);
 
@@ -206,24 +190,26 @@ const FolhasPage = {
       return;
     }
 
-    if (this._tab === 'subjects') return this._renderSubjects(box);
-    if (this._tab === 'recent')   return this._renderRecent(box);
-    if (this._tab === 'fav')      return this._renderFavorites(box);
+    if (this._tab === "subjects") return this._renderSubjects(box);
+    if (this._tab === "recent") return this._renderRecent(box);
+    if (this._tab === "fav") return this._renderFavorites(box);
   },
 
-  /* ───── Aba 1: Matérias ───── */
   _renderSubjects(box) {
     const q = this._query;
-    const list = this._subjects.filter(s =>
-      !q || (s.nomeNormalizado || '').toLowerCase().includes(q) ||
-            (s.folhas || []).some(f =>
-              (f.titulo || '').toLowerCase().includes(q) ||
-              (f.tema   || '').toLowerCase().includes(q)
-            )
+    const list = this._subjects.filter(
+      (s) =>
+        !q ||
+        (s.nomeNormalizado || "").toLowerCase().includes(q) ||
+        (s.folhas || []).some(
+          (f) =>
+            (f.titulo || "").toLowerCase().includes(q) ||
+            (f.tema || "").toLowerCase().includes(q),
+        ),
     );
 
-    const header = document.createElement('div');
-    header.className = 'fh-section-head au au2';
+    const header = document.createElement("div");
+    header.className = "fh-section-head au au2";
     header.innerHTML = `
       <div>
         <span class="t-label">Matérias</span>
@@ -234,12 +220,12 @@ const FolhasPage = {
     box.appendChild(header);
 
     if (!list.length) {
-      box.appendChild(this._emptyStateFiltered('Nenhuma matéria encontrada.'));
+      box.appendChild(this._emptyStateFiltered("Nenhuma matéria encontrada."));
       return;
     }
 
-    const grid = document.createElement('div');
-    grid.className = 'fh-grid';
+    const grid = document.createElement("div");
+    grid.className = "fh-grid";
     list.forEach((s, i) => {
       const card = Card.subject(s);
       this._staggerCard(card, i);
@@ -248,17 +234,17 @@ const FolhasPage = {
     box.appendChild(grid);
   },
 
-  /* ───── Aba 2: Recentes ───── */
   _renderRecent(box) {
     const flat = this._flattenSheets();
-    flat.sort((a, b) =>
-      new Date(b.folha.criadaEm || 0) - new Date(a.folha.criadaEm || 0)
+    flat.sort(
+      (a, b) =>
+        new Date(b.folha.criadaEm || 0) - new Date(a.folha.criadaEm || 0),
     );
 
     const list = this._filterFlat(flat).slice(0, 30);
 
-    const header = document.createElement('div');
-    header.className = 'fh-section-head au au2';
+    const header = document.createElement("div");
+    header.className = "fh-section-head au au2";
     header.innerHTML = `
       <div>
         <span class="t-label">Últimas atividades</span>
@@ -269,12 +255,12 @@ const FolhasPage = {
     box.appendChild(header);
 
     if (!list.length) {
-      box.appendChild(this._emptyStateFiltered('Nada por aqui ainda.'));
+      box.appendChild(this._emptyStateFiltered("Nada por aqui ainda."));
       return;
     }
 
-    const wrap = document.createElement('div');
-    wrap.className = 'fh-list';
+    const wrap = document.createElement("div");
+    wrap.className = "fh-list";
     list.forEach((entry, i) => {
       const card = this._makeSheetCard(entry);
       this._staggerCard(card, i);
@@ -283,17 +269,17 @@ const FolhasPage = {
     box.appendChild(wrap);
   },
 
-  /* ───── Aba 3: Favoritas ───── */
   _renderFavorites(box) {
-    const flat = this._flattenSheets().filter(e => e.folha.favorita);
-    flat.sort((a, b) =>
-      new Date(b.folha.criadaEm || 0) - new Date(a.folha.criadaEm || 0)
+    const flat = this._flattenSheets().filter((e) => e.folha.favorita);
+    flat.sort(
+      (a, b) =>
+        new Date(b.folha.criadaEm || 0) - new Date(a.folha.criadaEm || 0),
     );
 
     const list = this._filterFlat(flat);
 
-    const header = document.createElement('div');
-    header.className = 'fh-section-head au au2';
+    const header = document.createElement("div");
+    header.className = "fh-section-head au au2";
     header.innerHTML = `
       <div>
         <span class="t-label">Guardadas por você</span>
@@ -304,14 +290,16 @@ const FolhasPage = {
     box.appendChild(header);
 
     if (!list.length) {
-      box.appendChild(this._emptyStateFiltered(
-        'Favorite folhas para encontrá-las rapidamente aqui.'
-      ));
+      box.appendChild(
+        this._emptyStateFiltered(
+          "Favorite folhas para encontrá-las rapidamente aqui.",
+        ),
+      );
       return;
     }
 
-    const wrap = document.createElement('div');
-    wrap.className = 'fh-list';
+    const wrap = document.createElement("div");
+    wrap.className = "fh-list";
     list.forEach((entry, i) => {
       const card = this._makeSheetCard(entry);
       this._staggerCard(card, i);
@@ -320,22 +308,17 @@ const FolhasPage = {
     box.appendChild(wrap);
   },
 
-  /* Aplica fadeUp em stagger nos cards (após o hero/toolbar terem entrado).
-     Mesmo padrão de materia.js — base 0.18s + i * 0.05s. */
   _staggerCard(card, i) {
     if (!card) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    card.classList.add('au');
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    card.classList.add("au");
     card.style.animationDelay = `${0.18 + i * 0.05}s`;
   },
 
-  /* ─────────────────────────────────────────
-     HELPERS
-  ───────────────────────────────────────── */
   _flattenSheets() {
     const out = [];
-    (this._subjects || []).forEach(subject => {
-      (subject.folhas || []).forEach(folha => {
+    (this._subjects || []).forEach((subject) => {
+      (subject.folhas || []).forEach((folha) => {
         out.push({ subject, folha });
       });
     });
@@ -345,27 +328,27 @@ const FolhasPage = {
   _filterFlat(flat) {
     const q = this._query;
     if (!q) return flat;
-    return flat.filter(({ subject, folha }) =>
-      (folha.titulo  || '').toLowerCase().includes(q) ||
-      (folha.tema    || '').toLowerCase().includes(q) ||
-      (subject.nomeNormalizado || '').toLowerCase().includes(q)
+    return flat.filter(
+      ({ subject, folha }) =>
+        (folha.titulo || "").toLowerCase().includes(q) ||
+        (folha.tema || "").toLowerCase().includes(q) ||
+        (subject.nomeNormalizado || "").toLowerCase().includes(q),
     );
   },
 
   _makeSheetCard({ subject, folha }) {
     const card = Card.sheet({
       ...folha,
-      subjectId:  subject.id,
+      subjectId: subject.id,
       onFavorite: () => this._toggleFavorite(subject.id, folha.id),
-      onDelete:   () => this._deleteSheet(subject.id, folha.id),
+      onDelete: () => this._deleteSheet(subject.id, folha.id),
     });
 
-    /* rótulo com a matéria — contexto visual */
-    const meta = card.querySelector('.sc-meta');
+    const meta = card.querySelector(".sc-meta");
     if (meta) {
-      const tag = document.createElement('span');
-      tag.className = 'sc-subject-tag';
-      tag.textContent = subject.nomeNormalizado || 'Matéria';
+      const tag = document.createElement("span");
+      tag.className = "sc-subject-tag";
+      tag.textContent = subject.nomeNormalizado || "Matéria";
       meta.insertBefore(tag, meta.firstChild);
     }
 
@@ -374,9 +357,9 @@ const FolhasPage = {
 
   _toggleFavorite(subjectId, sheetId) {
     const subjects = Storage.getSubjects();
-    const s = subjects.find(x => x.id === subjectId);
+    const s = subjects.find((x) => x.id === subjectId);
     if (!s) return;
-    const f = (s.folhas || []).find(x => x.id === sheetId);
+    const f = (s.folhas || []).find((x) => x.id === sheetId);
     if (!f) return;
     f.favorita = !f.favorita;
     Storage.setSubjects(subjects);
@@ -387,30 +370,32 @@ const FolhasPage = {
 
   _deleteSheet(subjectId, sheetId) {
     const subjects = Storage.getSubjects();
-    const subj = subjects.find(x => x.id === subjectId);
+    const subj = subjects.find((x) => x.id === subjectId);
     if (!subj) return;
-    const folha = (subj.folhas || []).find(x => x.id === sheetId);
-    const title = folha?.titulo || 'esta folha';
+    const folha = (subj.folhas || []).find((x) => x.id === sheetId);
+    const title = folha?.titulo || "esta folha";
 
     const run = () => {
       const all = Storage.getSubjects();
-      const s = all.find(x => x.id === subjectId);
+      const s = all.find((x) => x.id === subjectId);
       if (!s) return;
-      s.folhas = (s.folhas || []).filter(x => x.id !== sheetId);
-      /* Matéria sem folhas — remove também, espelhando materia.js */
-      const next = s.folhas.length ? all : all.filter(x => x.id !== subjectId);
+      s.folhas = (s.folhas || []).filter((x) => x.id !== sheetId);
+
+      const next = s.folhas.length
+        ? all
+        : all.filter((x) => x.id !== subjectId);
       Storage.setSubjects(next);
       this._subjects = next;
       this._renderContent();
       this._refreshHeroStats();
     };
 
-    if (typeof Confirm !== 'undefined' && typeof Confirm.show === 'function') {
+    if (typeof Confirm !== "undefined" && typeof Confirm.show === "function") {
       Confirm.show({
-        title:        'Apagar folha?',
-        text:         `"${title}" será removida permanentemente.`,
-        confirmLabel: 'Apagar',
-        onConfirm:    run,
+        title: "Apagar folha?",
+        text: `"${title}" será removida permanentemente.`,
+        confirmLabel: "Apagar",
+        onConfirm: run,
       });
     } else if (window.confirm(`Apagar "${title}"?`)) {
       run();
@@ -419,7 +404,7 @@ const FolhasPage = {
 
   _refreshHeroStats() {
     const totals = this._getTotals();
-    const nums = document.querySelectorAll('.fh-stats .fh-stat-num');
+    const nums = document.querySelectorAll(".fh-stats .fh-stat-num");
     if (nums.length >= 3) {
       nums[0].textContent = totals.sheets;
       nums[1].textContent = totals.subjects;
@@ -429,21 +414,19 @@ const FolhasPage = {
 
   _getTotals() {
     const subjects = this._subjects || [];
-    let sheets = 0, favorites = 0;
-    subjects.forEach(s => {
+    let sheets = 0,
+      favorites = 0;
+    subjects.forEach((s) => {
       const fs = s.folhas || [];
-      sheets    += fs.length;
-      favorites += fs.filter(f => f.favorita).length;
+      sheets += fs.length;
+      favorites += fs.filter((f) => f.favorita).length;
     });
     return { sheets, subjects: subjects.length, favorites };
   },
 
-  /* ─────────────────────────────────────────
-     EMPTY STATES
-  ───────────────────────────────────────── */
   _emptyStateGlobal() {
-    const el = document.createElement('div');
-    el.className = 'fh-empty fh-empty-global au au2';
+    const el = document.createElement("div");
+    el.className = "fh-empty fh-empty-global au au2";
     el.innerHTML = `
       <div class="fh-empty-art" aria-hidden="true">
         <svg viewBox="0 0 120 120" fill="none" stroke="var(--tan)"
@@ -463,13 +446,15 @@ const FolhasPage = {
         Criar minha primeira folha
       </button>
     `;
-    el.querySelector('.fh-empty-cta').addEventListener('click', () => Router.go('criar'));
+    el.querySelector(".fh-empty-cta").addEventListener("click", () =>
+      Router.go("criar"),
+    );
     return el;
   },
 
   _emptyStateFiltered(message) {
-    const el = document.createElement('div');
-    el.className = 'fh-empty fh-empty-filtered au au3';
+    const el = document.createElement("div");
+    el.className = "fh-empty fh-empty-filtered au au3";
     el.innerHTML = `
       <div class="fh-empty-dot" aria-hidden="true"></div>
       <p class="fh-empty-sub">${message}</p>
@@ -478,4 +463,4 @@ const FolhasPage = {
   },
 };
 
-document.addEventListener('DOMContentLoaded', () => FolhasPage.init());
+document.addEventListener("DOMContentLoaded", () => FolhasPage.init());

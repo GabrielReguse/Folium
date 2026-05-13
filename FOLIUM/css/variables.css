@@ -1,65 +1,53 @@
-/* FOLIUM v3 — variables.css — paleta terrosa 60/30/10 */
 :root {
-  /* ── 60% — Creme / Linho (superfícies dominantes) ── */
-  --cream:      #F5EDD6;   /* fundo de página */
-  --surface:    #FDFAF3;   /* cards, modais */
-  --bg-deep:    #EDE1C4;   /* áreas de destaque */
-  --linen:      #F0E8D0;   /* hero / blocos */
+  --cream: #f5edd6;
+  --surface: #fdfaf3;
+  --bg-deep: #ede1c4;
+  --linen: #f0e8d0;
 
-  /* ── 30% — Areia / Caramelo (elementos de suporte) ── */
-  --sand:       #D4B896;   /* bordas, dividers, nav */
-  --sand-light: #E8D9BF;   /* bg de inputs, hover suave */
-  --tan:        #C4A882;   /* ícones, labels, badges */
-  --sidebar-bg: #EDE3CC;   /* fundo da sidebar desktop */
+  --sand: #d4b896;
+  --sand-light: #e8d9bf;
+  --tan: #c4a882;
+  --sidebar-bg: #ede3cc;
 
-  /* ── 10% — Marrom (ação, destaque, acento) ── */
-  --brown:      #5C3D2E;   /* texto principal, btn primário */
-  --brown-mid:  #7A5035;   /* hover, ativo */
-  --caramel:    #9B6B42;   /* links, acento, títulos */
-  --caramel-lt: rgba(155,107,66,0.12); /* glow suave */
+  --brown: #5c3d2e;
+  --brown-mid: #7a5035;
+  --caramel: #9b6b42;
+  --caramel-lt: rgba(155, 107, 66, 0.12);
 
-  /* ── Texto ── */
-  --text:       #2C1810;   /* texto primário */
-  --text-mid:   #6B4C35;   /* texto secundário */
-  --text-light: #A07855;   /* texto auxiliar */
-  --white:      #FFFFFF;
+  --text: #2c1810;
+  --text-mid: #6b4c35;
+  --text-light: #a07855;
+  --white: #ffffff;
 
-  /* ── Semânticos ── */
-  --border:     rgba(196,168,130,0.45);
-  --border-act: rgba(155,107,66,0.55);
-  --hover-bg:   rgba(212,184,150,0.22);
-  --focus-ring: rgba(155,107,66,0.22);
+  --border: rgba(196, 168, 130, 0.45);
+  --border-act: rgba(155, 107, 66, 0.55);
+  --hover-bg: rgba(212, 184, 150, 0.22);
+  --focus-ring: rgba(155, 107, 66, 0.22);
 
-  /* ── Radii ── */
   --r-xs: 6px;
   --r-sm: 12px;
-  --r:    18px;
+  --r: 18px;
   --r-lg: 26px;
   --r-xl: 38px;
 
-  /* ── Sombras ── */
-  --sh-sm: 0 2px 14px rgba(92,61,46,0.06);
-  --sh:    0 5px 28px rgba(92,61,46,0.10);
-  --sh-lg: 0 14px 52px rgba(92,61,46,0.14);
-  --sh-xl: 0 28px 72px rgba(92,61,46,0.18);
+  --sh-sm: 0 2px 14px rgba(92, 61, 46, 0.06);
+  --sh: 0 5px 28px rgba(92, 61, 46, 0.1);
+  --sh-lg: 0 14px 52px rgba(92, 61, 46, 0.14);
+  --sh-xl: 0 28px 72px rgba(92, 61, 46, 0.18);
 
-  /* ── Tipografia ── */
-  --font-serif: 'Playfair Display', Georgia, serif;
-  --font-sans:  'DM Sans', system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "DM Sans", system-ui, sans-serif;
 
-  /* ── Transição ── */
-  --ease:   cubic-bezier(0.22, 1, 0.36, 1);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --t-fast: 0.15s;
-  --t-mid:  0.28s;
+  --t-mid: 0.28s;
   --t-slow: 0.45s;
 
-  /* ── Z-index ── */
   --z-canvas: 0;
-  --z-base:   1;
-  --z-nav:    100;
-  --z-sidebar:200;
-  --z-modal:  300;
+  --z-base: 1;
+  --z-nav: 100;
+  --z-sidebar: 200;
+  --z-modal: 300;
 
-  /* ── Desktop sidebar width ── */
   --sidebar-w: 220px;
 }

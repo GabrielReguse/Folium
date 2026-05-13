@@ -1,66 +1,54 @@
-/* ════════════════════════════════════════════════════════════════
-   FOLIUM — pages/criar.css  (redesign em tema Folium)
-   Creme / caramel / tan · Playfair Display + DM Sans
-   Mobile-first; ajustes a partir de 900px.
-   ════════════════════════════════════════════════════════════════ */
-
-/* Fundo — creme base + textura sutil de doodles no rodapé */
 .page-criar {
   background-color: var(--cream);
-  background-image: url('../../assets/images/doodles-mobile.png');
+  background-image: url("../../assets/images/doodles-mobile.png");
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: 100% auto;
   min-height: 100dvh;
   position: relative;
 }
-.page-criar #bg-canvas { display: none; }
+.page-criar #bg-canvas {
+  display: none;
+}
 
-/* Desktop: dois "tapetes" do doodle-mobile — um normal embaixo,
-   um espelhado em ambos os eixos (rotação 180°) em cima.
-   position: fixed pra ambos ficarem sempre colados ao topo/rodapé
-   da viewport (sem gap esquisito no meio em telas grandes). */
 @media (min-width: 900px) {
   .page-criar {
     margin-left: 0 !important;
     background-image: none;
-    overflow-x: hidden; /* só lateral; vertical precisa scrollar normal */
+    overflow-x: hidden;
   }
   .page-criar::before,
   .page-criar::after {
-    content: '';
+    content: "";
     position: fixed;
     left: 0;
     right: 0;
     height: 50vh;
-    background-image: url('../../assets/images/doodles-mobile.png');
+    background-image: url("../../assets/images/doodles-mobile.png");
     background-repeat: no-repeat;
     background-size: 100% auto;
     pointer-events: none;
-    opacity: 0.55; /* deixa como textura de fundo, não foregound */
+    opacity: 0.55;
     z-index: 0;
   }
-  /* Embaixo: doodle normal, "colado" pelo bottom da viewport */
+
   .page-criar::after {
     bottom: 0;
     background-position: bottom center;
   }
-  /* Em cima: mesma imagem espelhada horizontal + verticalmente.
-     Posição "bottom" + transform scale(-1,-1) deixa a faixa
-     "cheia" do doodle visível na parte superior, de cabeça pra baixo. */
+
   .page-criar::before {
     top: 0;
     background-position: bottom center;
     transform: scale(-1, -1);
   }
-  /* Conteúdo precisa ficar acima dos pseudo-elements */
+
   .page-criar > * {
     position: relative;
     z-index: 1;
   }
 }
 
-/* Shell/container principal */
 .cr-shell {
   width: 100%;
   max-width: 1180px;
@@ -72,16 +60,20 @@
   position: relative;
 }
 @media (min-width: 900px) {
-  .cr-shell { padding: 44px 48px 120px; gap: 40px; }
+  .cr-shell {
+    padding: 44px 48px 120px;
+    gap: 40px;
+  }
 }
 
-/* ════════ HERO ════════ */
 .cr-hero {
   position: relative;
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     var(--linen) 0%,
     var(--bg-deep) 55%,
-    var(--sand-light) 100%);
+    var(--sand-light) 100%
+  );
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 32px 22px 26px;
@@ -89,29 +81,40 @@
   box-shadow: var(--sh-sm);
 }
 @media (min-width: 900px) {
-  .cr-hero { padding: 52px 56px 42px; border-radius: var(--r-xl); }
+  .cr-hero {
+    padding: 52px 56px 42px;
+    border-radius: var(--r-xl);
+  }
 }
 .cr-hero::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: -80px; right: -80px;
-  width: 260px; height: 260px;
-  background: radial-gradient(circle,
-    rgba(196, 168, 130, 0.30) 0%,
+  top: -80px;
+  right: -80px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(
+    circle,
+    rgba(196, 168, 130, 0.3) 0%,
     rgba(196, 168, 130, 0.12) 50%,
-    transparent 75%);
+    transparent 75%
+  );
   border-radius: 50%;
   pointer-events: none;
 }
 .cr-hero::after {
-  content: '';
+  content: "";
   position: absolute;
-  bottom: -100px; left: -60px;
-  width: 220px; height: 220px;
-  background: radial-gradient(circle,
+  bottom: -100px;
+  left: -60px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(
+    circle,
     rgba(155, 107, 66, 0.14) 0%,
     rgba(155, 107, 66, 0.05) 55%,
-    transparent 80%);
+    transparent 80%
+  );
   border-radius: 50%;
   pointer-events: none;
 }
@@ -155,27 +158,34 @@
   z-index: 1;
 }
 @media (min-width: 900px) {
-  .cr-lede { font-size: 16.5px; }
+  .cr-lede {
+    font-size: 16.5px;
+  }
 }
 .cr-leaf {
   position: absolute;
   right: 10px;
   bottom: 10px;
-  width: 120px; height: 120px;
+  width: 120px;
+  height: 120px;
   color: var(--caramel);
   opacity: 0.55;
   pointer-events: none;
   display: none;
 }
 @media (min-width: 900px) {
-  .cr-leaf { display: block; right: 30px; bottom: 20px; width: 140px; height: 140px; }
+  .cr-leaf {
+    display: block;
+    right: 30px;
+    bottom: 20px;
+    width: 140px;
+    height: 140px;
+  }
 }
 
-/* ════════ STEPPER ════════ */
 .cr-stepper {
   display: flex;
-  /* flex-start pra bolinha e linha ficarem alinhadas pelo TOPO;
-     a linha recebe margin-top pra ficar no centro da bolinha. */
+
   align-items: flex-start;
   justify-content: center;
   gap: 6px;
@@ -219,7 +229,7 @@
   background: var(--caramel);
   color: #fff;
   border-color: var(--caramel);
-  box-shadow: 0 6px 18px rgba(155,107,66,0.32);
+  box-shadow: 0 6px 18px rgba(155, 107, 66, 0.32);
   transform: scale(1.06);
 }
 .cs-step.active .cs-label {
@@ -239,7 +249,7 @@
   background: var(--border);
   border-radius: 2px;
   max-width: 80px;
-  /* centra verticalmente com o meio da bolinha (num 38px / 2 - line 2px / 2) */
+
   margin-top: 18px;
   transition: background 0.28s var(--ease);
 }
@@ -247,20 +257,20 @@
   background: linear-gradient(90deg, var(--tan), var(--caramel));
 }
 @media (min-width: 900px) {
-  .cs-num { width: 44px; height: 44px; font-size: 16px; }
-  .cs-label { font-size: 12px; }
-  /* num 44px / 2 - line 2px / 2 = 21px */
-  .cs-line { max-width: 120px; margin-top: 21px; }
-}
+  .cs-num {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+  .cs-label {
+    font-size: 12px;
+  }
 
-/* ════════ STEPPER — animação de entrada (somente no primeiro load)
-   Sequência desejada:
-   - dot1: borda aparece → preenche → número surge → label digita
-   - linha 1→2 desenha da esquerda pra direita
-   - dot2: só borda (mais claro) → label digita
-   - linha 2→3 desenha
-   - dot3: mesma coisa do dot2
-   JS adiciona .cs-anim-init no primeiro render; remove depois. */
+  .cs-line {
+    max-width: 120px;
+    margin-top: 21px;
+  }
+}
 
 .cs-anim-init .cs-num,
 .cs-anim-init .cs-label,
@@ -268,17 +278,15 @@
   animation-fill-mode: both;
 }
 
-/* Bolinha 1 — primeira na sequência: borda → fill → número → label */
 .cs-anim-init #dot1 .cs-num {
-  /* começa com borda transparente (invisível), cresce */
   border-color: transparent;
   background: transparent;
   color: transparent;
   transform: scale(0.4);
   animation:
-    csBorderGrow 0.30s 0.00s cubic-bezier(.6,0,.3,1.3) forwards,
-    csFillCaramel 0.28s 0.40s ease-out forwards,
-    csNumReveal 0.20s 0.60s ease-out forwards;
+    csBorderGrow 0.3s 0s cubic-bezier(0.6, 0, 0.3, 1.3) forwards,
+    csFillCaramel 0.28s 0.4s ease-out forwards,
+    csNumReveal 0.2s 0.6s ease-out forwards;
 }
 .cs-anim-init #dot1 .cs-label {
   opacity: 0;
@@ -286,24 +294,22 @@
   animation: csLabelFadeIn 0.25s 0.75s ease-out forwards;
 }
 
-/* Linha 1 → desenha da esquerda pra direita */
 .cs-anim-init #ln1 {
   transform-origin: left center;
   transform: scaleX(0);
   background: linear-gradient(90deg, var(--tan), var(--caramel));
-  animation: csLineDraw 0.45s 0.88s cubic-bezier(.5,0,.4,1) forwards;
+  animation: csLineDraw 0.45s 0.88s cubic-bezier(0.5, 0, 0.4, 1) forwards;
 }
 
-/* Bolinha 2 — só borda + fundo linen (não selecionada) */
 .cs-anim-init #dot2 .cs-num {
   border-color: transparent;
   background: transparent;
   color: transparent;
   transform: scale(0.4);
   animation:
-    csBorderGrow 0.30s 1.40s cubic-bezier(.6,0,.3,1.3) forwards,
+    csBorderGrow 0.3s 1.4s cubic-bezier(0.6, 0, 0.3, 1.3) forwards,
     csFillLinen 0.28s 1.75s ease-out forwards,
-    csNumRevealLight 0.20s 1.90s ease-out forwards;
+    csNumRevealLight 0.2s 1.9s ease-out forwards;
 }
 .cs-anim-init #dot2 .cs-label {
   opacity: 0;
@@ -311,63 +317,102 @@
   animation: csLabelFadeIn 0.25s 2.05s ease-out forwards;
 }
 
-/* Linha 2 → 3 */
 .cs-anim-init #ln2 {
   transform-origin: left center;
   transform: scaleX(0);
   background: linear-gradient(90deg, var(--tan), var(--caramel));
-  animation: csLineDraw 0.45s 2.18s cubic-bezier(.5,0,.4,1) forwards;
+  animation: csLineDraw 0.45s 2.18s cubic-bezier(0.5, 0, 0.4, 1) forwards;
 }
 
-/* Bolinha 3 — mesma coisa da 2 */
 .cs-anim-init #dot3 .cs-num {
   border-color: transparent;
   background: transparent;
   color: transparent;
   transform: scale(0.4);
   animation:
-    csBorderGrow 0.30s 2.70s cubic-bezier(.6,0,.3,1.3) forwards,
+    csBorderGrow 0.3s 2.7s cubic-bezier(0.6, 0, 0.3, 1.3) forwards,
     csFillLinen 0.28s 3.05s ease-out forwards,
-    csNumRevealLight 0.20s 3.20s ease-out forwards;
+    csNumRevealLight 0.2s 3.2s ease-out forwards;
 }
 .cs-anim-init #dot3 .cs-label {
   opacity: 0;
   color: var(--text-mid);
-  animation: csLabelFadeIn 0.25s 3.30s ease-out forwards;
+  animation: csLabelFadeIn 0.25s 3.3s ease-out forwards;
 }
 
-/* Keyframes — borda/fundo/número */
 @keyframes csBorderGrow {
-  0%   { border-color: transparent; transform: scale(0.4); }
-  60%  { border-color: var(--tan); transform: scale(1.12); }
-  100% { border-color: var(--tan); transform: scale(1); }
+  0% {
+    border-color: transparent;
+    transform: scale(0.4);
+  }
+  60% {
+    border-color: var(--tan);
+    transform: scale(1.12);
+  }
+  100% {
+    border-color: var(--tan);
+    transform: scale(1);
+  }
 }
 @keyframes csFillCaramel {
-  0%   { background: transparent; border-color: var(--tan); box-shadow: none; transform: scale(1); }
-  100% { background: var(--caramel); border-color: var(--caramel); box-shadow: 0 6px 18px rgba(155,107,66,0.32); transform: scale(1.06); }
+  0% {
+    background: transparent;
+    border-color: var(--tan);
+    box-shadow: none;
+    transform: scale(1);
+  }
+  100% {
+    background: var(--caramel);
+    border-color: var(--caramel);
+    box-shadow: 0 6px 18px rgba(155, 107, 66, 0.32);
+    transform: scale(1.06);
+  }
 }
 @keyframes csFillLinen {
-  0%   { background: transparent; border-color: var(--tan); }
-  100% { background: var(--linen); border-color: var(--tan); }
+  0% {
+    background: transparent;
+    border-color: var(--tan);
+  }
+  100% {
+    background: var(--linen);
+    border-color: var(--tan);
+  }
 }
 @keyframes csNumReveal {
-  0%   { color: transparent; }
-  100% { color: #fff; }
+  0% {
+    color: transparent;
+  }
+  100% {
+    color: #fff;
+  }
 }
 @keyframes csNumRevealLight {
-  0%   { color: transparent; }
-  100% { color: var(--text-light); }
+  0% {
+    color: transparent;
+  }
+  100% {
+    color: var(--text-light);
+  }
 }
 @keyframes csLineDraw {
-  0%   { transform: scaleX(0); }
-  100% { transform: scaleX(1); }
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
 }
 @keyframes csLabelFadeIn {
-  0%   { opacity: 0; transform: translateY(4px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Respeita prefers-reduced-motion — pula a animação de entrada */
 @media (prefers-reduced-motion: reduce) {
   .cs-anim-init .cs-num,
   .cs-anim-init .cs-label,
@@ -377,8 +422,9 @@
   }
 }
 
-/* ════════ CONTEÚDO / PANES ════════ */
-.cr-content { position: relative; }
+.cr-content {
+  position: relative;
+}
 
 .step-pane {
   display: none;
@@ -395,7 +441,7 @@
     gap: 28px;
     align-items: start;
   }
-  /* Pane 2 e 3 ocupam largura total, sem aside */
+
   #pane2.active,
   #pane3.active {
     grid-template-columns: minmax(0, 1fr);
@@ -404,16 +450,17 @@
   }
 }
 
-/* Cards base — tom creme quente (paper) — evita branco frio */
 .cr-card {
-  background: #F7F0DC;
+  background: #f7f0dc;
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 26px 22px;
   box-shadow: var(--sh-sm);
 }
 @media (min-width: 900px) {
-  .cr-card { padding: 36px 36px; }
+  .cr-card {
+    padding: 36px 36px;
+  }
 }
 
 .cr-pane-title {
@@ -431,9 +478,16 @@
   line-height: 1.6;
 }
 
-/* ═══ FORMULÁRIO (Pane 1) ═══ */
-.cr-form { display: flex; flex-direction: column; gap: 18px; }
-.cr-form .inp-label { display: flex; align-items: baseline; gap: 8px; }
+.cr-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.cr-form .inp-label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
 .inp-hint {
   font-weight: 400;
   font-size: 11.5px;
@@ -445,14 +499,17 @@
   padding: 14px 16px;
   font-size: 14.5px;
   border-radius: var(--r-sm);
-  background: #FBF5E3;
+  background: #fbf5e3;
   border: 1.5px solid var(--border);
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
 }
 .cr-form .inp:focus {
   border-color: var(--caramel);
-  background: #FDF9EC;
-  box-shadow: 0 0 0 4px rgba(155,107,66,0.10);
+  background: #fdf9ec;
+  box-shadow: 0 0 0 4px rgba(155, 107, 66, 0.1);
   outline: none;
 }
 .cr-btn-primary {
@@ -470,19 +527,27 @@
   color: #fff;
   border: none;
   cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
-  box-shadow: 0 6px 18px rgba(155,107,66,0.28);
+  transition:
+    background 0.2s,
+    box-shadow 0.2s,
+    transform 0.15s;
+  box-shadow: 0 6px 18px rgba(155, 107, 66, 0.28);
   margin-top: 6px;
 }
 .cr-btn-primary:hover:not(:disabled) {
   background: var(--caramel-dk);
-  box-shadow: 0 10px 26px rgba(155,107,66,0.38);
+  box-shadow: 0 10px 26px rgba(155, 107, 66, 0.38);
   transform: translateY(-1px);
 }
-.cr-btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
-.cr-btn-primary svg { width: 16px; height: 16px; }
+.cr-btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.cr-btn-primary svg {
+  width: 16px;
+  height: 16px;
+}
 
-/* ═══ ASIDE (Pane 1 - desktop) ═══ */
 .cr-aside {
   background: linear-gradient(160deg, var(--linen) 0%, var(--bg-deep) 100%);
   border: 1px solid var(--border);
@@ -491,7 +556,12 @@
   display: none;
 }
 @media (min-width: 900px) {
-  .cr-aside { display: block; position: sticky; top: 24px; padding: 32px 28px; }
+  .cr-aside {
+    display: block;
+    position: sticky;
+    top: 24px;
+    padding: 32px 28px;
+  }
 }
 .cr-aside-title {
   font-family: var(--font-serif);
@@ -515,7 +585,8 @@
   align-items: flex-start;
 }
 .cr-howto-n {
-  width: 30px; height: 30px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
   border-radius: 50%;
   display: flex;
@@ -545,13 +616,14 @@
 .cr-tip {
   display: flex;
   gap: 12px;
-  background: #FBF5E3;
+  background: #fbf5e3;
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
   padding: 14px 14px;
 }
 .cr-tip-ic {
-  width: 32px; height: 32px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--caramel-lt);
@@ -560,16 +632,21 @@
   align-items: center;
   justify-content: center;
 }
-.cr-tip-ic svg { width: 16px; height: 16px; }
+.cr-tip-ic svg {
+  width: 16px;
+  height: 16px;
+}
 .cr-tip p {
   font-size: 13px;
   line-height: 1.55;
   color: var(--text-mid);
   margin: 0;
 }
-.cr-tip strong { color: var(--text); font-weight: 600; }
+.cr-tip strong {
+  color: var(--text);
+  font-weight: 600;
+}
 
-/* ═══ PANE 2 — TÓPICOS ═══ */
 .cr-pane-head {
   display: flex;
   align-items: flex-end;
@@ -583,16 +660,26 @@
   align-items: baseline;
   gap: 4px;
   font-family: var(--font-serif);
-  background: #FBF5E3;
+  background: #fbf5e3;
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 7px 14px;
   color: var(--caramel-dk);
   white-space: nowrap;
 }
-.cr-pane-meter #topic-count { font-size: 18px; font-weight: 600; color: var(--caramel); }
-.cr-meter-sep { font-weight: 400; opacity: 0.55; }
-.cr-pane-meter #topic-total { font-size: 15px; font-weight: 500; }
+.cr-pane-meter #topic-count {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--caramel);
+}
+.cr-meter-sep {
+  font-weight: 400;
+  opacity: 0.55;
+}
+.cr-pane-meter #topic-total {
+  font-size: 15px;
+  font-weight: 500;
+}
 .cr-meter-lbl {
   font-family: var(--font-sans);
   font-size: 11px;
@@ -610,16 +697,18 @@
   margin-bottom: 20px;
 }
 
-/* Override .topic-row (do card.js) no tom Folium */
 .cr-topics .topic-row {
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 14px 18px;
-  background: #FBF5E3;
+  background: #fbf5e3;
   border: 1.5px solid var(--border);
   border-radius: var(--r-sm);
-  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.15s;
   margin-bottom: 0;
   animation: fadeUp 0.32s var(--ease) both;
 }
@@ -633,7 +722,8 @@
   background: #fef6eb;
 }
 .cr-topics .topic-row .tchk {
-  width: 24px; height: 24px;
+  width: 24px;
+  height: 24px;
   border-radius: 8px;
   border: 1.5px solid var(--border-act);
   display: flex;
@@ -648,8 +738,13 @@
   background: var(--caramel);
   border-color: var(--caramel);
 }
-.cr-topics .topic-row .tchk svg { width: 13px; height: 13px; }
-.cr-topics .topic-row .tchk.on svg { stroke: #fff; }
+.cr-topics .topic-row .tchk svg {
+  width: 13px;
+  height: 13px;
+}
+.cr-topics .topic-row .tchk.on svg {
+  stroke: #fff;
+}
 .cr-topics .topic-row .ttxt {
   flex: 1;
   font-size: 14.5px;
@@ -675,14 +770,17 @@
   background: #fef1ec;
   color: #b91c1c;
 }
-.cr-topics .topic-row .trem svg { width: 16px; height: 16px; }
+.cr-topics .topic-row .trem svg {
+  width: 16px;
+  height: 16px;
+}
 .cr-topics .topic-row .topic-warn {
   flex-basis: 100%;
   font-size: 12.5px;
   color: #8a5a24;
   margin-top: 4px;
   padding-top: 10px;
-  border-top: 1px dashed rgba(155,107,66,0.25);
+  border-top: 1px dashed rgba(155, 107, 66, 0.25);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -699,13 +797,13 @@
   flex: 1;
   min-width: 0;
   border-radius: var(--r-sm);
-  background: #FBF5E3;
+  background: #fbf5e3;
   border: 1.5px solid var(--border);
 }
 .cr-add-row .inp:focus {
   border-color: var(--caramel);
-  background: #FDF9EC;
-  box-shadow: 0 0 0 4px rgba(155,107,66,0.10);
+  background: #fdf9ec;
+  box-shadow: 0 0 0 4px rgba(155, 107, 66, 0.1);
   outline: none;
 }
 .cr-btn-add {
@@ -718,11 +816,13 @@
   font-size: 14px;
   font-weight: 600;
   border-radius: var(--r-sm);
-  background: #FBF5E3;
+  background: #fbf5e3;
   color: var(--caramel-dk);
   border: 1.5px solid var(--tan);
   cursor: pointer;
-  transition: background 0.18s, color 0.18s;
+  transition:
+    background 0.18s,
+    color 0.18s;
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -730,13 +830,19 @@
   background: var(--caramel-lt);
   color: var(--caramel-dk);
 }
-.cr-btn-add svg { width: 15px; height: 15px; }
+.cr-btn-add svg {
+  width: 15px;
+  height: 15px;
+}
 @media (max-width: 479px) {
-  .cr-add-row { flex-direction: column; }
-  .cr-btn-add { width: 100%; }
+  .cr-add-row {
+    flex-direction: column;
+  }
+  .cr-btn-add {
+    width: 100%;
+  }
 }
 
-/* ═══ AÇÕES DE ETAPA (Voltar + Gerar/Salvar) ═══ */
 .cr-step-actions {
   display: flex;
   gap: 12px;
@@ -758,7 +864,10 @@
   color: var(--text-mid);
   border: 1.5px solid var(--border);
   cursor: pointer;
-  transition: background 0.18s, border-color 0.18s, color 0.18s;
+  transition:
+    background 0.18s,
+    border-color 0.18s,
+    color 0.18s;
   flex: 0 0 auto;
 }
 .cr-btn-back:hover {
@@ -766,24 +875,36 @@
   border-color: var(--tan);
   color: var(--text);
 }
-.cr-btn-back svg { width: 15px; height: 15px; }
+.cr-btn-back svg {
+  width: 15px;
+  height: 15px;
+}
 .cr-step-actions .cr-btn-primary {
   flex: 1;
   margin-top: 0;
 }
 
-/* ═══ PANE 3 — FOLHA GERADA ═══ */
-.cr-sheet-card { padding: 20px 18px 22px; }
-@media (min-width: 900px) {
-  .cr-sheet-card { padding: 36px 40px 40px; }
+.cr-sheet-card {
+  padding: 20px 18px 22px;
 }
-.sheet-footer { padding-bottom: 0; }
+@media (min-width: 900px) {
+  .cr-sheet-card {
+    padding: 36px 40px 40px;
+  }
+}
+.sheet-footer {
+  padding-bottom: 0;
+}
 
-/* Header da folha gerada — restyle do header que AI2.renderFolha emite */
-.sheet-header { margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
-.sheet-header .badge { margin-bottom: 10px; }
+.sheet-header {
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.sheet-header .badge {
+  margin-bottom: 10px;
+}
 
-/* ═══ MENSAGENS CONTEXTUAIS ═══ */
 .step-msg {
   padding: 12px 16px;
   border-radius: var(--r-sm);
@@ -803,7 +924,6 @@
   border-color: #d4a068;
 }
 
-/* ═══ FOLHA (output de AI2) ═══ */
 .t-topic {
   color: var(--caramel) !important;
   font-family: var(--font-serif);
@@ -830,11 +950,6 @@
   margin-bottom: 10px;
 }
 
-/* ═══ GRÁFICO: contenção rígida para evitar crescimento infinito ═══
-   O Chart.js com `maintainAspectRatio:false` cresce ilimitadamente
-   se o canvas não estiver em um parent com altura definida. O wrapper
-   `.chart-wrapper` dá a altura fixa e o canvas herda via width/height
-   100% — Chart.js para de redimensionar em loop. */
 .chart-wrapper {
   position: relative;
   width: 100%;
@@ -849,14 +964,24 @@
   max-height: 100%;
   display: block;
 }
-.chart-wrapper--pizza { height: 300px; max-height: 300px; }
+.chart-wrapper--pizza {
+  height: 300px;
+  max-height: 300px;
+}
 @media (min-width: 768px) {
-  .chart-wrapper { height: 320px; max-height: 320px; }
-  .chart-wrapper--pizza { height: 340px; max-height: 340px; }
+  .chart-wrapper {
+    height: 320px;
+    max-height: 320px;
+  }
+  .chart-wrapper--pizza {
+    height: 340px;
+    max-height: 340px;
+  }
 }
 
-/* ═══ prefers-reduced-motion ═══ */
 @media (prefers-reduced-motion: reduce) {
   .step-pane.active,
-  .cr-topics .topic-row { animation: none; }
+  .cr-topics .topic-row {
+    animation: none;
+  }
 }

@@ -1,29 +1,19 @@
-/* ════════════════════════════════════════════════════════════════
-   FOLIUM — pages/folhas.css
-   Biblioteca pessoal (Minhas Folhas)
-   Creme / caramel / tan · Playfair Display + DM Sans
-   Mobile-first; ajustes a partir de 900px.
-   Animações de entrada (fadeUp + count-up nos stats)
-   são aplicadas via .au e JS — ver folhas.js.
-   ════════════════════════════════════════════════════════════════ */
-
-/* ── Fundo da página ── */
 .page-folhas {
   background-color: var(--cream);
   min-height: 100dvh;
 }
 
-.page-folhas #bg-canvas { display: none; }
+.page-folhas #bg-canvas {
+  display: none;
+}
 
-/* Textura de doodles discreta no rodapé (mobile) */
 .page-folhas {
-  background-image: url('../../assets/images/doodles-mobile.png');
+  background-image: url("../../assets/images/doodles-mobile.png");
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: 100% auto;
 }
 
-/* Shell/container principal */
 .folhas-body {
   flex: 1;
   overflow-y: auto;
@@ -44,15 +34,14 @@
   position: relative;
 }
 
-/* ════════════════════════════════════════
-   HERO
-════════════════════════════════════════ */
 .fh-hero {
   position: relative;
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     var(--linen) 0%,
     var(--bg-deep) 55%,
-    var(--sand-light) 100%);
+    var(--sand-light) 100%
+  );
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 28px 22px 24px;
@@ -61,32 +50,43 @@
 }
 
 .fh-hero::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: -90px; right: -90px;
-  width: 260px; height: 260px;
-  background: radial-gradient(circle,
-    rgba(196, 168, 130, 0.30) 0%,
+  top: -90px;
+  right: -90px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(
+    circle,
+    rgba(196, 168, 130, 0.3) 0%,
     rgba(196, 168, 130, 0.12) 50%,
-    transparent 75%);
+    transparent 75%
+  );
   border-radius: 50%;
   pointer-events: none;
 }
 
 .fh-hero::after {
-  content: '';
+  content: "";
   position: absolute;
-  bottom: -110px; left: -70px;
-  width: 220px; height: 220px;
-  background: radial-gradient(circle,
+  bottom: -110px;
+  left: -70px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(
+    circle,
     rgba(155, 107, 66, 0.14) 0%,
     rgba(155, 107, 66, 0.05) 55%,
-    transparent 80%);
+    transparent 80%
+  );
   border-radius: 50%;
   pointer-events: none;
 }
 
-.fh-hero > * { position: relative; z-index: 1; }
+.fh-hero > * {
+  position: relative;
+  z-index: 1;
+}
 
 .fh-eyebrow {
   display: inline-block;
@@ -126,10 +126,9 @@
   margin: 0 0 22px;
 }
 
-/* Stats — mesmo estilo do home.hero-stats, levemente adaptado */
 .fh-stats {
   display: flex;
-  background: rgba(255, 255, 255, 0.60);
+  background: rgba(255, 255, 255, 0.6);
   border-radius: var(--r-lg);
   overflow: hidden;
   border: 1px solid rgba(196, 168, 130, 0.32);
@@ -145,9 +144,11 @@
 }
 
 .fh-stat + .fh-stat::before {
-  content: '';
+  content: "";
   position: absolute;
-  left: 0; top: 22%; height: 56%;
+  left: 0;
+  top: 22%;
+  height: 56%;
   width: 1px;
   background: rgba(196, 168, 130, 0.35);
 }
@@ -172,17 +173,16 @@
 
 .fh-leaf {
   position: absolute;
-  right: 8px; bottom: 8px;
-  width: 96px; height: 96px;
+  right: 8px;
+  bottom: 8px;
+  width: 96px;
+  height: 96px;
   color: var(--caramel);
   opacity: 0.38;
   pointer-events: none;
   display: none;
 }
 
-/* ════════════════════════════════════════
-   TOOLBAR (busca + tabs + CTA)
-════════════════════════════════════════ */
 .fh-toolbar {
   display: grid;
   grid-template-columns: 1fr;
@@ -197,9 +197,11 @@
 
 .fh-search-icon {
   position: absolute;
-  left: 16px; top: 50%;
+  left: 16px;
+  top: 50%;
   transform: translateY(-50%);
-  width: 18px; height: 18px;
+  width: 18px;
+  height: 18px;
   stroke: var(--text-light);
   pointer-events: none;
 }
@@ -214,7 +216,9 @@
   font-size: 14.5px;
   color: var(--text);
   outline: none;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast);
 }
 
 .fh-search-input::placeholder {
@@ -227,9 +231,10 @@
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
-.fh-search-input::-webkit-search-cancel-button { display: none; }
+.fh-search-input::-webkit-search-cancel-button {
+  display: none;
+}
 
-/* Tabs em pílula */
 .fh-tabs {
   display: flex;
   align-items: center;
@@ -243,7 +248,9 @@
   scrollbar-width: none;
 }
 
-.fh-tabs::-webkit-scrollbar { display: none; }
+.fh-tabs::-webkit-scrollbar {
+  display: none;
+}
 
 .fh-tab {
   flex: 1 1 auto;
@@ -260,7 +267,9 @@
   white-space: nowrap;
 }
 
-.fh-tab:hover { color: var(--brown); }
+.fh-tab:hover {
+  color: var(--brown);
+}
 
 .fh-tab.active {
   background: var(--brown);
@@ -276,9 +285,6 @@
   font-size: 14.5px;
 }
 
-/* ════════════════════════════════════════
-   CONTEÚDO
-════════════════════════════════════════ */
 .fh-content {
   display: flex;
   flex-direction: column;
@@ -322,21 +328,18 @@
   color: var(--caramel);
 }
 
-/* Grid (matérias) */
 .fh-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 14px;
 }
 
-/* Lista (recentes / favoritas) */
 .fh-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* ── Card de matéria — herda visual mas ganha alguns ajustes locais ── */
 .fh-grid .subj-card {
   display: flex;
   flex-direction: column;
@@ -354,8 +357,10 @@
   color: inherit;
   position: relative;
   overflow: hidden;
-  transition: box-shadow var(--t-mid), transform var(--t-mid),
-              border-color var(--t-mid);
+  transition:
+    box-shadow var(--t-mid),
+    transform var(--t-mid),
+    border-color var(--t-mid);
 }
 
 .fh-grid .subj-card:hover {
@@ -370,7 +375,8 @@
 
 .fh-grid .subj-card .subj-arr {
   position: absolute;
-  right: 16px; bottom: 16px;
+  right: 16px;
+  bottom: 16px;
   opacity: 0.45;
 }
 
@@ -380,12 +386,16 @@
   stroke: var(--text-light);
 }
 
-/* Borda esquerda colorida por posição (mantém o padrão antigo) */
-.fh-grid .subj-card:nth-child(3n+1) { border-left: 3px solid var(--caramel); }
-.fh-grid .subj-card:nth-child(3n+2) { border-left: 3px solid var(--tan); }
-.fh-grid .subj-card:nth-child(3n+3) { border-left: 3px solid var(--sand); }
+.fh-grid .subj-card:nth-child(3n + 1) {
+  border-left: 3px solid var(--caramel);
+}
+.fh-grid .subj-card:nth-child(3n + 2) {
+  border-left: 3px solid var(--tan);
+}
+.fh-grid .subj-card:nth-child(3n + 3) {
+  border-left: 3px solid var(--sand);
+}
 
-/* Conteúdo do card de matéria */
 .subj-emoji {
   width: 46px;
   height: 46px;
@@ -418,7 +428,6 @@
   font-weight: 400;
 }
 
-/* Tag com nome da matéria dentro do card de folha (recentes/favoritas) */
 .sc-subject-tag {
   font-size: 10.5px;
   font-weight: 700;
@@ -432,9 +441,6 @@
   margin-right: 4px;
 }
 
-/* ════════════════════════════════════════
-   EMPTY STATES
-════════════════════════════════════════ */
 .fh-empty {
   background: var(--surface);
   border: 1px dashed var(--border);
@@ -444,7 +450,8 @@
 }
 
 .fh-empty-art {
-  width: 72px; height: 72px;
+  width: 72px;
+  height: 72px;
   margin: 0 auto 14px;
   display: flex;
   align-items: center;
@@ -453,7 +460,10 @@
   border-radius: 50%;
 }
 
-.fh-empty-art svg { width: 40px; height: 40px; }
+.fh-empty-art svg {
+  width: 40px;
+  height: 40px;
+}
 
 .fh-empty-title {
   font-family: var(--font-serif);
@@ -472,56 +482,72 @@
   max-width: 380px;
 }
 
-.fh-empty-cta { margin: 6px auto 0; }
+.fh-empty-cta {
+  margin: 6px auto 0;
+}
 
-.fh-empty-filtered { padding: 28px 18px; }
+.fh-empty-filtered {
+  padding: 28px 18px;
+}
 
 .fh-empty-filtered .fh-empty-dot {
-  width: 8px; height: 8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--tan);
   margin: 0 auto 12px;
   opacity: 0.8;
 }
 
-.fh-empty-filtered .fh-empty-sub { margin-bottom: 0; }
+.fh-empty-filtered .fh-empty-sub {
+  margin-bottom: 0;
+}
 
-/* ════════════════════════════════════════
-   DESKTOP (≥ 900px)
-════════════════════════════════════════ */
 @media (min-width: 900px) {
+  .page-folhas {
+    background-image: none;
+  }
 
-  /* Remove o doodle no desktop — muito carregado com sidebar */
-  .page-folhas { background-image: none; }
-
-  .folhas-body { padding: 0; }
+  .folhas-body {
+    padding: 0;
+  }
 
   .fh-shell {
     padding: 44px 48px 120px;
     gap: 36px;
   }
 
-  /* Hero maior, com leaf decorativo */
   .fh-hero {
     padding: 52px 56px 42px;
     border-radius: var(--r-xl);
   }
 
-  .fh-lede { font-size: 16px; }
+  .fh-lede {
+    font-size: 16px;
+  }
 
   .fh-leaf {
     display: block;
-    right: 32px; bottom: 28px;
-    width: 140px; height: 140px;
+    right: 32px;
+    bottom: 28px;
+    width: 140px;
+    height: 140px;
     opacity: 0.45;
   }
 
-  .fh-stats { max-width: 520px; }
-  .fh-stat { padding: 18px 14px; }
-  .fh-stat-num { font-size: 30px; }
-  .fh-stat-lbl { font-size: 10px; }
+  .fh-stats {
+    max-width: 520px;
+  }
+  .fh-stat {
+    padding: 18px 14px;
+  }
+  .fh-stat-num {
+    font-size: 30px;
+  }
+  .fh-stat-lbl {
+    font-size: 10px;
+  }
 
-  /* Toolbar em linha: busca cresce, tabs e CTA inline */
   .fh-toolbar {
     grid-template-columns: minmax(240px, 1fr) auto auto;
     align-items: center;
@@ -534,31 +560,48 @@
     padding: 12px 22px;
   }
 
-  /* Grid com cards maiores */
   .fh-grid {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 18px;
   }
 
-  .fh-list { gap: 12px; }
+  .fh-list {
+    gap: 12px;
+  }
 
-  .fh-content { gap: 20px; }
+  .fh-content {
+    gap: 20px;
+  }
 
-  .fh-section-head { padding: 6px 4px 10px; }
+  .fh-section-head {
+    padding: 6px 4px 10px;
+  }
 
-  .fh-empty { padding: 56px 28px; }
+  .fh-empty {
+    padding: 56px 28px;
+  }
 }
 
-/* Mobile menor — tabs e cta empilhados com altura confortável */
 @media (max-width: 480px) {
-  .fh-shell { padding: 16px 14px 120px; gap: 20px; }
-  .fh-hero  { padding: 24px 20px 20px; border-radius: var(--r); }
-  .fh-stats { max-width: none; }
-  .fh-grid  { grid-template-columns: 1fr; }
-  .fh-title { font-size: clamp(26px, 7.2vw, 34px); }
+  .fh-shell {
+    padding: 16px 14px 120px;
+    gap: 20px;
+  }
+  .fh-hero {
+    padding: 24px 20px 20px;
+    border-radius: var(--r);
+  }
+  .fh-stats {
+    max-width: none;
+  }
+  .fh-grid {
+    grid-template-columns: 1fr;
+  }
+  .fh-title {
+    font-size: clamp(26px, 7.2vw, 34px);
+  }
 }
 
-/* Reduced motion — desliga animações e hover-lifts da página */
 @media (prefers-reduced-motion: reduce) {
   .page-folhas .au,
   .page-folhas .fade-in,
@@ -567,5 +610,7 @@
     opacity: 1 !important;
     transform: none !important;
   }
-  .fh-grid .subj-card:hover { transform: none; }
+  .fh-grid .subj-card:hover {
+    transform: none;
+  }
 }

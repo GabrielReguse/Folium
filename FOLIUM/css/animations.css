@@ -1,60 +1,185 @@
-/* FOLIUM v3 — animations.css */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: -500px 0;
+  }
+  100% {
+    background-position: 500px 0;
+  }
+}
 
-@keyframes spin      { to { transform: rotate(360deg); } }
-@keyframes fadeUp    { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-@keyframes fadeDown  { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
-@keyframes fadeIn    { from { opacity:0; } to { opacity:1; } }
-@keyframes slideInLeft { from { opacity:0; transform:translateX(-18px); } to { opacity:1; transform:translateX(0); } }
-@keyframes scaleIn   { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
-@keyframes shimmer   { 0% { background-position:-500px 0; } 100% { background-position:500px 0; } }
+.au {
+  animation: fadeUp 0.4s var(--ease) both;
+}
+.au1 {
+  animation-delay: 0.06s;
+}
+.au2 {
+  animation-delay: 0.12s;
+}
+.au3 {
+  animation-delay: 0.18s;
+}
+.au4 {
+  animation-delay: 0.24s;
+}
+.au5 {
+  animation-delay: 0.3s;
+}
 
-.au   { animation: fadeUp 0.40s var(--ease) both; }
-.au1  { animation-delay: 0.06s; }
-.au2  { animation-delay: 0.12s; }
-.au3  { animation-delay: 0.18s; }
-.au4  { animation-delay: 0.24s; }
-.au5  { animation-delay: 0.30s; }
+.fade-in {
+  animation: fadeIn 0.32s ease both;
+}
+.fade-down {
+  animation: fadeDown 0.3s var(--ease) both;
+}
+.slide-in-l {
+  animation: slideInLeft 0.34s var(--ease) both;
+}
+.scale-in {
+  animation: scaleIn 0.36s var(--ease) both;
+}
 
-.fade-in    { animation: fadeIn 0.32s ease both; }
-.fade-down  { animation: fadeDown 0.30s var(--ease) both; }
-.slide-in-l { animation: slideInLeft 0.34s var(--ease) both; }
-.scale-in   { animation: scaleIn 0.36s var(--ease) both; }
+.hover-lift {
+  transition:
+    transform var(--t-mid),
+    box-shadow var(--t-mid);
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sh);
+}
 
-.hover-lift { transition: transform var(--t-mid), box-shadow var(--t-mid); }
-.hover-lift:hover { transform: translateY(-3px); box-shadow: var(--sh); }
-
-/* ══════════════════════════════════════════════════════════
-   ANIMAÇÕES DE ENTRADA — Home
-   Orquestra: nome+stats deslizam da esquerda, a aside de
-   "Atividades recentes" desliza da direita como um bloco,
-   e os cards de atividade sobem de baixo um após o outro.
-   ══════════════════════════════════════════════════════════ */
-@keyframes home-in-left  { from { opacity:0; transform:translateX(-70px); } to { opacity:1; transform:translateX(0); } }
-@keyframes home-in-rise  { from { opacity:0; transform:translateY(42px); } to { opacity:1; transform:translateY(0); } }
-@keyframes home-in-right-panel { from { transform:translateX(100%); } to { transform:translateX(0); } }
+@keyframes home-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-70px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes home-in-rise {
+  from {
+    opacity: 0;
+    transform: translateY(42px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes home-in-right-panel {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
 @keyframes home-logo-in {
-  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.88); }
-  60%  { opacity:1; transform:translate(-50%,-50%) scale(1.04); }
-  100% { opacity:1; transform:translate(-50%,-50%) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.88);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 @keyframes home-tagline-in {
-  from { opacity:0; transform:translate(-50%, calc(-50% + 10px)); }
-  to   { opacity:1; transform:translate(-50%, -50%); }
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 10px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
-.home-anim-left         { animation: home-in-left 0.55s cubic-bezier(0.22,1,0.36,1) both; }
-.home-anim-rise         { animation: home-in-rise 0.50s cubic-bezier(0.22,1,0.36,1) both; opacity:0; }
-.home-anim-right-panel  { animation: home-in-right-panel 0.60s cubic-bezier(0.22,1,0.36,1) both; }
-.home-anim-logo         { animation: home-logo-in 0.80s cubic-bezier(0.22,1,0.36,1) both; }
+.home-anim-left {
+  animation: home-in-left 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.home-anim-rise {
+  animation: home-in-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  opacity: 0;
+}
+.home-anim-right-panel {
+  animation: home-in-right-panel 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.home-anim-logo {
+  animation: home-logo-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 
-/* Dock: fade-in leve sobreposto à sua transform base (translateX(-50%)
-   no desktop, none no mobile) — apenas na home, pra não afetar a
-   animação da bolha quando navega entre outras telas. */
-.page-home .dock-nav-desktop { animation: fadeIn 0.50s ease-out 0.30s both; }
-.page-home .bottom-nav       { animation: fadeIn 0.50s ease-out 0.30s both; }
+.page-home .dock-nav-desktop {
+  animation: fadeIn 0.5s ease-out 0.3s both;
+}
+.page-home .bottom-nav {
+  animation: fadeIn 0.5s ease-out 0.3s both;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .home-anim-left, .home-anim-rise, .home-anim-right-panel,
+  .home-anim-left,
+  .home-anim-rise,
+  .home-anim-right-panel,
   .home-anim-logo,
   .page-home .dock-nav-desktop,
   .page-home .bottom-nav {
@@ -62,11 +187,18 @@
     opacity: 1 !important;
     transform: none !important;
   }
-  .home-anim-rise { opacity: 1 !important; }
+  .home-anim-rise {
+    opacity: 1 !important;
+  }
 }
 
 .skeleton {
-  background: linear-gradient(90deg, var(--sand-light) 25%, rgba(245,237,214,0.7) 37%, var(--sand-light) 63%);
+  background: linear-gradient(
+    90deg,
+    var(--sand-light) 25%,
+    rgba(245, 237, 214, 0.7) 37%,
+    var(--sand-light) 63%
+  );
   background-size: 1000px 100%;
   animation: shimmer 1.6s infinite linear;
   border-radius: var(--r-sm);

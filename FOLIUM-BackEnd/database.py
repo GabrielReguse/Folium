@@ -1,8 +1,3 @@
-# ═══════════════════════════════════════════════
-#  FOLIUM — database.py
-#  PostgreSQL via DATABASE_URL (Render)
-# ═══════════════════════════════════════════════
-
 import os
 import psycopg
 from psycopg.rows import dict_row
@@ -10,12 +5,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 def get_conn():
     """Abre uma conexão nova. Feche após usar."""
     url = os.getenv("DATABASE_URL")
     if not url:
         raise RuntimeError("DATABASE_URL não configurada.")
     return psycopg.connect(url, row_factory=dict_row)
+
 
 def init_db():
     """Cria as tabelas se não existirem e aplica migrações."""
@@ -44,7 +41,6 @@ def init_db():
                 );
             """)
 
-            # Migração: adicionar purpose se a tabela já existia sem essa coluna
             cur.execute("""
                 DO $$
                 BEGIN
@@ -58,7 +54,6 @@ def init_db():
                 END $$;
             """)
 
-            # Migração: adicionar google_id se não existir
             cur.execute("""
                 DO $$
                 BEGIN
@@ -71,7 +66,6 @@ def init_db():
                 END $$;
             """)
 
-            # Migração: tornar password nullable (para usuários Google)
             cur.execute("""
                 ALTER TABLE users ALTER COLUMN password DROP NOT NULL;
             """)
@@ -81,19 +75,21 @@ def init_db():
     finally:
         conn.close()
 
+
 def create_user(name: str, email: str, password: str) -> dict:
     conn = get_conn()
     try:
         with conn.cursor() as cur:
             cur.execute(
                 "INSERT INTO users (name, email, password) VALUES (%s, %s, %s) RETURNING id, name, email",
-                (name, email.lower(), password)
+                (name, email.lower(), password),
             )
             user = dict(cur.fetchone())
         conn.commit()
         return user
     finally:
         conn.close()
+
 
 def create_google_user(name: str, email: str, google_id: str) -> dict:
     conn = get_conn()
@@ -101,7 +97,7 @@ def create_google_user(name: str, email: str, google_id: str) -> dict:
         with conn.cursor() as cur:
             cur.execute(
                 "INSERT INTO users (name, email, google_id) VALUES (%s, %s, %s) RETURNING id, name, email",
-                (name, email.lower(), google_id)
+                (name, email.lower(), google_id),
             )
             user = dict(cur.fetchone())
         conn.commit()
@@ -109,18 +105,20 @@ def create_google_user(name: str, email: str, google_id: str) -> dict:
     finally:
         conn.close()
 
+
 def get_user_by_email(email: str) -> dict | None:
     conn = get_conn()
     try:
         with conn.cursor() as cur:
             cur.execute(
                 "SELECT id, name, email, password, google_id, created_at FROM users WHERE LOWER(email) = %s",
-                (email.lower(),)
+                (email.lower(),),
             )
             row = cur.fetchone()
             return dict(row) if row else None
     finally:
         conn.close()
+
 
 def get_user_by_id(user_id: int) -> dict | None:
     conn = get_conn()
@@ -128,12 +126,13 @@ def get_user_by_id(user_id: int) -> dict | None:
         with conn.cursor() as cur:
             cur.execute(
                 "SELECT id, name, email, created_at FROM users WHERE id = %s",
-                (user_id,)
+                (user_id,),
             )
             row = cur.fetchone()
             return dict(row) if row else None
     finally:
         conn.close()
+
 
 def delete_user_by_id(user_id: int):
     conn = get_conn()
@@ -144,49 +143,48 @@ def delete_user_by_id(user_id: int):
     finally:
         conn.close()
 
+
 def link_google_id(user_id: int, google_id: str):
     conn = get_conn()
     try:
         with conn.cursor() as cur:
             cur.execute(
-                "UPDATE users SET google_id = %s WHERE id = %s",
-                (google_id, user_id)
+                "UPDATE users SET google_id = %s WHERE id = %s", (google_id, user_id)
             )
         conn.commit()
     finally:
         conn.close()
+
 
 def update_user_password(user_id: int, password_hash: str):
     conn = get_conn()
     try:
         with conn.cursor() as cur:
             cur.execute(
-                "UPDATE users SET password = %s WHERE id = %s",
-                (password_hash, user_id)
+                "UPDATE users SET password = %s WHERE id = %s", (password_hash, user_id)
             )
         conn.commit()
     finally:
         conn.close()
 
-# ── Verificação por código ─────────────────────
 
 def save_verification_code(email: str, code: str, expires_at, purpose: str = "login"):
     conn = get_conn()
     try:
         with conn.cursor() as cur:
-            # Limpa apenas códigos do mesmo propósito — códigos de outro
-            # fluxo (ex: login pendente vs reset de senha) coexistem.
+
             cur.execute(
                 "DELETE FROM verification_codes WHERE LOWER(email) = %s AND purpose = %s",
-                (email.lower(), purpose)
+                (email.lower(), purpose),
             )
             cur.execute(
                 "INSERT INTO verification_codes (email, code, purpose, expires_at) VALUES (%s, %s, %s, %s)",
-                (email.lower(), code, purpose, expires_at)
+                (email.lower(), code, purpose, expires_at),
             )
         conn.commit()
     finally:
         conn.close()
+
 
 def get_verification_code(email: str, code: str, purpose: str = "login") -> dict | None:
     conn = get_conn()
@@ -194,23 +192,27 @@ def get_verification_code(email: str, code: str, purpose: str = "login") -> dict
         with conn.cursor() as cur:
             cur.execute(
                 "SELECT * FROM verification_codes WHERE LOWER(email) = %s AND code = %s AND purpose = %s ORDER BY created_at DESC LIMIT 1",
-                (email.lower(), code, purpose)
+                (email.lower(), code, purpose),
             )
             row = cur.fetchone()
             return dict(row) if row else None
     finally:
         conn.close()
 
+
 def delete_verification_codes(email: str, purpose: str | None = None):
     conn = get_conn()
     try:
         with conn.cursor() as cur:
             if purpose is None:
-                cur.execute("DELETE FROM verification_codes WHERE LOWER(email) = %s", (email.lower(),))
+                cur.execute(
+                    "DELETE FROM verification_codes WHERE LOWER(email) = %s",
+                    (email.lower(),),
+                )
             else:
                 cur.execute(
                     "DELETE FROM verification_codes WHERE LOWER(email) = %s AND purpose = %s",
-                    (email.lower(), purpose)
+                    (email.lower(), purpose),
                 )
         conn.commit()
     finally:

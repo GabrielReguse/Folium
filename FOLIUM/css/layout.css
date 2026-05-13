@@ -1,21 +1,62 @@
-/* FOLIUM v5 — layout.css */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  touch-action: none;
+}
 
-#bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; touch-action: none; }
+.page {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.page-body {
+  flex: 1;
+}
 
-.page { position: relative; z-index: 1; min-height: 100dvh; display: flex; flex-direction: column; }
-.page-body { flex: 1; }
+.mb-4 {
+  margin-bottom: 4px;
+}
+.mb-8 {
+  margin-bottom: 8px;
+}
+.mb-12 {
+  margin-bottom: 12px;
+}
+.mb-16 {
+  margin-bottom: 16px;
+}
+.mb-20 {
+  margin-bottom: 20px;
+}
+.mb-24 {
+  margin-bottom: 24px;
+}
+.mb-28 {
+  margin-bottom: 28px;
+}
+.mb-32 {
+  margin-bottom: 32px;
+}
+.mt-8 {
+  margin-top: 8px;
+}
+.mt-16 {
+  margin-top: 16px;
+}
+.mt-24 {
+  margin-top: 24px;
+}
 
-/* Margin utilities */
-.mb-4{margin-bottom:4px}.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}
-.mb-16{margin-bottom:16px}.mb-20{margin-bottom:20px}.mb-24{margin-bottom:24px}
-.mb-28{margin-bottom:28px}.mb-32{margin-bottom:32px}
-.mt-8{margin-top:8px}.mt-16{margin-top:16px}.mt-24{margin-top:24px}
-
-/* ─── Desktop sidebar para OUTRAS páginas (não home) ─── */
 @media (min-width: 900px) {
   .bottom-nav:not(.page-home .bottom-nav) {
     position: fixed;
-    left: 0; top: 0; bottom: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
     width: var(--sidebar-w);
     flex-direction: column;
     border-top: none;
@@ -28,23 +69,28 @@
     -webkit-backdrop-filter: none;
   }
 
-  /* Offset da sidebar — aplicado APENAS quando a sidebar lateral
-     está realmente renderizada (.bottom-nav). O dock flutuante novo
-     (.dock-nav-desktop) NÃO ocupa espaço, então não precisa de margin. */
-  .page:not(.page-home):has(> .bottom-nav) { margin-left: var(--sidebar-w); }
+  .page:not(.page-home):has(> .bottom-nav) {
+    margin-left: var(--sidebar-w);
+  }
 
-  /* Logo no topo da sidebar */
   .nav-logo-desk {
     display: flex !important;
     align-items: center;
     padding: 24px 10px 20px;
     font-family: var(--font-serif);
-    font-size: 21px; font-weight: 700;
-    color: var(--text); letter-spacing: -0.02em;
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 10px; width: 100%;
+    margin-bottom: 10px;
+    width: 100%;
   }
-  .nav-logo-desk em { font-style: italic; color: var(--caramel); font-weight: 400; }
+  .nav-logo-desk em {
+    font-style: italic;
+    color: var(--caramel);
+    font-weight: 400;
+  }
 
   .nav-item {
     flex-direction: row;
@@ -52,17 +98,30 @@
     gap: 12px;
     padding: 12px 14px;
     border-radius: var(--r-sm);
-    width: 100%; position: relative;
+    width: 100%;
+    position: relative;
   }
-  .nav-item .nl { font-size: 14px; font-weight: 500; letter-spacing: 0; }
-  .nav-item .ni { width: 22px; height: 22px; }
+  .nav-item .nl {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  .nav-item .ni {
+    width: 22px;
+    height: 22px;
+  }
 
-  .nav-item.active { background: var(--hover-bg); }
+  .nav-item.active {
+    background: var(--hover-bg);
+  }
   .nav-item.active::after {
-    content: '';
+    content: "";
     position: absolute;
-    left: 0; top: 50%; transform: translateY(-50%);
-    width: 3px; height: 22px;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 22px;
     background: var(--caramel);
     border-radius: 0 3px 3px 0;
   }
@@ -75,21 +134,41 @@
     border-top: 1px solid var(--border);
     width: 100%;
   }
-  .nav-user-desk .nu-name  { font-size: 13px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
-  .nav-user-desk .nu-label { font-size: 11px; color: var(--text-light); font-weight: 300; }
+  .nav-user-desk .nu-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 2px;
+  }
+  .nav-user-desk .nu-label {
+    font-size: 11px;
+    color: var(--text-light);
+    font-weight: 300;
+  }
 }
 
-.nav-logo-desk { display: none; }
-.nav-user-desk { display: none; }
+.nav-logo-desk {
+  display: none;
+}
+.nav-user-desk {
+  display: none;
+}
 
-/* Mobile active indicator — linha */
 @media (max-width: 899px) {
-  .nav-item { position: relative; }
+  .nav-item {
+    position: relative;
+  }
   .nav-item.active::after {
-    content: '';
+    content: "";
     position: absolute;
-    bottom: 0; left: 50%; transform: translateX(-50%);
-    width: 26px; height: 3px;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26px;
+    height: 3px;
     background: var(--caramel);
     border-radius: 3px 3px 0 0;
   }

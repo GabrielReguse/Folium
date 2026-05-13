@@ -1,13 +1,14 @@
-/* FOLIUM — pages/escolher.css */
 .page-escolher {
   background-color: var(--cream);
-  background-image: url('../../assets/images/doodles-mobile.png');
+  background-image: url("../../assets/images/doodles-mobile.png");
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: 100% auto;
   min-height: 100dvh;
 }
-.page-escolher #bg-canvas { display: none; }
+.page-escolher #bg-canvas {
+  display: none;
+}
 
 .esc-shell {
   width: 100%;
@@ -20,18 +21,28 @@
   align-items: stretch;
 }
 @media (min-width: 900px) {
-  .esc-shell { padding: 52px 32px 120px; gap: 36px; }
+  .esc-shell {
+    padding: 52px 32px 120px;
+    gap: 36px;
+  }
 }
 
 .esc-hero {
-  background: linear-gradient(135deg, var(--linen) 0%, var(--bg-deep) 55%, var(--sand-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--linen) 0%,
+    var(--bg-deep) 55%,
+    var(--sand-light) 100%
+  );
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 32px 24px 28px;
   box-shadow: var(--sh-sm);
 }
 @media (min-width: 900px) {
-  .esc-hero { padding: 48px 52px 40px; }
+  .esc-hero {
+    padding: 48px 52px 40px;
+  }
 }
 
 .esc-cards {
@@ -40,8 +51,13 @@
   gap: 16px;
 }
 @media (min-width: 640px) {
-  .esc-cards { flex-direction: row; gap: 20px; }
-  .esc-card  { flex: 1; }
+  .esc-cards {
+    flex-direction: row;
+    gap: 20px;
+  }
+  .esc-card {
+    flex: 1;
+  }
 }
 
 .esc-card {
@@ -50,13 +66,16 @@
   flex-direction: column;
   gap: 18px;
   padding: 28px 24px;
-  background: #F7F0DC;
+  background: #f7f0dc;
   border: 2px solid var(--border);
   border-radius: var(--r-lg);
   box-shadow: var(--sh-sm);
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.22s, box-shadow 0.22s, transform 0.18s;
+  transition:
+    border-color 0.22s,
+    box-shadow 0.22s,
+    transform 0.18s;
   outline: none;
 }
 .esc-card:hover {
@@ -66,12 +85,15 @@
 }
 .esc-card--accent:hover {
   border-color: var(--caramel);
-  box-shadow: 0 8px 32px rgba(155,107,66,0.22);
+  box-shadow: 0 8px 32px rgba(155, 107, 66, 0.22);
 }
-.esc-card:active { transform: translateY(-1px); }
+.esc-card:active {
+  transform: translateY(-1px);
+}
 
 .esc-card__icon {
-  width: 54px; height: 54px;
+  width: 54px;
+  height: 54px;
   border-radius: var(--r-sm);
   background: var(--caramel-lt);
   color: var(--caramel);
@@ -79,7 +101,10 @@
   align-items: center;
   justify-content: center;
 }
-.esc-card__icon svg { width: 32px; height: 32px; }
+.esc-card__icon svg {
+  width: 32px;
+  height: 32px;
+}
 
 .esc-card__title {
   font-family: var(--font-serif);
@@ -113,17 +138,24 @@
 }
 .esc-card__arrow {
   position: absolute;
-  bottom: 24px; right: 24px;
-  width: 32px; height: 32px;
+  bottom: 24px;
+  right: 24px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--caramel-lt);
   color: var(--caramel);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.18s, transform 0.18s;
+  transition:
+    background 0.18s,
+    transform 0.18s;
 }
-.esc-card__arrow svg { width: 15px; height: 15px; }
+.esc-card__arrow svg {
+  width: 15px;
+  height: 15px;
+}
 .esc-card:hover .esc-card__arrow {
   background: var(--caramel);
   color: #fff;
@@ -131,7 +163,8 @@
 }
 .esc-card__badge {
   position: absolute;
-  top: 16px; right: 16px;
+  top: 16px;
+  right: 16px;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -153,6 +186,11 @@
   border: 1.5px solid var(--border);
   background: transparent;
   cursor: pointer;
-  transition: background 0.18s, color 0.18s;
+  transition:
+    background 0.18s,
+    color 0.18s;
 }
-.esc-back:hover { background: var(--cream); color: var(--text); }
+.esc-back:hover {
+  background: var(--cream);
+  color: var(--text);
+}

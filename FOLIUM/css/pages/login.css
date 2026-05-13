@@ -1,17 +1,7 @@
-/* FOLIUM v4 — pages/login.css
-   ─────────────────────────────────────────────────────────────
-   Tela de login/cadastro responsiva.
-   • Mobile  (< 900px): card único centralizado, fundo doodle.
-   • Desktop (≥ 900px): split — painel de branding à esquerda,
-     formulário à direita; tab switcher animado entre Entrar
-     e Cadastrar; transições suaves entre formulários.
-   ───────────────────────────────────────────────────────────── */
-
-/* ════════ FUNDO GLOBAL ════════ */
 .page-login {
   min-height: 100dvh;
   background-color: var(--cream);
-  background-image: url('../../assets/images/doodles-mobile.png');
+  background-image: url("../../assets/images/doodles-mobile.png");
   background-repeat: no-repeat;
   background-position: bottom center;
   background-size: 100% auto;
@@ -22,7 +12,6 @@
   display: none;
 }
 
-/* ════════ SHELL ════════ */
 .login-shell {
   min-height: 100dvh;
   display: flex;
@@ -33,12 +22,10 @@
   z-index: 1;
 }
 
-/* ════════ BRAND PANEL (DESKTOP) ════════ */
 .brand-panel {
   display: none;
 }
 
-/* ════════ FORM PANEL ════════ */
 .form-panel {
   flex: 1;
   display: flex;
@@ -73,7 +60,6 @@
   }
 }
 
-/* ════════ HEADER (logo + título) ════════ */
 .login-logo {
   text-align: center;
   margin-bottom: 22px;
@@ -137,7 +123,6 @@
   transition: opacity var(--t-mid) var(--ease);
 }
 
-/* ════════ TAB SWITCHER ════════ */
 .auth-tabs {
   position: relative;
   display: grid;
@@ -195,7 +180,6 @@
   pointer-events: none;
 }
 
-/* ════════ FORMS WRAPPER (slide-fade entre forms) ════════ */
 .lform-wrap {
   position: relative;
 }
@@ -208,7 +192,7 @@
 
 .lform.is-active {
   display: flex;
-  animation: form-in 0.40s var(--ease) both;
+  animation: form-in 0.4s var(--ease) both;
 }
 
 .lform.is-active.slide-from-right {
@@ -255,7 +239,6 @@
   }
 }
 
-/* ════════ INPUTS (com ícone + ação) ════════ */
 .inp-wrap {
   position: relative;
   display: flex;
@@ -286,7 +269,10 @@
 
 .inp {
   background: var(--surface);
-  transition: border-color var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast),
+    background var(--t-fast);
 }
 
 .inp:hover:not(:focus) {
@@ -306,7 +292,9 @@
   border-radius: var(--r-sm);
   color: var(--text-light);
   cursor: pointer;
-  transition: color var(--t-fast), background var(--t-fast);
+  transition:
+    color var(--t-fast),
+    background var(--t-fast);
 }
 
 .inp-action svg {
@@ -323,7 +311,6 @@
   color: var(--caramel);
 }
 
-/* ════════ PASSWORD METER ════════ */
 .pass-meter {
   display: flex;
   gap: 4px;
@@ -338,15 +325,15 @@
   transition: background 0.35s ease;
 }
 
-.pass-meter[data-strength="1"] .pass-bar:nth-child(-n+1) {
+.pass-meter[data-strength="1"] .pass-bar:nth-child(-n + 1) {
   background: #d97a4d;
 }
 
-.pass-meter[data-strength="2"] .pass-bar:nth-child(-n+2) {
+.pass-meter[data-strength="2"] .pass-bar:nth-child(-n + 2) {
   background: #d4a04a;
 }
 
-.pass-meter[data-strength="3"] .pass-bar:nth-child(-n+3) {
+.pass-meter[data-strength="3"] .pass-bar:nth-child(-n + 3) {
   background: var(--caramel);
 }
 
@@ -354,7 +341,6 @@
   background: #5a8a4a;
 }
 
-/* ════════ BOTÃO PRIMÁRIO COM SHINE ════════ */
 .btn-shine {
   position: relative;
   overflow: hidden;
@@ -362,16 +348,18 @@
 }
 
 .btn-shine::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -120%;
   width: 60%;
   height: 100%;
-  background: linear-gradient(110deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.32) 50%,
-      transparent 100%);
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.32) 50%,
+    transparent 100%
+  );
   transform: skewX(-18deg);
   transition: left 0.7s var(--ease);
   pointer-events: none;
@@ -389,7 +377,6 @@
   transform: translateX(3px);
 }
 
-/* ════════ GOOGLE BUTTON ════════ */
 .btn-google {
   display: flex;
   align-items: center;
@@ -422,7 +409,6 @@
   flex-shrink: 0;
 }
 
-/* ════════ DIVIDER ════════ */
 .divider {
   display: flex;
   align-items: center;
@@ -435,13 +421,12 @@
 
 .divider::before,
 .divider::after {
-  content: '';
+  content: "";
   flex: 1;
   height: 1px;
   background: var(--border);
 }
 
-/* ════════ MENSAGENS ════════ */
 .login-error {
   background: #fff9f5;
   border: 1.5px solid rgba(155, 107, 66, 0.35);
@@ -467,7 +452,6 @@
   animation: fadeDown 0.25s ease;
 }
 
-/* ════════ VERIFY (código) ════════ */
 .verify-info {
   text-align: center;
   margin-bottom: 6px;
@@ -514,12 +498,13 @@
   border-radius: var(--r-sm);
   background: var(--surface);
   text-align: center;
-  font-family: 'DM Sans', monospace;
+  font-family: "DM Sans", monospace;
   font-size: 1.45rem;
   font-weight: 600;
   color: var(--text);
   outline: none;
-  transition: border-color var(--t-fast) ease,
+  transition:
+    border-color var(--t-fast) ease,
     box-shadow var(--t-fast) ease,
     transform var(--t-fast) ease;
 }
@@ -566,7 +551,6 @@
   cursor: not-allowed;
 }
 
-/* ════════ FOOTER ════════ */
 .login-foot {
   margin-top: 22px;
   text-align: center;
@@ -586,12 +570,9 @@
   opacity: 0.7;
 }
 
-/* ════════════════════════════════════════════════════════════
-   DESKTOP ≥ 900px — split panel
-   ════════════════════════════════════════════════════════════ */
 @media (min-width: 900px) {
   .page-login {
-    background-image: url('../../assets/images/doodles-desktop.png');
+    background-image: url("../../assets/images/doodles-desktop.png");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -603,16 +584,18 @@
   }
 
   .login-shell::before {
-    /* overlay sutil pra suavizar o doodle desktop */
-    content: '';
+    content: "";
     position: fixed;
     inset: 0;
-    background: linear-gradient(135deg, rgba(245, 237, 214, 0.55), rgba(232, 217, 191, 0.35));
+    background: linear-gradient(
+      135deg,
+      rgba(245, 237, 214, 0.55),
+      rgba(232, 217, 191, 0.35)
+    );
     z-index: 0;
     pointer-events: none;
   }
 
-  /* ── BRAND PANEL ── */
   .brand-panel {
     display: flex;
     flex-direction: column;
@@ -623,10 +606,12 @@
     position: relative;
     overflow: hidden;
     color: var(--text);
-    background: linear-gradient(155deg,
-        var(--linen) 0%,
-        var(--bg-deep) 55%,
-        var(--sand-light) 100%);
+    background: linear-gradient(
+      155deg,
+      var(--linen) 0%,
+      var(--bg-deep) 55%,
+      var(--sand-light) 100%
+    );
     border-right: 1px solid var(--border);
     z-index: 1;
     animation: brand-slide-in 0.65s var(--ease) both;
@@ -648,8 +633,16 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse at 18% 12%, rgba(155, 107, 66, 0.16), transparent 55%),
-      radial-gradient(ellipse at 85% 88%, rgba(196, 168, 130, 0.30), transparent 50%);
+      radial-gradient(
+        ellipse at 18% 12%,
+        rgba(155, 107, 66, 0.16),
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse at 85% 88%,
+        rgba(196, 168, 130, 0.3),
+        transparent 50%
+      );
     pointer-events: none;
   }
 
@@ -666,7 +659,7 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    animation: fadeUp 0.55s var(--ease) 0.10s both;
+    animation: fadeUp 0.55s var(--ease) 0.1s both;
   }
 
   .brand-mark__logo {
@@ -705,11 +698,11 @@
     display: flex;
     gap: 14px;
     align-items: flex-start;
-    animation: fadeUp 0.50s var(--ease) both;
+    animation: fadeUp 0.5s var(--ease) both;
   }
 
   .brand-feature:nth-child(1) {
-    animation-delay: 0.30s;
+    animation-delay: 0.3s;
   }
 
   .brand-feature:nth-child(2) {
@@ -732,7 +725,9 @@
     justify-content: center;
     color: var(--caramel);
     box-shadow: 0 4px 14px rgba(92, 61, 46, 0.08);
-    transition: transform var(--t-mid) var(--ease), box-shadow var(--t-mid);
+    transition:
+      transform var(--t-mid) var(--ease),
+      box-shadow var(--t-mid);
   }
 
   .brand-feature__icon svg {
@@ -761,7 +756,6 @@
     line-height: 1.5;
   }
 
-  /* Folhas decorativas flutuantes */
   .brand-panel__leaves {
     position: absolute;
     inset: 0;
@@ -772,7 +766,7 @@
   .leaf {
     position: absolute;
     background: var(--caramel);
-    opacity: 0.10;
+    opacity: 0.1;
     border-radius: 50% 6% 50% 6%;
     filter: blur(0.4px);
   }
@@ -811,7 +805,6 @@
   }
 
   @keyframes leaf-float {
-
     0%,
     100% {
       transform: translate(0, 0) rotate(var(--r, 35deg));
@@ -822,7 +815,6 @@
     }
   }
 
-  /* ── FORM PANEL ── */
   .form-panel {
     flex: 1;
     padding: 40px 56px;
@@ -851,7 +843,6 @@
   }
 }
 
-/* Maior espaço em telas extra-largas */
 @media (min-width: 1200px) {
   .brand-panel {
     padding: 80px 80px 64px;
@@ -870,9 +861,6 @@
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   MOBILE ≤ 380px
-   ════════════════════════════════════════════════════════════ */
 @media (max-width: 380px) {
   .login-shell {
     padding: 18px 12px;
@@ -899,11 +887,7 @@
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   REDUCED MOTION
-   ════════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-
   .login-card,
   .logo-mark,
   .brand-panel,
@@ -927,7 +911,7 @@
     display: none;
   }
 }
-/* Linha do link "Esqueci minha senha" abaixo do botão Entrar */
+
 .forgot-pass-row {
   display: flex;
   justify-content: flex-end;
