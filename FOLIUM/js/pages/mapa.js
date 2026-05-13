@@ -109,7 +109,50 @@ const MapaPage = {
     });
 
     this.goStep(1);
+    this._runStepperIntro();
     Config.warmInBackground();
+  },
+
+  _runStepperIntro() {
+    const stepper = document.getElementById('mapa-stepper');
+    if (!stepper) return;
+    if (stepper.dataset.introDone === '1') return;
+    stepper.dataset.introDone = '1';
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const schedule = [
+      { sel: '#mdot1 .cs-label', start: 750,  charDelay: 80 },
+      { sel: '#mdot2 .cs-label', start: 2050, charDelay: 80 },
+      { sel: '#mdot3 .cs-label', start: 3300, charDelay: 85 },
+      { sel: '#mdot4 .cs-label', start: 4550, charDelay: 85 },
+      { sel: '#mdot5 .cs-label', start: 5800, charDelay: 85 },
+    ];
+
+    const labels = schedule.map(s => {
+      const el = document.querySelector(s.sel);
+      if (!el) return null;
+      const txt = el.textContent;
+      el.textContent = '';
+      return { el, text: txt, ...s };
+    }).filter(Boolean);
+
+    stepper.classList.add('cs-anim-init');
+
+    labels.forEach(({ el, text, start, charDelay }) => {
+      setTimeout(() => {
+        let i = 0;
+        const tick = () => {
+          if (i < text.length) {
+            el.textContent += text[i++];
+            setTimeout(tick, charDelay);
+          }
+        };
+        tick();
+      }, start);
+    });
+
+    setTimeout(() => { stepper.classList.remove('cs-anim-init'); }, 7000);
   },
 
   goStep(n) {
