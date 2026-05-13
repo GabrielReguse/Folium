@@ -151,6 +151,8 @@ const MapaPage = {
   _dropdownNodeId: null,
   _boundMove: null,
   _boundUp: null,
+  _lineRedrawFrame: null,
+  _pendingLineRedraw: null,
 
   init() {
     if (!Router.requireAuth()) return;
@@ -683,7 +685,7 @@ const MapaPage = {
         el.style.left = node.x + "px";
         el.style.top = node.y + "px";
       }
-      this._redrawLines("mp-canvas-svg");
+      this._scheduleRedrawLines("mp-canvas-svg", true);
     }
 
     if (this._resize) {
@@ -724,7 +726,7 @@ const MapaPage = {
         el.style.width = node.w + "px";
         el.style.height = node.h + "px";
       }
-      this._redrawLines("mp-canvas-svg");
+      this._scheduleRedrawLines("mp-canvas-svg", true);
     }
   },
 
@@ -753,22 +755,55 @@ const MapaPage = {
       }
       this._resize = null;
     }
-    if (canvas) this._checkWarnings();
+    if (canvas) {
+      this._cancelScheduledLineRedraw();
+      this._redrawLines("mp-canvas-svg", { fast: false });
+      this._checkWarnings();
+    }
   },
 
-  _redrawLines(svgId) {
+  _scheduleRedrawLines(svgId, fast) {
+    const nextFast = fast !== false;
+    if (this._pendingLineRedraw) {
+      this._pendingLineRedraw.svgId = svgId;
+      this._pendingLineRedraw.fast =
+        this._pendingLineRedraw.fast !== false && nextFast;
+    } else {
+      this._pendingLineRedraw = { svgId, fast: nextFast };
+    }
+
+    if (this._lineRedrawFrame) return;
+    this._lineRedrawFrame = requestAnimationFrame(() => {
+      const pending = this._pendingLineRedraw;
+      this._lineRedrawFrame = null;
+      this._pendingLineRedraw = null;
+      if (!pending) return;
+      this._redrawLines(pending.svgId, { fast: pending.fast });
+    });
+  },
+
+  _cancelScheduledLineRedraw() {
+    if (this._lineRedrawFrame) {
+      cancelAnimationFrame(this._lineRedrawFrame);
+      this._lineRedrawFrame = null;
+    }
+    this._pendingLineRedraw = null;
+  },
+
+  _redrawLines(svgId, options = {}) {
     const svg = document.getElementById(svgId);
     if (!svg) return;
     svg.innerHTML = "";
     const center = this.nodes.find((n) => n.isCenter);
     if (!center) return;
     const topics = this.nodes.filter((n) => !n.isCenter);
+    const fast = options.fast === true;
 
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     defs.innerHTML =
       '<marker id="arr-' +
       svgId +
-      '" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0,9 3.5,0 7" fill="rgba(155,107,66,0.58)"/></marker>';
+      '" markerWidth="10" markerHeight="8" refX="9.2" refY="4" orient="auto" markerUnits="strokeWidth"><polygon points="0 0,10 4,0 8" fill="rgba(155,107,66,0.62)"/></marker>';
     svg.appendChild(defs);
 
     const sides = { left: [], right: [], top: [], bottom: [] };
@@ -806,6 +841,7 @@ const MapaPage = {
         meta.side,
         meta.slot,
         usedCells,
+        { fast },
       );
 
       const path = document.createElementNS(
@@ -820,7 +856,7 @@ const MapaPage = {
       path.setAttribute("stroke-linejoin", "round");
       path.setAttribute("marker-end", "url(#arr-" + svgId + ")");
       svg.appendChild(path);
-      this._markRouteUsage(points, usedCells);
+      if (!fast) this._markRouteUsage(points, usedCells);
     });
   },
 
@@ -861,55 +897,102 @@ const MapaPage = {
     return dy >= 0 ? "bottom" : "top";
   },
 
-  _connectionAnchors(source, target, side, slot) {
-    const gap = MP_CONNECTOR_GAP;
-    const pad = 14;
-    const safeSlot = mpClamp(slot || 0.5, 0.08, 0.92);
-    let start;
-    let end;
-
-    if (side === "right") {
-      start = {
-        x: source.x + source.w + gap,
-        y: source.y + pad + (source.h - pad * 2) * safeSlot,
-      };
-      end = {
-        x: target.x - gap,
-        y: mpClamp(start.y, target.y + pad, target.y + target.h - pad),
-      };
-    } else if (side === "left") {
-      start = {
-        x: source.x - gap,
-        y: source.y + pad + (source.h - pad * 2) * safeSlot,
-      };
-      end = {
-        x: target.x + target.w + gap,
-        y: mpClamp(start.y, target.y + pad, target.y + target.h - pad),
-      };
-    } else if (side === "bottom") {
-      start = {
-        x: source.x + pad + (source.w - pad * 2) * safeSlot,
-        y: source.y + source.h + gap,
-      };
-      end = {
-        x: mpClamp(start.x, target.x + pad, target.x + target.w - pad),
-        y: target.y - gap,
-      };
-    } else {
-      start = {
-        x: source.x + pad + (source.w - pad * 2) * safeSlot,
-        y: source.y - gap,
-      };
-      end = {
-        x: mpClamp(start.x, target.x + pad, target.x + target.w - pad),
-        y: target.y + target.h + gap,
-      };
-    }
+  _connectionPorts(source, target, sourceSide, slot) {
+    const targetSide = this._oppositeSide(sourceSide);
+    const sourceEdge = this._sidePoint(source, sourceSide, slot);
+    const start = this._offsetPoint(sourceEdge, sourceSide, MP_CONNECTOR_GAP);
+    const endEdge = this._targetEdgePoint(target, targetSide, start);
+    const end = this._offsetPoint(endEdge, targetSide, MP_CONNECTOR_GAP);
 
     return {
+      sourceSide,
+      targetSide,
+      sourceEdge: this._clampConnectorPoint(sourceEdge),
       start: this._clampConnectorPoint(start),
       end: this._clampConnectorPoint(end),
+      endEdge: this._clampConnectorPoint(endEdge),
     };
+  },
+
+  _sidePoint(node, side, slot) {
+    const pad = Math.min(18, Math.max(10, Math.min(node.w, node.h) * 0.18));
+    const safeSlot = mpClamp(slot || 0.5, 0.08, 0.92);
+
+    if (side === "right") {
+      return {
+        x: node.x + node.w,
+        y: node.y + pad + (node.h - pad * 2) * safeSlot,
+      };
+    }
+    if (side === "left") {
+      return {
+        x: node.x,
+        y: node.y + pad + (node.h - pad * 2) * safeSlot,
+      };
+    }
+    if (side === "bottom") {
+      return {
+        x: node.x + pad + (node.w - pad * 2) * safeSlot,
+        y: node.y + node.h,
+      };
+    }
+    return {
+      x: node.x + pad + (node.w - pad * 2) * safeSlot,
+      y: node.y,
+    };
+  },
+
+  _targetEdgePoint(node, side, reference) {
+    const pad = Math.min(18, Math.max(10, Math.min(node.w, node.h) * 0.18));
+    if (side === "right") {
+      return {
+        x: node.x + node.w,
+        y: mpClamp(reference.y, node.y + pad, node.y + node.h - pad),
+      };
+    }
+    if (side === "left") {
+      return {
+        x: node.x,
+        y: mpClamp(reference.y, node.y + pad, node.y + node.h - pad),
+      };
+    }
+    if (side === "bottom") {
+      return {
+        x: mpClamp(reference.x, node.x + pad, node.x + node.w - pad),
+        y: node.y + node.h,
+      };
+    }
+    return {
+      x: mpClamp(reference.x, node.x + pad, node.x + node.w - pad),
+      y: node.y,
+    };
+  },
+
+  _offsetPoint(point, side, distance) {
+    const out = { x: point.x, y: point.y };
+    if (side === "right") out.x += distance;
+    else if (side === "left") out.x -= distance;
+    else if (side === "bottom") out.y += distance;
+    else out.y -= distance;
+    return out;
+  },
+
+  _oppositeSide(side) {
+    if (side === "right") return "left";
+    if (side === "left") return "right";
+    if (side === "bottom") return "top";
+    return "bottom";
+  },
+
+  _assembleFullPath(ports, route) {
+    const middle = route && route.length ? route : [ports.start, ports.end];
+    return this._simplifyPath([
+      ports.sourceEdge,
+      ports.start,
+      ...middle.slice(1, -1),
+      ports.end,
+      ports.endEdge,
+    ]);
   },
 
   _clampConnectorPoint(point) {
@@ -919,88 +1002,193 @@ const MapaPage = {
     };
   },
 
-  _bestConnectorRoute(source, target, preferredSide, preferredSlot, usedCells) {
-    const sideOrder = [preferredSide, "bottom", "top", "right", "left"].filter(
-      (side, idx, arr) => side && arr.indexOf(side) === idx,
-    );
-    const slotOrder = [preferredSlot || 0.5, 0.5, 0.25, 0.75].filter(
-      (slot, idx, arr) => arr.indexOf(slot) === idx,
-    );
-    let best = null;
+  _bestConnectorRoute(
+    source,
+    target,
+    preferredSide,
+    preferredSlot,
+    usedCells,
+    options = {},
+  ) {
+    const useFast = options.fast === true;
+    const mainSide = preferredSide || this._connectionSide(source, target);
+    const fallbackSides =
+      mainSide === "left" || mainSide === "right"
+        ? ["top", "bottom"]
+        : ["left", "right"];
+    const slotOrder = (useFast
+      ? [preferredSlot || 0.5]
+      : [preferredSlot || 0.5, 0.5]
+    ).filter((slot, idx, arr) => arr.indexOf(slot) === idx);
 
-    sideOrder.forEach((side, sideIdx) => {
-      slotOrder.forEach((slot) => {
-        const anchors = this._connectionAnchors(source, target, side, slot);
-        const path = this._routeConnector(
-          anchors.start,
-          anchors.end,
-          source,
-          target,
-          usedCells,
-        );
-        if (!this._pathIsClear(path, source.id, target.id)) return;
-        const penalty = this._pathUsagePenalty(path, usedCells);
-        const score = this._pathLength(path) + penalty * 3 + sideIdx * 25;
-        if (!best || score < best.score) best = { path, score };
-      });
-    });
+    const evaluateSides = (sides, sidePenaltyOffset) => {
+      let best = null;
+      sides
+        .filter((side, idx, arr) => side && arr.indexOf(side) === idx)
+        .forEach((side, sideIdx) => {
+          slotOrder.forEach((slot) => {
+            const ports = this._connectionPorts(source, target, side, slot);
+            const route = this._routeConnector(
+              ports.start,
+              ports.end,
+              source,
+              target,
+              usedCells,
+              options,
+            );
+            const fullPath = this._assembleFullPath(ports, route);
+            if (!this._pathIsClear(fullPath, source.id, target.id, true)) return;
+            const penalty = useFast ? 0 : this._pathUsagePenalty(fullPath, usedCells);
+            const score =
+              this._pathLength(fullPath) +
+              penalty * 3 +
+              this._turnCount(fullPath) * 7 +
+              (sidePenaltyOffset + sideIdx) * 28;
+            if (!best || score < best.score) best = { path: fullPath, score };
+          });
+        });
+      return best;
+    };
 
-    if (best) return best.path;
-    const anchors = this._connectionAnchors(
+    const mainBest = evaluateSides([mainSide], 0);
+    if (mainBest) return mainBest.path;
+
+    const fallbackBest = evaluateSides(fallbackSides, 1);
+    if (fallbackBest) return fallbackBest.path;
+
+    const ports = this._connectionPorts(
       source,
       target,
-      preferredSide || this._connectionSide(source, target),
+      mainSide,
       preferredSlot || 0.5,
     );
-    return this._routeConnector(anchors.start, anchors.end, source, target, usedCells);
+    const route = this._routeConnector(
+      ports.start,
+      ports.end,
+      source,
+      target,
+      usedCells,
+      options,
+    );
+    return this._assembleFullPath(ports, route);
   },
 
-  _routeConnector(start, end, source, target, usedCells) {
+  _routeConnector(start, end, source, target, usedCells, options = {}) {
+    const candidates = this._buildRouteCandidates(start, end, false);
+    const clearCandidates = candidates
+      .map((path) => this._simplifyPath(path))
+      .filter((path) => this._pathIsClear(path, source.id, target.id, false));
+
+    const ranked = clearCandidates
+      .map((path) => ({
+        path,
+        penalty: options.fast ? 0 : this._pathUsagePenalty(path, usedCells),
+        length: this._pathLength(path),
+        turns: this._turnCount(path),
+      }))
+      .sort(
+        (a, b) =>
+          a.penalty - b.penalty ||
+          a.turns - b.turns ||
+          a.length - b.length,
+      );
+
+    if (ranked.length) return ranked[0].path;
+
+    const pairedCandidates = this._buildRouteCandidates(start, end, true)
+      .map((path) => this._simplifyPath(path))
+      .filter((path) => this._pathIsClear(path, source.id, target.id, false))
+      .map((path) => ({
+        path,
+        penalty: options.fast ? 0 : this._pathUsagePenalty(path, usedCells),
+        length: this._pathLength(path),
+        turns: this._turnCount(path),
+      }))
+      .sort(
+        (a, b) =>
+          a.penalty - b.penalty ||
+          a.turns - b.turns ||
+          a.length - b.length,
+      );
+
+    if (pairedCandidates.length) return pairedCandidates[0].path;
+
+    return this._simplifyPath([start, { x: start.x, y: end.y }, end]);
+  },
+
+  _buildRouteCandidates(start, end, includePairs) {
     const midX = (start.x + end.x) / 2;
     const midY = (start.y + end.y) / 2;
     const railGap = MP_CONNECTOR_GAP * 2;
+    const xRails = [start.x, end.x, midX, railGap, MP_CANVAS_W - railGap];
+    const yRails = [start.y, end.y, midY, railGap, MP_CANVAS_H - railGap];
+
+    this.nodes.forEach((node) => {
+      const rect = this._expandedRect(node, MP_CONNECTOR_GAP);
+      xRails.push(rect.x, rect.x + rect.w);
+      yRails.push(rect.y, rect.y + rect.h);
+    });
+
+    const xs = this._uniqueSortedCoordinates(xRails, 2, MP_CANVAS_W - 2);
+    const ys = this._uniqueSortedCoordinates(yRails, 2, MP_CANVAS_H - 2);
     const candidates = [
       [start, { x: end.x, y: start.y }, end],
       [start, { x: start.x, y: end.y }, end],
-      [start, { x: midX, y: start.y }, { x: midX, y: end.y }, end],
-      [start, { x: start.x, y: midY }, { x: end.x, y: midY }, end],
-      [start, { x: start.x, y: railGap }, { x: end.x, y: railGap }, end],
-      [
-        start,
-        { x: start.x, y: MP_CANVAS_H - railGap },
-        { x: end.x, y: MP_CANVAS_H - railGap },
-        end,
-      ],
-      [start, { x: railGap, y: start.y }, { x: railGap, y: end.y }, end],
-      [
-        start,
-        { x: MP_CANVAS_W - railGap, y: start.y },
-        { x: MP_CANVAS_W - railGap, y: end.y },
-        end,
-      ],
     ];
 
-    const clearCandidates = candidates
-      .map((path) => this._simplifyPath(path))
-      .filter((path) => this._pathIsClear(path, source.id, target.id));
+    xs.forEach((x) => {
+      candidates.push([start, { x, y: start.y }, { x, y: end.y }, end]);
+    });
+    ys.forEach((y) => {
+      candidates.push([start, { x: start.x, y }, { x: end.x, y }, end]);
+    });
 
-    const noOverlap = clearCandidates
-      .map((path) => ({
-        path,
-        penalty: this._pathUsagePenalty(path, usedCells),
-        length: this._pathLength(path),
-      }))
-      .sort((a, b) => a.penalty - b.penalty || a.length - b.length);
-
-    if (noOverlap.length && noOverlap[0].penalty === 0) return noOverlap[0].path;
-
-    const gridPath = this._buildGridRoute(start, end, source.id, target.id, usedCells);
-    if (gridPath && this._pathIsClear(gridPath, source.id, target.id)) {
-      return gridPath;
+    if (includePairs) {
+      // Dois trilhos (um vertical e um horizontal) resolvem casos em que uma rota
+      // simples ficaria presa entre caixas. Só são avaliados quando necessário.
+      xs.forEach((x) => {
+        ys.forEach((y) => {
+          candidates.push([
+            start,
+            { x, y: start.y },
+            { x, y },
+            { x: end.x, y },
+            end,
+          ]);
+          candidates.push([
+            start,
+            { x: start.x, y },
+            { x, y },
+            { x, y: end.y },
+            end,
+          ]);
+        });
+      });
     }
 
-    if (noOverlap.length) return noOverlap[0].path;
-    return this._simplifyPath([start, end]);
+    return candidates;
+  },
+
+  _uniqueSortedCoordinates(values, min, max) {
+    const out = [];
+    values.forEach((value) => {
+      const v = mpClamp(value, min, max);
+      if (!out.some((x) => Math.abs(x - v) < 1)) out.push(v);
+    });
+    return out.sort((a, b) => a - b);
+  },
+
+  _turnCount(points) {
+    let turns = 0;
+    for (let i = 2; i < points.length; i++) {
+      const a = points[i - 2];
+      const b = points[i - 1];
+      const c = points[i];
+      const d1 = Math.abs(a.x - b.x) >= Math.abs(a.y - b.y) ? "h" : "v";
+      const d2 = Math.abs(b.x - c.x) >= Math.abs(b.y - c.y) ? "h" : "v";
+      if (d1 !== d2) turns++;
+    }
+    return turns;
   },
 
   _buildGridRoute(start, end, sourceId, targetId, usedCells) {
@@ -1156,14 +1344,27 @@ const MapaPage = {
     );
   },
 
-  _pathIsClear(points, sourceId, targetId) {
-    const obstacles = this.nodes.map((n) => this._expandedRect(n, MP_CONNECTOR_GAP));
+  _pathIsClear(points, sourceId, targetId, allowTerminalCaps = false) {
+    const obstacles = this.nodes.map((n) => ({
+      id: n.id,
+      rect: this._expandedRect(n, MP_CONNECTOR_GAP),
+    }));
     for (let i = 1; i < points.length; i++) {
       const a = points[i - 1];
       const b = points[i];
-      if (obstacles.some((rect) => this._segmentIntersectsRect(a, b, rect))) {
-        return false;
-      }
+      const isFirstSegment = i === 1;
+      const isLastSegment = i === points.length - 1;
+      const hits = obstacles.some((obstacle) => {
+        if (
+          allowTerminalCaps &&
+          ((isFirstSegment && obstacle.id === sourceId) ||
+            (isLastSegment && obstacle.id === targetId))
+        ) {
+          return false;
+        }
+        return this._segmentIntersectsRect(a, b, obstacle.rect);
+      });
+      if (hits) return false;
     }
     return true;
   },
