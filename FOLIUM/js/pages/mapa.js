@@ -613,7 +613,27 @@ const MapaPage = {
         let texto = (this.aiContent && this.aiContent[n.label])
           ? this.aiContent[n.label]
           : MOCK_MAP_CONTENT.gerarConteudoPorTopico(n.label, n.w * n.h);
-        if (texto.length > maxChars) texto = texto.slice(0, maxChars - 1) + '…';
+        if (texto.length > maxChars) {
+          const trecho = texto.slice(0, maxChars);
+          // Tenta terminar na última frase completa (. ! ?)
+          const ultimaFrase = Math.max(
+            trecho.lastIndexOf('. '),
+            trecho.lastIndexOf('! '),
+            trecho.lastIndexOf('? '),
+            trecho.lastIndexOf('.'),
+            trecho.lastIndexOf('!'),
+            );
+          if (ultimaFrase > maxChars * 0.4) {
+            // Inclui o ponto final da frase
+            texto = trecho.slice(0, ultimaFrase + 1);
+          } else {
+            // Fallback: corta na última palavra completa
+            const ultimaVirgula = trecho.lastIndexOf(', ');
+            const ultimoEspaco = trecho.lastIndexOf(' ');
+            const corte = ultimaVirgula > maxChars * 0.5 ? ultimaVirgula + 1 : ultimoEspaco;
+            texto = trecho.slice(0, corte > 0 ? corte : maxChars).trimEnd();
+          }
+        }
 
         body = '<div class="mp-node__header">' + n.label + '</div>' +
           '<div class="mp-node__body" contenteditable="true" title="Duplo clique para editar">' + texto + '</div>';
