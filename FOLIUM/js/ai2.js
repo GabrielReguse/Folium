@@ -1,5 +1,3 @@
-/* FOLIUM — js/ai2.js */
-
 const AI2 = {
 
   /* API */
@@ -19,6 +17,12 @@ const AI2 = {
     let data;
     try { data = await res.json(); }
     catch { throw new Error(`Servidor retornou ${res.status} sem JSON.`); }
+
+    if (res.status === 401) {
+      Storage.clearUser();
+      Router.go('login');
+      throw new Error('Sessão expirada. Faça login novamente.');
+    }
 
     if (!res.ok) throw new Error(data.detail || `Erro ${res.status} no servidor.`);
     return data;
@@ -79,7 +83,7 @@ const AI2 = {
     return sec;
   },
 
-  /* EXEMPLO com rótulo variável */
+  /* EXEMPLO */
   _renderExemplo(ex) {
     if (!ex || !ex.tipo) return '';
 
@@ -347,9 +351,9 @@ const AI2 = {
           };
         }
       }
-    } catch { /* continua */ }
+    } catch {}
 
-    /* 2. Fallback: Wikipedia thumbnails (pt → en) */
+    /* 2. Fallback */
     for (const lang of ['pt', 'en']) {
       try {
         const url =
@@ -370,7 +374,7 @@ const AI2 = {
           url: sorted[0].thumbnail.source,
           title: sorted[0].title,
         };
-      } catch { /* tenta próximo */ }
+      } catch { }
     }
 
     return null;

@@ -1,8 +1,6 @@
-/*  FOLIUM — js/ai1.js */
-
 const AI1 = {
 
-  /* HELPER: chama o backend com o token do usuário */
+  /* HELPER */
   async _post(endpoint, body) {
     const token = Storage.getToken();
 
@@ -25,6 +23,12 @@ const AI1 = {
       data = await res.json();
     } catch {
       throw new Error(`Servidor retornou ${res.status} sem JSON.`);
+    }
+
+    if (res.status === 401) {
+      Storage.clearUser();
+      Router.go('login');
+      throw new Error('Sessão expirada. Faça login novamente.');
     }
 
     if (!res.ok) {

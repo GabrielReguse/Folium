@@ -1,8 +1,3 @@
-/* ═══════════════════════════════════════════════════════════════
-   FOLIUM — pages/mapa.js  (v2 — fixes: layout, canvas scale, eventos)
-   Fluxo: 1=Configurar · 2=Tópicos · 3=Template · 4=Editor · 5=Resultado
-═══════════════════════════════════════════════════════════════ */
-
 const MOCK_MAP_CONTENT = {
   gerarConteudoPorTopico(topico, areaPixels) {
     const density = areaPixels > 60000 ? 'grande' : areaPixels > 25000 ? 'medio' : 'pequeno';
@@ -39,7 +34,7 @@ const TPL_LAYOUTS = {
   linear(nodes, cx, cy, W, H) {
     nodes[0].x = cx - nodes[0].w / 2; nodes[0].y = 28;
     const topics = nodes.slice(1);
-    const cols   = Math.ceil(Math.sqrt(topics.length));
+    const cols = Math.ceil(Math.sqrt(topics.length));
     const topicW = Math.min(160, (W - 16) / cols - 10);
     const topicH = nodes[0].h;
     const startY = nodes[0].y + nodes[0].h + 60;
@@ -54,7 +49,7 @@ const TPL_LAYOUTS = {
   organico(nodes, cx, cy, W, H) {
     nodes[0].x = cx - nodes[0].w / 2; nodes[0].y = cy - nodes[0].h / 2;
     const angles = [-2.2, -1.1, -0.1, 0.8, 1.6, 2.5, 3.3, 4.1, 5.0, 5.9];
-    const radii  = [200, 230, 180, 220, 200, 210, 190, 215, 205, 195];
+    const radii = [200, 230, 180, 220, 200, 210, 190, 215, 205, 195];
     nodes.slice(1).forEach((n, i) => {
       const a = angles[i % angles.length];
       const r = radii[i % radii.length];
@@ -79,8 +74,8 @@ const MapaAI = {
       (resultado.blocos || []).forEach(b => { map[b.titulo] = b.explicacao || ''; });
       return map;
     } catch (err) {
-      console.warn('[MapaAI] fallback mock:', err.message);
-      return null;
+      console.error('[MapaAI] gerarConteudo:', err.message);
+      throw err;
     }
   },
 };
@@ -99,9 +94,9 @@ const MapaPage = {
     Sidebar.init();
 
     this._boundMove = (e) => this._onDocMove(e);
-    this._boundUp   = (e) => this._onDocUp(e);
-    document.addEventListener('pointermove',   this._boundMove, { passive: false });
-    document.addEventListener('pointerup',     this._boundUp);
+    this._boundUp = (e) => this._onDocUp(e);
+    document.addEventListener('pointermove', this._boundMove, { passive: false });
+    document.addEventListener('pointerup', this._boundUp);
     document.addEventListener('pointercancel', this._boundUp);
 
     document.addEventListener('click', (e) => {
@@ -120,11 +115,11 @@ const MapaPage = {
   goStep(n) {
     this.step = n;
     for (let i = 1; i <= 5; i++) {
-      const dot  = document.getElementById('mdot' + i);
+      const dot = document.getElementById('mdot' + i);
       const pane = document.getElementById('mpane' + i);
       if (!dot || !pane) continue;
       dot.classList.remove('active', 'done');
-      if (i < n)        dot.classList.add('done');
+      if (i < n) dot.classList.add('done');
       else if (i === n) dot.classList.add('active');
       pane.classList.toggle('active', i === n);
     }
@@ -173,11 +168,11 @@ const MapaPage = {
 
   async avancar1() {
     const materiaEl = document.getElementById('mp-materia');
-    const tituloEl  = document.getElementById('mp-titulo');
+    const tituloEl = document.getElementById('mp-titulo');
     if (!materiaEl.value.trim()) { DOM.markError(materiaEl); return; }
-    if (!tituloEl.value.trim())  { DOM.markError(tituloEl);  return; }
-    this.materia   = Helpers.titleCase(materiaEl.value.trim());
-    this.titulo    = tituloEl.value.trim();
+    if (!tituloEl.value.trim()) { DOM.markError(tituloEl); return; }
+    this.materia = Helpers.titleCase(materiaEl.value.trim());
+    this.titulo = tituloEl.value.trim();
     this.numTopics = parseInt(document.getElementById('mp-num').value) || 5;
 
     if (this.modo === 'manual') {
@@ -200,15 +195,15 @@ const MapaPage = {
     Modal.showLoading('IA analisando o tema…', 'Mapeando tópicos para "' + this.titulo + '"');
     try {
       this.topicos = await AI1.gerarTopicos(this.materia, this.titulo, 'medio');
+      this._renderTopicos();
+      this.goStep(2);
     } catch (err) {
-      console.warn('[MapaAI] fallback:', err.message);
-      this.topicos = Mock.topicSuggestions.slice(0, this.numTopics).map(txt => ({ txt, on: true }));
+      console.error('[MapaAI] gerarTopicos:', err.message);
+      alert('Erro ao gerar tópicos: ' + err.message);
     } finally {
       Modal.hideLoading();
       if (btn) btn.disabled = false;
     }
-    this._renderTopicos();
-    this.goStep(2);
   },
 
   _renderTopicos() {
@@ -235,8 +230,8 @@ const MapaPage = {
 
   _updateTopicMeter() {
     const sel = this.topicos.filter(t => t.on).length;
-    const e1  = document.getElementById('mp-topic-count');
-    const e2  = document.getElementById('mp-topic-total');
+    const e1 = document.getElementById('mp-topic-count');
+    const e2 = document.getElementById('mp-topic-total');
     if (e1) e1.textContent = sel;
     if (e2) e2.textContent = this.topicos.length;
     const btn = document.getElementById('mp-btn-aprovar');
@@ -245,9 +240,9 @@ const MapaPage = {
 
   _checkTopicsWarning() {
     const sel = this.topicos.filter(t => t.on).length;
-    const av  = document.getElementById('mp-topics-aviso');
+    const av = document.getElementById('mp-topics-aviso');
     if (!av) return;
-    if (sel < 2)  { av.style.display = 'block'; av.textContent = 'Selecione pelo menos 2 tópicos para continuar.'; }
+    if (sel < 2) { av.style.display = 'block'; av.textContent = 'Selecione pelo menos 2 tópicos para continuar.'; }
     else if (sel > 10) { av.style.display = 'block'; av.textContent = sel + ' tópicos — recomendamos no máximo 10.'; }
     else av.style.display = 'none';
   },
@@ -259,7 +254,7 @@ const MapaPage = {
     const btn = document.getElementById('mp-btn-add');
     if (btn) btn.disabled = true;
     Modal.showLoading('IA verificando…', 'Analisando "' + txt + '"');
-    try { await AI1.verificarTopico(txt, this.materia, this.titulo, this.topicos, 'medio'); } catch (_) {}
+    try { await AI1.verificarTopico(txt, this.materia, this.titulo, this.topicos, 'medio'); } catch (err) { console.warn('[MapaAI] verificarTopico:', err.message); }
     Modal.hideLoading();
     if (btn) btn.disabled = false;
     this.topicos.push({ txt, on: true });
@@ -278,15 +273,15 @@ const MapaPage = {
 
   /* ── Canvas scale — sem scrollbar horizontal ── */
   _scaleCanvas(canvasId, wrapId) {
-    const wrap   = document.getElementById(wrapId);
+    const wrap = document.getElementById(wrapId);
     const canvas = document.getElementById(canvasId);
     if (!wrap || !canvas) return;
-    const pad   = 24;
+    const pad = 24;
     const scale = (wrap.clientWidth - pad) / 900;
-    canvas.style.transform  = 'scale(' + scale + ')';
+    canvas.style.transform = 'scale(' + scale + ')';
     canvas.style.marginLeft = ((wrap.clientWidth - 900 * scale) / 2) + 'px';
-    canvas.style.marginTop  = (pad / 2) + 'px';
-    wrap.style.height       = (636 * scale + pad) + 'px';
+    canvas.style.marginTop = (pad / 2) + 'px';
+    wrap.style.height = (636 * scale + pad) + 'px';
     this._canvasScale = scale;
   },
 
@@ -297,8 +292,8 @@ const MapaPage = {
 
     const W = 900, H = 636, cx = W / 2, cy = H / 2;
     const selected = this.topicos.filter(t => t.on);
-    const nodeW    = mpClamp(Math.floor(W / (selected.length + 1.5)), 90, 175);
-    const nodeH    = 72;
+    const nodeW = mpClamp(Math.floor(W / (selected.length + 1.5)), 90, 175);
+    const nodeH = 72;
 
     this.nodes = [
       { id: 'center', label: this.titulo, x: 0, y: 0, w: nodeW + 30, h: nodeH + 8, isCenter: true },
@@ -319,7 +314,7 @@ const MapaPage = {
     const el = document.createElement('div');
     el.className = 'mp-node' + (node.isCenter ? ' mp-node--center' : '');
     el.dataset.nodeId = node.id;
-    el.style.cssText  = 'left:' + node.x + 'px;top:' + node.y + 'px;width:' + node.w + 'px;height:' + node.h + 'px';
+    el.style.cssText = 'left:' + node.x + 'px;top:' + node.y + 'px;width:' + node.w + 'px;height:' + node.h + 'px';
 
     if (node.isCenter) {
       /* Centro: sem header separado — apenas label centralizado no nó inteiro */
@@ -358,12 +353,12 @@ const MapaPage = {
           origX: node.x, origY: node.y, origW: node.w, origH: node.h,
         };
       } else {
-        const scale  = this._canvasScale || 1;
-        const rect   = canvas.getBoundingClientRect();
-        this._drag   = {
-          nodeId:  node.id,
+        const scale = this._canvasScale || 1;
+        const rect = canvas.getBoundingClientRect();
+        this._drag = {
+          nodeId: node.id,
           offsetX: (e.clientX - rect.left) / scale - node.x,
-          offsetY: (e.clientY - rect.top)  / scale - node.y,
+          offsetY: (e.clientY - rect.top) / scale - node.y,
         };
         el.classList.add('dragging');
       }
@@ -377,10 +372,10 @@ const MapaPage = {
     e.preventDefault();
     const canvas = document.getElementById('mp-canvas');
     if (!canvas) return;
-    const scale  = this._canvasScale || 1;
-    const rect   = canvas.getBoundingClientRect();
-    const mx     = (e.clientX - rect.left)  / scale;
-    const my     = (e.clientY - rect.top)   / scale;
+    const scale = this._canvasScale || 1;
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) / scale;
+    const my = (e.clientY - rect.top) / scale;
     const W = 900, H = 636;
 
     if (this._drag) {
@@ -394,7 +389,7 @@ const MapaPage = {
     }
 
     if (this._resize) {
-      const r    = this._resize;
+      const r = this._resize;
       const node = this.nodes.find(n => n.id === r.nodeId);
       if (!node) return;
       const dx = (e.clientX - r.startX) / scale;
@@ -414,7 +409,7 @@ const MapaPage = {
 
       const el = canvas.querySelector('[data-node-id="' + node.id + '"]');
       if (el) {
-        el.style.left = node.x + 'px'; el.style.top  = node.y + 'px';
+        el.style.left = node.x + 'px'; el.style.top = node.y + 'px';
         el.style.width = node.w + 'px'; el.style.height = node.h + 'px';
       }
       this._redrawLines('mp-canvas-svg');
@@ -425,12 +420,12 @@ const MapaPage = {
     const canvas = document.getElementById('mp-canvas');
     if (this._drag && canvas) {
       const el = canvas.querySelector('[data-node-id="' + this._drag.nodeId + '"]');
-      if (el) { el.classList.remove('dragging'); try { el.releasePointerCapture(e.pointerId); } catch(_){} }
+      if (el) { el.classList.remove('dragging'); try { el.releasePointerCapture(e.pointerId); } catch (_) { } }
       this._drag = null;
     }
     if (this._resize && canvas) {
       const el = canvas.querySelector('[data-node-id="' + this._resize.nodeId + '"]');
-      if (el) { try { el.releasePointerCapture(e.pointerId); } catch(_){} }
+      if (el) { try { el.releasePointerCapture(e.pointerId); } catch (_) { } }
       this._resize = null;
     }
     if (canvas) this._checkWarnings();
@@ -450,7 +445,7 @@ const MapaPage = {
     svg.appendChild(defs);
 
     this.nodes.filter(n => !n.isCenter).forEach(n => {
-      const tx  = n.x + n.w / 2, ty = n.y + n.h / 2;
+      const tx = n.x + n.w / 2, ty = n.y + n.h / 2;
       const ang = Math.atan2(ty - cy, tx - cx);
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       line.setAttribute('x1', cx); line.setAttribute('y1', cy);
@@ -515,7 +510,7 @@ const MapaPage = {
     anchorEl.classList.add('mp-node--selected-ordem');
     this._dropdownNodeId = nodeId;
 
-    const dd    = document.getElementById('mp-ordem-dropdown');
+    const dd = document.getElementById('mp-ordem-dropdown');
     const inner = document.getElementById('mp-ordem-list');
     inner.innerHTML = '<div class="mp-ordem-header">Escolha o tópico</div>';
 
@@ -535,7 +530,7 @@ const MapaPage = {
     /* Posição do dropdown — abaixo do nó (já está escalado, usar getBoundingClientRect) */
     const rect = anchorEl.getBoundingClientRect();
     dd.style.display = 'block';
-    dd.style.top  = (rect.bottom + 6) + 'px';
+    dd.style.top = (rect.bottom + 6) + 'px';
     dd.style.left = mpClamp(rect.left, 8, window.innerWidth - 250) + 'px';
   },
 
@@ -548,7 +543,7 @@ const MapaPage = {
 
   _assignTopic(nodeId, txt) {
     const target = this.nodes.find(n => n.id === nodeId);
-    const other  = this.nodes.find(n => n.label === txt && n.id !== nodeId && !n.isCenter);
+    const other = this.nodes.find(n => n.label === txt && n.id !== nodeId && !n.isCenter);
     if (!target) return;
     if (other) {
       other.label = target.label;
@@ -567,9 +562,14 @@ const MapaPage = {
     if (!online) { Modal.hideLoading(); return; }
     Modal.showLoading('IA gerando conteúdo…', 'Preenchendo cada nó do mapa');
     const topicos = this.nodes.filter(n => !n.isCenter).map(n => n.label);
-    this.aiContent = await MapaAI.gerarConteudo(this.materia, this.titulo, topicos);
-    Modal.hideLoading();
-    this.goStep(5);
+    try {
+      this.aiContent = await MapaAI.gerarConteudo(this.materia, this.titulo, topicos);
+      this.goStep(5);
+    } catch (err) {
+      alert('Erro ao gerar conteúdo: ' + err.message);
+    } finally {
+      Modal.hideLoading();
+    }
   },
 
   _renderResult() {
@@ -583,17 +583,17 @@ const MapaPage = {
       header.innerHTML =
         '<span class="badge badge-accent" style="font-size:11px">Gerado por IA</span>' +
         '<h2 style="font-family:var(--font-serif);font-size:22px;font-weight:600;color:var(--text);margin:8px 0 4px">' +
-          this.titulo + ' <em style="font-size:16px;color:var(--caramel)">(' + this.materia + ')</em></h2>' +
+        this.titulo + ' <em style="font-size:16px;color:var(--caramel)">(' + this.materia + ')</em></h2>' +
         '<p style="font-size:13px;color:var(--text-mid);margin:0">' +
-          this.nodes.filter(n => !n.isCenter).length + ' nós · ' +
-          new Date().toLocaleDateString('pt-BR') + ' · Template: ' + this.template + '</p>';
+        this.nodes.filter(n => !n.isCenter).length + ' nós · ' +
+        new Date().toLocaleDateString('pt-BR') + ' · Template: ' + this.template + '</p>';
     }
 
     this.nodes.forEach(n => {
       const el = document.createElement('div');
       el.className = 'mp-node mp-node--result' + (n.isCenter ? ' mp-node--center' : '');
       el.dataset.nodeId = n.id;
-      el.style.cssText  = 'left:' + n.x + 'px;top:' + n.y + 'px;width:' + n.w + 'px;height:' + n.h + 'px';
+      el.style.cssText = 'left:' + n.x + 'px;top:' + n.y + 'px;width:' + n.w + 'px;height:' + n.h + 'px';
 
       let body;
       if (n.isCenter) {
@@ -601,12 +601,12 @@ const MapaPage = {
         body = '<div class="mp-node__center-label">' + n.label + '</div>';
       } else if ((n.w * n.h) < 4000) {
         body = '<div class="mp-node__header">' + n.label + '</div>' +
-               '<div class="mp-node__body mp-node--result-insufficient">Espaço insuf.</div>';
+          '<div class="mp-node__body mp-node--result-insufficient">Espaço insuf.</div>';
       } else {
         /* Truncagem baseada no espaço visual real:
            header ~30px, corpo = H-30, line-height ~16px, charWidth ~6px */
-        const bodyH    = Math.max(0, n.h - 30);
-        const lines    = Math.floor(bodyH / 16);
+        const bodyH = Math.max(0, n.h - 30);
+        const lines = Math.floor(bodyH / 16);
         const charsPerLine = Math.floor(n.w / 6.2);
         const maxChars = Math.max(10, lines * charsPerLine);
 
@@ -616,7 +616,7 @@ const MapaPage = {
         if (texto.length > maxChars) texto = texto.slice(0, maxChars - 1) + '…';
 
         body = '<div class="mp-node__header">' + n.label + '</div>' +
-               '<div class="mp-node__body" contenteditable="true" title="Duplo clique para editar">' + texto + '</div>';
+          '<div class="mp-node__body" contenteditable="true" title="Duplo clique para editar">' + texto + '</div>';
       }
 
       el.innerHTML = body;
@@ -634,10 +634,12 @@ const MapaPage = {
     try {
       const subjects = Storage.getSubjects();
       const nomaNorm = Helpers.normalizeSubjectName(this.materia);
-      let subject    = subjects.find(s => s.nomeNormalizado?.toLowerCase() === nomaNorm.toLowerCase());
+      let subject = subjects.find(s => s.nomeNormalizado?.toLowerCase() === nomaNorm.toLowerCase());
       if (!subject) {
-        subject = { id: 'sub_' + Date.now(), nomeOriginal: this.materia, nomeNormalizado: nomaNorm,
-          favorita: false, criadaEm: new Date().toISOString(), folhas: [], mapas: [] };
+        subject = {
+          id: 'sub_' + Date.now(), nomeOriginal: this.materia, nomeNormalizado: nomaNorm,
+          favorita: false, criadaEm: new Date().toISOString(), folhas: [], mapas: []
+        };
         subjects.push(subject);
       }
       if (!subject.mapas) subject.mapas = [];
