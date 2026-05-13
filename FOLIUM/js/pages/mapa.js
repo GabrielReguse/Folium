@@ -157,6 +157,7 @@ const MapaPage = {
   _boundUp: null,
   _lineRedrawFrame: null,
   _pendingLineRedraw: null,
+  _mobileFullscreen: null,
 
   init() {
     if (!Router.requireAuth()) return;
@@ -181,9 +182,18 @@ const MapaPage = {
     });
 
     window.addEventListener("resize", () => {
+      if (this._mobileFullscreen) {
+        this._layoutMobileFullscreen();
+        return;
+      }
       if (this.step === 4) this._scaleCanvas("mp-canvas", "mp-canvas-wrap");
       if (this.step === 5)
         this._scaleCanvas("mp-result-canvas", "mp-result-wrap");
+    });
+    window.addEventListener("orientationchange", () => {
+      setTimeout(() => {
+        if (this._mobileFullscreen) this._layoutMobileFullscreen();
+      }, 140);
     });
 
     this.goStep(1);
@@ -460,13 +470,184 @@ const MapaPage = {
     const wrap = document.getElementById(wrapId);
     const canvas = document.getElementById(canvasId);
     if (!wrap || !canvas) return;
+    if (this._mobileFullscreen?.canvas === canvas) {
+      this._layoutMobileFullscreen();
+      return;
+    }
     const pad = 24;
-    const scale = (wrap.clientWidth - pad) / MP_CANVAS_W;
+    const availableW = Math.max(160, wrap.clientWidth - pad);
+    const scale = availableW / MP_CANVAS_W;
+    canvas.style.transformOrigin = "top left";
     canvas.style.transform = "scale(" + scale + ")";
     canvas.style.marginLeft = (wrap.clientWidth - MP_CANVAS_W * scale) / 2 + "px";
     canvas.style.marginTop = pad / 2 + "px";
     wrap.style.height = MP_CANVAS_H * scale + pad + "px";
     this._canvasScale = scale;
+  },
+
+  openMobileFullscreen(mode) {
+    const overlay = document.getElementById("mp-mobile-fullscreen");
+    const stage = document.getElementById("mp-mobile-fullscreen-stage");
+    const isResult = mode === "result";
+    const canvasId = isResult ? "mp-result-canvas" : "mp-canvas";
+    const canvas = document.getElementById(canvasId);
+    if (!overlay || !stage || !canvas) return;
+
+    if (this._mobileFullscreen) this.closeMobileFullscreen({ skipExit: true });
+    this._closeDropdown();
+
+    this._mobileFullscreen = {
+      mode: isResult ? "result" : "editor",
+      canvasId,
+      canvas,
+      parent: canvas.parentNode,
+      nextSibling: canvas.nextSibling,
+      scale: 1,
+      rotated: false,
+      stageW: MP_CANVAS_W,
+      stageH: MP_CANVAS_H,
+    };
+
+    stage.innerHTML = "";
+    stage.appendChild(canvas);
+    canvas.classList.add("mp-canvas--mobile-fullscreen");
+    canvas.style.marginLeft = "0px";
+    canvas.style.marginTop = "0px";
+    overlay.dataset.mode = this._mobileFullscreen.mode;
+    overlay.classList.add("active");
+    overlay.setAttribute("aria-hidden", "false");
+    document.body.classList.add("mp-mobile-fullscreen-open");
+
+    this._syncFullscreenModeButtons();
+    this._layoutMobileFullscreen();
+    requestAnimationFrame(() => this._layoutMobileFullscreen());
+
+    if (overlay.requestFullscreen && !document.fullscreenElement) {
+      overlay.requestFullscreen().catch(() => {});
+    }
+    if (screen.orientation?.lock && window.innerWidth < window.innerHeight) {
+      screen.orientation.lock("landscape").catch(() => {});
+    }
+  },
+
+  closeMobileFullscreen(options = {}) {
+    const state = this._mobileFullscreen;
+    if (!state) return;
+    const overlay = document.getElementById("mp-mobile-fullscreen");
+    const stage = document.getElementById("mp-mobile-fullscreen-stage");
+
+    state.canvas.classList.remove("mp-canvas--mobile-fullscreen");
+    state.canvas.style.transformOrigin = "top left";
+    state.canvas.style.marginLeft = "";
+    state.canvas.style.marginTop = "";
+    state.canvas.style.transform = "";
+    state.parent.insertBefore(state.canvas, state.nextSibling || null);
+    if (stage) stage.innerHTML = "";
+
+    if (overlay) {
+      overlay.classList.remove("active");
+      overlay.setAttribute("aria-hidden", "true");
+      overlay.dataset.mode = "";
+    }
+    document.body.classList.remove("mp-mobile-fullscreen-open");
+    this._mobileFullscreen = null;
+    this._closeDropdown();
+
+    if (state.mode === "editor") {
+      this._scaleCanvas("mp-canvas", "mp-canvas-wrap");
+      this._redrawLines("mp-canvas-svg", { fast: false });
+      this._checkWarnings();
+    } else {
+      this._scaleCanvas("mp-result-canvas", "mp-result-wrap");
+      this._redrawLines("mp-result-svg", { fast: false });
+    }
+
+    if (!options.skipExit && document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+    if (screen.orientation?.unlock) {
+      try {
+        screen.orientation.unlock();
+      } catch (_) {}
+    }
+  },
+
+  _layoutMobileFullscreen() {
+    const state = this._mobileFullscreen;
+    const stage = document.getElementById("mp-mobile-fullscreen-stage");
+    if (!state || !stage) return;
+
+    const vw = Math.max(1, window.innerWidth);
+    const vh = Math.max(1, window.innerHeight);
+    const rotated = vw < vh;
+    const stageW = rotated ? vh : vw;
+    const stageH = rotated ? vw : vh;
+    const pad = 20;
+    const scale = Math.min(
+      (stageW - pad * 2) / MP_CANVAS_W,
+      (stageH - pad * 2) / MP_CANVAS_H,
+    );
+    const safeScale = Math.max(0.18, scale);
+
+    stage.style.width = stageW + "px";
+    stage.style.height = stageH + "px";
+    stage.style.transform =
+      "translate(-50%, -50%)" + (rotated ? " rotate(90deg)" : "");
+
+    state.canvas.style.transformOrigin = "center center";
+    state.canvas.style.transform = "scale(" + safeScale + ")";
+    state.canvas.style.marginLeft = "0px";
+    state.canvas.style.marginTop = "0px";
+
+    state.scale = safeScale;
+    state.rotated = rotated;
+    state.stageW = stageW;
+    state.stageH = stageH;
+    this._canvasScale = safeScale;
+  },
+
+  _syncFullscreenModeButtons() {
+    document
+      .getElementById("mp-fs-mode-ordem")
+      ?.classList.toggle("active", this.editorMode === "ordem");
+    document
+      .getElementById("mp-fs-mode-layout")
+      ?.classList.toggle("active", this.editorMode === "layout");
+  },
+
+  _clientToCanvasPoint(canvas, clientX, clientY) {
+    const state = this._mobileFullscreen;
+    if (state?.canvas === canvas) {
+      const vw = Math.max(1, window.innerWidth);
+      const vh = Math.max(1, window.innerHeight);
+      let stageX;
+      let stageY;
+
+      if (state.rotated) {
+        const dx = clientX - vw / 2;
+        const dy = clientY - vh / 2;
+        stageX = state.stageW / 2 + dy;
+        stageY = state.stageH / 2 - dx;
+      } else {
+        stageX = clientX - (vw - state.stageW) / 2;
+        stageY = clientY - (vh - state.stageH) / 2;
+      }
+
+      const canvasLeft = (state.stageW - MP_CANVAS_W) / 2;
+      const canvasTop = (state.stageH - MP_CANVAS_H) / 2;
+      const scale = state.scale || 1;
+      return {
+        x: MP_CANVAS_W / 2 + (stageX - canvasLeft - MP_CANVAS_W / 2) / scale,
+        y: MP_CANVAS_H / 2 + (stageY - canvasTop - MP_CANVAS_H / 2) / scale,
+      };
+    }
+
+    const scale = this._canvasScale || 1;
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left) / scale,
+      y: (clientY - rect.top) / scale,
+    };
   },
 
   _initEditor() {
@@ -633,24 +814,23 @@ const MapaPage = {
       e.stopPropagation();
       el.setPointerCapture(e.pointerId);
 
+      const point = this._clientToCanvasPoint(canvas, e.clientX, e.clientY);
       if (handle) {
         this._resize = {
           nodeId: node.id,
           dir: handle.dataset.dir,
-          startX: e.clientX,
-          startY: e.clientY,
+          startX: point.x,
+          startY: point.y,
           origX: node.x,
           origY: node.y,
           origW: node.w,
           origH: node.h,
         };
       } else {
-        const scale = this._canvasScale || 1;
-        const rect = canvas.getBoundingClientRect();
         this._drag = {
           nodeId: node.id,
-          offsetX: (e.clientX - rect.left) / scale - node.x,
-          offsetY: (e.clientY - rect.top) / scale - node.y,
+          offsetX: point.x - node.x,
+          offsetY: point.y - node.y,
         };
         el.classList.add("dragging");
       }
@@ -664,10 +844,9 @@ const MapaPage = {
     e.preventDefault();
     const canvas = document.getElementById("mp-canvas");
     if (!canvas) return;
-    const scale = this._canvasScale || 1;
-    const rect = canvas.getBoundingClientRect();
-    const mx = (e.clientX - rect.left) / scale;
-    const my = (e.clientY - rect.top) / scale;
+    const point = this._clientToCanvasPoint(canvas, e.clientX, e.clientY);
+    const mx = point.x;
+    const my = point.y;
     const W = MP_CANVAS_W,
       H = MP_CANVAS_H;
 
@@ -696,8 +875,8 @@ const MapaPage = {
       const r = this._resize;
       const node = this.nodes.find((n) => n.id === r.nodeId);
       if (!node) return;
-      const dx = (e.clientX - r.startX) / scale;
-      const dy = (e.clientY - r.startY) / scale;
+      const dx = mx - r.startX;
+      const dy = my - r.startY;
       const MIN_W = 80,
         MIN_H = 50;
       let nx = r.origX,
@@ -1866,12 +2045,20 @@ const MapaPage = {
     this.editorMode = mode;
     document
       .getElementById("mp-mode-ordem")
-      .classList.toggle("active", mode === "ordem");
+      ?.classList.toggle("active", mode === "ordem");
     document
       .getElementById("mp-mode-layout")
-      .classList.toggle("active", mode === "layout");
+      ?.classList.toggle("active", mode === "layout");
     const canvas = document.getElementById("mp-canvas");
-    if (canvas) canvas.className = "mp-canvas mp-editor--" + mode;
+    if (canvas) {
+      const fullscreenClass = canvas.classList.contains(
+        "mp-canvas--mobile-fullscreen",
+      )
+        ? " mp-canvas--mobile-fullscreen"
+        : "";
+      canvas.className = "mp-canvas mp-editor--" + mode + fullscreenClass;
+    }
+    this._syncFullscreenModeButtons();
     this._updateHint();
     this._closeDropdown();
   },
@@ -2080,6 +2267,7 @@ const MapaPage = {
   },
 
   async salvarMapa() {
+    if (this._mobileFullscreen) this.closeMobileFullscreen();
     Modal.showLoading("Salvando…", "Adicionando à biblioteca");
     try {
       const subjects = Storage.getSubjects();

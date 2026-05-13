@@ -1049,6 +1049,14 @@
                 </div>
               </div>
 
+              <button
+                class="mp-mobile-open-btn"
+                onclick="MapaPage.openMobileFullscreen('editor')"
+                type="button"
+              >
+                Abrir editor em tela cheia
+              </button>
+
               <div class="mp-canvas-wrap" id="mp-canvas-wrap">
                 <div class="mp-canvas" id="mp-canvas">
                   <svg
@@ -1105,6 +1113,14 @@
           <section class="step-pane cr-pane cr-pane-wide" id="mpane5">
             <div class="cr-card mp-result-card">
               <div id="mp-result-header"></div>
+              <button
+                class="mp-mobile-open-btn mp-mobile-open-btn--result"
+                onclick="MapaPage.openMobileFullscreen('result')"
+                type="button"
+              >
+                Abrir preview em tela cheia
+              </button>
+
               <div
                 class="mp-canvas-wrap mp-canvas-wrap--result"
                 id="mp-result-wrap"
@@ -1166,6 +1182,67 @@
 
     <div id="mp-ordem-dropdown" class="mp-ordem-dropdown" style="display: none">
       <div class="mp-ordem-dropdown__inner" id="mp-ordem-list"></div>
+    </div>
+
+    <div
+      id="mp-mobile-fullscreen"
+      class="mp-mobile-fullscreen"
+      aria-hidden="true"
+      data-mode=""
+    >
+      <div class="mp-mobile-fullscreen__top">
+        <button
+          class="mp-mobile-fullscreen__close"
+          onclick="MapaPage.closeMobileFullscreen()"
+          type="button"
+          aria-label="Fechar tela cheia"
+        >
+          ×
+        </button>
+        <div
+          class="mp-mobile-fullscreen__actions mp-mobile-fullscreen__actions--editor"
+          aria-label="Opções do editor"
+        >
+          <button
+            class="mp-mobile-fullscreen__btn"
+            id="mp-fs-mode-ordem"
+            onclick="MapaPage.setEditorMode('ordem')"
+            type="button"
+          >
+            Ordem
+          </button>
+          <button
+            class="mp-mobile-fullscreen__btn"
+            id="mp-fs-mode-layout"
+            onclick="MapaPage.setEditorMode('layout')"
+            type="button"
+          >
+            Layout
+          </button>
+        </div>
+        <div
+          class="mp-mobile-fullscreen__actions mp-mobile-fullscreen__actions--result"
+          aria-label="Opções do preview"
+        >
+          <button
+            class="mp-mobile-fullscreen__btn"
+            onclick="MapaPage.closeMobileFullscreen(); MapaPage.goStep(4)"
+            type="button"
+          >
+            Editar
+          </button>
+          <button
+            class="mp-mobile-fullscreen__btn mp-mobile-fullscreen__btn--primary"
+            onclick="MapaPage.salvarMapa()"
+            type="button"
+          >
+            Salvar
+          </button>
+        </div>
+      </div>
+      <div class="mp-mobile-fullscreen__viewport">
+        <div id="mp-mobile-fullscreen-stage" class="mp-mobile-fullscreen__stage"></div>
+      </div>
     </div>
 
     <script src="../js/config.js"></script>
