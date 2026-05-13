@@ -466,3 +466,113 @@
   border-top: 1px dashed var(--caramel);
   background: #fffff8;
 }
+
+/* Intro do stepper do mapa: mesma animacao da criacao de folha,
+   estendida para 5 etapas (#mdot1..5 / #mln1..4). */
+#mapa-stepper.cs-anim-init #mdot1 .cs-num {
+  border-color: transparent;
+  background: transparent;
+  color: transparent;
+  transform: scale(0.4);
+  animation:
+    csBorderGrow 0.30s 0.00s cubic-bezier(.6,0,.3,1.3) forwards,
+    csFillCaramel 0.28s 0.40s ease-out forwards,
+    csNumReveal 0.20s 0.60s ease-out forwards;
+}
+#mapa-stepper.cs-anim-init #mdot1 .cs-label {
+  opacity: 0;
+  color: var(--caramel);
+  animation: csLabelFadeIn 0.25s 0.75s ease-out forwards;
+}
+
+#mapa-stepper.cs-anim-init #mln1 {
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--tan), var(--caramel));
+  animation: csLineDraw 0.45s 0.88s cubic-bezier(.5,0,.4,1) forwards;
+}
+
+#mapa-stepper.cs-anim-init #mdot2 .cs-num {
+  border-color: transparent;
+  background: transparent;
+  color: transparent;
+  transform: scale(0.4);
+  animation:
+    csBorderGrow 0.30s 1.40s cubic-bezier(.6,0,.3,1.3) forwards,
+    csFillLinen 0.28s 1.75s ease-out forwards,
+    csNumRevealLight 0.20s 1.90s ease-out forwards;
+}
+#mapa-stepper.cs-anim-init #mdot2 .cs-label {
+  opacity: 0;
+  color: var(--text-mid);
+  animation: csLabelFadeIn 0.25s 2.05s ease-out forwards;
+}
+
+#mapa-stepper.cs-anim-init #mln2 {
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--tan), var(--caramel));
+  animation: csLineDraw 0.45s 2.18s cubic-bezier(.5,0,.4,1) forwards;
+}
+
+#mapa-stepper.cs-anim-init #mdot3 .cs-num {
+  border-color: transparent;
+  background: transparent;
+  color: transparent;
+  transform: scale(0.4);
+  animation:
+    csBorderGrow 0.30s 2.70s cubic-bezier(.6,0,.3,1.3) forwards,
+    csFillLinen 0.28s 3.05s ease-out forwards,
+    csNumRevealLight 0.20s 3.20s ease-out forwards;
+}
+#mapa-stepper.cs-anim-init #mdot3 .cs-label {
+  opacity: 0;
+  color: var(--text-mid);
+  animation: csLabelFadeIn 0.25s 3.30s ease-out forwards;
+}
+
+#mapa-stepper.cs-anim-init #mln3 {
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--tan), var(--caramel));
+  animation: csLineDraw 0.45s 3.43s cubic-bezier(.5,0,.4,1) forwards;
+}
+
+#mapa-stepper.cs-anim-init #mdot4 .cs-num {
+  border-color: transparent;
+  background: transparent;
+  color: transparent;
+  transform: scale(0.4);
+  animation:
+    csBorderGrow 0.30s 3.95s cubic-bezier(.6,0,.3,1.3) forwards,
+    csFillLinen 0.28s 4.30s ease-out forwards,
+    csNumRevealLight 0.20s 4.45s ease-out forwards;
+}
+#mapa-stepper.cs-anim-init #mdot4 .cs-label {
+  opacity: 0;
+  color: var(--text-mid);
+  animation: csLabelFadeIn 0.25s 4.55s ease-out forwards;
+}
+
+#mapa-stepper.cs-anim-init #mln4 {
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--tan), var(--caramel));
+  animation: csLineDraw 0.45s 4.68s cubic-bezier(.5,0,.4,1) forwards;
+}
+
+#mapa-stepper.cs-anim-init #mdot5 .cs-num {
+  border-color: transparent;
+  background: transparent;
+  color: transparent;
+  transform: scale(0.4);
+  animation:
+    csBorderGrow 0.30s 5.20s cubic-bezier(.6,0,.3,1.3) forwards,
+    csFillLinen 0.28s 5.55s ease-out forwards,
+    csNumRevealLight 0.20s 5.70s ease-out forwards;
+}
+#mapa-stepper.cs-anim-init #mdot5 .cs-label {
+  opacity: 0;
+  color: var(--text-mid);
+  animation: csLabelFadeIn 0.25s 5.80s ease-out forwards;
+}
