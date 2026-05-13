@@ -89,7 +89,11 @@ const MapaPage = {
 
   init() {
     if (!Router.requireAuth()) return;
-    Navbar.renderTop({ title: '<em>Mapa Mental</em>' });
+    Navbar.renderTop({
+      backRoute: 'escolher',
+      backLabel: 'Escolher',
+      title: '<em>Mapa Mental</em>',
+    });
     Navbar.renderBottom('escolher');
     Sidebar.init();
 
