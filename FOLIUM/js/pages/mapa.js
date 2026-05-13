@@ -27,11 +27,19 @@ const MOCK_MAP_CONTENT = {
   },
 };
 
+const MP_CANVAS_W = 900;
+const MP_CANVAS_H = 636;
+const MP_CONNECTOR_GAP = 10;
+const MP_ROUTE_STEP = 10;
+const MP_NODE_MIN_W = 158;
+const MP_NODE_MAX_W = 220;
+const MP_NODE_DEFAULT_H = 96;
+
 const TPL_LAYOUTS = {
   radial(nodes, cx, cy, W, H) {
     nodes[0].x = cx - nodes[0].w / 2;
     nodes[0].y = cy - nodes[0].h / 2;
-    const r = Math.min(W, H) * 0.32;
+    const r = Math.min(W, H) * 0.36;
     nodes.slice(1).forEach((n, i) => {
       const angle = (2 * Math.PI * i) / nodes.slice(1).length - Math.PI / 2;
       n.x = mpClamp(cx + r * Math.cos(angle) - n.w / 2, 8, W - n.w - 8);
@@ -43,17 +51,23 @@ const TPL_LAYOUTS = {
     nodes[0].y = 28;
     const topics = nodes.slice(1);
     const cols = Math.ceil(Math.sqrt(topics.length));
-    const topicW = Math.min(160, (W - 16) / cols - 10);
-    const topicH = nodes[0].h;
-    const startY = nodes[0].y + nodes[0].h + 60;
-    const totalW = cols * (topicW + 10) - 10;
+    const gapX = 36;
+    const gapY = 54;
+    const topicW = mpClamp(
+      Math.floor((W - 16 - (cols - 1) * gapX) / cols),
+      150,
+      210,
+    );
+    const topicH = Math.max(MP_NODE_DEFAULT_H, nodes[0].h - 10);
+    const startY = nodes[0].y + nodes[0].h + 72;
+    const totalW = cols * topicW + (cols - 1) * gapX;
     const startX = (W - totalW) / 2;
     topics.forEach((n, i) => {
       n.w = topicW;
       n.h = topicH;
-      n.x = mpClamp(startX + (i % cols) * (topicW + 10), 8, W - n.w - 8);
+      n.x = mpClamp(startX + (i % cols) * (topicW + gapX), 8, W - n.w - 8);
       n.y = mpClamp(
-        startY + Math.floor(i / cols) * (topicH + 40),
+        startY + Math.floor(i / cols) * (topicH + gapY),
         8,
         H - n.h - 8,
       );
@@ -62,21 +76,35 @@ const TPL_LAYOUTS = {
   organico(nodes, cx, cy, W, H) {
     nodes[0].x = cx - nodes[0].w / 2;
     nodes[0].y = cy - nodes[0].h / 2;
-    const angles = [-2.2, -1.1, -0.1, 0.8, 1.6, 2.5, 3.3, 4.1, 5.0, 5.9];
-    const radii = [200, 230, 180, 220, 200, 210, 190, 215, 205, 195];
-    nodes.slice(1).forEach((n, i) => {
-      const a = angles[i % angles.length];
-      const r = radii[i % radii.length];
-      n.x = mpClamp(cx + r * Math.cos(a) - n.w / 2, 8, W - n.w - 8);
-      n.y = mpClamp(cy + r * Math.sin(a) - n.h / 2, 8, H - n.h - 8);
+    const topics = nodes.slice(1);
+    const rxBase = Math.min(W * 0.34, 310);
+    const ryBase = Math.min(H * 0.34, 230);
+    const wobble = [0, 28, -22, 18, -14, 25, -18, 12, -26, 20];
+    topics.forEach((n, i) => {
+      const count = Math.max(1, topics.length);
+      const a =
+        -Math.PI / 2 +
+        (2 * Math.PI * i) / count +
+        (i % 2 === 0 ? -0.08 : 0.12);
+      const rx = rxBase + wobble[i % wobble.length];
+      const ry = ryBase + wobble[(i + 3) % wobble.length] * 0.45;
+      n.x = mpClamp(cx + rx * Math.cos(a) - n.w / 2, 8, W - n.w - 8);
+      n.y = mpClamp(cy + ry * Math.sin(a) - n.h / 2, 8, H - n.h - 8);
     });
   },
   livre(nodes, cx, cy, W, H) {
     nodes[0].x = cx - nodes[0].w / 2;
     nodes[0].y = cy - nodes[0].h / 2;
-    nodes.slice(1).forEach((n, i) => {
-      n.x = 20 + (i % 4) * 50;
-      n.y = 20 + Math.floor(i / 4) * 40;
+    const topics = nodes.slice(1);
+    const pad = 24;
+    const rows = Math.max(1, Math.ceil(topics.length / 2));
+    topics.forEach((n, i) => {
+      const row = Math.floor(i / 2);
+      const rightSide = i % 2 === 1;
+      const availableY = H - pad * 2 - n.h;
+      const stepY = rows > 1 ? Math.min(n.h + 40, availableY / (rows - 1)) : 0;
+      n.x = rightSide ? W - pad - n.w : pad;
+      n.y = mpClamp(pad + row * stepY, 8, H - n.h - 8);
     });
   },
 };
@@ -427,11 +455,11 @@ const MapaPage = {
     const canvas = document.getElementById(canvasId);
     if (!wrap || !canvas) return;
     const pad = 24;
-    const scale = (wrap.clientWidth - pad) / 900;
+    const scale = (wrap.clientWidth - pad) / MP_CANVAS_W;
     canvas.style.transform = "scale(" + scale + ")";
-    canvas.style.marginLeft = (wrap.clientWidth - 900 * scale) / 2 + "px";
+    canvas.style.marginLeft = (wrap.clientWidth - MP_CANVAS_W * scale) / 2 + "px";
     canvas.style.marginTop = pad / 2 + "px";
-    wrap.style.height = 636 * scale + pad + "px";
+    wrap.style.height = MP_CANVAS_H * scale + pad + "px";
     this._canvasScale = scale;
   },
 
@@ -440,13 +468,18 @@ const MapaPage = {
     if (!canvas) return;
     canvas.querySelectorAll(".mp-node").forEach((el) => el.remove());
 
-    const W = 900,
-      H = 636,
+    const W = MP_CANVAS_W,
+      H = MP_CANVAS_H,
       cx = W / 2,
       cy = H / 2;
     const selected = this.topicos.filter((t) => t.on);
-    const nodeW = mpClamp(Math.floor(W / (selected.length + 1.5)), 90, 175);
-    const nodeH = 72;
+    const topicCount = Math.max(1, selected.length);
+    const nodeW = mpClamp(
+      Math.round(230 - topicCount * 6),
+      MP_NODE_MIN_W,
+      MP_NODE_MAX_W,
+    );
+    const nodeH = MP_NODE_DEFAULT_H;
 
     this.nodes = [
       {
@@ -454,8 +487,8 @@ const MapaPage = {
         label: this.titulo,
         x: 0,
         y: 0,
-        w: nodeW + 30,
-        h: nodeH + 8,
+        w: nodeW + 36,
+        h: nodeH + 12,
         isCenter: true,
       },
       ...selected.map((t, i) => ({
@@ -476,11 +509,75 @@ const MapaPage = {
       W,
       H,
     );
+    this._resolveNodeSpacing(W, H);
     this.nodes.forEach((n) => this._createNodeEl(canvas, n));
     this._redrawLines("mp-canvas-svg");
     canvas.className = "mp-canvas mp-editor--" + this.editorMode;
     this._updateHint();
     this._scaleCanvas("mp-canvas", "mp-canvas-wrap");
+  },
+
+  _resolveNodeSpacing(W, H) {
+    const margin = MP_CONNECTOR_GAP * 2;
+    const roomX = (node, direction) => {
+      if (node.isCenter) return 0;
+      return direction < 0
+        ? node.x - MP_CONNECTOR_GAP
+        : W - MP_CONNECTOR_GAP - (node.x + node.w);
+    };
+    const roomY = (node, direction) => {
+      if (node.isCenter) return 0;
+      return direction < 0
+        ? node.y - MP_CONNECTOR_GAP
+        : H - MP_CONNECTOR_GAP - (node.y + node.h);
+    };
+
+    for (let iter = 0; iter < 120; iter++) {
+      let moved = false;
+      for (let i = 0; i < this.nodes.length; i++) {
+        for (let j = i + 1; j < this.nodes.length; j++) {
+          const a = this.nodes[i];
+          const b = this.nodes[j];
+          const acx = a.x + a.w / 2;
+          const acy = a.y + a.h / 2;
+          const bcx = b.x + b.w / 2;
+          const bcy = b.y + b.h / 2;
+          const dx = bcx - acx || 0.01;
+          const dy = bcy - acy || 0.01;
+          const overlapX = a.w / 2 + b.w / 2 + margin - Math.abs(dx);
+          const overlapY = a.h / 2 + b.h / 2 + margin - Math.abs(dy);
+          if (overlapX <= 0 || overlapY <= 0) continue;
+
+          const xDir = Math.sign(dx);
+          const yDir = Math.sign(dy);
+          const roomForX = roomX(a, -xDir) + roomX(b, xDir);
+          const roomForY = roomY(a, -yDir) + roomY(b, yDir);
+          const pushX =
+            overlapX < overlapY
+              ? roomForX >= overlapX || roomForX >= roomForY
+              : !(roomForY >= overlapY || roomForY > roomForX);
+          const dir = pushX ? xDir : yDir;
+          const amount = (pushX ? overlapX : overlapY) / 2 + 0.5;
+          const moveA = a.isCenter ? 0 : b.isCenter ? 1 : 0.5;
+          const moveB = b.isCenter ? 0 : a.isCenter ? 1 : 0.5;
+
+          if (pushX) {
+            a.x -= dir * amount * moveA;
+            b.x += dir * amount * moveB;
+          } else {
+            a.y -= dir * amount * moveA;
+            b.y += dir * amount * moveB;
+          }
+          moved = true;
+        }
+      }
+
+      this.nodes.forEach((n) => {
+        n.x = mpClamp(n.x, MP_CONNECTOR_GAP, W - n.w - MP_CONNECTOR_GAP);
+        n.y = mpClamp(n.y, MP_CONNECTOR_GAP, H - n.h - MP_CONNECTOR_GAP);
+      });
+      if (!moved) break;
+    }
   },
 
   _createNodeEl(canvas, node) {
@@ -565,14 +662,22 @@ const MapaPage = {
     const rect = canvas.getBoundingClientRect();
     const mx = (e.clientX - rect.left) / scale;
     const my = (e.clientY - rect.top) / scale;
-    const W = 900,
-      H = 636;
+    const W = MP_CANVAS_W,
+      H = MP_CANVAS_H;
 
     if (this._drag) {
       const node = this.nodes.find((n) => n.id === this._drag.nodeId);
       if (!node) return;
-      node.x = mpClamp(mx - this._drag.offsetX, 0, W - node.w);
-      node.y = mpClamp(my - this._drag.offsetY, 0, H - node.h);
+      node.x = mpClamp(
+        mx - this._drag.offsetX,
+        MP_CONNECTOR_GAP,
+        W - node.w - MP_CONNECTOR_GAP,
+      );
+      node.y = mpClamp(
+        my - this._drag.offsetY,
+        MP_CONNECTOR_GAP,
+        H - node.h - MP_CONNECTOR_GAP,
+      );
       const el = canvas.querySelector('[data-node-id="' + node.id + '"]');
       if (el) {
         el.style.left = node.x + "px";
@@ -607,10 +712,10 @@ const MapaPage = {
         nh = r.origH - d;
       }
 
-      node.x = mpClamp(nx, 0, W - MIN_W);
-      node.y = mpClamp(ny, 0, H - MIN_H);
-      node.w = mpClamp(nw, MIN_W, W - node.x);
-      node.h = mpClamp(nh, MIN_H, H - node.y);
+      node.x = mpClamp(nx, MP_CONNECTOR_GAP, W - MIN_W - MP_CONNECTOR_GAP);
+      node.y = mpClamp(ny, MP_CONNECTOR_GAP, H - MIN_H - MP_CONNECTOR_GAP);
+      node.w = mpClamp(nw, MIN_W, W - node.x - MP_CONNECTOR_GAP);
+      node.h = mpClamp(nh, MIN_H, H - node.y - MP_CONNECTOR_GAP);
 
       const el = canvas.querySelector('[data-node-id="' + node.id + '"]');
       if (el) {
@@ -657,35 +762,528 @@ const MapaPage = {
     svg.innerHTML = "";
     const center = this.nodes.find((n) => n.isCenter);
     if (!center) return;
-    const cx = center.x + center.w / 2;
-    const cy = center.y + center.h / 2;
+    const topics = this.nodes.filter((n) => !n.isCenter);
 
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     defs.innerHTML =
       '<marker id="arr-' +
       svgId +
-      '" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="rgba(155,107,66,0.5)"/></marker>';
+      '" markerWidth="9" markerHeight="7" refX="8.5" refY="3.5" orient="auto"><polygon points="0 0,9 3.5,0 7" fill="rgba(155,107,66,0.58)"/></marker>';
     svg.appendChild(defs);
 
-    this.nodes
-      .filter((n) => !n.isCenter)
-      .forEach((n) => {
-        const tx = n.x + n.w / 2,
-          ty = n.y + n.h / 2;
-        const ang = Math.atan2(ty - cy, tx - cx);
-        const line = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "line",
+    const sides = { left: [], right: [], top: [], bottom: [] };
+    topics.forEach((node) => {
+      const side = this._connectionSide(center, node);
+      sides[side].push(node);
+    });
+
+    const routeMeta = new Map();
+    Object.entries(sides).forEach(([side, nodes]) => {
+      const isHorizontal = side === "left" || side === "right";
+      nodes
+        .sort((a, b) =>
+          isHorizontal
+            ? a.y + a.h / 2 - (b.y + b.h / 2)
+            : a.x + a.w / 2 - (b.x + b.w / 2),
+        )
+        .forEach((node, idx) => {
+          routeMeta.set(node.id, {
+            side,
+            slot: (idx + 1) / (nodes.length + 1),
+          });
+        });
+    });
+
+    const usedCells = new Set();
+    topics.forEach((node) => {
+      const meta = routeMeta.get(node.id) || {
+        side: this._connectionSide(center, node),
+        slot: 0.5,
+      };
+      const points = this._bestConnectorRoute(
+        center,
+        node,
+        meta.side,
+        meta.slot,
+        usedCells,
+      );
+
+      const path = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "path",
+      );
+      path.setAttribute("d", this._pathToD(points));
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", "rgba(155,107,66,0.46)");
+      path.setAttribute("stroke-width", "1.7");
+      path.setAttribute("stroke-linecap", "round");
+      path.setAttribute("stroke-linejoin", "round");
+      path.setAttribute("marker-end", "url(#arr-" + svgId + ")");
+      svg.appendChild(path);
+      this._markRouteUsage(points, usedCells);
+    });
+  },
+
+  _connectionSide(source, target) {
+    const sx = source.x + source.w / 2;
+    const sy = source.y + source.h / 2;
+    const tx = target.x + target.w / 2;
+    const ty = target.y + target.h / 2;
+    const dx = tx - sx;
+    const dy = ty - sy;
+    const minGap = MP_CONNECTOR_GAP * 2;
+    const belowGap = target.y - (source.y + source.h);
+    const aboveGap = source.y - (target.y + target.h);
+    const rightGap = target.x - (source.x + source.w);
+    const leftGap = source.x - (target.x + target.w);
+    const hasVerticalGap = belowGap >= minGap || aboveGap >= minGap;
+    const hasHorizontalGap = rightGap >= minGap || leftGap >= minGap;
+    const preferVertical = Math.abs(dy) >= Math.abs(dx) * 0.55;
+    const preferHorizontal = Math.abs(dx) >= Math.abs(dy) * 0.55;
+
+    if (dy >= 0 && belowGap >= minGap && (preferVertical || !hasHorizontalGap)) {
+      return "bottom";
+    }
+    if (dy < 0 && aboveGap >= minGap && (preferVertical || !hasHorizontalGap)) {
+      return "top";
+    }
+    if (dx >= 0 && rightGap >= minGap && (preferHorizontal || !hasVerticalGap)) {
+      return "right";
+    }
+    if (dx < 0 && leftGap >= minGap && (preferHorizontal || !hasVerticalGap)) {
+      return "left";
+    }
+    if (dy >= 0 && belowGap >= minGap) return "bottom";
+    if (dy < 0 && aboveGap >= minGap) return "top";
+    if (dx >= 0 && rightGap >= minGap) return "right";
+    if (dx < 0 && leftGap >= minGap) return "left";
+    if (Math.abs(dx) >= Math.abs(dy)) return dx >= 0 ? "right" : "left";
+    return dy >= 0 ? "bottom" : "top";
+  },
+
+  _connectionAnchors(source, target, side, slot) {
+    const gap = MP_CONNECTOR_GAP;
+    const pad = 14;
+    const safeSlot = mpClamp(slot || 0.5, 0.08, 0.92);
+    let start;
+    let end;
+
+    if (side === "right") {
+      start = {
+        x: source.x + source.w + gap,
+        y: source.y + pad + (source.h - pad * 2) * safeSlot,
+      };
+      end = {
+        x: target.x - gap,
+        y: mpClamp(start.y, target.y + pad, target.y + target.h - pad),
+      };
+    } else if (side === "left") {
+      start = {
+        x: source.x - gap,
+        y: source.y + pad + (source.h - pad * 2) * safeSlot,
+      };
+      end = {
+        x: target.x + target.w + gap,
+        y: mpClamp(start.y, target.y + pad, target.y + target.h - pad),
+      };
+    } else if (side === "bottom") {
+      start = {
+        x: source.x + pad + (source.w - pad * 2) * safeSlot,
+        y: source.y + source.h + gap,
+      };
+      end = {
+        x: mpClamp(start.x, target.x + pad, target.x + target.w - pad),
+        y: target.y - gap,
+      };
+    } else {
+      start = {
+        x: source.x + pad + (source.w - pad * 2) * safeSlot,
+        y: source.y - gap,
+      };
+      end = {
+        x: mpClamp(start.x, target.x + pad, target.x + target.w - pad),
+        y: target.y + target.h + gap,
+      };
+    }
+
+    return {
+      start: this._clampConnectorPoint(start),
+      end: this._clampConnectorPoint(end),
+    };
+  },
+
+  _clampConnectorPoint(point) {
+    return {
+      x: mpClamp(point.x, 2, MP_CANVAS_W - 2),
+      y: mpClamp(point.y, 2, MP_CANVAS_H - 2),
+    };
+  },
+
+  _bestConnectorRoute(source, target, preferredSide, preferredSlot, usedCells) {
+    const sideOrder = [preferredSide, "bottom", "top", "right", "left"].filter(
+      (side, idx, arr) => side && arr.indexOf(side) === idx,
+    );
+    const slotOrder = [preferredSlot || 0.5, 0.5, 0.25, 0.75].filter(
+      (slot, idx, arr) => arr.indexOf(slot) === idx,
+    );
+    let best = null;
+
+    sideOrder.forEach((side, sideIdx) => {
+      slotOrder.forEach((slot) => {
+        const anchors = this._connectionAnchors(source, target, side, slot);
+        const path = this._routeConnector(
+          anchors.start,
+          anchors.end,
+          source,
+          target,
+          usedCells,
         );
-        line.setAttribute("x1", cx);
-        line.setAttribute("y1", cy);
-        line.setAttribute("x2", tx - Math.cos(ang) * (n.w / 2 + 2));
-        line.setAttribute("y2", ty - Math.sin(ang) * (n.h / 2 + 2));
-        line.setAttribute("stroke", "rgba(155,107,66,0.45)");
-        line.setAttribute("stroke-width", "1.5");
-        line.setAttribute("marker-end", "url(#arr-" + svgId + ")");
-        svg.appendChild(line);
+        if (!this._pathIsClear(path, source.id, target.id)) return;
+        const penalty = this._pathUsagePenalty(path, usedCells);
+        const score = this._pathLength(path) + penalty * 3 + sideIdx * 25;
+        if (!best || score < best.score) best = { path, score };
       });
+    });
+
+    if (best) return best.path;
+    const anchors = this._connectionAnchors(
+      source,
+      target,
+      preferredSide || this._connectionSide(source, target),
+      preferredSlot || 0.5,
+    );
+    return this._routeConnector(anchors.start, anchors.end, source, target, usedCells);
+  },
+
+  _routeConnector(start, end, source, target, usedCells) {
+    const midX = (start.x + end.x) / 2;
+    const midY = (start.y + end.y) / 2;
+    const railGap = MP_CONNECTOR_GAP * 2;
+    const candidates = [
+      [start, { x: end.x, y: start.y }, end],
+      [start, { x: start.x, y: end.y }, end],
+      [start, { x: midX, y: start.y }, { x: midX, y: end.y }, end],
+      [start, { x: start.x, y: midY }, { x: end.x, y: midY }, end],
+      [start, { x: start.x, y: railGap }, { x: end.x, y: railGap }, end],
+      [
+        start,
+        { x: start.x, y: MP_CANVAS_H - railGap },
+        { x: end.x, y: MP_CANVAS_H - railGap },
+        end,
+      ],
+      [start, { x: railGap, y: start.y }, { x: railGap, y: end.y }, end],
+      [
+        start,
+        { x: MP_CANVAS_W - railGap, y: start.y },
+        { x: MP_CANVAS_W - railGap, y: end.y },
+        end,
+      ],
+    ];
+
+    const clearCandidates = candidates
+      .map((path) => this._simplifyPath(path))
+      .filter((path) => this._pathIsClear(path, source.id, target.id));
+
+    const noOverlap = clearCandidates
+      .map((path) => ({
+        path,
+        penalty: this._pathUsagePenalty(path, usedCells),
+        length: this._pathLength(path),
+      }))
+      .sort((a, b) => a.penalty - b.penalty || a.length - b.length);
+
+    if (noOverlap.length && noOverlap[0].penalty === 0) return noOverlap[0].path;
+
+    const gridPath = this._buildGridRoute(start, end, source.id, target.id, usedCells);
+    if (gridPath && this._pathIsClear(gridPath, source.id, target.id)) {
+      return gridPath;
+    }
+
+    if (noOverlap.length) return noOverlap[0].path;
+    return this._simplifyPath([start, end]);
+  },
+
+  _buildGridRoute(start, end, sourceId, targetId, usedCells) {
+    const step = MP_ROUTE_STEP;
+    const cols = Math.floor(MP_CANVAS_W / step) + 1;
+    const rows = Math.floor(MP_CANVAS_H / step) + 1;
+    const toGrid = (p, rect) => {
+      const eps = 0.5;
+      let gx = Math.round(p.x / step);
+      let gy = Math.round(p.y / step);
+      if (rect) {
+        if (Math.abs(p.x - rect.x) < eps) gx = Math.floor(p.x / step);
+        if (Math.abs(p.x - (rect.x + rect.w)) < eps) gx = Math.ceil(p.x / step);
+        if (Math.abs(p.y - rect.y) < eps) gy = Math.floor(p.y / step);
+        if (Math.abs(p.y - (rect.y + rect.h)) < eps) gy = Math.ceil(p.y / step);
+      }
+      return {
+        gx: mpClamp(gx, 0, cols - 1),
+        gy: mpClamp(gy, 0, rows - 1),
+      };
+    };
+    const toPoint = (cell) => ({
+      x: mpClamp(cell.gx * step, 0, MP_CANVAS_W),
+      y: mpClamp(cell.gy * step, 0, MP_CANVAS_H),
+    });
+
+    const sourceNode = this.nodes.find((n) => n.id === sourceId);
+    const targetNode = this.nodes.find((n) => n.id === targetId);
+    const sourceRect = sourceNode
+      ? this._expandedRect(sourceNode, MP_CONNECTOR_GAP)
+      : null;
+    const targetRect = targetNode
+      ? this._expandedRect(targetNode, MP_CONNECTOR_GAP)
+      : null;
+    const startCell = toGrid(start, sourceRect);
+    const endCell = toGrid(end, targetRect);
+    const startKey = this._gridKey(startCell.gx, startCell.gy);
+    const endKey = this._gridKey(endCell.gx, endCell.gy);
+    const blocked = new Set();
+    const obstacles = this.nodes.map((n) => this._expandedRect(n, MP_CONNECTOR_GAP));
+
+    for (let gy = 0; gy < rows; gy++) {
+      for (let gx = 0; gx < cols; gx++) {
+        const x = gx * step;
+        const y = gy * step;
+        if (obstacles.some((rect) => this._pointInRect({ x, y }, rect))) {
+          blocked.add(this._gridKey(gx, gy));
+        }
+      }
+    }
+    blocked.delete(startKey);
+    blocked.delete(endKey);
+
+    const heuristic = (gx, gy) => Math.abs(gx - endCell.gx) + Math.abs(gy - endCell.gy);
+    const open = [
+      {
+        gx: startCell.gx,
+        gy: startCell.gy,
+        key: startKey,
+        g: 0,
+        f: heuristic(startCell.gx, startCell.gy),
+        dir: null,
+      },
+    ];
+    const best = new Map([[startKey, 0]]);
+    const parent = new Map();
+    const closed = new Set();
+    const dirs = [
+      { dx: 1, dy: 0, name: "r" },
+      { dx: -1, dy: 0, name: "l" },
+      { dx: 0, dy: 1, name: "d" },
+      { dx: 0, dy: -1, name: "u" },
+    ];
+    let iterations = 0;
+
+    while (open.length && iterations++ < 12000) {
+      open.sort((a, b) => a.f - b.f);
+      const cur = open.shift();
+      if (!cur || closed.has(cur.key)) continue;
+      if (cur.key === endKey) {
+        const cells = [];
+        let key = endKey;
+        while (key) {
+          const [gx, gy] = key.split(",").map(Number);
+          cells.push({ gx, gy });
+          key = parent.get(key)?.key;
+        }
+        cells.reverse();
+        const gridPoints = cells.map(toPoint);
+        const points = [start];
+        const first = gridPoints[0];
+        if (first && (first.x !== start.x || first.y !== start.y)) {
+          if (first.x !== start.x && first.y !== start.y) {
+            points.push({ x: first.x, y: start.y });
+          }
+          points.push(first);
+        }
+        gridPoints.slice(1, -1).forEach((p) => points.push(p));
+        const last = gridPoints[gridPoints.length - 1];
+        if (last && (last.x !== end.x || last.y !== end.y)) {
+          if (last.x !== end.x && last.y !== end.y) {
+            points.push(last);
+            points.push({ x: last.x, y: end.y });
+          } else {
+            points.push(last);
+          }
+        }
+        points.push(end);
+        return this._simplifyPath(points);
+      }
+      closed.add(cur.key);
+
+      dirs.forEach((d) => {
+        const nx = cur.gx + d.dx;
+        const ny = cur.gy + d.dy;
+        if (nx < 0 || nx >= cols || ny < 0 || ny >= rows) return;
+        const key = this._gridKey(nx, ny);
+        if (blocked.has(key) || closed.has(key)) return;
+        const turnCost = cur.dir && cur.dir !== d.name ? 0.38 : 0;
+        const usageCost = this._routeCellUsagePenalty(nx, ny, usedCells);
+        const g = cur.g + 1 + turnCost + usageCost;
+        if (g >= (best.get(key) ?? Infinity)) return;
+        best.set(key, g);
+        parent.set(key, { key: cur.key, dir: d.name });
+        open.push({
+          gx: nx,
+          gy: ny,
+          key,
+          g,
+          f: g + heuristic(nx, ny),
+          dir: d.name,
+        });
+      });
+    }
+    return null;
+  },
+
+  _expandedRect(node, gap) {
+    return {
+      x: node.x - gap,
+      y: node.y - gap,
+      w: node.w + gap * 2,
+      h: node.h + gap * 2,
+    };
+  },
+
+  _pointInRect(point, rect) {
+    return (
+      point.x > rect.x &&
+      point.x < rect.x + rect.w &&
+      point.y > rect.y &&
+      point.y < rect.y + rect.h
+    );
+  },
+
+  _pathIsClear(points, sourceId, targetId) {
+    const obstacles = this.nodes.map((n) => this._expandedRect(n, MP_CONNECTOR_GAP));
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1];
+      const b = points[i];
+      if (obstacles.some((rect) => this._segmentIntersectsRect(a, b, rect))) {
+        return false;
+      }
+    }
+    return true;
+  },
+
+  _segmentIntersectsRect(a, b, rect) {
+    const eps = 0.001;
+    if (Math.abs(a.x - b.x) < eps) {
+      const x = a.x;
+      if (x <= rect.x || x >= rect.x + rect.w) return false;
+      const minY = Math.min(a.y, b.y);
+      const maxY = Math.max(a.y, b.y);
+      return maxY > rect.y && minY < rect.y + rect.h;
+    }
+    if (Math.abs(a.y - b.y) < eps) {
+      const y = a.y;
+      if (y <= rect.y || y >= rect.y + rect.h) return false;
+      const minX = Math.min(a.x, b.x);
+      const maxX = Math.max(a.x, b.x);
+      return maxX > rect.x && minX < rect.x + rect.w;
+    }
+
+    const steps = Math.max(
+      2,
+      Math.ceil(Math.hypot(a.x - b.x, a.y - b.y) / (MP_ROUTE_STEP / 2)),
+    );
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const p = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+      if (this._pointInRect(p, rect)) return true;
+    }
+    return false;
+  },
+
+  _pathUsagePenalty(points, usedCells) {
+    if (!usedCells || !usedCells.size) return 0;
+    let penalty = 0;
+    this._samplePathCells(points).forEach((cell) => {
+      penalty += this._routeCellUsagePenalty(cell.gx, cell.gy, usedCells);
+    });
+    return penalty;
+  },
+
+  _routeCellUsagePenalty(gx, gy, usedCells) {
+    if (!usedCells || !usedCells.size) return 0;
+    let penalty = 0;
+    for (let oy = -1; oy <= 1; oy++) {
+      for (let ox = -1; ox <= 1; ox++) {
+        if (!usedCells.has(this._gridKey(gx + ox, gy + oy))) continue;
+        penalty += ox === 0 && oy === 0 ? 24 : 6;
+      }
+    }
+    return penalty;
+  },
+
+  _markRouteUsage(points, usedCells) {
+    this._samplePathCells(points).forEach((cell) => {
+      usedCells.add(this._gridKey(cell.gx, cell.gy));
+    });
+  },
+
+  _samplePathCells(points) {
+    const cells = [];
+    const step = MP_ROUTE_STEP;
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1];
+      const b = points[i];
+      const len = Math.max(1, Math.hypot(b.x - a.x, b.y - a.y));
+      const samples = Math.ceil(len / (step / 2));
+      for (let j = 0; j <= samples; j++) {
+        const t = j / samples;
+        cells.push({
+          gx: Math.round((a.x + (b.x - a.x) * t) / step),
+          gy: Math.round((a.y + (b.y - a.y) * t) / step),
+        });
+      }
+    }
+    return cells;
+  },
+
+  _pathLength(points) {
+    let length = 0;
+    for (let i = 1; i < points.length; i++) {
+      length += Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
+    }
+    return length;
+  },
+
+  _simplifyPath(points) {
+    const cleaned = [];
+    points.forEach((p) => {
+      const last = cleaned[cleaned.length - 1];
+      if (!last || Math.abs(last.x - p.x) > 0.01 || Math.abs(last.y - p.y) > 0.01) {
+        cleaned.push({ x: p.x, y: p.y });
+      }
+    });
+
+    const simplified = [];
+    cleaned.forEach((p) => {
+      simplified.push(p);
+      while (simplified.length >= 3) {
+        const a = simplified[simplified.length - 3];
+        const b = simplified[simplified.length - 2];
+        const c = simplified[simplified.length - 1];
+        const sameX = Math.abs(a.x - b.x) < 0.01 && Math.abs(b.x - c.x) < 0.01;
+        const sameY = Math.abs(a.y - b.y) < 0.01 && Math.abs(b.y - c.y) < 0.01;
+        if (!sameX && !sameY) break;
+        simplified.splice(simplified.length - 2, 1);
+      }
+    });
+    return simplified;
+  },
+
+  _pathToD(points) {
+    return points
+      .map((p, i) => (i === 0 ? "M" : "L") + p.x.toFixed(1) + " " + p.y.toFixed(1))
+      .join(" ");
+  },
+
+  _gridKey(gx, gy) {
+    return gx + "," + gy;
   },
 
   _checkOverlaps() {
@@ -709,8 +1307,8 @@ const MapaPage = {
   _checkWarnings() {
     const canvas = document.getElementById("mp-canvas");
     if (!canvas) return;
-    const W = 900,
-      H = 636,
+    const W = MP_CANVAS_W,
+      H = MP_CANVAS_H,
       warns = [];
     this.nodes.forEach((n) => {
       const out = n.x < 0 || n.y < 0 || n.x + n.w > W || n.y + n.h > H;
