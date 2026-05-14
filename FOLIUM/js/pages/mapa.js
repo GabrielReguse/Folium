@@ -29,15 +29,15 @@ const MOCK_MAP_CONTENT = {
 
 const MP_CANVAS_W = 900;
 const MP_CANVAS_H = 636;
-const MP_CONNECTOR_GAP = 10;
+const MP_CONNECTOR_GAP = 16;
 const MP_ROUTE_STEP = 10;
-const MP_ROUTE_LINE_GAP = 10;
-const MP_ROUTE_HALO_WIDTH = 7;
+const MP_ROUTE_LINE_GAP = 14;
+const MP_ROUTE_HALO_WIDTH = 9;
 const MP_ROUTE_CROSS_PENALTY = 9000;
 const MP_ROUTE_NEAR_PENALTY = 650;
-const MP_NODE_MIN_W = 158;
-const MP_NODE_MAX_W = 220;
-const MP_NODE_DEFAULT_H = 96;
+const MP_NODE_MIN_W = 176;
+const MP_NODE_MAX_W = 238;
+const MP_NODE_DEFAULT_H = 110;
 
 const TPL_LAYOUTS = {
   radial(nodes, cx, cy, W, H) {
@@ -87,9 +87,7 @@ const TPL_LAYOUTS = {
     topics.forEach((n, i) => {
       const count = Math.max(1, topics.length);
       const a =
-        -Math.PI / 2 +
-        (2 * Math.PI * i) / count +
-        (i % 2 === 0 ? -0.08 : 0.12);
+        -Math.PI / 2 + (2 * Math.PI * i) / count + (i % 2 === 0 ? -0.08 : 0.12);
       const rx = rxBase + wobble[i % wobble.length];
       const ry = ryBase + wobble[(i + 3) % wobble.length] * 0.45;
       n.x = mpClamp(cx + rx * Math.cos(a) - n.w / 2, 8, W - n.w - 8);
@@ -479,7 +477,8 @@ const MapaPage = {
     const scale = availableW / MP_CANVAS_W;
     canvas.style.transformOrigin = "top left";
     canvas.style.transform = "scale(" + scale + ")";
-    canvas.style.marginLeft = (wrap.clientWidth - MP_CANVAS_W * scale) / 2 + "px";
+    canvas.style.marginLeft =
+      (wrap.clientWidth - MP_CANVAS_W * scale) / 2 + "px";
     canvas.style.marginTop = pad / 2 + "px";
     wrap.style.height = MP_CANVAS_H * scale + pad + "px";
     this._canvasScale = scale;
@@ -493,7 +492,7 @@ const MapaPage = {
     const canvas = document.getElementById(canvasId);
     if (!overlay || !stage || !canvas) return;
 
-    if (this._mobileFullscreen) this.closeMobileFullscreen({ skipExit: true });
+    if (this._mobileFullscreen) this.closeMobileFullscreen();
     this._closeDropdown();
 
     this._mobileFullscreen = {
@@ -521,16 +520,9 @@ const MapaPage = {
     this._syncFullscreenModeButtons();
     this._layoutMobileFullscreen();
     requestAnimationFrame(() => this._layoutMobileFullscreen());
-
-    if (overlay.requestFullscreen && !document.fullscreenElement) {
-      overlay.requestFullscreen().catch(() => {});
-    }
-    if (screen.orientation?.lock && window.innerWidth < window.innerHeight) {
-      screen.orientation.lock("landscape").catch(() => {});
-    }
   },
 
-  closeMobileFullscreen(options = {}) {
+  closeMobileFullscreen() {
     const state = this._mobileFullscreen;
     if (!state) return;
     const overlay = document.getElementById("mp-mobile-fullscreen");
@@ -561,48 +553,46 @@ const MapaPage = {
       this._scaleCanvas("mp-result-canvas", "mp-result-wrap");
       this._redrawLines("mp-result-svg", { fast: false });
     }
-
-    if (!options.skipExit && document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
-    }
-    if (screen.orientation?.unlock) {
-      try {
-        screen.orientation.unlock();
-      } catch (_) {}
-    }
   },
 
   _layoutMobileFullscreen() {
     const state = this._mobileFullscreen;
+    const overlay = document.getElementById("mp-mobile-fullscreen");
     const stage = document.getElementById("mp-mobile-fullscreen-stage");
-    if (!state || !stage) return;
+    if (!state || !overlay || !stage) return;
 
     const vw = Math.max(1, window.innerWidth);
     const vh = Math.max(1, window.innerHeight);
-    const rotated = vw < vh;
-    const stageW = rotated ? vh : vw;
-    const stageH = rotated ? vw : vh;
-    const pad = 20;
+    const toolbar = overlay.querySelector(".mp-mobile-fullscreen__top");
+    const toolbarRect = toolbar?.getBoundingClientRect();
+    const topSpace = Math.ceil((toolbarRect?.bottom || 0) + 12);
+    const sidePad = 14;
+    const bottomPad = 14;
+    const availableW = Math.max(1, vw - sidePad * 2);
+    const availableH = Math.max(1, vh - topSpace - bottomPad);
     const scale = Math.min(
-      (stageW - pad * 2) / MP_CANVAS_W,
-      (stageH - pad * 2) / MP_CANVAS_H,
+      1,
+      availableW / MP_CANVAS_W,
+      availableH / MP_CANVAS_H,
     );
     const safeScale = Math.max(0.18, scale);
+    const centerY = topSpace + availableH / 2;
 
-    stage.style.width = stageW + "px";
-    stage.style.height = stageH + "px";
-    stage.style.transform =
-      "translate(-50%, -50%)" + (rotated ? " rotate(90deg)" : "");
+    stage.style.width = MP_CANVAS_W + "px";
+    stage.style.height = MP_CANVAS_H + "px";
+    stage.style.left = "50%";
+    stage.style.top = centerY + "px";
+    stage.style.transform = "translate(-50%, -50%) scale(" + safeScale + ")";
 
-    state.canvas.style.transformOrigin = "center center";
-    state.canvas.style.transform = "scale(" + safeScale + ")";
+    state.canvas.style.transformOrigin = "top left";
+    state.canvas.style.transform = "none";
     state.canvas.style.marginLeft = "0px";
     state.canvas.style.marginTop = "0px";
 
     state.scale = safeScale;
-    state.rotated = rotated;
-    state.stageW = stageW;
-    state.stageH = stageH;
+    state.rotated = false;
+    state.stageW = MP_CANVAS_W;
+    state.stageH = MP_CANVAS_H;
     this._canvasScale = safeScale;
   },
 
@@ -618,27 +608,12 @@ const MapaPage = {
   _clientToCanvasPoint(canvas, clientX, clientY) {
     const state = this._mobileFullscreen;
     if (state?.canvas === canvas) {
-      const vw = Math.max(1, window.innerWidth);
-      const vh = Math.max(1, window.innerHeight);
-      let stageX;
-      let stageY;
-
-      if (state.rotated) {
-        const dx = clientX - vw / 2;
-        const dy = clientY - vh / 2;
-        stageX = state.stageW / 2 + dy;
-        stageY = state.stageH / 2 - dx;
-      } else {
-        stageX = clientX - (vw - state.stageW) / 2;
-        stageY = clientY - (vh - state.stageH) / 2;
-      }
-
-      const canvasLeft = (state.stageW - MP_CANVAS_W) / 2;
-      const canvasTop = (state.stageH - MP_CANVAS_H) / 2;
-      const scale = state.scale || 1;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = rect.width ? MP_CANVAS_W / rect.width : 1;
+      const scaleY = rect.height ? MP_CANVAS_H / rect.height : 1;
       return {
-        x: MP_CANVAS_W / 2 + (stageX - canvasLeft - MP_CANVAS_W / 2) / scale,
-        y: MP_CANVAS_H / 2 + (stageY - canvasTop - MP_CANVAS_H / 2) / scale,
+        x: mpClamp((clientX - rect.left) * scaleX, 0, MP_CANVAS_W),
+        y: mpClamp((clientY - rect.top) * scaleY, 0, MP_CANVAS_H),
       };
     }
 
@@ -662,7 +637,7 @@ const MapaPage = {
     const selected = this.topicos.filter((t) => t.on);
     const topicCount = Math.max(1, selected.length);
     const nodeW = mpClamp(
-      Math.round(230 - topicCount * 6),
+      Math.round(250 - topicCount * 6),
       MP_NODE_MIN_W,
       MP_NODE_MAX_W,
     );
@@ -674,8 +649,8 @@ const MapaPage = {
         label: this.titulo,
         x: 0,
         y: 0,
-        w: nodeW + 36,
-        h: nodeH + 12,
+        w: nodeW + 44,
+        h: nodeH + 14,
         isCenter: true,
       },
       ...selected.map((t, i) => ({
@@ -853,16 +828,8 @@ const MapaPage = {
     if (this._drag) {
       const node = this.nodes.find((n) => n.id === this._drag.nodeId);
       if (!node) return;
-      node.x = mpClamp(
-        mx - this._drag.offsetX,
-        MP_CONNECTOR_GAP,
-        W - node.w - MP_CONNECTOR_GAP,
-      );
-      node.y = mpClamp(
-        my - this._drag.offsetY,
-        MP_CONNECTOR_GAP,
-        H - node.h - MP_CONNECTOR_GAP,
-      );
+      node.x = mpClamp(mx - this._drag.offsetX, 0, W - node.w);
+      node.y = mpClamp(my - this._drag.offsetY, 0, H - node.h);
       const el = canvas.querySelector('[data-node-id="' + node.id + '"]');
       if (el) {
         el.style.left = node.x + "px";
@@ -897,10 +864,10 @@ const MapaPage = {
         nh = r.origH - d;
       }
 
-      node.x = mpClamp(nx, MP_CONNECTOR_GAP, W - MIN_W - MP_CONNECTOR_GAP);
-      node.y = mpClamp(ny, MP_CONNECTOR_GAP, H - MIN_H - MP_CONNECTOR_GAP);
-      node.w = mpClamp(nw, MIN_W, W - node.x - MP_CONNECTOR_GAP);
-      node.h = mpClamp(nh, MIN_H, H - node.y - MP_CONNECTOR_GAP);
+      node.x = mpClamp(nx, 0, W - MIN_W);
+      node.y = mpClamp(ny, 0, H - MIN_H);
+      node.w = mpClamp(nw, MIN_W, W - node.x);
+      node.h = mpClamp(nh, MIN_H, H - node.y);
 
       const el = canvas.querySelector('[data-node-id="' + node.id + '"]');
       if (el) {
@@ -1015,7 +982,8 @@ const MapaPage = {
         )
         .forEach((node, idx) => {
           const lane = mpClamp(
-            centerEdge + sideDir * (MP_CONNECTOR_GAP + MP_ROUTE_LINE_GAP * (idx + 1)),
+            centerEdge +
+              sideDir * (MP_CONNECTOR_GAP + MP_ROUTE_LINE_GAP * (idx + 1)),
             2,
             isHorizontal ? MP_CANVAS_W - 2 : MP_CANVAS_H - 2,
           );
@@ -1036,7 +1004,9 @@ const MapaPage = {
       const bcy = b.y + b.h / 2;
       const ccx = center.x + center.w / 2;
       const ccy = center.y + center.h / 2;
-      return Math.hypot(bcx - ccx, bcy - ccy) - Math.hypot(acx - ccx, acy - ccy);
+      return (
+        Math.hypot(bcx - ccx, bcy - ccy) - Math.hypot(acx - ccx, acy - ccy)
+      );
     });
 
     orderedTopics.forEach((node) => {
@@ -1101,13 +1071,21 @@ const MapaPage = {
     const preferHorizontal = Math.abs(dx) >= Math.abs(dy) * 0.72;
     const preferVertical = Math.abs(dy) > Math.abs(dx) * 0.72;
 
-    if (dx >= 0 && rightGap >= minGap && (preferHorizontal || !hasVerticalGap)) {
+    if (
+      dx >= 0 &&
+      rightGap >= minGap &&
+      (preferHorizontal || !hasVerticalGap)
+    ) {
       return "right";
     }
     if (dx < 0 && leftGap >= minGap && (preferHorizontal || !hasVerticalGap)) {
       return "left";
     }
-    if (dy >= 0 && belowGap >= minGap && (preferVertical || !hasHorizontalGap)) {
+    if (
+      dy >= 0 &&
+      belowGap >= minGap &&
+      (preferVertical || !hasHorizontalGap)
+    ) {
       return "bottom";
     }
     if (dy < 0 && aboveGap >= minGap && (preferVertical || !hasHorizontalGap)) {
@@ -1259,7 +1237,9 @@ const MapaPage = {
       addAttempt(side, preferredSlot || 0.5, 1 + sideIdx * 0.25);
     });
     fallbackSides.forEach((side, sideIdx) => {
-      slotOrder.slice(1).forEach((slot) => addAttempt(side, slot, 1.35 + sideIdx * 0.25));
+      slotOrder
+        .slice(1)
+        .forEach((slot) => addAttempt(side, slot, 1.35 + sideIdx * 0.25));
     });
 
     const evaluateAttempts = (allowPairs) => {
@@ -1295,7 +1275,7 @@ const MapaPage = {
           attempt.sidePenaltyOffset * 34;
         const candidate = { path: fullPath, score, linePenalty, usagePenalty };
         if (!best || candidate.score < best.score) best = candidate;
-        if (linePenalty < MP_ROUTE_CROSS_PENALTY) {
+        if (linePenalty === 0 && usagePenalty === 0) {
           return { ...candidate, done: true };
         }
       }
@@ -1305,15 +1285,23 @@ const MapaPage = {
     const simpleBest = evaluateAttempts(false);
     if (
       simpleBest?.done ||
-      simpleBest?.linePenalty < MP_ROUTE_CROSS_PENALTY ||
-      (options.fast && simpleBest)
+      (simpleBest?.linePenalty === 0 && simpleBest?.usagePenalty === 0)
     ) {
       return simpleBest.path;
     }
 
     const pairedBest = evaluateAttempts(true);
-    if (pairedBest) return pairedBest.path;
-    if (simpleBest) return simpleBest.path;
+    if (
+      pairedBest?.done ||
+      (pairedBest?.linePenalty === 0 && pairedBest?.usagePenalty === 0)
+    ) {
+      return pairedBest.path;
+    }
+
+    const fallbackBest = [pairedBest, simpleBest]
+      .filter(Boolean)
+      .sort((a, b) => a.score - b.score)[0];
+    if (fallbackBest) return fallbackBest.path;
 
     const ports = this._connectionPorts(
       source,
@@ -1362,7 +1350,7 @@ const MapaPage = {
           score: linePenalty + usagePenalty * 14 + turns * 9 + length,
         };
         if (!best || candidate.score < best.score) best = candidate;
-        if (linePenalty < MP_ROUTE_CROSS_PENALTY) {
+        if (linePenalty === 0 && usagePenalty === 0) {
           return { best: candidate, done: true };
         }
       }
@@ -1372,7 +1360,9 @@ const MapaPage = {
     const simple = evaluateCandidates(false);
     if (
       simple.done ||
-      (simple.best && simple.best.linePenalty < MP_ROUTE_CROSS_PENALTY)
+      (simple.best &&
+        simple.best.linePenalty === 0 &&
+        simple.best.usagePenalty === 0)
     ) {
       return simple.best.path;
     }
@@ -1383,21 +1373,59 @@ const MapaPage = {
     }
 
     const paired = evaluateCandidates(true);
-    if (paired.best) return paired.best.path;
+    if (
+      paired.done ||
+      (paired.best &&
+        paired.best.linePenalty === 0 &&
+        paired.best.usagePenalty === 0)
+    ) {
+      return paired.best.path;
+    }
 
-    if (!options.fast) {
-      const gridRoute = this._buildGridRoute(
-        start,
-        end,
-        source.id,
-        target.id,
-        context.cells,
+    const gridRoute = this._buildGridRoute(
+      start,
+      end,
+      source.id,
+      target.id,
+      context.cells,
+    );
+    if (
+      gridRoute &&
+      this._pathIsClear(gridRoute, source.id, target.id, false)
+    ) {
+      const linePenalty = this._pathLineConflictPenalty(
+        gridRoute,
+        context.segments,
       );
-      if (gridRoute && this._pathIsClear(gridRoute, source.id, target.id, false)) {
-        return gridRoute;
+      const usagePenalty = this._pathUsagePenalty(gridRoute, context.cells);
+      const turns = this._turnCount(gridRoute);
+      const length = this._pathLength(gridRoute);
+      const gridCandidate = {
+        path: gridRoute,
+        usagePenalty,
+        linePenalty,
+        turns,
+        length,
+        score: linePenalty + usagePenalty * 14 + turns * 9 + length,
+      };
+      const bestFallback = [paired.best, simple.best]
+        .filter(Boolean)
+        .sort((a, b) => a.score - b.score)[0];
+      if (!bestFallback || gridCandidate.score <= bestFallback.score) {
+        return gridCandidate.path;
+      }
+      if (gridCandidate.linePenalty === 0 && gridCandidate.usagePenalty === 0) {
+        return gridCandidate.path;
+      }
+      if (
+        bestFallback.linePenalty >= MP_ROUTE_CROSS_PENALTY &&
+        gridCandidate.linePenalty < MP_ROUTE_CROSS_PENALTY
+      ) {
+        return gridCandidate.path;
       }
     }
 
+    if (paired.best) return paired.best.path;
     if (simple.best) return simple.best.path;
     return this._simplifyPath([start, { x: start.x, y: end.y }, end]);
   },
@@ -1424,13 +1452,21 @@ const MapaPage = {
           segment.y1 - MP_ROUTE_LINE_GAP,
           segment.y1 + MP_ROUTE_LINE_GAP,
         );
-        xRails.push(segment.minX, segment.maxX, (segment.minX + segment.maxX) / 2);
+        xRails.push(
+          segment.minX,
+          segment.maxX,
+          (segment.minX + segment.maxX) / 2,
+        );
       } else if (segment.orientation === "v") {
         xRails.push(
           segment.x1 - MP_ROUTE_LINE_GAP,
           segment.x1 + MP_ROUTE_LINE_GAP,
         );
-        yRails.push(segment.minY, segment.maxY, (segment.minY + segment.maxY) / 2);
+        yRails.push(
+          segment.minY,
+          segment.maxY,
+          (segment.minY + segment.maxY) / 2,
+        );
       }
     });
 
@@ -1548,7 +1584,9 @@ const MapaPage = {
     const ranked = values
       .map((value) => ({
         value,
-        score: Math.min(...safeAnchors.map((anchor) => Math.abs(value - anchor))),
+        score: Math.min(
+          ...safeAnchors.map((anchor) => Math.abs(value - anchor)),
+        ),
       }))
       .sort((a, b) => a.score - b.score);
 
@@ -1609,7 +1647,9 @@ const MapaPage = {
     const startKey = this._gridKey(startCell.gx, startCell.gy);
     const endKey = this._gridKey(endCell.gx, endCell.gy);
     const blocked = new Set();
-    const obstacles = this.nodes.map((n) => this._expandedRect(n, MP_CONNECTOR_GAP));
+    const obstacles = this.nodes.map((n) =>
+      this._expandedRect(n, MP_CONNECTOR_GAP),
+    );
 
     for (let gy = 0; gy < rows; gy++) {
       for (let gx = 0; gx < cols; gx++) {
@@ -1623,7 +1663,8 @@ const MapaPage = {
     blocked.delete(startKey);
     blocked.delete(endKey);
 
-    const heuristic = (gx, gy) => Math.abs(gx - endCell.gx) + Math.abs(gy - endCell.gy);
+    const heuristic = (gx, gy) =>
+      Math.abs(gx - endCell.gx) + Math.abs(gy - endCell.gy);
     const open = [
       {
         gx: startCell.gx,
@@ -1833,29 +1874,47 @@ const MapaPage = {
     if (a.orientation === "h" && b.orientation === "h") {
       const overlap = Math.min(a.maxX, b.maxX) - Math.max(a.minX, b.minX);
       if (overlap <= eps) return 0;
-      return Math.abs(a.y1 - b.y1) <= eps
-        ? MP_ROUTE_CROSS_PENALTY + overlap * 26
-        : 0;
+      const distance = Math.abs(a.y1 - b.y1);
+      if (distance <= eps) return MP_ROUTE_CROSS_PENALTY + overlap * 26;
+      if (distance < MP_ROUTE_LINE_GAP) {
+        return (
+          MP_ROUTE_NEAR_PENALTY +
+          (MP_ROUTE_LINE_GAP - distance) * 44 +
+          overlap * 2
+        );
+      }
+      return 0;
     }
 
     if (a.orientation === "v" && b.orientation === "v") {
       const overlap = Math.min(a.maxY, b.maxY) - Math.max(a.minY, b.minY);
       if (overlap <= eps) return 0;
-      return Math.abs(a.x1 - b.x1) <= eps
-        ? MP_ROUTE_CROSS_PENALTY + overlap * 26
-        : 0;
+      const distance = Math.abs(a.x1 - b.x1);
+      if (distance <= eps) return MP_ROUTE_CROSS_PENALTY + overlap * 26;
+      if (distance < MP_ROUTE_LINE_GAP) {
+        return (
+          MP_ROUTE_NEAR_PENALTY +
+          (MP_ROUTE_LINE_GAP - distance) * 44 +
+          overlap * 2
+        );
+      }
+      return 0;
     }
 
     const h = a.orientation === "h" ? a : b.orientation === "h" ? b : null;
     const v = a.orientation === "v" ? a : b.orientation === "v" ? b : null;
     if (!h || !v) return 0;
 
-    const crosses =
-      v.x1 >= h.minX - eps &&
-      v.x1 <= h.maxX + eps &&
-      h.y1 >= v.minY - eps &&
-      h.y1 <= v.maxY + eps;
-    return crosses ? MP_ROUTE_CROSS_PENALTY : 0;
+    const gapX =
+      v.x1 < h.minX ? h.minX - v.x1 : v.x1 > h.maxX ? v.x1 - h.maxX : 0;
+    const gapY =
+      h.y1 < v.minY ? v.minY - h.y1 : h.y1 > v.maxY ? h.y1 - v.maxY : 0;
+    const distance = Math.hypot(gapX, gapY);
+    if (distance <= eps) return MP_ROUTE_CROSS_PENALTY;
+    if (distance < MP_ROUTE_LINE_GAP) {
+      return MP_ROUTE_NEAR_PENALTY + (MP_ROUTE_LINE_GAP - distance) * 36;
+    }
+    return 0;
   },
 
   _nearSegmentPenalty(a, b, gap) {
@@ -1864,17 +1923,9 @@ const MapaPage = {
 
   _segmentBoxDistance(a, b) {
     const dx =
-      a.maxX < b.minX
-        ? b.minX - a.maxX
-        : b.maxX < a.minX
-          ? a.minX - b.maxX
-          : 0;
+      a.maxX < b.minX ? b.minX - a.maxX : b.maxX < a.minX ? a.minX - b.maxX : 0;
     const dy =
-      a.maxY < b.minY
-        ? b.minY - a.maxY
-        : b.maxY < a.minY
-          ? a.minY - b.maxY
-          : 0;
+      a.maxY < b.minY ? b.minY - a.maxY : b.maxY < a.minY ? a.minY - b.maxY : 0;
     return Math.hypot(dx, dy);
   },
 
@@ -1936,7 +1987,10 @@ const MapaPage = {
   _pathLength(points) {
     let length = 0;
     for (let i = 1; i < points.length; i++) {
-      length += Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y);
+      length += Math.hypot(
+        points[i].x - points[i - 1].x,
+        points[i].y - points[i - 1].y,
+      );
     }
     return length;
   },
@@ -1945,7 +1999,11 @@ const MapaPage = {
     const cleaned = [];
     points.forEach((p) => {
       const last = cleaned[cleaned.length - 1];
-      if (!last || Math.abs(last.x - p.x) > 0.01 || Math.abs(last.y - p.y) > 0.01) {
+      if (
+        !last ||
+        Math.abs(last.x - p.x) > 0.01 ||
+        Math.abs(last.y - p.y) > 0.01
+      ) {
         cleaned.push({ x: p.x, y: p.y });
       }
     });
@@ -1968,7 +2026,9 @@ const MapaPage = {
 
   _pathToD(points) {
     return points
-      .map((p, i) => (i === 0 ? "M" : "L") + p.x.toFixed(1) + " " + p.y.toFixed(1))
+      .map(
+        (p, i) => (i === 0 ? "M" : "L") + p.x.toFixed(1) + " " + p.y.toFixed(1),
+      )
       .join(" ");
   },
 

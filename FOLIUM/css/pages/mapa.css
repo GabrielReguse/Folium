@@ -668,7 +668,7 @@
   position: fixed;
   inset: 0;
   z-index: 30000;
-  background: #fff;
+  background: var(--surface);
   overflow: hidden;
   touch-action: none;
 }
@@ -686,7 +686,7 @@ body.mp-mobile-fullscreen-open {
   right: max(10px, env(safe-area-inset-right));
   z-index: 3;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
   pointer-events: none;
@@ -698,8 +698,10 @@ body.mp-mobile-fullscreen-open {
   gap: 8px;
   pointer-events: auto;
 }
-.mp-mobile-fullscreen[data-mode="editor"] .mp-mobile-fullscreen__actions--editor,
-.mp-mobile-fullscreen[data-mode="result"] .mp-mobile-fullscreen__actions--result {
+.mp-mobile-fullscreen[data-mode="editor"]
+  .mp-mobile-fullscreen__actions--editor,
+.mp-mobile-fullscreen[data-mode="result"]
+  .mp-mobile-fullscreen__actions--result {
   display: flex;
 }
 .mp-mobile-fullscreen__close,
@@ -719,9 +721,11 @@ body.mp-mobile-fullscreen-open {
   -webkit-tap-highlight-color: transparent;
 }
 .mp-mobile-fullscreen__close {
-  width: 38px;
-  padding: 0;
-  font-size: 24px;
+  padding: 0 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--caramel);
 }
 .mp-mobile-fullscreen__btn {
@@ -739,23 +743,21 @@ body.mp-mobile-fullscreen-open {
 .mp-mobile-fullscreen__viewport {
   position: absolute;
   inset: 0;
-  background: #fff;
+  background: var(--surface);
   overflow: hidden;
 }
 .mp-mobile-fullscreen__stage {
   position: absolute;
   left: 50%;
   top: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transform-origin: center center;
+  overflow: visible;
   will-change: transform;
 }
 .mp-canvas--mobile-fullscreen {
   margin: 0 !important;
-  box-shadow: none !important;
-  transform-origin: center center !important;
+  box-shadow: 0 14px 34px rgba(92, 61, 46, 0.16) !important;
+  transform-origin: top left !important;
   touch-action: none;
 }
 .mp-canvas--mobile-fullscreen .mp-node {
@@ -783,9 +785,6 @@ body.mp-mobile-fullscreen-open {
   }
   .mp-canvas-wrap {
     max-width: 100%;
-  }
-  .mp-result-card .mp-canvas-wrap--result {
-    max-height: 44vh;
   }
 }
 body.mp-mobile-fullscreen-open .mp-ordem-dropdown {

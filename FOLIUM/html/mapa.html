@@ -1197,7 +1197,7 @@
           type="button"
           aria-label="Fechar tela cheia"
         >
-          ×
+          Sair
         </button>
         <div
           class="mp-mobile-fullscreen__actions mp-mobile-fullscreen__actions--editor"
@@ -1226,7 +1226,10 @@
         >
           <button
             class="mp-mobile-fullscreen__btn"
-            onclick="MapaPage.closeMobileFullscreen(); MapaPage.goStep(4)"
+            onclick="
+              MapaPage.closeMobileFullscreen();
+              MapaPage.goStep(4);
+            "
             type="button"
           >
             Editar
@@ -1241,7 +1244,10 @@
         </div>
       </div>
       <div class="mp-mobile-fullscreen__viewport">
-        <div id="mp-mobile-fullscreen-stage" class="mp-mobile-fullscreen__stage"></div>
+        <div
+          id="mp-mobile-fullscreen-stage"
+          class="mp-mobile-fullscreen__stage"
+        ></div>
       </div>
     </div>
 
