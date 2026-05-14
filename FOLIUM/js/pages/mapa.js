@@ -153,8 +153,6 @@ const MapaPage = {
   _dropdownNodeId: null,
   _boundMove: null,
   _boundUp: null,
-  _lineRedrawFrame: null,
-  _pendingLineRedraw: null,
   _mobileFullscreen: null,
 
   init() {
@@ -503,8 +501,8 @@ const MapaPage = {
       nextSibling: canvas.nextSibling,
       scale: 1,
       rotated: false,
-      stageW: MP_CANVAS_W,
-      stageH: MP_CANVAS_H,
+      centerX: window.innerWidth / 2,
+      centerY: window.innerHeight / 2,
     };
 
     stage.innerHTML = "";
@@ -547,11 +545,11 @@ const MapaPage = {
 
     if (state.mode === "editor") {
       this._scaleCanvas("mp-canvas", "mp-canvas-wrap");
-      this._redrawLines("mp-canvas-svg", { fast: false });
+      this._redrawLines("mp-canvas-svg");
       this._checkWarnings();
     } else {
       this._scaleCanvas("mp-result-canvas", "mp-result-wrap");
-      this._redrawLines("mp-result-svg", { fast: false });
+      this._redrawLines("mp-result-svg");
     }
   },
 
@@ -570,19 +568,24 @@ const MapaPage = {
     const bottomPad = 14;
     const availableW = Math.max(1, vw - sidePad * 2);
     const availableH = Math.max(1, vh - topSpace - bottomPad);
-    const scale = Math.min(
-      1,
-      availableW / MP_CANVAS_W,
-      availableH / MP_CANVAS_H,
-    );
+    const rotated = vw < vh;
+    const visualW = rotated ? MP_CANVAS_H : MP_CANVAS_W;
+    const visualH = rotated ? MP_CANVAS_W : MP_CANVAS_H;
+    const scale = Math.min(1, availableW / visualW, availableH / visualH);
     const safeScale = Math.max(0.18, scale);
+    const centerX = vw / 2;
     const centerY = topSpace + availableH / 2;
 
     stage.style.width = MP_CANVAS_W + "px";
     stage.style.height = MP_CANVAS_H + "px";
-    stage.style.left = "50%";
+    stage.style.left = centerX + "px";
     stage.style.top = centerY + "px";
-    stage.style.transform = "translate(-50%, -50%) scale(" + safeScale + ")";
+    stage.style.transform =
+      "translate(-50%, -50%)" +
+      (rotated ? " rotate(90deg)" : "") +
+      " scale(" +
+      safeScale +
+      ")";
 
     state.canvas.style.transformOrigin = "top left";
     state.canvas.style.transform = "none";
@@ -590,9 +593,9 @@ const MapaPage = {
     state.canvas.style.marginTop = "0px";
 
     state.scale = safeScale;
-    state.rotated = false;
-    state.stageW = MP_CANVAS_W;
-    state.stageH = MP_CANVAS_H;
+    state.rotated = rotated;
+    state.centerX = centerX;
+    state.centerY = centerY;
     this._canvasScale = safeScale;
   },
 
@@ -608,12 +611,14 @@ const MapaPage = {
   _clientToCanvasPoint(canvas, clientX, clientY) {
     const state = this._mobileFullscreen;
     if (state?.canvas === canvas) {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = rect.width ? MP_CANVAS_W / rect.width : 1;
-      const scaleY = rect.height ? MP_CANVAS_H / rect.height : 1;
+      const scale = state.scale || 1;
+      const dx = (clientX - state.centerX) / scale;
+      const dy = (clientY - state.centerY) / scale;
+      const x = state.rotated ? MP_CANVAS_W / 2 + dy : MP_CANVAS_W / 2 + dx;
+      const y = state.rotated ? MP_CANVAS_H / 2 - dx : MP_CANVAS_H / 2 + dy;
       return {
-        x: mpClamp((clientX - rect.left) * scaleX, 0, MP_CANVAS_W),
-        y: mpClamp((clientY - rect.top) * scaleY, 0, MP_CANVAS_H),
+        x: mpClamp(x, 0, MP_CANVAS_W),
+        y: mpClamp(y, 0, MP_CANVAS_H),
       };
     }
 
@@ -835,7 +840,6 @@ const MapaPage = {
         el.style.left = node.x + "px";
         el.style.top = node.y + "px";
       }
-      this._scheduleRedrawLines("mp-canvas-svg", true);
     }
 
     if (this._resize) {
@@ -876,7 +880,6 @@ const MapaPage = {
         el.style.width = node.w + "px";
         el.style.height = node.h + "px";
       }
-      this._scheduleRedrawLines("mp-canvas-svg", true);
     }
   },
 
@@ -906,49 +909,18 @@ const MapaPage = {
       this._resize = null;
     }
     if (canvas) {
-      this._cancelScheduledLineRedraw();
-      this._redrawLines("mp-canvas-svg", { fast: false });
+      this._redrawLines("mp-canvas-svg");
       this._checkWarnings();
     }
   },
 
-  _scheduleRedrawLines(svgId, fast) {
-    const nextFast = fast !== false;
-    if (this._pendingLineRedraw) {
-      this._pendingLineRedraw.svgId = svgId;
-      this._pendingLineRedraw.fast =
-        this._pendingLineRedraw.fast !== false && nextFast;
-    } else {
-      this._pendingLineRedraw = { svgId, fast: nextFast };
-    }
-
-    if (this._lineRedrawFrame) return;
-    this._lineRedrawFrame = requestAnimationFrame(() => {
-      const pending = this._pendingLineRedraw;
-      this._lineRedrawFrame = null;
-      this._pendingLineRedraw = null;
-      if (!pending) return;
-      this._redrawLines(pending.svgId, { fast: pending.fast });
-    });
-  },
-
-  _cancelScheduledLineRedraw() {
-    if (this._lineRedrawFrame) {
-      cancelAnimationFrame(this._lineRedrawFrame);
-      this._lineRedrawFrame = null;
-    }
-    this._pendingLineRedraw = null;
-  },
-
-  _redrawLines(svgId, options = {}) {
+  _redrawLines(svgId) {
     const svg = document.getElementById(svgId);
     if (!svg) return;
     svg.innerHTML = "";
     const center = this.nodes.find((n) => n.isCenter);
     if (!center) return;
     const topics = this.nodes.filter((n) => !n.isCenter);
-    const fast = options.fast === true;
-
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     defs.innerHTML =
       '<marker id="arr-' +
@@ -1022,7 +994,7 @@ const MapaPage = {
         meta.side,
         meta.slot,
         routeContext,
-        { fast, laneX: meta.laneX, laneY: meta.laneY },
+        { laneX: meta.laneX, laneY: meta.laneY },
       );
       const d = this._pathToD(points);
 

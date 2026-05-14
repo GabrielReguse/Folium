@@ -169,20 +169,11 @@
   animation: home-logo-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.page-home .dock-nav-desktop {
-  animation: fadeIn 0.5s ease-out 0.3s both;
-}
-.page-home .bottom-nav {
-  animation: fadeIn 0.5s ease-out 0.3s both;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .home-anim-left,
   .home-anim-rise,
   .home-anim-right-panel,
-  .home-anim-logo,
-  .page-home .dock-nav-desktop,
-  .page-home .bottom-nav {
+  .home-anim-logo {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;

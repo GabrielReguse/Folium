@@ -60,7 +60,7 @@ const HomePage = {
     const greeting = Helpers.greeting();
 
     const topNav = document.createElement("div");
-    topNav.className = "home-top-nav fade-down";
+    topNav.className = "home-top-nav";
     topNav.innerHTML = `
       <div class="home-top-nav__spacer"></div>
       <img src="../assets/images/logo-folium.png"
@@ -169,7 +169,7 @@ const HomePage = {
     page.appendChild(vinicius);
 
     const burger = document.createElement("button");
-    burger.className = "desk-burger fade-down";
+    burger.className = "desk-burger";
     burger.setAttribute("aria-label", "Abrir menu");
     burger.onclick = () => Sidebar.toggle();
     burger.innerHTML = `
