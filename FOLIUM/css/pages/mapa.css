@@ -768,6 +768,12 @@ body.mp-mobile-fullscreen-open {
   .mp-mobile-open-btn {
     display: inline-flex;
   }
+  .page-mapa #mpane4 .mp-editor-toolbar,
+  .page-mapa #mpane4 #mp-canvas-wrap,
+  .page-mapa #mpane4 #mp-editor-warnings,
+  .page-mapa #mpane5 #mp-result-wrap {
+    display: none;
+  }
   .mp-editor-toolbar {
     gap: 10px;
   }

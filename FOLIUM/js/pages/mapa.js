@@ -35,6 +35,7 @@ const MP_ROUTE_LINE_GAP = 14;
 const MP_ROUTE_HALO_WIDTH = 9;
 const MP_ROUTE_CROSS_PENALTY = 9000;
 const MP_ROUTE_NEAR_PENALTY = 650;
+const MP_ROUTE_LINE_SCORE_WEIGHT = 0.18;
 const MP_NODE_MIN_W = 176;
 const MP_NODE_MAX_W = 238;
 const MP_NODE_DEFAULT_H = 110;
@@ -1242,7 +1243,7 @@ const MapaPage = {
         const score =
           this._pathLength(fullPath) +
           usagePenalty * 14 +
-          linePenalty +
+          linePenalty * MP_ROUTE_LINE_SCORE_WEIGHT +
           this._turnCount(fullPath) * 9 +
           attempt.sidePenaltyOffset * 34;
         const candidate = { path: fullPath, score, linePenalty, usagePenalty };
@@ -1319,7 +1320,11 @@ const MapaPage = {
           linePenalty,
           turns,
           length,
-          score: linePenalty + usagePenalty * 14 + turns * 9 + length,
+          score:
+            linePenalty * MP_ROUTE_LINE_SCORE_WEIGHT +
+            usagePenalty * 14 +
+            turns * 9 +
+            length,
         };
         if (!best || candidate.score < best.score) best = candidate;
         if (linePenalty === 0 && usagePenalty === 0) {
@@ -1354,6 +1359,11 @@ const MapaPage = {
       return paired.best.path;
     }
 
+    const bestFallback = [paired.best, simple.best]
+      .filter(Boolean)
+      .sort((a, b) => a.score - b.score)[0];
+    if (bestFallback) return bestFallback.path;
+
     const gridRoute = this._buildGridRoute(
       start,
       end,
@@ -1378,27 +1388,15 @@ const MapaPage = {
         linePenalty,
         turns,
         length,
-        score: linePenalty + usagePenalty * 14 + turns * 9 + length,
+        score:
+          linePenalty * MP_ROUTE_LINE_SCORE_WEIGHT +
+          usagePenalty * 14 +
+          turns * 9 +
+          length,
       };
-      const bestFallback = [paired.best, simple.best]
-        .filter(Boolean)
-        .sort((a, b) => a.score - b.score)[0];
-      if (!bestFallback || gridCandidate.score <= bestFallback.score) {
-        return gridCandidate.path;
-      }
-      if (gridCandidate.linePenalty === 0 && gridCandidate.usagePenalty === 0) {
-        return gridCandidate.path;
-      }
-      if (
-        bestFallback.linePenalty >= MP_ROUTE_CROSS_PENALTY &&
-        gridCandidate.linePenalty < MP_ROUTE_CROSS_PENALTY
-      ) {
-        return gridCandidate.path;
-      }
+      return gridCandidate.path;
     }
 
-    if (paired.best) return paired.best.path;
-    if (simple.best) return simple.best.path;
     return this._simplifyPath([start, { x: start.x, y: end.y }, end]);
   },
 

@@ -179,7 +179,7 @@ const SuportePage = {
   },
 
   _updateTopicCounts() {
-    const cats = ["primeiros-passos", "ia-resumos", "conta-dados"];
+    const cats = ["primeiros-passos", "mapas", "biblioteca", "conta-dados"];
     cats.forEach((cat) => {
       const count = document.querySelectorAll(
         `.sup-faq[data-cat="${cat}"]`,
