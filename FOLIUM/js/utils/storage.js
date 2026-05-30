@@ -75,4 +75,37 @@ const Storage = {
   setContext: (key, val) => Storage.set("ctx_" + key, val),
   getContext: (key, fb) => Storage.get("ctx_" + key, fb),
   clearContext: (key) => Storage.remove("ctx_" + key),
+
+  // Mind map helpers — mapas live nested inside subjects[n].mapas
+  getMindMaps() {
+    return Storage.getSubjects().flatMap((s) =>
+      (s.mapas || []).map((m) => ({
+        ...m,
+        subjectId: s.id,
+        subjectName: s.nomeNormalizado || s.nomeOriginal || "Matéria",
+      })),
+    );
+  },
+
+  toggleMapFavorite(subjectId, mapaId) {
+    const subjects = Storage.getSubjects();
+    const s = subjects.find((x) => x.id === subjectId);
+    if (!s) return;
+    const m = (s.mapas || []).find((x) => x.id === mapaId);
+    if (!m) return;
+    m.favorita = !m.favorita;
+    Storage.setSubjects(subjects);
+  },
+
+  deleteMap(subjectId, mapaId) {
+    const subjects = Storage.getSubjects();
+    const s = subjects.find((x) => x.id === subjectId);
+    if (!s) return;
+    s.mapas = (s.mapas || []).filter((x) => x.id !== mapaId);
+    if (!s.mapas.length && !(s.folhas || []).length) {
+      Storage.setSubjects(subjects.filter((x) => x.id !== subjectId));
+    } else {
+      Storage.setSubjects(subjects);
+    }
+  },
 };

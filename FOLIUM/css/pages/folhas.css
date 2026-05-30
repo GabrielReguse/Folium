@@ -183,10 +183,8 @@
   display: none;
 }
 
-.fh-toolbar {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
+.fh-toolbar-legacy-placeholder {
+  /* original grid replaced by flex layout below */
   padding: 0;
 }
 
@@ -278,9 +276,7 @@
 }
 
 .fh-cta {
-  justify-self: stretch;
-  width: 100%;
-  padding: 12px 18px;
+  /* sizing handled by .fh-toolbar-main .fh-cta */
   border-radius: var(--r-sm);
   font-size: 14.5px;
 }
@@ -548,15 +544,10 @@
     font-size: 10px;
   }
 
-  .fh-toolbar {
-    grid-template-columns: minmax(240px, 1fr) auto auto;
-    align-items: center;
-    gap: 14px;
-  }
+  /* toolbar now uses flex column — see bottom of file */
 
   .fh-cta {
     width: auto;
-    justify-self: end;
     padding: 12px 22px;
   }
 
@@ -612,5 +603,319 @@
   }
   .fh-grid .subj-card:hover {
     transform: none;
+  }
+}
+
+/* ─── Type toggle pill ─────────────────────────────────── */
+
+.fh-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+}
+
+.fh-toolbar-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fh-toolbar-main .fh-search {
+  flex: 1;
+}
+
+.fh-toolbar-main .fh-cta {
+  flex-shrink: 0;
+  width: auto;
+  padding: 12px 18px;
+  border-radius: var(--r-sm);
+  font-size: 14.5px;
+}
+
+.fh-type-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--sand-light);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px;
+  align-self: flex-start;
+}
+
+.fh-type-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-mid);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease),
+    box-shadow 0.2s var(--ease);
+}
+
+.fh-type-btn[data-type="folhas"].active {
+  background: var(--caramel);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(155, 107, 66, 0.28);
+}
+
+.fh-type-btn[data-type="mapas"].active {
+  background: var(--forest);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(61, 107, 77, 0.28);
+}
+
+.fh-type-btn:not(.active):hover {
+  color: var(--brown);
+}
+
+/* ─── Mapas mode accent cascade ─────────────────────────── */
+
+.fh-shell.type-mapas .fh-tab.active {
+  background: var(--forest);
+  box-shadow: 0 4px 14px rgba(61, 107, 77, 0.22);
+}
+
+.fh-shell.type-mapas .fh-search-input:focus {
+  border-color: var(--forest);
+  box-shadow: 0 0 0 3px var(--forest-focus);
+}
+
+.fh-shell.type-mapas .fh-cta {
+  background: var(--forest);
+  border-color: var(--forest);
+}
+
+.fh-shell.type-mapas .fh-cta:hover {
+  background: #2d5a3d;
+  border-color: #2d5a3d;
+}
+
+.fh-shell.type-mapas .fh-count {
+  color: var(--forest);
+  background: var(--forest-lt);
+  border-color: rgba(61, 107, 77, 0.25);
+}
+
+.fh-shell.type-mapas .fh-grid .subj-card:nth-child(3n + 1) {
+  border-left-color: var(--forest);
+}
+.fh-shell.type-mapas .fh-grid .subj-card:nth-child(3n + 2) {
+  border-left-color: var(--forest-mid);
+}
+.fh-shell.type-mapas .fh-grid .subj-card:nth-child(3n + 3) {
+  border-left-color: rgba(61, 107, 77, 0.38);
+}
+
+/* Subject card — mapas variant */
+.subj-card--maps .subj-emoji--forest {
+  background: var(--forest-lt);
+}
+.subj-card--maps .subj-emoji--forest svg {
+  stroke: var(--forest);
+}
+
+/* ─── Map card ───────────────────────────────────────────── */
+
+.map-card-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font-family: var(--font-sans);
+  color: inherit;
+  position: relative;
+  transition: box-shadow var(--t-mid), transform var(--t-mid),
+    border-color var(--t-mid);
+}
+
+.map-card-item:hover {
+  box-shadow: var(--sh);
+  border-color: rgba(61, 107, 77, 0.4);
+  transform: translateY(-2px);
+}
+
+.map-card-item:active {
+  transform: scale(0.98);
+}
+
+.mc-thumb {
+  width: 76px;
+  height: 58px;
+  border-radius: var(--r-sm);
+  background: var(--forest-lt);
+  border: 1px solid rgba(61, 107, 77, 0.2);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mc-thumb-svg,
+.mc-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mc-thumb-svg svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mc-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-title {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mc-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mc-node-count,
+.mc-date {
+  font-size: 11.5px;
+  color: var(--text-light);
+  font-weight: 400;
+}
+
+.mc-subject-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--forest);
+  background: var(--forest-lt);
+  border: 1px solid rgba(61, 107, 77, 0.2);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.mc-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.mc-fav,
+.mc-del {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: background 0.15s, color 0.15s;
+}
+
+.mc-fav:hover,
+.mc-del:hover {
+  background: var(--hover-bg);
+}
+
+.mc-fav.on {
+  color: #f5a623;
+}
+
+.mc-del:hover {
+  color: #e05252;
+}
+
+/* ─── 4-stat hero adjustments ────────────────────────────── */
+
+.fh-stats {
+  max-width: 600px;
+}
+
+/* Forest empty state CTA */
+.fh-empty-art--forest {
+  background: var(--forest-lt);
+}
+
+.fh-empty-cta--forest {
+  background: var(--forest);
+  color: #fff;
+  border-color: var(--forest);
+}
+
+.fh-empty-cta--forest:hover {
+  background: #2d5a3d;
+}
+
+/* ─── Desktop overrides for new toolbar ──────────────────── */
+
+@media (min-width: 900px) {
+  .fh-stats {
+    max-width: 640px;
+  }
+
+  .fh-toolbar {
+    gap: 14px;
+  }
+
+  .fh-toolbar-main {
+    gap: 14px;
+  }
+
+  .fh-toolbar-main .fh-cta {
+    padding: 12px 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fh-stats {
+    max-width: none;
+  }
+
+  .mc-thumb {
+    width: 60px;
+    height: 48px;
+  }
+
+  .mc-title {
+    font-size: 14px;
+  }
+
+  .fh-type-btn {
+    padding: 8px 14px;
+    font-size: 12.5px;
   }
 }

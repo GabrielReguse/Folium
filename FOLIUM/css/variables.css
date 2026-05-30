@@ -14,6 +14,11 @@
   --caramel: #9b6b42;
   --caramel-lt: rgba(155, 107, 66, 0.12);
 
+  --forest: #3d6b4d;
+  --forest-mid: #5a8f6c;
+  --forest-lt: rgba(61, 107, 77, 0.12);
+  --forest-focus: rgba(61, 107, 77, 0.22);
+
   --text: #2c1810;
   --text-mid: #6b4c35;
   --text-light: #a07855;

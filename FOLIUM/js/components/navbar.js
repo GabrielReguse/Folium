@@ -2,6 +2,7 @@ const NavIcons = {
   home: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>`,
   criar: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
   folhas: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/></svg>`,
+  biblioteca: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h4v16H4z"/><path d="M10 7h4v13h-4z"/><path d="M16 2h4v18h-4z"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
   suporte: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"/></svg>`,
   back: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>`,
   burger: `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><line x1="3" y1="7"  x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg>`,
@@ -54,7 +55,7 @@ const Navbar = {
     const items = [
       { route: "home", icon: NavIcons.home, label: "Início" },
       { route: "escolher", icon: NavIcons.criar, label: "Criar" },
-      { route: "folhas", icon: NavIcons.folhas, label: "Folhas" },
+      { route: "folhas", icon: NavIcons.biblioteca, label: "Biblioteca" },
       { route: "suporte", icon: NavIcons.suporte, label: "Suporte" },
     ];
 
@@ -96,7 +97,7 @@ const Navbar = {
     const items = [
       { route: "home", icon: NavIcons.home, label: "Início" },
       { route: "escolher", icon: NavIcons.criar, label: "Criar" },
-      { route: "folhas", icon: NavIcons.folhas, label: "Folhas" },
+      { route: "folhas", icon: NavIcons.biblioteca, label: "Biblioteca" },
       { route: "suporte", icon: NavIcons.suporte, label: "Suporte" },
     ];
 

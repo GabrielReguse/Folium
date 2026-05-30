@@ -80,6 +80,84 @@ const Card = {
     return btn;
   },
 
+  subjectMapas(s) {
+    const nome = s.nomeNormalizado || s.name || "Matéria";
+    const count = Array.isArray(s.mapas) ? s.mapas.length : 0;
+    const icon = CardIcons.getSubjectIcon(nome);
+
+    const btn = document.createElement("button");
+    btn.className = "subj-card subj-card--maps";
+    btn.innerHTML = `
+      <div class="subj-emoji subj-emoji--forest">${icon}</div>
+      <div class="subj-info">
+        <div class="subj-name">${nome}</div>
+        <div class="subj-count">${count} mapa${count !== 1 ? "s" : ""}</div>
+      </div>
+      <span class="subj-arr">${CardIcons.arrow}</span>`;
+    btn.addEventListener("click", () =>
+      Router.go("materia", { subjectId: s.id }),
+    );
+    return btn;
+  },
+
+  mindMap(m) {
+    const titulo = m.titulo || "Mapa";
+    const data = m.dataFormatada || "";
+    const nodesCount = Array.isArray(m.topicos) ? m.topicos.length :
+      Array.isArray(m.nodes) ? m.nodes.filter((n) => !n.isCenter).length : 0;
+    const isFav = !!m.favorita;
+    const thumbSvg = m.thumbSvg || "";
+    const subjectName = m.subjectName || "";
+    const onFavorite = m.onFavorite;
+    const onDelete = m.onDelete;
+
+    const mapNodeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px;stroke:var(--forest);opacity:.65"><circle cx="12" cy="5" r="2.5"/><circle cx="4" cy="19" r="2.5"/><circle cx="20" cy="19" r="2.5"/><line x1="12" y1="7.5" x2="4" y2="16.5"/><line x1="12" y1="7.5" x2="20" y2="16.5"/></svg>`;
+    const delIcon = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+
+    const btn = document.createElement("button");
+    btn.className = "map-card-item";
+    btn.innerHTML = `
+      <div class="mc-thumb">
+        ${thumbSvg
+          ? `<div class="mc-thumb-svg">${thumbSvg}</div>`
+          : `<div class="mc-thumb-placeholder">${mapNodeIcon}</div>`}
+      </div>
+      <div class="mc-info">
+        <div class="mc-title">${titulo}</div>
+        <div class="mc-meta">
+          <span class="mc-node-count">${nodesCount} nó${nodesCount !== 1 ? "s" : ""}</span>
+          ${subjectName ? `<span class="mc-subject-tag">${subjectName}</span>` : ""}
+          ${data ? `<span class="mc-date">${data}</span>` : ""}
+        </div>
+      </div>
+      <div class="mc-actions">
+        <button class="fav-btn mc-fav ${isFav ? "on" : ""}" title="${isFav ? "Remover favorito" : "Favoritar"}">
+          ${isFav ? CardIcons.starFill : CardIcons.star}
+        </button>
+        ${onDelete ? `<button class="del-btn mc-del" title="Apagar mapa">${delIcon}</button>` : ""}
+      </div>`;
+
+    const favBtn = btn.querySelector(".fav-btn");
+    if (favBtn && onFavorite) {
+      favBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        onFavorite();
+      });
+    }
+    const delBtn = btn.querySelector(".del-btn");
+    if (delBtn && onDelete) {
+      delBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        onDelete();
+      });
+    }
+
+    btn.addEventListener("click", () =>
+      Router.go("materia", { subjectId: m.subjectId }),
+    );
+    return btn;
+  },
+
   sheet(sh) {
     const titulo = sh.titulo || sh.title || "Folha";
     const data = sh.dataFormatada || sh.date || "";

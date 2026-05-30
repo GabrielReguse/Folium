@@ -46,8 +46,8 @@ const Sidebar = {
       {
         route: "folhas",
         label: "Biblioteca",
-        sub: "Folhas salvas",
-        icon: '<path d="M6 3h12a1 1 0 0 1 1 1v17l-7-3-7 3V4a1 1 0 0 1 1-1Z"/><path d="M9 8h6M9 12h4"/>',
+        sub: "Folhas e mapas",
+        icon: '<path d="M4 4h4v16H4z"/><path d="M10 7h4v13h-4z"/><path d="M16 2h4v18h-4z"/><line x1="2" y1="20" x2="22" y2="20"/>',
       },
       {
         route: "suporte",

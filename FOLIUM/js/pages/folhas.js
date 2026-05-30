@@ -1,14 +1,14 @@
 const FolhasPage = {
   _tab: "subjects",
+  _type: "folhas", // "folhas" | "mapas"
   _query: "",
   _subjects: [],
-
   _heroAnimated: false,
 
   init() {
     if (!Router.requireAuth()) return;
 
-    Navbar.renderTop({ title: "<em>Minhas Folhas</em>" });
+    Navbar.renderTop({ title: "<em>Minha Biblioteca</em>" });
     Navbar.renderBottom("folhas");
     Sidebar.init();
 
@@ -28,17 +28,12 @@ const FolhasPage = {
     document.querySelectorAll(".fh-stat-num").forEach((el) => {
       const target = parseInt(el.dataset.target || el.textContent, 10) || 0;
       el.textContent = "0";
-
       setTimeout(() => this._countUp(el, target), 260);
     });
   },
 
   _countUp(el, target) {
-    if (target <= 0) {
-      el.textContent = "0";
-      return;
-    }
-
+    if (target <= 0) { el.textContent = "0"; return; }
     const duration = 1200;
     const start = performance.now();
     const ease = (t) => 1 - Math.pow(1 - t, 3);
@@ -83,16 +78,20 @@ const FolhasPage = {
     hero.className = "fh-hero au";
     hero.innerHTML = `
       <span class="fh-eyebrow">Biblioteca pessoal</span>
-      <h1 class="fh-title">Sua <em>biblioteca</em> de folhas</h1>
+      <h1 class="fh-title">Sua <em>biblioteca</em> de folhas e mapas</h1>
       <p class="fh-lede">
-        Revise seus resumos organizados por matéria, encontre o que precisa
-        em segundos e retome os estudos de onde parou.
+        Revise seus resumos e mapas mentais organizados por matéria,
+        encontre o que precisa em segundos e retome os estudos de onde parou.
       </p>
 
       <div class="fh-stats" role="list">
         <div class="fh-stat" role="listitem">
           <div class="fh-stat-num" data-target="${totals.sheets}">${totals.sheets}</div>
           <div class="fh-stat-lbl">Folhas</div>
+        </div>
+        <div class="fh-stat" role="listitem">
+          <div class="fh-stat-num" data-target="${totals.mapas}">${totals.mapas}</div>
+          <div class="fh-stat-lbl">Mapas</div>
         </div>
         <div class="fh-stat" role="listitem">
           <div class="fh-stat-num" data-target="${totals.subjects}">${totals.subjects}</div>
@@ -117,44 +116,67 @@ const FolhasPage = {
   _buildToolbar() {
     const bar = document.createElement("section");
     bar.className = "fh-toolbar au au1";
+
+    const folhaSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg>`;
+    const mapaSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:currentColor"><circle cx="12" cy="5" r="2"/><circle cx="4" cy="19" r="2"/><circle cx="20" cy="19" r="2"/><line x1="12" y1="7" x2="4" y2="17"/><line x1="12" y1="7" x2="20" y2="17"/></svg>`;
+    const plusSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+
     bar.innerHTML = `
-      <div class="fh-search">
-        <svg class="fh-search-icon" viewBox="0 0 24 24" fill="none"
-             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="7"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input
-          id="fh-search-input"
-          class="fh-search-input"
-          type="search"
-          autocomplete="off"
-          placeholder="Buscar matéria, tema ou folha…"
-          aria-label="Buscar"
-        />
+      <!-- Type toggle pill -->
+      <div class="fh-type-toggle" role="radiogroup" aria-label="Tipo de conteúdo">
+        <button class="fh-type-btn active" data-type="folhas" role="radio" aria-checked="true">
+          ${folhaSvg} Folhas
+        </button>
+        <button class="fh-type-btn" data-type="mapas" role="radio" aria-checked="false">
+          ${mapaSvg} Mapas
+        </button>
       </div>
 
+      <!-- Search + CTA row -->
+      <div class="fh-toolbar-main">
+        <div class="fh-search">
+          <svg class="fh-search-icon" viewBox="0 0 24 24" fill="none"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            id="fh-search-input"
+            class="fh-search-input"
+            type="search"
+            autocomplete="off"
+            placeholder="Buscar matéria, tema ou folha…"
+            aria-label="Buscar"
+          />
+        </div>
+        <button class="btn btn-primary fh-cta" type="button">
+          ${plusSvg}
+          <span>Criar folha</span>
+        </button>
+      </div>
+
+      <!-- Tabs row -->
       <div class="fh-tabs" role="tablist">
         <button class="fh-tab" role="tab" data-tab="subjects">Matérias</button>
         <button class="fh-tab" role="tab" data-tab="recent">Recentes</button>
         <button class="fh-tab" role="tab" data-tab="fav">Favoritas</button>
       </div>
-
-      <button class="btn btn-primary fh-cta" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-             style="width:16px;height:16px">
-          <line x1="12" y1="5" x2="12" y2="19"/>
-          <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        <span>Criar folha</span>
-      </button>
     `;
 
-    bar
-      .querySelector(".fh-cta")
-      .addEventListener("click", () => Router.go("criar"));
+    // Type toggle events
+    bar.querySelectorAll(".fh-type-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        this._type = btn.dataset.type;
+        this._renderContent();
+      });
+    });
 
+    // CTA click — route depends on type
+    bar.querySelector(".fh-cta").addEventListener("click", () => {
+      Router.go(this._type === "mapas" ? "mapa" : "criar");
+    });
+
+    // Tab events
     bar.querySelectorAll(".fh-tab").forEach((btn) => {
       btn.addEventListener("click", () => {
         this._tab = btn.dataset.tab;
@@ -162,6 +184,7 @@ const FolhasPage = {
       });
     });
 
+    // Search input
     const input = bar.querySelector("#fh-search-input");
     input.addEventListener("input", (e) => {
       this._query = (e.target.value || "").trim().toLowerCase();
@@ -171,6 +194,8 @@ const FolhasPage = {
     return bar;
   },
 
+  // ── Sync helpers ──────────────────────────────────────────
+
   _syncTabs() {
     document.querySelectorAll(".fh-tab").forEach((t) => {
       const isActive = t.dataset.tab === this._tab;
@@ -179,21 +204,59 @@ const FolhasPage = {
     });
   },
 
+  _syncType() {
+    const shell = document.querySelector(".fh-shell");
+    if (shell) {
+      shell.classList.toggle("type-mapas", this._type === "mapas");
+    }
+
+    document.querySelectorAll(".fh-type-btn").forEach((btn) => {
+      const isActive = btn.dataset.type === this._type;
+      btn.classList.toggle("active", isActive);
+      btn.setAttribute("aria-checked", isActive ? "true" : "false");
+    });
+
+    // CTA label + placeholder
+    const ctaSpan = document.querySelector(".fh-cta span");
+    if (ctaSpan) ctaSpan.textContent = this._type === "mapas" ? "Criar mapa" : "Criar folha";
+    const input = document.querySelector(".fh-search-input");
+    if (input) input.placeholder = this._type === "mapas"
+      ? "Buscar mapa ou matéria…"
+      : "Buscar matéria, tema ou folha…";
+  },
+
+  // ── Main render ───────────────────────────────────────────
+
   _renderContent() {
     this._syncTabs();
+    this._syncType();
+
     const box = DOM.$("#fh-content");
     if (!box) return;
     DOM.clear(box);
 
-    if (!this._subjects.length) {
-      box.appendChild(this._emptyStateGlobal());
-      return;
+    if (this._type === "folhas") {
+      if (!this._subjects.length) {
+        box.appendChild(this._emptyStateGlobal());
+        return;
+      }
+      if (this._tab === "subjects") return this._renderSubjects(box);
+      if (this._tab === "recent") return this._renderRecent(box);
+      if (this._tab === "fav") return this._renderFavorites(box);
+    } else {
+      // ── Mapas mode ──
+      const withMapas = this._subjects.filter((s) => (s.mapas || []).length > 0);
+      if (!withMapas.length) {
+        box.appendChild(this._emptyStateMapas());
+        return;
+      }
+      if (this._tab === "subjects") return this._renderMapasSubjects(box, withMapas);
+      if (this._tab === "recent") return this._renderMapasRecent(box);
+      if (this._tab === "fav") return this._renderMapasFavorites(box);
     }
-
-    if (this._tab === "subjects") return this._renderSubjects(box);
-    if (this._tab === "recent") return this._renderRecent(box);
-    if (this._tab === "fav") return this._renderFavorites(box);
   },
+
+  // ── Folhas renderers (unchanged logic) ───────────────────
 
   _renderSubjects(box) {
     const q = this._query;
@@ -208,21 +271,9 @@ const FolhasPage = {
         ),
     );
 
-    const header = document.createElement("div");
-    header.className = "fh-section-head au au2";
-    header.innerHTML = `
-      <div>
-        <span class="t-label">Matérias</span>
-        <h2 class="fh-section-title">Organizadas por tema</h2>
-      </div>
-      <span class="fh-count">${list.length}</span>
-    `;
-    box.appendChild(header);
+    box.appendChild(this._sectionHead("Matérias", "Organizadas por tema", list.length));
 
-    if (!list.length) {
-      box.appendChild(this._emptyStateFiltered("Nenhuma matéria encontrada."));
-      return;
-    }
+    if (!list.length) { box.appendChild(this._emptyStateFiltered("Nenhuma matéria encontrada.")); return; }
 
     const grid = document.createElement("div");
     grid.className = "fh-grid";
@@ -236,28 +287,12 @@ const FolhasPage = {
 
   _renderRecent(box) {
     const flat = this._flattenSheets();
-    flat.sort(
-      (a, b) =>
-        new Date(b.folha.criadaEm || 0) - new Date(a.folha.criadaEm || 0),
-    );
-
+    flat.sort((a, b) => new Date(b.folha.criadaEm || 0) - new Date(a.folha.criadaEm || 0));
     const list = this._filterFlat(flat).slice(0, 30);
 
-    const header = document.createElement("div");
-    header.className = "fh-section-head au au2";
-    header.innerHTML = `
-      <div>
-        <span class="t-label">Últimas atividades</span>
-        <h2 class="fh-section-title">Folhas recentes</h2>
-      </div>
-      <span class="fh-count">${list.length}</span>
-    `;
-    box.appendChild(header);
+    box.appendChild(this._sectionHead("Últimas atividades", "Folhas recentes", list.length));
 
-    if (!list.length) {
-      box.appendChild(this._emptyStateFiltered("Nada por aqui ainda."));
-      return;
-    }
+    if (!list.length) { box.appendChild(this._emptyStateFiltered("Nada por aqui ainda.")); return; }
 
     const wrap = document.createElement("div");
     wrap.className = "fh-list";
@@ -271,30 +306,13 @@ const FolhasPage = {
 
   _renderFavorites(box) {
     const flat = this._flattenSheets().filter((e) => e.folha.favorita);
-    flat.sort(
-      (a, b) =>
-        new Date(b.folha.criadaEm || 0) - new Date(a.folha.criadaEm || 0),
-    );
-
+    flat.sort((a, b) => new Date(b.folha.criadaEm || 0) - new Date(a.folha.criadaEm || 0));
     const list = this._filterFlat(flat);
 
-    const header = document.createElement("div");
-    header.className = "fh-section-head au au2";
-    header.innerHTML = `
-      <div>
-        <span class="t-label">Guardadas por você</span>
-        <h2 class="fh-section-title">Folhas favoritas</h2>
-      </div>
-      <span class="fh-count">${list.length}</span>
-    `;
-    box.appendChild(header);
+    box.appendChild(this._sectionHead("Guardadas por você", "Folhas favoritas", list.length));
 
     if (!list.length) {
-      box.appendChild(
-        this._emptyStateFiltered(
-          "Favorite folhas para encontrá-las rapidamente aqui.",
-        ),
-      );
+      box.appendChild(this._emptyStateFiltered("Favorite folhas para encontrá-las rapidamente aqui."));
       return;
     }
 
@@ -308,33 +326,73 @@ const FolhasPage = {
     box.appendChild(wrap);
   },
 
-  _staggerCard(card, i) {
-    if (!card) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    card.classList.add("au");
-    card.style.animationDelay = `${0.18 + i * 0.05}s`;
-  },
+  // ── Mapas renderers ───────────────────────────────────────
 
-  _flattenSheets() {
-    const out = [];
-    (this._subjects || []).forEach((subject) => {
-      (subject.folhas || []).forEach((folha) => {
-        out.push({ subject, folha });
-      });
-    });
-    return out;
-  },
-
-  _filterFlat(flat) {
+  _renderMapasSubjects(box, subjects) {
     const q = this._query;
-    if (!q) return flat;
-    return flat.filter(
-      ({ subject, folha }) =>
-        (folha.titulo || "").toLowerCase().includes(q) ||
-        (folha.tema || "").toLowerCase().includes(q) ||
-        (subject.nomeNormalizado || "").toLowerCase().includes(q),
+    const list = subjects.filter(
+      (s) =>
+        !q ||
+        (s.nomeNormalizado || "").toLowerCase().includes(q) ||
+        (s.mapas || []).some((m) => (m.titulo || "").toLowerCase().includes(q)),
     );
+
+    box.appendChild(this._sectionHead("Matérias", "Mapas por tema", list.length));
+
+    if (!list.length) { box.appendChild(this._emptyStateFiltered("Nenhuma matéria encontrada.")); return; }
+
+    const grid = document.createElement("div");
+    grid.className = "fh-grid";
+    list.forEach((s, i) => {
+      const card = Card.subjectMapas(s);
+      this._staggerCard(card, i);
+      grid.appendChild(card);
+    });
+    box.appendChild(grid);
   },
+
+  _renderMapasRecent(box) {
+    const flat = this._flattenMapas();
+    flat.sort((a, b) => new Date(b.criadaEm || 0) - new Date(a.criadaEm || 0));
+    const list = this._filterFlatMapas(flat).slice(0, 30);
+
+    box.appendChild(this._sectionHead("Últimas atividades", "Mapas recentes", list.length));
+
+    if (!list.length) { box.appendChild(this._emptyStateFiltered("Nenhum mapa ainda.")); return; }
+
+    const wrap = document.createElement("div");
+    wrap.className = "fh-list";
+    list.forEach((mapa, i) => {
+      const card = this._makeMapCard(mapa);
+      this._staggerCard(card, i);
+      wrap.appendChild(card);
+    });
+    box.appendChild(wrap);
+  },
+
+  _renderMapasFavorites(box) {
+    const flat = this._flattenMapas().filter((m) => m.favorita);
+    flat.sort((a, b) => new Date(b.criadaEm || 0) - new Date(a.criadaEm || 0));
+    const list = this._filterFlatMapas(flat);
+
+    box.appendChild(this._sectionHead("Guardados por você", "Mapas favoritos", list.length));
+
+    if (!list.length) {
+      box.appendChild(this._emptyStateFiltered("Favorite mapas para encontrá-los rapidamente aqui."));
+      return;
+    }
+
+    const wrap = document.createElement("div");
+    wrap.className = "fh-list";
+    list.forEach((mapa, i) => {
+      const card = this._makeMapCard(mapa);
+      this._staggerCard(card, i);
+      wrap.appendChild(card);
+    });
+    box.appendChild(wrap);
+  },
+
+  // ── Card factories ────────────────────────────────────────
 
   _makeSheetCard({ subject, folha }) {
     const card = Card.sheet({
@@ -351,9 +409,78 @@ const FolhasPage = {
       tag.textContent = subject.nomeNormalizado || "Matéria";
       meta.insertBefore(tag, meta.firstChild);
     }
-
     return card;
   },
+
+  _makeMapCard(mapa) {
+    return Card.mindMap({
+      ...mapa,
+      onFavorite: () => {
+        Storage.toggleMapFavorite(mapa.subjectId, mapa.id);
+        this._subjects = Storage.getSubjects();
+        this._renderContent();
+        this._refreshHeroStats();
+      },
+      onDelete: () => this._deleteMap(mapa.subjectId, mapa.id, mapa.titulo),
+    });
+  },
+
+  // ── Data helpers ──────────────────────────────────────────
+
+  _flattenSheets() {
+    const out = [];
+    (this._subjects || []).forEach((subject) => {
+      (subject.folhas || []).forEach((folha) => out.push({ subject, folha }));
+    });
+    return out;
+  },
+
+  _filterFlat(flat) {
+    const q = this._query;
+    if (!q) return flat;
+    return flat.filter(
+      ({ subject, folha }) =>
+        (folha.titulo || "").toLowerCase().includes(q) ||
+        (folha.tema || "").toLowerCase().includes(q) ||
+        (subject.nomeNormalizado || "").toLowerCase().includes(q),
+    );
+  },
+
+  _flattenMapas() {
+    return Storage.getMindMaps();
+  },
+
+  _filterFlatMapas(mapas) {
+    const q = this._query;
+    if (!q) return mapas;
+    return mapas.filter(
+      (m) =>
+        (m.titulo || "").toLowerCase().includes(q) ||
+        (m.subjectName || "").toLowerCase().includes(q),
+    );
+  },
+
+  _staggerCard(card, i) {
+    if (!card) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    card.classList.add("au");
+    card.style.animationDelay = `${0.18 + i * 0.05}s`;
+  },
+
+  _sectionHead(label, title, count) {
+    const el = document.createElement("div");
+    el.className = "fh-section-head au au2";
+    el.innerHTML = `
+      <div>
+        <span class="t-label">${label}</span>
+        <h2 class="fh-section-title">${title}</h2>
+      </div>
+      <span class="fh-count">${count}</span>
+    `;
+    return el;
+  },
+
+  // ── Mutations ─────────────────────────────────────────────
 
   _toggleFavorite(subjectId, sheetId) {
     const subjects = Storage.getSubjects();
@@ -380,10 +507,7 @@ const FolhasPage = {
       const s = all.find((x) => x.id === subjectId);
       if (!s) return;
       s.folhas = (s.folhas || []).filter((x) => x.id !== sheetId);
-
-      const next = s.folhas.length
-        ? all
-        : all.filter((x) => x.id !== subjectId);
+      const next = (s.folhas.length || (s.mapas || []).length) ? all : all.filter((x) => x.id !== subjectId);
       Storage.setSubjects(next);
       this._subjects = next;
       this._renderContent();
@@ -391,38 +515,55 @@ const FolhasPage = {
     };
 
     if (typeof Confirm !== "undefined" && typeof Confirm.show === "function") {
-      Confirm.show({
-        title: "Apagar folha?",
-        text: `"${title}" será removida permanentemente.`,
-        confirmLabel: "Apagar",
-        onConfirm: run,
-      });
+      Confirm.show({ title: "Apagar folha?", text: `"${title}" será removida permanentemente.`, confirmLabel: "Apagar", onConfirm: run });
     } else if (window.confirm(`Apagar "${title}"?`)) {
       run();
     }
   },
 
+  _deleteMap(subjectId, mapaId, titulo) {
+    const title = titulo || "este mapa";
+    const run = () => {
+      Storage.deleteMap(subjectId, mapaId);
+      this._subjects = Storage.getSubjects();
+      this._renderContent();
+      this._refreshHeroStats();
+    };
+
+    if (typeof Confirm !== "undefined" && typeof Confirm.show === "function") {
+      Confirm.show({ title: "Apagar mapa?", text: `"${title}" será removido permanentemente.`, confirmLabel: "Apagar", onConfirm: run });
+    } else if (window.confirm(`Apagar "${title}"?`)) {
+      run();
+    }
+  },
+
+  // ── Stats ─────────────────────────────────────────────────
+
   _refreshHeroStats() {
     const totals = this._getTotals();
     const nums = document.querySelectorAll(".fh-stats .fh-stat-num");
-    if (nums.length >= 3) {
+    if (nums.length >= 4) {
       nums[0].textContent = totals.sheets;
-      nums[1].textContent = totals.subjects;
-      nums[2].textContent = totals.favorites;
+      nums[1].textContent = totals.mapas;
+      nums[2].textContent = totals.subjects;
+      nums[3].textContent = totals.favorites;
     }
   },
 
   _getTotals() {
     const subjects = this._subjects || [];
-    let sheets = 0,
-      favorites = 0;
+    let sheets = 0, mapas = 0, favorites = 0;
     subjects.forEach((s) => {
       const fs = s.folhas || [];
+      const ms = s.mapas || [];
       sheets += fs.length;
-      favorites += fs.filter((f) => f.favorita).length;
+      mapas += ms.length;
+      favorites += fs.filter((f) => f.favorita).length + ms.filter((m) => m.favorita).length;
     });
-    return { sheets, subjects: subjects.length, favorites };
+    return { sheets, mapas, subjects: subjects.length, favorites };
   },
+
+  // ── Empty states ──────────────────────────────────────────
 
   _emptyStateGlobal() {
     const el = document.createElement("div");
@@ -446,9 +587,34 @@ const FolhasPage = {
         Criar minha primeira folha
       </button>
     `;
-    el.querySelector(".fh-empty-cta").addEventListener("click", () =>
-      Router.go("criar"),
-    );
+    el.querySelector(".fh-empty-cta").addEventListener("click", () => Router.go("criar"));
+    return el;
+  },
+
+  _emptyStateMapas() {
+    const el = document.createElement("div");
+    el.className = "fh-empty fh-empty-global au au2";
+    el.innerHTML = `
+      <div class="fh-empty-art fh-empty-art--forest" aria-hidden="true">
+        <svg viewBox="0 0 120 120" fill="none" stroke="var(--forest-mid, #5a8f6c)"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="60" cy="30" r="14"/>
+          <circle cx="24" cy="90" r="14"/>
+          <circle cx="96" cy="90" r="14"/>
+          <line x1="60" y1="44" x2="24" y2="76"/>
+          <line x1="60" y1="44" x2="96" y2="76"/>
+        </svg>
+      </div>
+      <h3 class="fh-empty-title">Nenhum mapa ainda</h3>
+      <p class="fh-empty-sub">
+        Crie seu primeiro mapa mental e ele aparecerá aqui,
+        organizado por matéria.
+      </p>
+      <button class="btn fh-empty-cta fh-empty-cta--forest" type="button">
+        Criar meu primeiro mapa
+      </button>
+    `;
+    el.querySelector(".fh-empty-cta").addEventListener("click", () => Router.go("mapa"));
     return el;
   },
 

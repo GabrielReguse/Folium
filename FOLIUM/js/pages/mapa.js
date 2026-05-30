@@ -2296,6 +2296,22 @@ const MapaPage = {
     this._scaleCanvas("mp-result-canvas", "mp-result-wrap");
   },
 
+  _generateThumb() {
+    const center = this.nodes.find((n) => n.isCenter);
+    const leaves = this.nodes.filter((n) => !n.isCenter).slice(0, 8);
+    const w = 200, h = 120, cx = 100, cy = 60, r = 38;
+    let lines = "", dots = "";
+    leaves.forEach((n, i) => {
+      const angle = (i / Math.max(leaves.length, 1)) * 2 * Math.PI - Math.PI / 2;
+      const x = (cx + r * Math.cos(angle)).toFixed(1);
+      const y = (cy + r * Math.sin(angle)).toFixed(1);
+      lines += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#3d6b4d" stroke-width="1.2" opacity="0.55"/>`;
+      dots += `<circle cx="${x}" cy="${y}" r="5.5" fill="#5a8f6c" opacity="0.8"/>`;
+    });
+    const label = (center?.label || "").substring(0, 8);
+    return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg"><rect width="${w}" height="${h}" fill="#eef4f0" rx="4"/>${lines}<circle cx="${cx}" cy="${cy}" r="13" fill="#3d6b4d"/><text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="8" font-family="sans-serif" fill="white">${label}</text>${dots}</svg>`;
+  },
+
   async salvarMapa() {
     if (this._mobileFullscreen) this.closeMobileFullscreen();
     Modal.showLoading("Salvando…", "Adicionando à biblioteca");
@@ -2326,6 +2342,7 @@ const MapaPage = {
         topicos: this.nodes.filter((n) => !n.isCenter).map((n) => n.label),
         nodes: this.nodes,
         aiContent: this.aiContent,
+        thumbSvg: this._generateThumb(),
         favorita: false,
         criadaEm: new Date().toISOString(),
         dataFormatada: new Date().toLocaleDateString("pt-BR"),
