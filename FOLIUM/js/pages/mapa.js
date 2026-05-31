@@ -930,6 +930,107 @@ const MapaPage = {
     }
   },
 
+  // ── Smooth bezier connector drawing (used for the result pane) ─────
+  _redrawLinesBezier(svgId) {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    svg.innerHTML = "";
+    const center = this.nodes.find((n) => n.isCenter);
+    if (!center) return;
+    const topics = this.nodes.filter((n) => !n.isCenter);
+
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    defs.innerHTML =
+      `<marker id="arr-${svgId}" markerWidth="8" markerHeight="6" refX="7.5" refY="3" orient="auto" markerUnits="strokeWidth">` +
+      `<polygon points="0 0,8 3,0 6" fill="rgba(155,107,66,0.62)"/></marker>`;
+    svg.appendChild(defs);
+
+    // Resolve actual rendered size of the center node (may differ when CSS auto-sizes it)
+    const canvasElId = svgId === "mp-result-svg" ? "mp-result-canvas" : "mp-canvas";
+    const centerEl = document.querySelector(`#${canvasElId} [data-node-id="${center.id}"]`);
+    const cW = (centerEl && centerEl.offsetWidth) || center.w;
+    const cH = (centerEl && centerEl.offsetHeight) || center.h;
+    // Center node is still positioned at center.x / center.y (left/top)
+    // If auto-sized it could be smaller — keep it visually centered over the original box
+    const offsetX = (center.w - cW) / 2;
+    const offsetY = (center.h - cH) / 2;
+    const cBounds = {
+      x: center.x + offsetX,
+      y: center.y + offsetY,
+      w: cW,
+      h: cH,
+    };
+
+    topics.forEach((node) => {
+      const start = this._bz_nearestEdge(
+        cBounds, node.x + node.w / 2, node.y + node.h / 2,
+      );
+      const end = this._bz_nearestEdge(
+        node, cBounds.x + cBounds.w / 2, cBounds.y + cBounds.h / 2,
+      );
+
+      const dist = Math.hypot(end.x - start.x, end.y - start.y);
+      const tension = Math.min(dist * 0.44, 140);
+      const c1x = start.x + start.nx * tension;
+      const c1y = start.y + start.ny * tension;
+      const c2x = end.x + end.nx * tension;
+      const c2y = end.y + end.ny * tension;
+
+      const d =
+        `M ${start.x.toFixed(1)} ${start.y.toFixed(1)} ` +
+        `C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ` +
+        `${c2x.toFixed(1)} ${c2y.toFixed(1)}, ` +
+        `${end.x.toFixed(1)} ${end.y.toFixed(1)}`;
+
+      const halo = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      halo.setAttribute("d", d);
+      halo.setAttribute("fill", "none");
+      halo.setAttribute("stroke", "rgba(255,255,255,0.9)");
+      halo.setAttribute("stroke-width", "8");
+      halo.setAttribute("stroke-linecap", "round");
+      svg.appendChild(halo);
+
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", d);
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", "rgba(155,107,66,0.5)");
+      path.setAttribute("stroke-width", "1.8");
+      path.setAttribute("stroke-linecap", "round");
+      path.setAttribute("marker-end", `url(#arr-${svgId})`);
+      svg.appendChild(path);
+    });
+  },
+
+  // Returns the nearest edge point of rect toward (tx, ty), plus outward normal (nx, ny)
+  _bz_nearestEdge(rect, tx, ty) {
+    const cx = rect.x + rect.w / 2;
+    const cy = rect.y + rect.h / 2;
+    const dx = tx - cx;
+    const dy = ty - cy;
+    const scaleX = (rect.w / 2) / (Math.abs(dx) || 0.001);
+    const scaleY = (rect.h / 2) / (Math.abs(dy) || 0.001);
+
+    if (scaleX <= scaleY) {
+      // hits left or right edge
+      const sign = dx >= 0 ? 1 : -1;
+      return {
+        x: cx + sign * rect.w / 2,
+        y: mpClamp(cy + dy * scaleX, rect.y + 8, rect.y + rect.h - 8),
+        nx: sign,
+        ny: 0,
+      };
+    } else {
+      // hits top or bottom edge
+      const sign = dy >= 0 ? 1 : -1;
+      return {
+        x: mpClamp(cx + dx * scaleY, rect.x + 8, rect.x + rect.w - 8),
+        y: cy + sign * rect.h / 2,
+        nx: 0,
+        ny: sign,
+      };
+    }
+  },
+
   _redrawLines(svgId) {
     const svg = document.getElementById(svgId);
     if (!svg) return;
@@ -2307,7 +2408,7 @@ const MapaPage = {
       resCanvas.appendChild(el);
     });
 
-    this._redrawLines("mp-result-svg");
+    this._redrawLinesBezier("mp-result-svg");
     this._scaleCanvas("mp-result-canvas", "mp-result-wrap");
   },
 
@@ -2343,11 +2444,15 @@ const MapaPage = {
     this.nodes = mapa.nodes ? JSON.parse(JSON.stringify(mapa.nodes)) : [];
     this.aiContent = mapa.aiContent || {};
 
+    const mapaFromMapasTab = Storage.getContext("mapaFromMapasTab") === "1";
+    Storage.clearContext("mapaFromMapasTab");
+
     // Mark body so CSS hides the creation flow (hero, stepper, steps 1-4)
     document.body.classList.add("mp-view-mode");
 
     const goBack = () => {
       if (origin === "materia") {
+        if (mapaFromMapasTab) Storage.setContext("fromMapasTab", "1");
         Router.go("materia", { subjectId });
       } else {
         Storage.setContext("libTab", "mapas");

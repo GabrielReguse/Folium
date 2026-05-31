@@ -37,7 +37,7 @@ const MateriaPage = {
 
     const fromMapasTab = Storage.getContext("fromMapasTab");
     Storage.clearContext("fromMapasTab");
-    this._fromMapasTab = !!fromMapasTab;
+    this._fromMapasTab = fromMapasTab === true || fromMapasTab === "1";
 
     Navbar.renderTop({
       onBack: () => MateriaPage._goBack(),
@@ -123,23 +123,6 @@ const MateriaPage = {
       card.classList.add("au");
       body.appendChild(card);
     });
-
-    const mapas = this.subject.mapas || [];
-    if (mapas.length > 0) {
-      const mapaLbl = document.createElement("p");
-      mapaLbl.className = "t-label mb-16";
-      mapaLbl.style.marginTop = "28px";
-      mapaLbl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:var(--forest)"><circle cx="12" cy="5" r="2.5"/><circle cx="4" cy="19" r="2.5"/><circle cx="20" cy="19" r="2.5"/><line x1="12" y1="7.5" x2="4" y2="16.5"/><line x1="12" y1="7.5" x2="20" y2="16.5"/></svg>
-        ${mapas.length} mapa${mapas.length !== 1 ? "s" : ""} mental${mapas.length !== 1 ? "is" : ""}
-      </span>`;
-      body.appendChild(mapaLbl);
-
-      mapas.forEach((mp, i) => {
-        const card = this._makeMateriaMindMapCard(mp, i);
-        body.appendChild(card);
-      });
-    }
   },
 
   _makeMateriaMindMapCard(mp, idx) {
@@ -171,6 +154,7 @@ const MateriaPage = {
       Storage.setContext("mapaId", mp.id);
       Storage.setContext("subjectId_mapa", this.subject.id);
       Storage.setContext("mapaOrigin", "materia");
+      Storage.setContext("mapaFromMapasTab", this._fromMapasTab ? "1" : "");
       Router.go("mapa");
     });
     return card;
