@@ -338,3 +338,22 @@
   stroke: #d97706;
   fill: #d97706;
 }
+
+/* ── Map card variant (forest/green accent) ─────────────────── */
+.sc-icon--forest {
+  background: var(--forest-lt);
+}
+.sc-icon--forest svg {
+  stroke: var(--forest);
+}
+.mc-materia-card {
+  border-left: 3px solid var(--forest);
+}
+.mc-materia-card:hover {
+  border-color: var(--forest);
+}
+.mc-materia-card .sc-nivel {
+  background: var(--forest-lt);
+  color: var(--forest);
+  border-color: rgba(61, 107, 77, 0.2);
+}

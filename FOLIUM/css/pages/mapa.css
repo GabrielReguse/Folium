@@ -801,3 +801,27 @@ body.mp-mobile-fullscreen-open .mp-ordem-dropdown {
   height: 14px;
   opacity: 1;
 }
+
+/* ── View mode: show only the result canvas, hide creation UI ── */
+body.mp-view-mode .cr-hero,
+body.mp-view-mode #mapa-stepper {
+  display: none !important;
+}
+body.mp-view-mode #mpane1,
+body.mp-view-mode #mpane2,
+body.mp-view-mode #mpane3,
+body.mp-view-mode #mpane4 {
+  display: none !important;
+}
+body.mp-view-mode .cr-shell {
+  gap: 0;
+  padding-top: 12px;
+}
+body.mp-view-mode #mpane5 {
+  display: grid !important;
+  animation: fadeUp 0.3s var(--ease) both;
+}
+body.mp-view-mode .mp-result-card {
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh);
+}

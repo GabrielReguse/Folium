@@ -2343,6 +2343,9 @@ const MapaPage = {
     this.nodes = mapa.nodes ? JSON.parse(JSON.stringify(mapa.nodes)) : [];
     this.aiContent = mapa.aiContent || {};
 
+    // Mark body so CSS hides the creation flow (hero, stepper, steps 1-4)
+    document.body.classList.add("mp-view-mode");
+
     const goBack = () => {
       if (origin === "materia") {
         Router.go("materia", { subjectId });

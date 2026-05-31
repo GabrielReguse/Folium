@@ -50,18 +50,12 @@ const MateriaPage = {
 
     DOM.clear(body);
 
-    const folhas = [...this.subject.folhas].sort(
-      (a, b) =>
-        (b.favorita ? 1 : 0) - (a.favorita ? 1 : 0) ||
-        new Date(b.criadaEm) - new Date(a.criadaEm),
-    );
-
     const bread = document.createElement("div");
     bread.className = "bread-row au";
     bread.innerHTML = `
       <button class="bread-back" onclick="MateriaPage._goBack()">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-        Matérias
+        ${this._fromMapasTab ? "Mapas" : "Matérias"}
       </button>
       <span class="bread-sep">/</span>
       <span class="bread-current">${this.subject.nomeNormalizado}</span>`;
@@ -69,6 +63,40 @@ const MateriaPage = {
 
     const lbl = document.createElement("p");
     lbl.className = "t-label mb-16";
+
+    if (this._fromMapasTab) {
+      // ── Mapas-only view ────────────────────────────────────
+      const mapas = [...(this.subject.mapas || [])].sort(
+        (a, b) => new Date(b.criadaEm || 0) - new Date(a.criadaEm || 0),
+      );
+      lbl.textContent = `${mapas.length} mapa${mapas.length !== 1 ? "s" : ""} mental${mapas.length !== 1 ? "is" : ""}`;
+      body.appendChild(lbl);
+
+      if (!mapas.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.innerHTML = `
+          <div class="ei"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:100%;height:100%;stroke:var(--forest-mid)"><circle cx="12" cy="5" r="2.5"/><circle cx="4" cy="19" r="2.5"/><circle cx="20" cy="19" r="2.5"/><line x1="12" y1="7.5" x2="4" y2="16.5"/><line x1="12" y1="7.5" x2="20" y2="16.5"/></svg></div>
+          <h3>Nenhum mapa aqui</h3>
+          <p>Crie um mapa mental para esta matéria.</p>`;
+        body.appendChild(empty);
+        return;
+      }
+
+      mapas.forEach((mp, i) => {
+        const card = this._makeMateriaMindMapCard(mp, i);
+        body.appendChild(card);
+      });
+      return;
+    }
+
+    // ── Folhas view (default) ──────────────────────────────
+    const folhas = [...this.subject.folhas].sort(
+      (a, b) =>
+        (b.favorita ? 1 : 0) - (a.favorita ? 1 : 0) ||
+        new Date(b.criadaEm) - new Date(a.criadaEm),
+    );
+
     lbl.textContent = `${folhas.length} folha${folhas.length !== 1 ? "s" : ""}`;
     body.appendChild(lbl);
 
@@ -102,41 +130,50 @@ const MateriaPage = {
       mapaLbl.className = "t-label mb-16";
       mapaLbl.style.marginTop = "28px";
       mapaLbl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:var(--caramel)"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:var(--forest)"><circle cx="12" cy="5" r="2.5"/><circle cx="4" cy="19" r="2.5"/><circle cx="20" cy="19" r="2.5"/><line x1="12" y1="7.5" x2="4" y2="16.5"/><line x1="12" y1="7.5" x2="20" y2="16.5"/></svg>
         ${mapas.length} mapa${mapas.length !== 1 ? "s" : ""} mental${mapas.length !== 1 ? "is" : ""}
       </span>`;
       body.appendChild(mapaLbl);
 
       mapas.forEach((mp, i) => {
-        const card = document.createElement("div");
-        card.className = "subject-card au";
-        card.style.animationDelay = `${i * 0.07}s`;
-        card.style.cssText +=
-          ";border-left:3px solid var(--caramel);cursor:pointer;";
-        card.innerHTML = `
-          <div class="sc-left">
-            <div class="sc-icon" style="background:var(--caramel-lt)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;stroke:var(--caramel)">
-                <circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-              </svg>
-            </div>
-            <div class="sc-info">
-              <div class="sc-name">${mp.titulo}</div>
-              <div class="sc-meta">Mapa ${mp.template ? "· " + mp.template.charAt(0).toUpperCase() + mp.template.slice(1) : ""} · ${mp.dataFormatada || ""}</div>
-            </div>
-          </div>
-          <div style="font-size:11px;color:var(--text-light);padding:4px 8px;background:var(--caramel-lt);border-radius:999px;white-space:nowrap">
-            ${(mp.topicos || []).length} nós
-          </div>`;
-        card.addEventListener("click", () => {
-          Storage.setContext("mapaId", mp.id);
-          Storage.setContext("subjectId_mapa", this.subject.id);
-          Storage.setContext("mapaOrigin", "materia");
-          Router.go("mapa");
-        });
+        const card = this._makeMateriaMindMapCard(mp, i);
         body.appendChild(card);
       });
     }
+  },
+
+  _makeMateriaMindMapCard(mp, idx) {
+    const nodesCount = Array.isArray(mp.topicos)
+      ? mp.topicos.length
+      : Array.isArray(mp.nodes)
+        ? mp.nodes.filter((n) => !n.isCenter).length
+        : 0;
+    const mapSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;stroke:var(--forest)"><circle cx="12" cy="5" r="2.5"/><circle cx="4" cy="19" r="2.5"/><circle cx="20" cy="19" r="2.5"/><line x1="12" y1="7.5" x2="4" y2="16.5"/><line x1="12" y1="7.5" x2="20" y2="16.5"/></svg>`;
+    const arrowSvg = `<svg class="sc-arr" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>`;
+
+    const card = document.createElement("button");
+    card.className = "sheet-card-item mc-materia-card au";
+    card.style.animationDelay = `${idx * 0.07}s`;
+    card.type = "button";
+    card.innerHTML = `
+      <div class="sc-icon sc-icon--forest">${mapSvg}</div>
+      <div class="sc-info">
+        <div class="sc-title">${mp.titulo}</div>
+        <div class="sc-meta">
+          Mapa mental${mp.template ? " · " + mp.template.charAt(0).toUpperCase() + mp.template.slice(1) : ""}
+          · ${mp.dataFormatada || ""}
+          <span class="sc-nivel">${nodesCount} nó${nodesCount !== 1 ? "s" : ""}</span>
+        </div>
+      </div>
+      <div class="sc-actions">${arrowSvg}</div>`;
+
+    card.addEventListener("click", () => {
+      Storage.setContext("mapaId", mp.id);
+      Storage.setContext("subjectId_mapa", this.subject.id);
+      Storage.setContext("mapaOrigin", "materia");
+      Router.go("mapa");
+    });
+    return card;
   },
 
   // Navigate back to biblioteca, activating mapas tab when relevant
