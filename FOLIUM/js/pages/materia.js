@@ -1,6 +1,7 @@
 const MateriaPage = {
   subject: null,
   sheet: null,
+  _fromMapasTab: false,
 
   init() {
     if (!Router.requireAuth()) return;
@@ -34,8 +35,12 @@ const MateriaPage = {
     Storage.clearContext("sheetId");
     Storage.clearContext("viewSheet");
 
+    const fromMapasTab = Storage.getContext("fromMapasTab");
+    Storage.clearContext("fromMapasTab");
+    this._fromMapasTab = !!fromMapasTab;
+
     Navbar.renderTop({
-      backRoute: "folhas",
+      onBack: () => MateriaPage._goBack(),
       backLabel: "Matérias",
       title: `<em>${this.subject.nomeNormalizado}</em>`,
     });
@@ -54,7 +59,7 @@ const MateriaPage = {
     const bread = document.createElement("div");
     bread.className = "bread-row au";
     bread.innerHTML = `
-      <button class="bread-back" onclick="Router.go('folhas')">
+      <button class="bread-back" onclick="MateriaPage._goBack()">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
         Matérias
       </button>
@@ -124,13 +129,25 @@ const MateriaPage = {
             ${(mp.topicos || []).length} nós
           </div>`;
         card.addEventListener("click", () => {
-          alert(
-            `Mapa: ${mp.titulo}\nTemplate: ${mp.template}\nTópicos: ${(mp.topicos || []).join(", ")}`,
-          );
+          Storage.setContext("mapaId", mp.id);
+          Storage.setContext("subjectId_mapa", this.subject.id);
+          Storage.setContext("mapaOrigin", "materia");
+          Router.go("mapa");
         });
         body.appendChild(card);
       });
     }
+  },
+
+  // Navigate back to biblioteca, activating mapas tab when relevant
+  _goBack() {
+    const fromMapas = this._fromMapasTab;
+    this._fromMapasTab = false;
+    Storage.clearContext("fromMapasTab");
+    if (fromMapas) {
+      Storage.setContext("libTab", "mapas");
+    }
+    Router.go("folhas");
   },
 
   async _downloadSheet(sheetId, format) {

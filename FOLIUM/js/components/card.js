@@ -94,9 +94,10 @@ const Card = {
         <div class="subj-count">${count} mapa${count !== 1 ? "s" : ""}</div>
       </div>
       <span class="subj-arr">${CardIcons.arrow}</span>`;
-    btn.addEventListener("click", () =>
-      Router.go("materia", { subjectId: s.id }),
-    );
+    btn.addEventListener("click", () => {
+      Storage.setContext("fromMapasTab", true);
+      Router.go("materia", { subjectId: s.id });
+    });
     return btn;
   },
 
@@ -152,9 +153,12 @@ const Card = {
       });
     }
 
-    btn.addEventListener("click", () =>
-      Router.go("materia", { subjectId: m.subjectId }),
-    );
+    btn.addEventListener("click", () => {
+      Storage.setContext("mapaId", m.id);
+      Storage.setContext("subjectId_mapa", m.subjectId);
+      Storage.setContext("mapaOrigin", "biblioteca");
+      Router.go("mapa");
+    });
     return btn;
   },
 

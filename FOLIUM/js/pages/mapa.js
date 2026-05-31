@@ -155,9 +155,24 @@ const MapaPage = {
   _boundMove: null,
   _boundUp: null,
   _mobileFullscreen: null,
+  _viewMode: false,
 
   init() {
     if (!Router.requireAuth()) return;
+
+    // ── View-mode: opening a previously saved map ──────────────
+    const savedMapaId = Storage.getContext("mapaId");
+    const savedSubjectId = Storage.getContext("subjectId_mapa");
+    if (savedMapaId && savedSubjectId) {
+      const origin = Storage.getContext("mapaOrigin") || "biblioteca";
+      Storage.clearContext("mapaId");
+      Storage.clearContext("subjectId_mapa");
+      Storage.clearContext("mapaOrigin");
+      this._openSavedMap(savedMapaId, savedSubjectId, origin);
+      return;
+    }
+
+    // ── Normal creation flow ────────────────────────────────────
     Navbar.renderTop({
       backRoute: "escolher",
       backLabel: "Escolher",
@@ -2312,6 +2327,91 @@ const MapaPage = {
     return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg"><rect width="${w}" height="${h}" fill="#eef4f0" rx="4"/>${lines}<circle cx="${cx}" cy="${cy}" r="13" fill="#3d6b4d"/><text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="8" font-family="sans-serif" fill="white">${label}</text>${dots}</svg>`;
   },
 
+  // ── View mode: open existing saved map ────────────────────────
+  _openSavedMap(mapaId, subjectId, origin) {
+    const subjects = Storage.getSubjects();
+    const subject = subjects.find((s) => s.id === subjectId);
+    if (!subject) { Storage.setContext("libTab", "mapas"); Router.go("folhas"); return; }
+    const mapa = (subject.mapas || []).find((m) => m.id === mapaId);
+    if (!mapa) { Storage.setContext("libTab", "mapas"); Router.go("folhas"); return; }
+
+    // Load saved state
+    this._viewMode = true;
+    this.titulo = mapa.titulo || "";
+    this.materia = subject.nomeOriginal || subject.nomeNormalizado || "";
+    this.template = mapa.template || "";
+    this.nodes = mapa.nodes ? JSON.parse(JSON.stringify(mapa.nodes)) : [];
+    this.aiContent = mapa.aiContent || {};
+
+    const goBack = () => {
+      if (origin === "materia") {
+        Router.go("materia", { subjectId });
+      } else {
+        Storage.setContext("libTab", "mapas");
+        Router.go("folhas");
+      }
+    };
+
+    const backLabel = origin === "materia" ? "Matéria" : "Biblioteca";
+    Navbar.renderTop({ onBack: goBack, backLabel, title: `<em>${this.titulo}</em>`, showBurger: true });
+    Navbar.renderBottom("folhas");
+    Sidebar.init();
+
+    // Pointer + resize events needed for canvas interactions
+    this._boundMove = (e) => this._onDocMove(e);
+    this._boundUp = (e) => this._onDocUp(e);
+    document.addEventListener("pointermove", this._boundMove, { passive: false });
+    document.addEventListener("pointerup", this._boundUp);
+    document.addEventListener("pointercancel", this._boundUp);
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".mp-node")) this._closeDropdown();
+    });
+    window.addEventListener("resize", () => {
+      if (this._mobileFullscreen) { this._layoutMobileFullscreen(); return; }
+      if (this.step === 5) this._scaleCanvas("mp-result-canvas", "mp-result-wrap");
+    });
+    window.addEventListener("orientationchange", () => {
+      setTimeout(() => { if (this._mobileFullscreen) this._layoutMobileFullscreen(); }, 140);
+    });
+
+    // Jump straight to result step
+    this.goStep(5);
+
+    // After _renderResult runs (50ms), patch UI for view mode
+    setTimeout(() => {
+      // ── Header ──
+      const header = document.getElementById("mp-result-header");
+      if (header) {
+        const nodeCount = this.nodes.filter((n) => !n.isCenter).length;
+        header.innerHTML =
+          `<span class="badge badge-accent" style="font-size:11px;background:var(--forest-lt);color:var(--forest);border:1px solid rgba(61,107,77,.25)">Mapa salvo</span>` +
+          `<h2 style="font-family:var(--font-serif);font-size:22px;font-weight:600;color:var(--text);margin:8px 0 4px">${this.titulo} <em style="font-size:16px;color:var(--caramel)">(${this.materia})</em></h2>` +
+          `<p style="font-size:13px;color:var(--text-mid);margin:0">${nodeCount} nó${nodeCount !== 1 ? "s" : ""} · ${mapa.dataFormatada || ""} · Template: ${this.template}</p>`;
+      }
+
+      // ── Bottom step actions → replace with single "Voltar" ──
+      const pane5 = document.getElementById("mpane5");
+      if (pane5) {
+        const actions = pane5.querySelector(".cr-step-actions");
+        if (actions) {
+          const backSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg>`;
+          actions.innerHTML = `<button class="btn btn-ghost cr-btn-back" id="mp-vm-back" type="button">${backSvg} ${origin === "materia" ? "Voltar para matéria" : "Voltar à biblioteca"}</button>`;
+          document.getElementById("mp-vm-back").addEventListener("click", goBack);
+        }
+      }
+
+      // ── Mobile fullscreen result actions → Fechar only ──
+      const fsResultActions = document.querySelector(".mp-mobile-fullscreen__actions--result");
+      if (fsResultActions) {
+        fsResultActions.innerHTML = `<button class="mp-mobile-fullscreen__btn mp-mobile-fullscreen__btn--primary" id="mp-fs-vm-close" type="button">Fechar</button>`;
+        document.getElementById("mp-fs-vm-close").addEventListener("click", () => {
+          this.closeMobileFullscreen();
+          goBack();
+        });
+      }
+    }, 120);
+  },
+
   async salvarMapa() {
     if (this._mobileFullscreen) this.closeMobileFullscreen();
     Modal.showLoading("Salvando…", "Adicionando à biblioteca");
@@ -2350,7 +2450,8 @@ const MapaPage = {
       Storage.setSubjects(subjects);
       await Helpers.wait(600);
       Modal.hideLoading();
-      Router.go("materia", { subjectId: subject.id });
+      Storage.setContext("libTab", "mapas");
+      Router.go("folhas");
     } catch (err) {
       Modal.hideLoading();
       console.error("[salvarMapa]", err);

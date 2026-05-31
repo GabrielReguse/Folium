@@ -9,21 +9,37 @@ const NavIcons = {
 };
 
 const Navbar = {
+  _backFn: null,
+
+  _handleBack() {
+    if (typeof Navbar._backFn === "function") Navbar._backFn();
+  },
+
   renderTop(opts = {}) {
     const {
       backRoute = null,
       backLabel = "Voltar",
+      onBack = null,
       title = "Foli<em>um</em>",
       showBurger = true,
     } = opts;
+
+    this._backFn = onBack || null;
+
+    const hasBack = backRoute || onBack;
+    const backOnclick = onBack
+      ? `onclick="Navbar._handleBack()"`
+      : backRoute
+        ? `onclick="Router.go('${backRoute}')"`
+        : "";
 
     const nav = document.createElement("nav");
     nav.className = "top-nav";
     nav.innerHTML = `
       <div style="min-width:90px">
         ${
-          backRoute
-            ? `<button class="nav-back" onclick="Router.go('${backRoute}')">
+          hasBack
+            ? `<button class="nav-back" ${backOnclick}>
                ${NavIcons.back} ${backLabel}
              </button>`
             : ""

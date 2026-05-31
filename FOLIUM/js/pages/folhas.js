@@ -13,6 +13,12 @@ const FolhasPage = {
     Sidebar.init();
 
     this._subjects = Storage.getSubjects() || [];
+
+    // Restore active type from navigation context (e.g. from mapa save or materia back)
+    const libTab = Storage.getContext("libTab");
+    if (libTab === "mapas") this._type = "mapas";
+    Storage.clearContext("libTab");
+
     this._heroAnimated = false;
     this._buildShell();
     this._renderContent();
