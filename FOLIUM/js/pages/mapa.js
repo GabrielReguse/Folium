@@ -561,11 +561,11 @@ const MapaPage = {
 
     if (state.mode === "editor") {
       this._scaleCanvas("mp-canvas", "mp-canvas-wrap");
-      this._redrawLines("mp-canvas-svg");
+      this._redrawLinesBezier("mp-canvas-svg");
       this._checkWarnings();
     } else {
       this._scaleCanvas("mp-result-canvas", "mp-result-wrap");
-      this._redrawLines("mp-result-svg");
+      this._redrawLinesBezier("mp-result-svg");
     }
   },
 
@@ -694,7 +694,7 @@ const MapaPage = {
     );
     this._resolveNodeSpacing(W, H);
     this.nodes.forEach((n) => this._createNodeEl(canvas, n));
-    this._redrawLines("mp-canvas-svg");
+    this._redrawLinesBezier("mp-canvas-svg");
     canvas.className = "mp-canvas mp-editor--" + this.editorMode;
     this._updateHint();
     this._scaleCanvas("mp-canvas", "mp-canvas-wrap");
@@ -925,7 +925,7 @@ const MapaPage = {
       this._resize = null;
     }
     if (canvas) {
-      this._redrawLines("mp-canvas-svg");
+      this._redrawLinesBezier("mp-canvas-svg");
       this._checkWarnings();
     }
   },
@@ -938,6 +938,7 @@ const MapaPage = {
     const center = this.nodes.find((n) => n.isCenter);
     if (!center) return;
     const topics = this.nodes.filter((n) => !n.isCenter);
+    if (!topics.length) return;
 
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     defs.innerHTML =
@@ -945,36 +946,41 @@ const MapaPage = {
       `<polygon points="0 0,8 3,0 6" fill="rgba(155,107,66,0.62)"/></marker>`;
     svg.appendChild(defs);
 
-    // Resolve actual rendered size of the center node (may differ when CSS auto-sizes it)
-    const canvasElId = svgId === "mp-result-svg" ? "mp-result-canvas" : "mp-canvas";
-    const centerEl = document.querySelector(`#${canvasElId} [data-node-id="${center.id}"]`);
-    const cW = (centerEl && centerEl.offsetWidth) || center.w;
-    const cH = (centerEl && centerEl.offsetHeight) || center.h;
-    // Center node is still positioned at center.x / center.y (left/top)
-    // If auto-sized it could be smaller — keep it visually centered over the original box
-    const offsetX = (center.w - cW) / 2;
-    const offsetY = (center.h - cH) / 2;
-    const cBounds = {
-      x: center.x + offsetX,
-      y: center.y + offsetY,
-      w: cW,
-      h: cH,
-    };
+    // Use node data dimensions directly (CSS may override visually, but data is the ground truth)
+    const cBounds = { x: center.x, y: center.y, w: center.w, h: center.h };
 
+    // ── Detect column groups ───────────────────────────────────────────
+    // Two nodes are in the same column when their horizontal centers are within 80px
+    const COL_TOLERANCE = 80;
+    const columns = [];
     topics.forEach((node) => {
-      const start = this._bz_nearestEdge(
-        cBounds, node.x + node.w / 2, node.y + node.h / 2,
-      );
-      const end = this._bz_nearestEdge(
-        node, cBounds.x + cBounds.w / 2, cBounds.y + cBounds.h / 2,
-      );
+      const xc = node.x + node.w / 2;
+      let col = columns.find((c) => Math.abs(c.xc - xc) < COL_TOLERANCE);
+      if (!col) {
+        col = { xc, nodes: [] };
+        columns.push(col);
+      }
+      col.nodes.push(node);
+    });
+    columns.forEach((col) => col.nodes.sort((a, b) => a.y - b.y));
+    columns.sort((a, b) => a.xc - b.xc);
+
+    const isColumnLayout =
+      columns.length > 1 &&
+      columns.some((c) => c.nodes.length > 1) &&
+      columns.length < topics.length;
+
+    const draw = (fromRect, toRect) => {
+      const start = this._bz_nearestEdge(fromRect, toRect.x + toRect.w / 2, toRect.y + toRect.h / 2);
+      const end   = this._bz_nearestEdge(toRect, fromRect.x + fromRect.w / 2, fromRect.y + fromRect.h / 2);
 
       const dist = Math.hypot(end.x - start.x, end.y - start.y);
-      const tension = Math.min(dist * 0.44, 140);
+      // Lower tension for vertical chains to avoid bowing into sibling nodes
+      const tension = Math.min(dist * 0.3, 90);
       const c1x = start.x + start.nx * tension;
       const c1y = start.y + start.ny * tension;
-      const c2x = end.x + end.nx * tension;
-      const c2y = end.y + end.ny * tension;
+      const c2x = end.x   + end.nx   * tension;
+      const c2y = end.y   + end.ny   * tension;
 
       const d =
         `M ${start.x.toFixed(1)} ${start.y.toFixed(1)} ` +
@@ -998,10 +1004,23 @@ const MapaPage = {
       path.setAttribute("stroke-linecap", "round");
       path.setAttribute("marker-end", `url(#arr-${svgId})`);
       svg.appendChild(path);
-    });
+    };
+
+    if (isColumnLayout) {
+      // Draw: center → top of each column, then chain downward within column
+      columns.forEach((col) => {
+        draw(cBounds, col.nodes[0]);
+        for (let j = 0; j < col.nodes.length - 1; j++) {
+          draw(col.nodes[j], col.nodes[j + 1]);
+        }
+      });
+    } else {
+      // Star topology: center → every node directly
+      topics.forEach((node) => draw(cBounds, node));
+    }
   },
 
-  // Returns the nearest edge point of rect toward (tx, ty), plus outward normal (nx, ny)
+  // Returns the nearest edge point of rect toward (tx, ty) + outward normal (nx, ny)
   _bz_nearestEdge(rect, tx, ty) {
     const cx = rect.x + rect.w / 2;
     const cy = rect.y + rect.h / 2;
@@ -1011,7 +1030,6 @@ const MapaPage = {
     const scaleY = (rect.h / 2) / (Math.abs(dy) || 0.001);
 
     if (scaleX <= scaleY) {
-      // hits left or right edge
       const sign = dx >= 0 ? 1 : -1;
       return {
         x: cx + sign * rect.w / 2,
@@ -1020,7 +1038,6 @@ const MapaPage = {
         ny: 0,
       };
     } else {
-      // hits top or bottom edge
       const sign = dy >= 0 ? 1 : -1;
       return {
         x: mpClamp(cx + dx * scaleY, rect.x + 8, rect.x + rect.w - 8),
