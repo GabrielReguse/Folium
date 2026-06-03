@@ -919,3 +919,53 @@
     font-size: 12.5px;
   }
 }
+
+/* ── Map card desktop/mobile action visibility ──────────── */
+.mc-kebab {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 6px;
+  border-radius: 8px;
+  color: var(--text-light);
+  align-items: center;
+  justify-content: center;
+}
+.mc-kebab svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+.mc-kebab:hover {
+  background: var(--hover-bg);
+  color: var(--text);
+}
+
+@media (max-width: 899px) {
+  .mc-actions .mc-desktop {
+    display: none !important;
+  }
+  .mc-kebab {
+    display: flex;
+  }
+}
+
+/* Download icon button in map card */
+.mc-dl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: background 0.15s, color 0.15s;
+}
+.mc-dl:hover {
+  background: var(--hover-bg);
+  color: var(--forest);
+}

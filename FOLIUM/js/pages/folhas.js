@@ -428,6 +428,13 @@ const FolhasPage = {
         this._refreshHeroStats();
       },
       onDelete: () => this._deleteMap(mapa.subjectId, mapa.id, mapa.titulo),
+      onDownload: () => {
+        Storage.setContext("mapaId", mapa.id);
+        Storage.setContext("subjectId_mapa", mapa.subjectId);
+        Storage.setContext("mapaOrigin", "biblioteca");
+        Storage.setContext("downloadOnLoad", "1");
+        Router.go("mapa");
+      },
     });
   },
 

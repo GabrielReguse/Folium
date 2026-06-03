@@ -301,23 +301,33 @@
 }
 
 .nav-back {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 500;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-mid);
   cursor: pointer;
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
   font-family: var(--font-sans);
-  transition: color var(--t-fast);
-  padding: 6px 0;
+  transition: color var(--t-fast), background var(--t-fast), border-color var(--t-fast);
+  padding: 5px 14px 5px 9px;
   white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.nav-back svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
 }
 
 .nav-back:hover {
   color: var(--caramel);
+  background: var(--caramel-lt);
+  border-color: var(--caramel);
 }
 
 .bottom-nav {

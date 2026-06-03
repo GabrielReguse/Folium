@@ -2463,6 +2463,8 @@ const MapaPage = {
 
     const mapaFromMapasTab = Storage.getContext("mapaFromMapasTab") === "1";
     Storage.clearContext("mapaFromMapasTab");
+    const downloadOnLoad = Storage.getContext("downloadOnLoad") === "1";
+    Storage.clearContext("downloadOnLoad");
 
     // Mark body so CSS hides the creation flow (hero, stepper, steps 1-4)
     document.body.classList.add("mp-view-mode");
@@ -2514,17 +2516,6 @@ const MapaPage = {
           `<p style="font-size:13px;color:var(--text-mid);margin:0">${nodeCount} nó${nodeCount !== 1 ? "s" : ""} · ${mapa.dataFormatada || ""} · Template: ${this.template}</p>`;
       }
 
-      // ── Bottom step actions → replace with single "Voltar" ──
-      const pane5 = document.getElementById("mpane5");
-      if (pane5) {
-        const actions = pane5.querySelector(".cr-step-actions");
-        if (actions) {
-          const backSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg>`;
-          actions.innerHTML = `<button class="btn btn-ghost cr-btn-back" id="mp-vm-back" type="button">${backSvg} ${origin === "materia" ? "Voltar para matéria" : "Voltar à biblioteca"}</button>`;
-          document.getElementById("mp-vm-back").addEventListener("click", goBack);
-        }
-      }
-
       // ── Mobile fullscreen result actions → Fechar only ──
       const fsResultActions = document.querySelector(".mp-mobile-fullscreen__actions--result");
       if (fsResultActions) {
@@ -2534,7 +2525,49 @@ const MapaPage = {
           goBack();
         });
       }
+
+      // Auto-download if triggered from biblioteca card
+      if (downloadOnLoad) setTimeout(() => this.downloadMapAsJpg(), 300);
     }, 120);
+  },
+
+  // ── Download result canvas as JPG ─────────────────────────────────
+  async downloadMapAsJpg() {
+    if (typeof html2canvas === "undefined") {
+      console.warn("[Folium] html2canvas not loaded");
+      return;
+    }
+    const canvasEl = document.getElementById("mp-result-canvas");
+    if (!canvasEl) return;
+
+    Modal.showLoading("Gerando imagem…", "Preparando o mapa para exportação");
+    const origTransform       = canvasEl.style.transform;
+    const origTransformOrigin = canvasEl.style.transformOrigin;
+    canvasEl.style.transform       = "none";
+    canvasEl.style.transformOrigin = "0 0";
+
+    try {
+      const shot = await html2canvas(canvasEl, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: "#ffffff",
+        logging: false,
+        foreignObjectRendering: true,
+      });
+      const a = document.createElement("a");
+      a.download = (this.titulo || "mapa-mental").replace(/[^\w\s\-]/g, "_") + ".jpg";
+      a.href = shot.toDataURL("image/jpeg", 0.95);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      console.error("[downloadMapAsJpg]", err);
+    } finally {
+      canvasEl.style.transform       = origTransform;
+      canvasEl.style.transformOrigin = origTransformOrigin;
+      Modal.hideLoading();
+    }
   },
 
   async salvarMapa() {

@@ -110,10 +110,13 @@ const Card = {
     const thumbSvg = m.thumbSvg || "";
     const subjectName = m.subjectName || "";
     const onFavorite = m.onFavorite;
-    const onDelete = m.onDelete;
+    const onDelete   = m.onDelete;
+    const onDownload = m.onDownload;
 
     const mapNodeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px;stroke:var(--forest);opacity:.65"><circle cx="12" cy="5" r="2.5"/><circle cx="4" cy="19" r="2.5"/><circle cx="20" cy="19" r="2.5"/><line x1="12" y1="7.5" x2="4" y2="16.5"/><line x1="12" y1="7.5" x2="20" y2="16.5"/></svg>`;
-    const delIcon = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+    const delIcon    = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+    const dlJpgIcon  = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+    const kebabIcon  = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>`;
 
     const btn = document.createElement("button");
     btn.className = "map-card-item";
@@ -132,24 +135,34 @@ const Card = {
         </div>
       </div>
       <div class="mc-actions">
-        <button class="fav-btn mc-fav ${isFav ? "on" : ""}" title="${isFav ? "Remover favorito" : "Favoritar"}">
+        <button class="fav-btn mc-fav mc-desktop ${isFav ? "on" : ""}" title="${isFav ? "Remover favorito" : "Favoritar"}">
           ${isFav ? CardIcons.starFill : CardIcons.star}
         </button>
-        ${onDelete ? `<button class="del-btn mc-del" title="Apagar mapa">${delIcon}</button>` : ""}
+        ${onDownload ? `<button class="dl-btn mc-dl mc-desktop" title="Baixar JPG">${dlJpgIcon}</button>` : ""}
+        ${onDelete   ? `<button class="del-btn mc-del mc-desktop" title="Apagar mapa">${delIcon}</button>` : ""}
+        <button class="sc-kebab mc-kebab" title="Mais opções" aria-haspopup="menu" aria-expanded="false">${kebabIcon}</button>
       </div>`;
 
     const favBtn = btn.querySelector(".fav-btn");
     if (favBtn && onFavorite) {
-      favBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        onFavorite();
-      });
+      favBtn.addEventListener("click", (e) => { e.stopPropagation(); onFavorite(); });
     }
+
+    const dlBtn = btn.querySelector(".dl-btn");
+    if (dlBtn && onDownload) {
+      dlBtn.addEventListener("click", (e) => { e.stopPropagation(); onDownload(); });
+    }
+
     const delBtn = btn.querySelector(".del-btn");
     if (delBtn && onDelete) {
-      delBtn.addEventListener("click", (e) => {
+      delBtn.addEventListener("click", (e) => { e.stopPropagation(); onDelete(); });
+    }
+
+    const kebab = btn.querySelector(".sc-kebab");
+    if (kebab) {
+      kebab.addEventListener("click", (e) => {
         e.stopPropagation();
-        onDelete();
+        Card._openMapMenu(kebab, { isFav, onFavorite, onDownload, onDelete });
       });
     }
 
@@ -160,6 +173,68 @@ const Card = {
       Router.go("mapa");
     });
     return btn;
+  },
+
+  _openMapMenu(anchor, { isFav, onFavorite, onDownload, onDelete }) {
+    const existing = document.querySelector(".sc-menu");
+    if (existing) {
+      existing.remove();
+      if (existing.dataset.anchorId && existing.dataset.anchorId === anchor.dataset.menuId) {
+        anchor.setAttribute("aria-expanded", "false");
+        return;
+      }
+    }
+    const menuId = "kb_" + Date.now().toString(36);
+    anchor.dataset.menuId = menuId;
+    anchor.setAttribute("aria-expanded", "true");
+
+    const menu = document.createElement("div");
+    menu.className = "sc-menu";
+    menu.dataset.anchorId = menuId;
+    menu.setAttribute("role", "menu");
+
+    const items = [];
+    if (onFavorite) items.push({ label: isFav ? "Remover favorito" : "Favoritar", action: onFavorite });
+    if (onDownload) items.push({ label: "Baixar JPG", action: onDownload });
+    if (onDelete)   items.push({ label: "Excluir", action: onDelete, danger: true });
+
+    menu.innerHTML = items.map((it, i) =>
+      `<button class="sc-menu-item${it.danger ? " danger" : ""}" data-idx="${i}" role="menuitem">${it.label}</button>`
+    ).join("");
+    document.body.appendChild(menu);
+
+    const r = anchor.getBoundingClientRect();
+    const mw = menu.offsetWidth;
+    let left = r.right - mw;
+    if (left < 8) left = 8;
+    if (left + mw > window.innerWidth - 8) left = window.innerWidth - mw - 8;
+    menu.style.top  = `${r.bottom + 6 + window.scrollY}px`;
+    menu.style.left = `${left + window.scrollX}px`;
+
+    const close = () => {
+      menu.remove();
+      anchor.setAttribute("aria-expanded", "false");
+      document.removeEventListener("click", onDoc, true);
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", close);
+      window.removeEventListener("scroll", close, true);
+    };
+    const onDoc = (e) => { if (!menu.contains(e.target) && e.target !== anchor) close(); };
+    const onKey = (e) => { if (e.key === "Escape") close(); };
+    setTimeout(() => {
+      document.addEventListener("click", onDoc, true);
+      document.addEventListener("keydown", onKey);
+      window.addEventListener("resize", close);
+      window.addEventListener("scroll", close, true);
+    }, 0);
+    menu.querySelectorAll(".sc-menu-item").forEach((b) => {
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const it = items[parseInt(b.dataset.idx, 10)];
+        close();
+        if (it && typeof it.action === "function") it.action();
+      });
+    });
   },
 
   sheet(sh) {
