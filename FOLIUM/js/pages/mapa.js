@@ -5,17 +5,17 @@ const MOCK_MAP_CONTENT = {
     const tpls = {
       grande: [
         topico +
-          " é um conceito central que abrange múltiplas dimensões. Sua compreensão exige análise de causas, consequências e inter-relações com outros elementos do campo de estudo. Exemplos práticos ajudam a consolidar o aprendizado e tornar o conhecimento aplicável no dia a dia.",
+        " é um conceito central que abrange múltiplas dimensões. Sua compreensão exige análise de causas, consequências e inter-relações com outros elementos do campo de estudo. Exemplos práticos ajudam a consolidar o aprendizado e tornar o conhecimento aplicável no dia a dia.",
         "O estudo de " +
-          topico +
-          " revela padrões importantes para o entendimento do tema. Identifique os elementos principais, suas funções e como se relacionam entre si. Aplicar o conhecimento em situações concretas é essencial para fixar o conteúdo.",
+        topico +
+        " revela padrões importantes para o entendimento do tema. Identifique os elementos principais, suas funções e como se relacionam entre si. Aplicar o conhecimento em situações concretas é essencial para fixar o conteúdo.",
       ],
       medio: [
         topico +
-          ": conceito que descreve características ou processos específicos. Compreendê-lo é essencial para dominar o tema e suas ramificações.",
+        ": conceito que descreve características ou processos específicos. Compreendê-lo é essencial para dominar o tema e suas ramificações.",
         "Aspecto fundamental do tema — " +
-          topico +
-          " relaciona-se diretamente com os demais nós do mapa. Atenção às suas particularidades.",
+        topico +
+        " relaciona-se diretamente com os demais nós do mapa. Atenção às suas particularidades.",
       ],
       pequeno: [
         "Conceito-chave: " + topico + ".",
@@ -160,7 +160,7 @@ const MapaPage = {
   init() {
     if (!Router.requireAuth()) return;
 
-    // ── View-mode: opening a previously saved map ──────────────
+    // View-mode: opening a previously saved map
     const savedMapaId = Storage.getContext("mapaId");
     const savedSubjectId = Storage.getContext("subjectId_mapa");
     if (savedMapaId && savedSubjectId) {
@@ -172,7 +172,7 @@ const MapaPage = {
       return;
     }
 
-    // ── Normal creation flow ────────────────────────────────────
+    // Normal creation flow
     Navbar.renderTop({
       backRoute: "escolher",
       backLabel: "Escolher",
@@ -909,7 +909,7 @@ const MapaPage = {
         el.classList.remove("dragging");
         try {
           el.releasePointerCapture(e.pointerId);
-        } catch (_) {}
+        } catch (_) { }
       }
       this._drag = null;
     }
@@ -920,7 +920,7 @@ const MapaPage = {
       if (el) {
         try {
           el.releasePointerCapture(e.pointerId);
-        } catch (_) {}
+        } catch (_) { }
       }
       this._resize = null;
     }
@@ -930,7 +930,7 @@ const MapaPage = {
     }
   },
 
-  // ── Smooth bezier connector drawing (used for the result pane) ─────
+  // Smooth bezier connector drawing
   _redrawLinesBezier(svgId) {
     const svg = document.getElementById(svgId);
     if (!svg) return;
@@ -949,7 +949,7 @@ const MapaPage = {
     // Use node data dimensions directly (CSS may override visually, but data is the ground truth)
     const cBounds = { x: center.x, y: center.y, w: center.w, h: center.h };
 
-    // ── Detect column groups ───────────────────────────────────────────
+    // Detect column groups
     // Two nodes are in the same column when their horizontal centers are within 80px
     const COL_TOLERANCE = 80;
     const columns = [];
@@ -972,15 +972,14 @@ const MapaPage = {
 
     const draw = (fromRect, toRect) => {
       const start = this._bz_nearestEdge(fromRect, toRect.x + toRect.w / 2, toRect.y + toRect.h / 2);
-      const end   = this._bz_nearestEdge(toRect, fromRect.x + fromRect.w / 2, fromRect.y + fromRect.h / 2);
+      const end = this._bz_nearestEdge(toRect, fromRect.x + fromRect.w / 2, fromRect.y + fromRect.h / 2);
 
       const dist = Math.hypot(end.x - start.x, end.y - start.y);
-      // Lower tension for vertical chains to avoid bowing into sibling nodes
       const tension = Math.min(dist * 0.3, 90);
       const c1x = start.x + start.nx * tension;
       const c1y = start.y + start.ny * tension;
-      const c2x = end.x   + end.nx   * tension;
-      const c2y = end.y   + end.ny   * tension;
+      const c2x = end.x + end.nx * tension;
+      const c2y = end.y + end.ny * tension;
 
       const d =
         `M ${start.x.toFixed(1)} ${start.y.toFixed(1)} ` +
@@ -1089,7 +1088,7 @@ const MapaPage = {
         .forEach((node, idx) => {
           const lane = mpClamp(
             centerEdge +
-              sideDir * (MP_CONNECTOR_GAP + MP_ROUTE_LINE_GAP * (idx + 1)),
+            sideDir * (MP_CONNECTOR_GAP + MP_ROUTE_LINE_GAP * (idx + 1)),
             2,
             isHorizontal ? MP_CANVAS_W - 2 : MP_CANVAS_H - 2,
           );
@@ -2445,7 +2444,7 @@ const MapaPage = {
     return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg"><rect width="${w}" height="${h}" fill="#eef4f0" rx="4"/>${lines}<circle cx="${cx}" cy="${cy}" r="13" fill="#3d6b4d"/><text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="8" font-family="sans-serif" fill="white">${label}</text>${dots}</svg>`;
   },
 
-  // ── View mode: open existing saved map ────────────────────────
+  // View mode: open existing saved map 
   _openSavedMap(mapaId, subjectId, origin) {
     const subjects = Storage.getSubjects();
     const subject = subjects.find((s) => s.id === subjectId);
@@ -2502,7 +2501,7 @@ const MapaPage = {
     Navbar.renderBottom("folhas");
     Sidebar.init();
 
-    // Pointer + resize events needed for canvas interactions
+    // Pointer
     this._boundMove = (e) => this._onDocMove(e);
     this._boundUp = (e) => this._onDocUp(e);
     document.addEventListener("pointermove", this._boundMove, { passive: false });
@@ -2519,12 +2518,10 @@ const MapaPage = {
       setTimeout(() => { if (this._mobileFullscreen) this._layoutMobileFullscreen(); }, 140);
     });
 
-    // Jump straight to result step
     this.goStep(5);
 
-    // After _renderResult runs (50ms), patch UI for view mode
     setTimeout(() => {
-      // ── Header ──
+      // Header
       const header = document.getElementById("mp-result-header");
       if (header) {
         const nodeCount = this.nodes.filter((n) => !n.isCenter).length;
@@ -2560,7 +2557,6 @@ const MapaPage = {
         }
       }
 
-      // ── Mobile fullscreen result actions → Fechar only ──
       const fsResultActions = document.querySelector(".mp-mobile-fullscreen__actions--result");
       if (fsResultActions) {
         fsResultActions.innerHTML = `<button class="mp-mobile-fullscreen__btn mp-mobile-fullscreen__btn--primary" id="mp-fs-vm-close" type="button">Fechar</button>`;
@@ -2570,12 +2566,11 @@ const MapaPage = {
         });
       }
 
-      // Auto-download if triggered from biblioteca card
       if (downloadOnLoad) setTimeout(() => this.downloadMapAsJpg(), 300);
     }, 120);
   },
 
-  // ── Download result canvas as JPG ─────────────────────────────────
+  // Download result canvas as JPG
   async downloadMapAsJpg() {
     if (typeof html2canvas === "undefined") {
       console.warn("[Folium] html2canvas not loaded");
@@ -2585,9 +2580,9 @@ const MapaPage = {
     if (!canvasEl) return;
 
     Modal.showLoading("Gerando imagem…", "Preparando o mapa para exportação");
-    const origTransform       = canvasEl.style.transform;
+    const origTransform = canvasEl.style.transform;
     const origTransformOrigin = canvasEl.style.transformOrigin;
-    canvasEl.style.transform       = "none";
+    canvasEl.style.transform = "none";
     canvasEl.style.transformOrigin = "0 0";
 
     try {
@@ -2616,7 +2611,7 @@ const MapaPage = {
     } catch (err) {
       console.error("[downloadMapAsJpg]", err);
     } finally {
-      canvasEl.style.transform       = origTransform;
+      canvasEl.style.transform = origTransform;
       canvasEl.style.transformOrigin = origTransformOrigin;
       Modal.hideLoading();
     }
