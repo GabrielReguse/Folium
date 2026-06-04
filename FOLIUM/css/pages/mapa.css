@@ -825,6 +825,9 @@ body.mp-view-mode .mp-result-card {
   border-radius: var(--r-lg);
   box-shadow: var(--sh);
 }
+body.mp-view-mode .cr-step-actions {
+  display: none !important;
+}
 
 /* Fix 2: center node → auto-sizes to text content (editor + result + view) */
 body.mp-view-mode .mp-node--center {

@@ -35,13 +35,18 @@ const MateriaPage = {
     Storage.clearContext("sheetId");
     Storage.clearContext("viewSheet");
 
-    const fromMapasTab = Storage.getContext("fromMapasTab");
-    Storage.clearContext("fromMapasTab");
-    this._fromMapasTab = fromMapasTab === true || fromMapasTab === "1";
+    const fromMapasTabCtx = Storage.getContext("fromMapasTab");
+    if (fromMapasTabCtx !== null) {
+      Storage.clearContext("fromMapasTab");
+      this._fromMapasTab = fromMapasTabCtx === true || fromMapasTabCtx === "1";
+    }
+    // if null → keep existing this._fromMapasTab so re-renders preserve the mode
+
+    const modeLabel = this._fromMapasTab ? "Mapas" : "Folhas";
 
     Navbar.renderTop({
       onBack: () => MateriaPage._goBack(),
-      backLabel: "Matérias",
+      backLabel: modeLabel,
       title: `<em>${this.subject.nomeNormalizado}</em>`,
     });
 
@@ -55,7 +60,7 @@ const MateriaPage = {
     bread.innerHTML = `
       <button class="bread-back" onclick="MateriaPage._goBack()">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-        ${this._fromMapasTab ? "Mapas" : "Matérias"}
+        ${modeLabel}
       </button>
       <span class="bread-sep">/</span>
       <span class="bread-current">${this.subject.nomeNormalizado}</span>`;
@@ -125,14 +130,24 @@ const MateriaPage = {
     });
   },
 
+  _refreshAndRender() {
+    const subjects = Storage.getSubjects();
+    this.subject = subjects.find((s) => s.id === this.subject.id) || this.subject;
+    this._renderSheetList();
+  },
+
   _makeMateriaMindMapCard(mp, idx) {
     const nodesCount = Array.isArray(mp.topicos)
       ? mp.topicos.length
       : Array.isArray(mp.nodes)
         ? mp.nodes.filter((n) => !n.isCenter).length
         : 0;
+    const isFav = !!mp.favorita;
     const mapSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;stroke:var(--forest)"><circle cx="12" cy="5" r="2.5"/><circle cx="4" cy="19" r="2.5"/><circle cx="20" cy="19" r="2.5"/><line x1="12" y1="7.5" x2="4" y2="16.5"/><line x1="12" y1="7.5" x2="20" y2="16.5"/></svg>`;
-    const arrowSvg = `<svg class="sc-arr" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>`;
+    const arrowSvg = `<svg class="sc-arr sc-desktop" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>`;
+    const kebabIcon = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:18px;height:18px"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>`;
+    const dlJpgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+    const delSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
 
     const card = document.createElement("button");
     card.className = "sheet-card-item mc-materia-card au";
@@ -148,13 +163,54 @@ const MateriaPage = {
           <span class="sc-nivel">${nodesCount} nó${nodesCount !== 1 ? "s" : ""}</span>
         </div>
       </div>
-      <div class="sc-actions">${arrowSvg}</div>`;
+      <div class="sc-actions">
+        <button class="fav-btn sc-desktop mc-fav-mat ${isFav ? "on" : ""}" title="${isFav ? "Remover favorito" : "Favoritar"}">${isFav ? CardIcons.starFill : CardIcons.star}</button>
+        <button class="sc-desktop mc-dl-mat" title="Baixar JPG">${dlJpgIcon}</button>
+        <button class="del-btn sc-desktop mc-del-mat" title="Apagar">${delSvg}</button>
+        ${arrowSvg}
+        <button class="sc-kebab" title="Mais opes" aria-haspopup="menu" aria-expanded="false">${kebabIcon}</button>
+      </div>`;
+
+    const doFav = () => {
+      Storage.toggleMapFavorite(this.subject.id, mp.id);
+      this._refreshAndRender();
+    };
+    const doDl = () => {
+      Storage.setContext("mapaId", mp.id);
+      Storage.setContext("subjectId_mapa", this.subject.id);
+      Storage.setContext("mapaOrigin", "materia");
+      Storage.setContext("downloadOnLoad", "1");
+      if (this._fromMapasTab) Storage.setContext("mapaFromMapasTab", "1");
+      Router.go("mapa");
+    };
+    const doDel = () => {
+      Confirm.show(`Apagar "${mp.titulo}"?`, "Essa acao nao pode ser desfeita.", () => {
+        Storage.deleteMap(this.subject.id, mp.id);
+        this._refreshAndRender();
+      });
+    };
+
+    card.querySelector(".mc-fav-mat").addEventListener("click", (e) => { e.stopPropagation(); doFav(); });
+    card.querySelector(".mc-dl-mat").addEventListener("click", (e) => { e.stopPropagation(); doDl(); });
+    card.querySelector(".mc-del-mat").addEventListener("click", (e) => { e.stopPropagation(); doDel(); });
+
+    const kebab = card.querySelector(".sc-kebab");
+    kebab.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const cur = (Storage.getSubjects().find((s) => s.id === this.subject.id)?.mapas || []).find((m) => m.id === mp.id);
+      Card._openMapMenu(kebab, {
+        isFav: !!(cur?.favorita),
+        onFavorite: doFav,
+        onDownload: doDl,
+        onDelete: doDel,
+      });
+    });
 
     card.addEventListener("click", () => {
       Storage.setContext("mapaId", mp.id);
       Storage.setContext("subjectId_mapa", this.subject.id);
       Storage.setContext("mapaOrigin", "materia");
-      Storage.setContext("mapaFromMapasTab", this._fromMapasTab ? "1" : "");
+      if (this._fromMapasTab) Storage.setContext("mapaFromMapasTab", "1");
       Router.go("mapa");
     });
     return card;
