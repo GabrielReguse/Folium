@@ -5,17 +5,17 @@ const MOCK_MAP_CONTENT = {
     const tpls = {
       grande: [
         topico +
-        " é um conceito central que abrange múltiplas dimensões. Sua compreensão exige análise de causas, consequências e inter-relações com outros elementos do campo de estudo. Exemplos práticos ajudam a consolidar o aprendizado e tornar o conhecimento aplicável no dia a dia.",
+          " é um conceito central que abrange múltiplas dimensões. Sua compreensão exige análise de causas, consequências e inter-relações com outros elementos do campo de estudo. Exemplos práticos ajudam a consolidar o aprendizado e tornar o conhecimento aplicável no dia a dia.",
         "O estudo de " +
-        topico +
-        " revela padrões importantes para o entendimento do tema. Identifique os elementos principais, suas funções e como se relacionam entre si. Aplicar o conhecimento em situações concretas é essencial para fixar o conteúdo.",
+          topico +
+          " revela padrões importantes para o entendimento do tema. Identifique os elementos principais, suas funções e como se relacionam entre si. Aplicar o conhecimento em situações concretas é essencial para fixar o conteúdo.",
       ],
       medio: [
         topico +
-        ": conceito que descreve características ou processos específicos. Compreendê-lo é essencial para dominar o tema e suas ramificações.",
+          ": conceito que descreve características ou processos específicos. Compreendê-lo é essencial para dominar o tema e suas ramificações.",
         "Aspecto fundamental do tema — " +
-        topico +
-        " relaciona-se diretamente com os demais nós do mapa. Atenção às suas particularidades.",
+          topico +
+          " relaciona-se diretamente com os demais nós do mapa. Atenção às suas particularidades.",
       ],
       pequeno: [
         "Conceito-chave: " + topico + ".",
@@ -909,7 +909,7 @@ const MapaPage = {
         el.classList.remove("dragging");
         try {
           el.releasePointerCapture(e.pointerId);
-        } catch (_) { }
+        } catch (_) {}
       }
       this._drag = null;
     }
@@ -920,7 +920,7 @@ const MapaPage = {
       if (el) {
         try {
           el.releasePointerCapture(e.pointerId);
-        } catch (_) { }
+        } catch (_) {}
       }
       this._resize = null;
     }
@@ -972,15 +972,15 @@ const MapaPage = {
 
     const draw = (fromRect, toRect) => {
       const start = this._bz_nearestEdge(fromRect, toRect.x + toRect.w / 2, toRect.y + toRect.h / 2);
-      const end = this._bz_nearestEdge(toRect, fromRect.x + fromRect.w / 2, fromRect.y + fromRect.h / 2);
+      const end   = this._bz_nearestEdge(toRect, fromRect.x + fromRect.w / 2, fromRect.y + fromRect.h / 2);
 
       const dist = Math.hypot(end.x - start.x, end.y - start.y);
       // Lower tension for vertical chains to avoid bowing into sibling nodes
       const tension = Math.min(dist * 0.3, 90);
       const c1x = start.x + start.nx * tension;
       const c1y = start.y + start.ny * tension;
-      const c2x = end.x + end.nx * tension;
-      const c2y = end.y + end.ny * tension;
+      const c2x = end.x   + end.nx   * tension;
+      const c2y = end.y   + end.ny   * tension;
 
       const d =
         `M ${start.x.toFixed(1)} ${start.y.toFixed(1)} ` +
@@ -1089,7 +1089,7 @@ const MapaPage = {
         .forEach((node, idx) => {
           const lane = mpClamp(
             centerEdge +
-            sideDir * (MP_CONNECTOR_GAP + MP_ROUTE_LINE_GAP * (idx + 1)),
+              sideDir * (MP_CONNECTOR_GAP + MP_ROUTE_LINE_GAP * (idx + 1)),
             2,
             isHorizontal ? MP_CANVAS_W - 2 : MP_CANVAS_H - 2,
           );
@@ -2585,10 +2585,9 @@ const MapaPage = {
     if (!canvasEl) return;
 
     Modal.showLoading("Gerando imagem…", "Preparando o mapa para exportação");
-
-    const origTransform = canvasEl.style.transform;
+    const origTransform       = canvasEl.style.transform;
     const origTransformOrigin = canvasEl.style.transformOrigin;
-    canvasEl.style.transform = "none";
+    canvasEl.style.transform       = "none";
     canvasEl.style.transformOrigin = "0 0";
 
     try {
@@ -2599,56 +2598,30 @@ const MapaPage = {
         backgroundColor: "#ffffff",
         logging: false,
       });
-
-      // Verifica se o canvas tem tamanho válido
-      if (shot.width === 0 || shot.height === 0) {
-        throw new Error("Canvas gerado tem dimensão zero");
-      }
-
-      // Testa se o canvas está tainted (tenta ler dados)
-      try {
-        shot.getContext("2d").getImageData(0, 0, 1, 1);
-      } catch (taintErr) {
-        throw new Error("Canvas tainted: contém imagens cross-origin sem CORS");
-      }
-
-      const safeName = (this.titulo || "mapa-mental")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^\w\s\-]/g, "")
-        .replace(/\s+/g, "_")
-        .replace(/_+/g, "_")
-        .replace(/^_|_$/g, "")
-        .slice(0, 80) || "mapa-mental";
-
-      // Usa Promise para transformar toBlob em algo tratável com async/await
-      const blob = await new Promise((resolve, reject) => {
-        shot.toBlob((blob) => {
-          if (blob) resolve(blob);
-          else reject(new Error("toBlob retornou null – canvas provavelmente tainted ou memória insuficiente"));
-        }, "image/jpeg", 0.95);
-      });
-
-      // Download com object URL
-      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.download = `${safeName}.jpg`;
-      a.href = url;
+      const safeName =
+        (this.titulo || "mapa-mental")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^\w\s\-]/g, "")
+          .replace(/\s+/g, "_")
+          .replace(/_+/g, "_")
+          .replace(/^_|_$/g, "")
+          .slice(0, 80) || "mapa-mental";
+      a.download = safeName + ".jpg";
+      a.href = shot.toDataURL("image/jpeg", 0.95);
       document.body.appendChild(a);
       a.click();
       a.remove();
-      URL.revokeObjectURL(url);
-      Modal.hideLoading();
-
     } catch (err) {
-      console.error("[downloadMapAsJpg] Erro detalhado:", err);
-      Modal.hideLoading();
-      alert("Falha ao gerar imagem: " + err.message);
+      console.error("[downloadMapAsJpg]", err);
     } finally {
-      canvasEl.style.transform = origTransform;
+      canvasEl.style.transform       = origTransform;
       canvasEl.style.transformOrigin = origTransformOrigin;
+      Modal.hideLoading();
     }
   },
+
   async salvarMapa() {
     if (this._mobileFullscreen) this.closeMobileFullscreen();
     Modal.showLoading("Salvando…", "Adicionando à biblioteca");
