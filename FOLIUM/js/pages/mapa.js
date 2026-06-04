@@ -2577,50 +2577,62 @@ const MapaPage = {
 
   // ── Download result canvas as JPG ─────────────────────────────────
   async downloadMapAsJpg() {
-    if (typeof html2canvas === "undefined") {
-      console.warn("[Folium] html2canvas not loaded");
-      return;
-    }
-    const canvasEl = document.getElementById("mp-result-canvas");
-    if (!canvasEl) return;
+  if (typeof html2canvas === "undefined") {
+    console.warn("[Folium] html2canvas not loaded");
+    return;
+  }
+  const canvasEl = document.getElementById("mp-result-canvas");
+  if (!canvasEl) return;
 
-    Modal.showLoading("Gerando imagem…", "Preparando o mapa para exportação");
-    const origTransform = canvasEl.style.transform;
-    const origTransformOrigin = canvasEl.style.transformOrigin;
-    canvasEl.style.transform = "none";
-    canvasEl.style.transformOrigin = "0 0";
+  Modal.showLoading("Gerando imagem…", "Preparando o mapa para exportação");
+  const origTransform = canvasEl.style.transform;
+  const origTransformOrigin = canvasEl.style.transformOrigin;
+  canvasEl.style.transform = "none";
+  canvasEl.style.transformOrigin = "0 0";
 
-    try {
-      const shot = await html2canvas(canvasEl, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: "#ffffff",
-        logging: false,
-      });
+  try {
+    const shot = await html2canvas(canvasEl, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: "#ffffff",
+      logging: false,
+    });
+
+    const safeName = (
+      (this.titulo || "mapa-mental")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^\w\s\-]/g, "")
+        .replace(/\s+/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_|_$/g, "")
+        .slice(0, 80) || "mapa-mental"
+    );
+
+    shot.toBlob((blob) => {
+      if (!blob) {
+        console.error("Falha ao gerar blob da imagem");
+        Modal.hideLoading();
+        return;
+      }
+      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      const safeName =
-        (this.titulo || "mapa-mental")
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/[^\w\s\-]/g, "")
-          .replace(/\s+/g, "_")
-          .replace(/_+/g, "_")
-          .replace(/^_|_$/g, "")
-          .slice(0, 80) || "mapa-mental";
-      a.download = safeName + ".jpg";
-      a.href = shot.toDataURL("image/jpeg", 0.95);
+      a.download = `${safeName}.jpg`;
+      a.href = url;
       document.body.appendChild(a);
       a.click();
       a.remove();
-    } catch (err) {
-      console.error("[downloadMapAsJpg]", err);
-    } finally {
-      canvasEl.style.transform = origTransform;
-      canvasEl.style.transformOrigin = origTransformOrigin;
+      URL.revokeObjectURL(url);
       Modal.hideLoading();
-    }
-  },
+    }, "image/jpeg", 0.95);
+  } catch (err) {
+    console.error("[downloadMapAsJpg]", err);
+    Modal.hideLoading();
+  } finally {
+    canvasEl.style.transform = origTransform;
+    canvasEl.style.transformOrigin = origTransformOrigin;
+  }
 
   async salvarMapa() {
     if (this._mobileFullscreen) this.closeMobileFullscreen();
