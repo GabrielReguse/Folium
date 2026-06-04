@@ -2480,7 +2480,25 @@ const MapaPage = {
     };
 
     const backLabel = origin === "materia" ? "Matéria" : "Biblioteca";
-    Navbar.renderTop({ onBack: goBack, backLabel, title: `<em>${this.titulo}</em>`, showBurger: true });
+    Navbar.renderTop({
+      backRoute: null,
+      backLabel: null,
+      title: `<em>${this.materia}</em>`,
+    });
+
+    const nav = document.querySelector(".top-nav");
+    if (nav) {
+      const wrapper = nav.firstElementChild;
+      if (wrapper) {
+        const backBtn = document.createElement("button");
+        backBtn.className = "nav-back";
+        backBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" style="flex-shrink:0"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> ${backLabel}`;
+        backBtn.addEventListener("click", goBack);
+        wrapper.innerHTML = "";
+        wrapper.appendChild(backBtn);
+      }
+    }
+
     Navbar.renderBottom("folhas");
     Sidebar.init();
 
@@ -2510,10 +2528,36 @@ const MapaPage = {
       const header = document.getElementById("mp-result-header");
       if (header) {
         const nodeCount = this.nodes.filter((n) => !n.isCenter).length;
-        header.innerHTML =
-          `<span class="badge badge-accent" style="font-size:11px;background:var(--forest-lt);color:var(--forest);border:1px solid rgba(61,107,77,.25)">Mapa salvo</span>` +
-          `<h2 style="font-family:var(--font-serif);font-size:22px;font-weight:600;color:var(--text);margin:8px 0 4px">${this.titulo} <em style="font-size:16px;color:var(--caramel)">(${this.materia})</em></h2>` +
-          `<p style="font-size:13px;color:var(--text-mid);margin:0">${nodeCount} nó${nodeCount !== 1 ? "s" : ""} · ${mapa.dataFormatada || ""} · Template: ${this.template}</p>`;
+        const isFav = !!mapa.favorita;
+        header.innerHTML = `
+          <div class="shv-badges">
+            <span class="badge badge-accent" style="background:var(--forest-lt);color:var(--forest)">Mapa mental</span>
+            <button class="fav-btn-header ${isFav ? "on" : ""}" id="fav-header-btn-mapa" title="${isFav ? "Remover favorito" : "Favoritar"}">
+              ${isFav ? '<svg viewBox="0 0 24 24" fill="#f5a623" stroke="#f5a623" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;stroke:var(--text-light)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'}
+            </button>
+          </div>
+          <h2 class="t-section" style="margin-top:10px;margin-bottom:6px">${this.titulo}</h2>
+          <p class="t-sub">Criada em ${mapa.dataFormatada || ""} · ${nodeCount} nó${nodeCount !== 1 ? "s" : ""} · Template: ${this.template}</p>
+        `;
+
+        const favBtn = document.getElementById("fav-header-btn-mapa");
+        if (favBtn) {
+          favBtn.addEventListener("click", () => {
+            const subjects = Storage.getSubjects();
+            const subj = subjects.find(s => s.id === subjectId);
+            if (!subj) return;
+            const mp = subj.mapas.find(m => m.id === mapaId);
+            if (!mp) return;
+            mp.favorita = !mp.favorita;
+            Storage.setSubjects(subjects);
+            mapa.favorita = mp.favorita;
+            favBtn.innerHTML = mp.favorita
+              ? '<svg viewBox="0 0 24 24" fill="#f5a623" stroke="#f5a623" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+              : '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;stroke:var(--text-light)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+            favBtn.classList.toggle("on", mp.favorita);
+            favBtn.title = mp.favorita ? "Remover favorito" : "Favoritar";
+          });
+        }
       }
 
       // ── Mobile fullscreen result actions → Fechar only ──

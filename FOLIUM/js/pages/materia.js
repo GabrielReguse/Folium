@@ -55,16 +55,32 @@ const MateriaPage = {
 
     DOM.clear(body);
 
-    const bread = document.createElement("div");
-    bread.className = "bread-row au";
-    bread.innerHTML = `
-      <button class="bread-back" onclick="MateriaPage._goBack()">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-        ${modeLabel}
+    const toggle = document.createElement("div");
+    toggle.className = "mc-type-toggle au";
+    toggle.setAttribute("role", "radiogroup");
+    toggle.setAttribute("aria-label", "Tipo de conteúdo");
+
+    const folhaSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:currentColor"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/></svg>`;
+    const mapaSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;stroke:currentColor"><circle cx="12" cy="5" r="2"/><circle cx="4" cy="19" r="2"/><circle cx="20" cy="19" r="2"/><line x1="12" y1="7" x2="4" y2="17"/><line x1="12" y1="7" x2="20" y2="17"/></svg>`;
+
+    toggle.innerHTML = `
+      <button class="mc-type-btn ${!this._fromMapasTab ? "active" : ""}" data-type="folhas" role="radio" aria-checked="${!this._fromMapasTab}">
+        ${folhaSvg} Folhas
       </button>
-      <span class="bread-sep">/</span>
-      <span class="bread-current">${this.subject.nomeNormalizado}</span>`;
-    body.appendChild(bread);
+      <button class="mc-type-btn ${this._fromMapasTab ? "active" : ""}" data-type="mapas" role="radio" aria-checked="${this._fromMapasTab}">
+        ${mapaSvg} Mapas
+      </button>
+    `;
+
+    toggle.querySelectorAll(".mc-type-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        this._fromMapasTab = btn.dataset.type === "mapas";
+        Storage.setContext("fromMapasTab", this._fromMapasTab ? "1" : "0");
+        this._renderSheetList();
+      });
+    });
+
+    body.appendChild(toggle);
 
     const lbl = document.createElement("p");
     lbl.className = "t-label mb-16";
@@ -144,10 +160,10 @@ const MateriaPage = {
         : 0;
     const isFav = !!mp.favorita;
     const mapSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;stroke:var(--forest)"><circle cx="12" cy="5" r="2.5"/><circle cx="4" cy="19" r="2.5"/><circle cx="20" cy="19" r="2.5"/><line x1="12" y1="7.5" x2="4" y2="16.5"/><line x1="12" y1="7.5" x2="20" y2="16.5"/></svg>`;
-    const arrowSvg = `<svg class="sc-arr sc-desktop" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>`;
+    const arrowSvg = `<svg class="sc-arr sc-desktop" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>`;
     const kebabIcon = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" style="width:18px;height:18px"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>`;
-    const dlJpgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
-    const delSvg = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+    const dlJpgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+    const delSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
 
     const card = document.createElement("button");
     card.className = "sheet-card-item mc-materia-card au";
@@ -168,7 +184,7 @@ const MateriaPage = {
         <button class="sc-desktop mc-dl-mat" title="Baixar JPG">${dlJpgIcon}</button>
         <button class="del-btn sc-desktop mc-del-mat" title="Apagar">${delSvg}</button>
         ${arrowSvg}
-        <button class="sc-kebab" title="Mais opes" aria-haspopup="menu" aria-expanded="false">${kebabIcon}</button>
+        <button class="sc-kebab" title="Mais opções" aria-haspopup="menu" aria-expanded="false">${kebabIcon}</button>
       </div>`;
 
     const doFav = () => {
@@ -184,9 +200,14 @@ const MateriaPage = {
       Router.go("mapa");
     };
     const doDel = () => {
-      Confirm.show(`Apagar "${mp.titulo}"?`, "Essa acao nao pode ser desfeita.", () => {
-        Storage.deleteMap(this.subject.id, mp.id);
-        this._refreshAndRender();
+      Confirm.show({
+        title: "Apagar mapa?",
+        text: `"${mp.titulo}" será removido permanentemente.`,
+        confirmLabel: "Apagar",
+        onConfirm: () => {
+          Storage.deleteMap(this.subject.id, mp.id);
+          this._refreshAndRender();
+        },
       });
     };
 

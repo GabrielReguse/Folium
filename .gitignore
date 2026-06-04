@@ -1,6 +1,8 @@
+.gitignore
 .DS_Store
 Thumbs.db
 *.log
 __pycache__/
 *.py[cod]
 .env
+feedbacks/
