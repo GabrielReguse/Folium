@@ -118,8 +118,8 @@ const HomePage = {
         route: "escolher",
       },
       {
-        svg: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/></svg>`,
-        title: "Minhas folhas",
+        svg: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h4v16H4z"/><path d="M10 7h4v13h-4z"/><path d="M16 2h4v18h-4z"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
+        title: "Biblioteca",
         sub: "Acesse seus resumos salvos",
         route: "folhas",
       },
