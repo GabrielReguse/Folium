@@ -2585,6 +2585,7 @@ const MapaPage = {
     if (!canvasEl) return;
 
     Modal.showLoading("Gerando imagem…", "Preparando o mapa para exportação");
+
     const origTransform = canvasEl.style.transform;
     const origTransformOrigin = canvasEl.style.transformOrigin;
     canvasEl.style.transform = "none";
@@ -2599,36 +2600,50 @@ const MapaPage = {
         logging: false,
       });
 
-      const safeName = (
-        (this.titulo || "mapa-mental")
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/[^\w\s\-]/g, "")
-          .replace(/\s+/g, "_")
-          .replace(/_+/g, "_")
-          .replace(/^_|_$/g, "")
-          .slice(0, 80) || "mapa-mental"
-      );
+      // Verifica se o canvas tem tamanho válido
+      if (shot.width === 0 || shot.height === 0) {
+        throw new Error("Canvas gerado tem dimensão zero");
+      }
 
-      shot.toBlob((blob) => {
-        if (!blob) {
-          console.error("Falha ao gerar blob da imagem");
-          Modal.hideLoading();
-          return;
-        }
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.download = `${safeName}.jpg`;
-        a.href = url;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-        Modal.hideLoading();
-      }, "image/jpeg", 0.95);
-    } catch (err) {
-      console.error("[downloadMapAsJpg]", err);
+      // Testa se o canvas está tainted (tenta ler dados)
+      try {
+        shot.getContext("2d").getImageData(0, 0, 1, 1);
+      } catch (taintErr) {
+        throw new Error("Canvas tainted: contém imagens cross-origin sem CORS");
+      }
+
+      const safeName = (this.titulo || "mapa-mental")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^\w\s\-]/g, "")
+        .replace(/\s+/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_|_$/g, "")
+        .slice(0, 80) || "mapa-mental";
+
+      // Usa Promise para transformar toBlob em algo tratável com async/await
+      const blob = await new Promise((resolve, reject) => {
+        shot.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error("toBlob retornou null – canvas provavelmente tainted ou memória insuficiente"));
+        }, "image/jpeg", 0.95);
+      });
+
+      // Download com object URL
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.download = `${safeName}.jpg`;
+      a.href = url;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
       Modal.hideLoading();
+
+    } catch (err) {
+      console.error("[downloadMapAsJpg] Erro detalhado:", err);
+      Modal.hideLoading();
+      alert("Falha ao gerar imagem: " + err.message);
     } finally {
       canvasEl.style.transform = origTransform;
       canvasEl.style.transformOrigin = origTransformOrigin;
