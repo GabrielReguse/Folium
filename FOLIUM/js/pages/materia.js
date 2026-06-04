@@ -174,9 +174,8 @@ const MateriaPage = {
       <div class="sc-info">
         <div class="sc-title">${mp.titulo}</div>
         <div class="sc-meta">
-          Mapa mental${mp.template ? " · " + mp.template.charAt(0).toUpperCase() + mp.template.slice(1) : ""}
-          · ${mp.dataFormatada || ""}
-          <span class="sc-nivel">${nodesCount} nó${nodesCount !== 1 ? "s" : ""}</span>
+          ${[mp.dataFormatada, mp.template ? mp.template.charAt(0).toUpperCase() + mp.template.slice(1) : null].filter(Boolean).join(" · ")}
+          <span class="sc-nivel" style="margin-left:4px">${nodesCount} nó${nodesCount !== 1 ? "s" : ""}</span>
         </div>
       </div>
       <div class="sc-actions">

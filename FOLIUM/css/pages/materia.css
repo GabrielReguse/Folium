@@ -115,6 +115,7 @@
   box-shadow: var(--sh-sm);
   cursor: pointer;
   border: 1px solid var(--border);
+  border-left: 3px solid var(--caramel);
   width: 100%;
   text-align: left;
   font-family: var(--font-sans);
@@ -130,7 +131,7 @@
 .sheet-card-item:hover {
   box-shadow: var(--sh);
   transform: translateY(-2px);
-  border-color: var(--border-act);
+  border-color: var(--caramel);
 }
 
 .sc-icon {

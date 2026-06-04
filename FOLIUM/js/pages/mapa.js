@@ -2479,7 +2479,7 @@ const MapaPage = {
       }
     };
 
-    const backLabel = origin === "materia" ? "Matéria" : "Biblioteca";
+    const backLabel = origin === "materia" ? this.materia : "Biblioteca";
     Navbar.renderTop({
       backRoute: null,
       backLabel: null,
