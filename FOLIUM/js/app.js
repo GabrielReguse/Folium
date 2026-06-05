@@ -17,8 +17,8 @@ const App = {
     // Sync icon in sidebar if open
     const sunEl  = document.querySelector(".sb-dm-sun");
     const moonEl = document.querySelector(".sb-dm-moon");
-    if (sunEl)  sunEl.style.display  = isDark ? "none"  : "block";
-    if (moonEl) moonEl.style.display = isDark ? "block" : "none";
+    if (sunEl)  sunEl.style.display  = isDark ? "none" : "flex";
+    if (moonEl) moonEl.style.display = isDark ? "flex" : "none";
     // Canvas colour update: dark nodes become lighter
     if (App._canvasCtx) App._canvasDark = isDark;
   },
