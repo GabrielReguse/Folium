@@ -397,132 +397,235 @@ body.dark .fh-type-toggle { background: rgba(255,255,255,0.04); }
 /* ── Background doodle blend for all pages ─────────────── */
 body.dark { background-blend-mode: luminosity; }
 
-/* ━━━ SUPORTE PAGE ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* ━━━ SUPORTE PAGE — guide palette ━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* bg=#1F1611  card=#31261E  gold-serif=#D3B58D  body=#EADDC8 */
+
 body.dark .page-suporte {
-  background-color: #19160f;
+  background-color: #1F1611;
   background-blend-mode: luminosity;
 }
+
+/* ── Hero banner ─────────────────────────────────────────── */
 body.dark .sup-hero {
-  background: linear-gradient(135deg, #2a241a, #1e1b13);
-  border-color: var(--border);
+  background: linear-gradient(145deg, #2a1f15 0%, #1F1611 100%);
+  border-color: rgba(211,181,141,0.18);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.4);
 }
+
+/* Eyebrow badges */
 body.dark .sup-eyebrow,
 body.dark .sup-card__label {
-  background: var(--caramel-lt);
-  border-color: rgba(204,141,92,0.25);
-  color: var(--caramel);
+  background: rgba(211,181,141,0.12);
+  border-color: rgba(211,181,141,0.3);
+  color: #D3B58D;
+  letter-spacing: 0.12em;
 }
-/* "MAIS ACESSADOS" white panel → dark */
+
+/* ── "MAIS ACESSADOS" right panel ────────────────────────── */
 body.dark .sup-hero__panel {
-  background: #252018;
-  border-color: var(--border);
+  background: #31261E;
+  border-color: rgba(211,181,141,0.18);
 }
-body.dark .sup-panel-label { color: var(--caramel); }
+body.dark .sup-panel-label {
+  color: #D3B58D;
+  letter-spacing: 0.14em;
+}
 body.dark .sup-hero__panel li {
-  background: #1e1b14;
-  border-color: var(--border);
-  color: var(--text-mid);
+  background: #231A13;
+  border-color: rgba(211,181,141,0.15);
+  color: #EADDC8;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
 }
 body.dark .sup-hero__panel li:hover {
-  background: var(--hover-bg);
-  color: var(--text);
+  background: rgba(211,181,141,0.08);
+  transform: translateX(3px);
+  color: #D3B58D;
 }
-body.dark .sup-title { color: var(--text); }
-body.dark .sup-title em { color: var(--caramel); }
-body.dark .sup-lede { color: var(--text-mid); }
 
+/* ── Typography ──────────────────────────────────────────── */
+body.dark .sup-title {
+  color: #EADDC8;
+}
+body.dark .sup-title em {
+  color: #D3B58D;
+  font-style: italic;
+}
+body.dark .sup-lede {
+  color: rgba(234,221,200,0.7);
+}
+
+/* ── Search bar ──────────────────────────────────────────── */
 body.dark .sup-search {
-  background: #252018;
-  border-color: var(--border);
+  background: #31261E;
+  border-color: rgba(211,181,141,0.25);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
 }
 body.dark .sup-search:focus-within {
-  border-color: var(--caramel);
-  box-shadow: 0 0 0 4px var(--focus-ring);
+  border-color: #D3B58D;
+  box-shadow: 0 0 0 4px rgba(211,181,141,0.12);
 }
-body.dark .sup-search__ic { color: var(--text-light); }
-body.dark .sup-search__in { color: var(--text); }
-body.dark .sup-search__in::placeholder { color: var(--text-light); }
+body.dark .sup-search__ic { color: rgba(234,221,200,0.5); }
+body.dark .sup-search__in {
+  color: #EADDC8;
+  background: transparent;
+}
+body.dark .sup-search__in::placeholder { color: rgba(234,221,200,0.38); }
+body.dark .sup-search__clear {
+  background: rgba(211,181,141,0.1);
+  color: rgba(234,221,200,0.6);
+}
 
-body.dark .sup-quick-ideas span { color: var(--text-light); }
+/* ── Quick idea chips ────────────────────────────────────── */
+body.dark .sup-quick-ideas span {
+  color: rgba(234,221,200,0.45);
+  font-size: 11px;
+}
 body.dark .sup-qi {
-  background: var(--caramel-lt);
-  border-color: rgba(204,141,92,0.25);
-  color: var(--caramel);
+  background: rgba(211,181,141,0.1);
+  border-color: rgba(211,181,141,0.22);
+  color: #D3B58D;
+  font-weight: 700;
+  transition: background 0.15s, color 0.15s;
 }
 body.dark .sup-qi:hover {
-  background: var(--caramel);
-  color: #fff;
+  background: #D3B58D;
+  color: #1F1611;
 }
 
-/* Category topic cards */
+/* ── Category topic cards (01-04) ────────────────────────── */
 body.dark .sup-topic {
-  background: #252018;
-  border-color: var(--border);
+  background: #31261E;
+  border-color: rgba(211,181,141,0.16);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
 }
 body.dark .sup-topic:hover {
-  border-color: var(--caramel);
-  background: #2e2718;
+  border-color: #D3B58D;
+  background: #3a2e22;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.4);
+  transform: translateY(-2px);
 }
 body.dark .sup-topic__icon {
-  background: var(--caramel-lt);
-  color: var(--caramel);
+  background: rgba(211,181,141,0.14);
+  color: #D3B58D;
+  font-weight: 800;
 }
-body.dark .sup-topic strong { color: var(--text); }
-body.dark .sup-topic small { color: var(--text-light); }
+body.dark .sup-topic strong {
+  color: #EADDC8;
+  font-size: 15px;
+}
+body.dark .sup-topic small {
+  color: rgba(234,221,200,0.5);
+}
 
-/* Main + side panels */
+/* ── FAQ main panel + side cards ─────────────────────────── */
 body.dark .sup-main,
 body.dark .sup-card {
-  background: #211d15;
-  border-color: var(--border);
+  background: #31261E;
+  border-color: rgba(211,181,141,0.16);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.3);
 }
-body.dark .sup-section-title { color: var(--text); }
-body.dark .sup-counter { color: var(--text-light); }
+body.dark .sup-section-title {
+  color: #EADDC8;
+  font-family: var(--font-serif);
+}
+body.dark .sup-counter { color: rgba(234,221,200,0.45); }
 
-/* Filter chips */
+/* ── Filter chips (Todas/Primeiros passos/etc) ───────────── */
 body.dark .sup-chip {
-  background: #2a2418;
-  border-color: var(--border);
-  color: var(--text-mid);
+  background: rgba(211,181,141,0.07);
+  border-color: rgba(211,181,141,0.2);
+  color: rgba(234,221,200,0.65);
+  transition: all 0.15s;
 }
 body.dark .sup-chip:hover {
-  border-color: var(--caramel);
-  color: var(--caramel);
+  border-color: #D3B58D;
+  color: #D3B58D;
+  background: rgba(211,181,141,0.12);
 }
 body.dark .sup-chip.active {
-  background: var(--caramel);
-  border-color: var(--caramel);
-  color: #fff;
+  background: #D3B58D;
+  border-color: #D3B58D;
+  color: #1F1611;
+  font-weight: 700;
 }
 
-/* FAQ items — hardcoded #fffdf2 overridden */
+/* ── FAQ accordion ───────────────────────────────────────── */
 body.dark .sup-faq {
-  background: #252018 !important;
-  border-color: var(--border);
+  background: #231A13 !important;
+  border-color: rgba(211,181,141,0.15) !important;
 }
-body.dark .sup-faq__q { color: var(--text); }
-body.dark .sup-faq__q:hover { background: var(--hover-bg); }
-body.dark .sup-faq__t { color: var(--text); }
+body.dark .sup-faq.open {
+  border-color: rgba(211,181,141,0.3) !important;
+}
+body.dark .sup-faq__q {
+  color: #EADDC8;
+  border-radius: 0;
+}
+body.dark .sup-faq__q:hover {
+  background: rgba(211,181,141,0.06);
+}
+body.dark .sup-faq__t {
+  color: #EADDC8;
+  font-size: 14px;
+}
 body.dark .sup-faq__arr {
-  background: var(--caramel-lt);
-  color: var(--caramel);
+  background: rgba(211,181,141,0.12);
+  color: #D3B58D;
+  border-radius: 10px;
 }
-body.dark .sup-faq__a { color: var(--text-mid); }
+body.dark .sup-faq.open .sup-faq__arr {
+  background: #D3B58D;
+  color: #1F1611;
+}
+body.dark .sup-faq__a {
+  color: rgba(234,221,200,0.72);
+  line-height: 1.7;
+}
 
-/* Empty state */
+/* ── Empty state ─────────────────────────────────────────── */
 body.dark .sup-empty {
-  background: #252018;
-  border-color: var(--border);
+  background: rgba(211,181,141,0.05);
+  border-color: rgba(211,181,141,0.2);
 }
-body.dark .sup-empty p { color: var(--text-light); }
+body.dark .sup-empty p { color: rgba(234,221,200,0.5); }
 
-/* Side card content */
-body.dark .sup-card h3 { color: var(--text); }
+/* ── Side card content ───────────────────────────────────── */
+body.dark .sup-card h3 {
+  color: #D3B58D;
+  font-family: var(--font-serif);
+}
 body.dark .sup-card p,
-body.dark .sup-card li { color: var(--text-mid); }
+body.dark .sup-card li {
+  color: rgba(234,221,200,0.72);
+  line-height: 1.65;
+}
+body.dark .sup-map-help ol {
+  padding-left: 20px;
+}
+body.dark .sup-map-help li {
+  margin-bottom: 6px;
+}
 body.dark .sup-contact-link {
-  background: var(--caramel);
-  color: #fff;
+  background: #D3B58D;
+  color: #1F1611;
+  font-weight: 800;
+  border-radius: 12px;
+}
+body.dark .sup-contact-link:hover {
+  background: #E5C99E;
+}
+
+/* ── Section label ───────────────────────────────────────── */
+body.dark .sup-section-head .sup-card__label {
+  color: #D3B58D;
+}
+
+/* ── Bottom nav on suporte page ──────────────────────────── */
+body.dark .page-suporte .bottom-nav {
+  background: rgba(31,22,17,0.97);
+  border-top-color: rgba(211,181,141,0.15);
 }
 
 /* ━━━ HOME PAGE right panel ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -594,4 +697,31 @@ body.dark .esc-hero {
 body.dark .esc-hero-eyebrow {
   background: var(--caramel-lt);
   color: var(--caramel);
+}
+
+/* ── Suporte doodle texture darkening ────────────────────── */
+body.dark .page-suporte {
+  background-color: #1F1611 !important;
+  background-blend-mode: luminosity !important;
+  /* doodles become very subtle dark sketches on espresso */
+}
+
+/* ── Top nav on suporte page ─────────────────────────────── */
+body.dark .page-suporte .top-nav {
+  background: rgba(31,22,17,0.95) !important;
+  border-bottom-color: rgba(211,181,141,0.12) !important;
+}
+
+/* ── Full-screen helper overlay (ESC hint) ───────────────── */
+body.dark .fs-hint,
+body.dark .fullscreen-hint {
+  background: #31261E;
+  color: #EADDC8;
+  border-color: rgba(211,181,141,0.2);
+}
+
+/* ── "PERGUNTAS FREQUENTES" label ────────────────────────── */
+body.dark .sup-section-head small,
+body.dark .sup-section-head span {
+  color: rgba(234,221,200,0.45);
 }
