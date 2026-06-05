@@ -8,10 +8,10 @@
 }
 
 .page-folhas {
-  background-image: url("../../assets/images/doodles-mobile.png");
+  background-image: url("../../assets/images/doodles-mobile-fullscreem.png");
   background-repeat: no-repeat;
-  background-position: bottom center;
-  background-size: 100% auto;
+  background-position: center;
+  background-size: cover;
 }
 
 .folhas-body {
@@ -501,7 +501,10 @@
 
 @media (min-width: 900px) {
   .page-folhas {
-    background-image: none;
+    background-image: url("../../assets/images/doodles-desktop-fullscreen.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
   }
 
   .folhas-body {

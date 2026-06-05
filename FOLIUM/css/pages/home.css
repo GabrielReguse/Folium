@@ -234,7 +234,7 @@
 
 @media (min-width: 900px) {
   .page-home {
-    background-image: url("../../assets/images/doodles-desktop.png");
+    background-image: url("../../assets/images/doodles-desktop-home.png");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

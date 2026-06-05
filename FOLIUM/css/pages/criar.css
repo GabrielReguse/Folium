@@ -1,9 +1,9 @@
 .page-criar {
   background-color: var(--cream);
-  background-image: url("../../assets/images/doodles-mobile.png");
+  background-image: url("../../assets/images/doodles-mobile-fullscreem.png");
   background-repeat: no-repeat;
-  background-position: bottom center;
-  background-size: 100% auto;
+  background-position: center;
+  background-size: cover;
   min-height: 100dvh;
   position: relative;
 }
@@ -14,33 +14,15 @@
 @media (min-width: 900px) {
   .page-criar {
     margin-left: 0 !important;
-    background-image: none;
+    background-image: url("../../assets/images/doodles-desktop-fullscreen.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     overflow-x: hidden;
   }
   .page-criar::before,
   .page-criar::after {
-    content: "";
-    position: fixed;
-    left: 0;
-    right: 0;
-    height: 50vh;
-    background-image: url("../../assets/images/doodles-mobile.png");
-    background-repeat: no-repeat;
-    background-size: 100% auto;
-    pointer-events: none;
-    opacity: 0.55;
-    z-index: 0;
-  }
-
-  .page-criar::after {
-    bottom: 0;
-    background-position: bottom center;
-  }
-
-  .page-criar::before {
-    top: 0;
-    background-position: bottom center;
-    transform: scale(-1, -1);
+    display: none;
   }
 
   .page-criar > * {

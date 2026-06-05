@@ -1,13 +1,22 @@
 .page-escolher {
   background-color: var(--cream);
-  background-image: url("../../assets/images/doodles-mobile.png");
+  background-image: url("../../assets/images/doodles-mobile-fullscreem.png");
   background-repeat: no-repeat;
-  background-position: bottom center;
-  background-size: 100% auto;
+  background-position: center;
+  background-size: cover;
   min-height: 100dvh;
 }
 .page-escolher #bg-canvas {
   display: none;
+}
+
+@media (min-width: 900px) {
+  .page-escolher {
+    background-image: url("../../assets/images/doodles-desktop-fullscreen.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
 }
 
 .esc-shell {

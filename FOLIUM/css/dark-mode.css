@@ -725,3 +725,40 @@ body.dark .sup-section-head small,
 body.dark .sup-section-head span {
   color: rgba(234,221,200,0.45);
 }
+
+/* ━━━ DARK MODE BACKGROUND IMAGES ━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ── Home page ───────────────────────────────────────────── */
+body.dark .page-home {
+  background-image: url("../../assets/images/doodles-mobile-dark.png");
+}
+
+@media (min-width: 900px) {
+  body.dark .page-home {
+    background-image: url("../../assets/images/doodles-desktop-home-dark.png");
+  }
+}
+
+/* ── All non-home pages (mobile) ─────────────────────────── */
+body.dark .page-login,
+body.dark .page-suporte,
+body.dark .page-folhas,
+body.dark .page-escolher,
+body.dark .page-criar,
+body.dark .page-mapa,
+body.dark .page-materia {
+  background-image: url("../../assets/images/doodles-mobile-fullscreen-dark.png");
+}
+
+/* ── All non-home pages (desktop) ────────────────────────── */
+@media (min-width: 900px) {
+  body.dark .page-login,
+  body.dark .page-suporte,
+  body.dark .page-folhas,
+  body.dark .page-escolher,
+  body.dark .page-criar,
+  body.dark .page-mapa,
+  body.dark .page-materia {
+    background-image: url("../../assets/images/doodles-desktop-fullscreen-dark.png");
+  }
+}

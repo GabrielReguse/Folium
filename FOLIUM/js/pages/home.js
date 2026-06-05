@@ -162,11 +162,25 @@ const HomePage = {
     const greeting = Helpers.greeting();
 
     const vinicius = document.createElement("img");
-    vinicius.src = "../assets/images/vinicius-fundo.png";
+    const isDark = () => document.body.classList.contains("dark");
+    vinicius.src = isDark()
+      ? "../assets/images/vinicius-fundo-dark.png"
+      : "../assets/images/vinicius-fundo.png";
     vinicius.alt = "";
     vinicius.className = "desk-vinicius";
     vinicius.setAttribute("aria-hidden", "true");
     page.appendChild(vinicius);
+
+    // Swap Vinicius image whenever dark mode is toggled
+    const _viniciusObserver = new MutationObserver(() => {
+      vinicius.src = isDark()
+        ? "../assets/images/vinicius-fundo-dark.png"
+        : "../assets/images/vinicius-fundo.png";
+    });
+    _viniciusObserver.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
 
     const burger = document.createElement("button");
     burger.className = "desk-burger";

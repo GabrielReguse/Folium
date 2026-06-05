@@ -1,10 +1,10 @@
 .page-login {
   min-height: 100dvh;
   background-color: var(--cream);
-  background-image: url("../../assets/images/doodles-mobile.png");
+  background-image: url("../../assets/images/doodles-mobile-fullscreem.png");
   background-repeat: no-repeat;
-  background-position: bottom center;
-  background-size: 100% auto;
+  background-position: center;
+  background-size: cover;
   overflow-x: hidden;
 }
 
@@ -572,7 +572,7 @@
 
 @media (min-width: 900px) {
   .page-login {
-    background-image: url("../../assets/images/doodles-desktop.png");
+    background-image: url("../../assets/images/doodles-desktop-fullscreen.png");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

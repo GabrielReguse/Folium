@@ -2,6 +2,22 @@
   display: none;
 }
 
+.page-mapa {
+  background-image: url("../../assets/images/doodles-mobile-fullscreem.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+@media (min-width: 900px) {
+  .page-mapa {
+    background-image: url("../../assets/images/doodles-desktop-fullscreen.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+}
+
 @media (min-width: 900px) {
   #mpane2.active,
   #mpane3.active,
