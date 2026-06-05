@@ -1,7 +1,26 @@
 const App = {
   init() {
     Modal.init();
+    App._applyDarkMode();
     App.initCanvas();
+  },
+
+  _applyDarkMode() {
+    if (localStorage.getItem("folium-dark") === "1") {
+      document.body.classList.add("dark");
+    }
+  },
+
+  toggleDarkMode() {
+    const isDark = document.body.classList.toggle("dark");
+    localStorage.setItem("folium-dark", isDark ? "1" : "0");
+    // Sync icon in sidebar if open
+    const sunEl  = document.querySelector(".sb-dm-sun");
+    const moonEl = document.querySelector(".sb-dm-moon");
+    if (sunEl)  sunEl.style.display  = isDark ? "none"  : "block";
+    if (moonEl) moonEl.style.display = isDark ? "block" : "none";
+    // Canvas colour update: dark nodes become lighter
+    if (App._canvasCtx) App._canvasDark = isDark;
   },
 
   initCanvas() {

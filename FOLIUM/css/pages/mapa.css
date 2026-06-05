@@ -836,3 +836,20 @@ body.mp-view-mode .mp-node--center {
 body.mp-view-mode .mp-node--center .mp-node__center-label {
   /* inherits standard label styles */
 }
+
+/* ── Center node auto-sizes to text in result view ──────── */
+#mp-result-canvas .mp-node--center {
+  width: fit-content !important;
+  height: auto !important;
+  min-width: 80px;
+  max-width: 220px;
+  padding: 12px 24px !important;
+  white-space: normal;
+  word-break: break-word;
+}
+#mp-result-canvas .mp-node--center .mp-node__center-label {
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  font-size: 14px;
+}

@@ -21,7 +21,8 @@
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/animations.css" />
     <link rel="stylesheet" href="../css/pages/materia.css" />
-  </head>
+    <link rel="stylesheet" href="../css/dark-mode.css">
+</head>
   <body>
     <canvas id="bg-canvas"></canvas>
     <div id="loading-overlay">
@@ -32,7 +33,17 @@
       </div>
     </div>
     <div class="page">
-      <div class="materia-body page-body" id="materia-body"></div>
+      <div class="materia-body page-body" id="materia-body">
+        <div id="mat-skeleton" aria-hidden="true">
+          <div class="skeleton sk-bar" style="height:48px;border-radius:12px;margin-bottom:20px"></div>
+          <div class="skeleton sk-text" style="width:90px;margin-bottom:14px"></div>
+          <div class="sk-wrap">
+            <div class="skeleton sk-card"></div>
+            <div class="skeleton sk-card"></div>
+            <div class="skeleton sk-card"></div>
+          </div>
+        </div>
+      </div>
     </div>
     <script src="../js/config.js"></script>
     <script src="../js/utils/dom.js"></script>

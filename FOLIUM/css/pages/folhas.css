@@ -969,3 +969,10 @@
   background: var(--hover-bg);
   color: var(--forest);
 }
+
+/* ── Skeleton wrapper ─────────────────────────────────────── */
+.fh-skel-wrap {
+  padding: 0 0 32px;
+  max-width: 780px;
+  margin: 0 auto;
+}

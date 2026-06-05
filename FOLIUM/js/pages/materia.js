@@ -36,6 +36,9 @@ const MateriaPage = {
     Storage.clearContext("viewSheet");
 
     const fromMapasTabCtx = Storage.getContext("fromMapasTab");
+    // Remove skeleton placeholder
+    const sk = document.getElementById("mat-skeleton");
+    if (sk) sk.remove();
     if (fromMapasTabCtx !== null) {
       Storage.clearContext("fromMapasTab");
       this._fromMapasTab = fromMapasTabCtx === true || fromMapasTabCtx === "1";

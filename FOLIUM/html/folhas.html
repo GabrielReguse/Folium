@@ -22,7 +22,8 @@
     <link rel="stylesheet" href="../css/animations.css" />
     <link rel="stylesheet" href="../css/pages/materia.css" />
     <link rel="stylesheet" href="../css/pages/folhas.css" />
-  </head>
+    <link rel="stylesheet" href="../css/dark-mode.css">
+</head>
   <body>
     <canvas id="bg-canvas"></canvas>
 
@@ -34,7 +35,23 @@
       </div>
     </div>
 
-    <div class="page page-folhas"></div>
+    <div class="page page-folhas">
+      <div id="fh-skeleton" class="fh-skel-wrap" aria-hidden="true">
+        <div class="skeleton sk-hero"></div>
+        <div style="height:14px"></div>
+        <div class="sk-row" style="gap:8px;margin-bottom:12px">
+          <div class="skeleton sk-bar" style="width:120px;border-radius:999px"></div>
+          <div class="skeleton sk-bar" style="width:140px;border-radius:999px"></div>
+        </div>
+        <div class="skeleton sk-bar" style="height:44px;border-radius:12px;margin-bottom:12px"></div>
+        <div class="skeleton sk-bar" style="height:42px;border-radius:999px;width:260px;margin-bottom:16px"></div>
+        <div class="sk-wrap">
+          <div class="skeleton sk-card"></div>
+          <div class="skeleton sk-card"></div>
+          <div class="skeleton sk-card"></div>
+        </div>
+      </div>
+    </div>
 
     <script src="../js/config.js"></script>
     <script src="../js/utils/dom.js"></script>

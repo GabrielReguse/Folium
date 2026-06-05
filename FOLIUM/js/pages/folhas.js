@@ -54,6 +54,9 @@ const FolhasPage = {
   _buildShell() {
     const page = DOM.$(".page-folhas");
     if (!page) return;
+    // Remove skeleton placeholder
+    const sk = document.getElementById("fh-skeleton");
+    if (sk) sk.remove();
 
     let body = page.querySelector(".folhas-body");
     if (body) DOM.clear(body);
