@@ -1,58 +1,239 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FOLIUM — Design Tokens
+   All colours, images, shadows via CSS custom properties.
+   Toggle: html[data-theme="dark"] overrides every token.
+   Zero hardcoded colours anywhere else in the codebase.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ── LIGHT THEME (default) ──────────────────────────────── */
 :root {
-  --cream: #f5edd6;
-  --surface: #fdfaf3;
-  --bg-deep: #ede1c4;
-  --linen: #f0e8d0;
+  color-scheme: light;
 
-  --sand: #d4b896;
-  --sand-light: #e8d9bf;
-  --tan: #c4a882;
-  --sidebar-bg: #ede3cc;
+  /* Backgrounds */
+  --cream:       #f5edd6;
+  --surface:     #fdfaf3;
+  --bg-deep:     #ede1c4;
+  --linen:       #f0e8d0;
+  --bg-inset:    #fbf5e3;
+  --bg-card:     #ffffff;
+  --bg-nav:      rgba(245, 237, 214, 0.97);
+  --bg-sidebar:  #ede3cc;
+  --bg-overlay:  rgba(44, 24, 16, 0.38);
 
-  --brown: #5c3d2e;
-  --brown-mid: #7a5035;
-  --caramel: #9b6b42;
-  --caramel-lt: rgba(155, 107, 66, 0.12);
+  /* Sand scale */
+  --sand:        #d4b896;
+  --sand-light:  #e8d9bf;
+  --tan:         #c4a882;
 
-  --forest: #3d6b4d;
-  --forest-mid: #5a8f6c;
-  --forest-lt: rgba(61, 107, 77, 0.12);
-  --forest-focus: rgba(61, 107, 77, 0.22);
+  /* Brand / Accent */
+  --brown:       #5c3d2e;
+  --brown-mid:   #7a5035;
+  --caramel:     #9b6b42;
+  --caramel-lt:  rgba(155, 107, 66, 0.12);
+  --caramel-md:  rgba(155, 107, 66, 0.28);
+  --caramel-nav: rgba(155, 107, 66, 0.32);
 
-  --text: #2c1810;
-  --text-mid: #6b4c35;
-  --text-light: #a07855;
-  --white: #ffffff;
+  /* Forest / Green */
+  --forest:      #3d6b4d;
+  --forest-mid:  #5a8f6c;
+  --forest-dark: #2d5a3d;
+  --forest-lt:   rgba(61, 107, 77, 0.12);
+  --forest-md:   rgba(61, 107, 77, 0.22);
+  --forest-focus:rgba(61, 107, 77, 0.22);
 
-  --border: rgba(196, 168, 130, 0.45);
-  --border-act: rgba(155, 107, 66, 0.55);
-  --hover-bg: rgba(212, 184, 150, 0.22);
-  --focus-ring: rgba(155, 107, 66, 0.22);
+  /* Text */
+  --text:        #2c1810;
+  --text-mid:    #6b4c35;
+  --text-light:  #a07855;
+  --white:       #ffffff;
 
-  --r-xs: 6px;
-  --r-sm: 12px;
-  --r: 18px;
-  --r-lg: 26px;
-  --r-xl: 38px;
+  /* Semantic states */
+  --danger:      #b91c1c;
+  --danger-lt:   rgba(185, 28, 28, 0.1);
+  --danger-hover:#e05252;
+  --warning:     #d97706;
+  --star:        #f5a623;
 
+  /* Borders */
+  --border:      rgba(196, 168, 130, 0.45);
+  --border-act:  rgba(155, 107, 66, 0.55);
+  --border-soft: rgba(196, 168, 130, 0.3);
+  --border-xsoft:rgba(196, 168, 130, 0.12);
+
+  /* Interaction */
+  --hover-bg:    rgba(212, 184, 150, 0.22);
+  --focus-ring:  rgba(155, 107, 66, 0.22);
+
+  /* Shadows */
   --sh-sm: 0 2px 14px rgba(92, 61, 46, 0.06);
-  --sh: 0 5px 28px rgba(92, 61, 46, 0.1);
+  --sh:    0 5px 28px  rgba(92, 61, 46, 0.10);
   --sh-lg: 0 14px 52px rgba(92, 61, 46, 0.14);
   --sh-xl: 0 28px 72px rgba(92, 61, 46, 0.18);
 
-  --font-serif: "Playfair Display", Georgia, serif;
-  --font-sans: "DM Sans", system-ui, sans-serif;
+  /* Background images — resolved relative to /css/variables.css */
+  --img-home-mobile:   url("../assets/images/doodles-mobile.png");
+  --img-home-desktop:  url("../assets/images/doodles-desktop-home.png");
+  --img-full-mobile:   url("../assets/images/doodles-mobile-fullscreem.png");
+  --img-full-desktop:  url("../assets/images/doodles-desktop-fullscreen.png");
+  --img-blend:         normal;
+  --img-vinicius:      url("../assets/images/vinicius-fundo.png");
 
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Type */
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans:  "DM Sans", system-ui, sans-serif;
+
+  /* Motion */
+  --ease:   cubic-bezier(0.22, 1, 0.36, 1);
   --t-fast: 0.15s;
-  --t-mid: 0.28s;
+  --t-mid:  0.28s;
   --t-slow: 0.45s;
 
-  --z-canvas: 0;
-  --z-base: 1;
-  --z-nav: 100;
-  --z-sidebar: 200;
-  --z-modal: 300;
+  /* Radii */
+  --r-xs: 6px;
+  --r-sm: 12px;
+  --r:    18px;
+  --r-lg: 26px;
+  --r-xl: 38px;
 
+  /* Z-index */
+  --z-canvas:  0;
+  --z-base:    1;
+  --z-nav:     100;
+  --z-sidebar: 200;
+  --z-modal:   300;
+
+  /* Layout */
   --sidebar-w: 220px;
+
+  /* Extra alpha tokens (brown = #5c3d2e, caramel = #9b6b42) */
+  --brown-lt:    rgba(92, 61, 46, 0.06);
+  --brown-md:    rgba(92, 61, 46, 0.12);
+  --brown-hv:    rgba(92, 61, 46, 0.22);
+  --caramel-xs:  rgba(155, 107, 66, 0.05);
+  --caramel-sm:  rgba(155, 107, 66, 0.10);
+  --caramel-hv:  rgba(155, 107, 66, 0.14);
+  --tan-soft:    rgba(196, 168, 130, 0.12);
+  --tan-mid:     rgba(196, 168, 130, 0.30);
+  --tan-border:  rgba(196, 168, 130, 0.35);
+  --tan-border2: rgba(180, 148, 100, 0.55);
+  --white-t60:   rgba(255, 255, 255, 0.60);
+  --white-t52:   rgba(255, 255, 255, 0.52);
+  --white-t20:   rgba(255, 255, 255, 0.20);
+  --text-t42:    rgba(44, 24, 16, 0.42);
+  --text-t38:    rgba(44, 24, 16, 0.38);
+}
+
+/* ── DARK THEME ─────────────────────────────────────────── */
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --cream:       #1F1611;
+  --surface:     #31261E;
+  --bg-deep:     #17120D;
+  --linen:       #261D15;
+  --bg-inset:    #261D15;
+  --bg-card:     #31261E;
+  --bg-nav:      rgba(23, 18, 13, 0.97);
+  --bg-sidebar:  #14100C;
+  --bg-overlay:  rgba(0, 0, 0, 0.65);
+
+  --sand:        #4A3828;
+  --sand-light:  #3D2E20;
+  --tan:         #5C4535;
+
+  --brown:       #D3B58D;
+  --brown-mid:   #C4A07A;
+  --caramel:     #D3B58D;
+  --caramel-lt:  rgba(211, 181, 141, 0.12);
+  --caramel-md:  rgba(211, 181, 141, 0.25);
+  --caramel-nav: rgba(211, 181, 141, 0.30);
+
+  --forest:      #4CAF50;
+  --forest-mid:  #66BB6A;
+  --forest-dark: #388E3C;
+  --forest-lt:   rgba(76, 175, 80, 0.14);
+  --forest-md:   rgba(76, 175, 80, 0.22);
+  --forest-focus:rgba(76, 175, 80, 0.22);
+
+  --text:        #EADDC8;
+  --text-mid:    #C4A07A;
+  --text-light:  #876A50;
+  --white:       #31261E;
+
+  --danger:      #F87171;
+  --danger-lt:   rgba(248, 113, 113, 0.12);
+  --danger-hover:#FC8181;
+  --warning:     #FBBF24;
+  --star:        #F5A623;
+
+  --border:      rgba(211, 181, 141, 0.18);
+  --border-act:  rgba(211, 181, 141, 0.50);
+  --border-soft: rgba(211, 181, 141, 0.14);
+  --border-xsoft:rgba(211, 181, 141, 0.08);
+
+  --hover-bg:    rgba(211, 181, 141, 0.08);
+  --focus-ring:  rgba(211, 181, 141, 0.18);
+
+  --sh-sm: 0 2px 14px rgba(0, 0, 0, 0.30);
+  --sh:    0 5px 28px  rgba(0, 0, 0, 0.40);
+  --sh-lg: 0 14px 52px rgba(0, 0, 0, 0.50);
+  --sh-xl: 0 28px 72px rgba(0, 0, 0, 0.55);
+
+  --img-home-mobile:   url("../assets/images/doodles-mobile-dark.png");
+  --img-home-desktop:  url("../assets/images/doodles-desktop-home-dark.png");
+  --img-full-mobile:   url("../assets/images/doodles-mobile-fullscreen-dark.png");
+  --img-full-desktop:  url("../assets/images/doodles-desktop-fullscreen-dark.png");
+  --img-blend:         luminosity;
+  --img-vinicius:      url("../assets/images/vinicius-fundo-dark.png");
+
+  --brown-lt:    rgba(211, 181, 141, 0.04);
+  --brown-md:    rgba(211, 181, 141, 0.08);
+  --brown-hv:    rgba(211, 181, 141, 0.14);
+  --caramel-xs:  rgba(211, 181, 141, 0.04);
+  --caramel-sm:  rgba(211, 181, 141, 0.08);
+  --caramel-hv:  rgba(211, 181, 141, 0.12);
+  --tan-soft:    rgba(211, 181, 141, 0.08);
+  --tan-mid:     rgba(211, 181, 141, 0.14);
+  --tan-border:  rgba(211, 181, 141, 0.20);
+  --tan-border2: rgba(211, 181, 141, 0.30);
+  --white-t60:   rgba(255, 255, 255, 0.06);
+  --white-t52:   rgba(255, 255, 255, 0.05);
+  --white-t20:   rgba(255, 255, 255, 0.03);
+  --text-t42:    rgba(0, 0, 0, 0.42);
+  --text-t38:    rgba(0, 0, 0, 0.38);
+}
+
+/* ── RGB base tokens for alpha variants ─────────────────── */
+/* Usage: rgba(var(--caramel-rgb), 0.16) — alpha changes freely */
+:root {
+  --caramel-rgb:  155, 107, 66;
+  --forest-rgb:   61, 107, 77;
+  --border-rgb:   196, 168, 130;
+  --tan-rgb:      205, 185, 150;
+  --hover-rgb:    212, 184, 150;
+  --danger-rgb:   185, 28, 28;
+  --cream-rgb:    245, 237, 214;
+  --surface-rgb:  253, 250, 243;
+  --linen-rgb:    251, 245, 227;
+
+  /* Semantic surface tokens */
+  --danger-surface:  #fff0f0;
+  --forest-surface:  #f5fff9;
+  --warning-surface: #fffff0;
+}
+
+html[data-theme="dark"] {
+  --caramel-rgb:  211, 181, 141;
+  --forest-rgb:   76, 175, 80;
+  --border-rgb:   211, 181, 141;
+  --tan-rgb:      170, 140, 100;
+  --hover-rgb:    211, 181, 141;
+  --danger-rgb:   248, 113, 113;
+  --cream-rgb:    31, 22, 17;
+  --surface-rgb:  49, 38, 30;
+  --linen-rgb:    38, 29, 21;
+
+  --danger-surface:  rgba(248, 113, 113, 0.1);
+  --forest-surface:  rgba(76, 175, 80, 0.08);
+  --warning-surface: rgba(251, 191, 36, 0.08);
 }

@@ -1,6 +1,8 @@
 .page-escolher {
   background-color: var(--cream);
-  background-image: url("../../assets/images/doodles-mobile-fullscreem.png");
+  background-image: var(--img-full-mobile);
+  background-blend-mode: var(--img-blend);
+  background-color: var(--cream);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -12,7 +14,9 @@
 
 @media (min-width: 900px) {
   .page-escolher {
-    background-image: url("../../assets/images/doodles-desktop-fullscreen.png");
+    background-image: var(--img-full-desktop);
+    background-blend-mode: var(--img-blend);
+    background-color: var(--cream);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -75,7 +79,7 @@
   flex-direction: column;
   gap: 18px;
   padding: 28px 24px;
-  background: #f7f0dc;
+  background: var(--bg-deep);
   border: 2px solid var(--border);
   border-radius: var(--r-lg);
   box-shadow: var(--sh-sm);
@@ -94,7 +98,7 @@
 }
 .esc-card--accent:hover {
   border-color: var(--caramel);
-  box-shadow: 0 8px 32px rgba(155, 107, 66, 0.22);
+  box-shadow: 0 8px 32px var(--focus-ring);
 }
 .esc-card:active {
   transform: translateY(-1px);

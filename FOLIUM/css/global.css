@@ -10,8 +10,11 @@ html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   background: var(--cream);
-  color-scheme: light;
   overflow-x: clip;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 body {

@@ -1,7 +1,9 @@
 .page-suporte {
   min-height: 100dvh;
   background-color: var(--cream);
-  background-image: url("../../assets/images/doodles-mobile-fullscreem.png");
+  background-image: var(--img-full-mobile);
+  background-blend-mode: var(--img-blend);
+  background-color: var(--cream);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -12,7 +14,9 @@
 
 @media (min-width: 900px) {
   .page-suporte {
-    background-image: url("../../assets/images/doodles-desktop-fullscreen.png");
+    background-image: var(--img-full-desktop);
+    background-blend-mode: var(--img-blend);
+    background-color: var(--cream);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -42,7 +46,7 @@
   padding: 28px 22px;
   border: 1px solid var(--border);
   border-radius: 22px;
-  background: linear-gradient(135deg, var(--linen), #fffdec);
+  background: linear-gradient(135deg, var(--linen), var(--surface));
   box-shadow: var(--sh-sm);
 }
 @media (min-width: 900px) {
@@ -61,7 +65,7 @@
   padding: 5px 10px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: rgba(251, 245, 227, 0.78);
+  background: rgba(var(--linen-rgb), 0.78);
   color: var(--caramel);
   font-size: 10.5px;
   font-weight: 800;
@@ -167,7 +171,7 @@
   padding: 7px 11px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(255, 253, 236, 0.76);
+  background: rgba(from var(--cream) r g b / 0.76);
   color: var(--caramel);
   font-size: 12.5px;
   font-weight: 700;
@@ -177,7 +181,7 @@
   padding: 22px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: rgba(255, 253, 236, 0.78);
+  background: rgba(from var(--cream) r g b / 0.78);
 }
 .sup-panel-label {
   display: block;
@@ -197,7 +201,7 @@
 .sup-hero__panel li {
   padding: 11px 12px;
   border-radius: 13px;
-  border: 1px solid rgba(205, 185, 150, 0.7);
+  border: 1px solid rgba(var(--tan-rgb), 0.7);
   background: var(--surface);
   color: var(--text-mid);
   font-size: 13px;
@@ -331,7 +335,7 @@
 .sup-faq {
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: #fffdf2;
+  background: var(--bg-inset);
   overflow: hidden;
 }
 .sup-faq.hidden {

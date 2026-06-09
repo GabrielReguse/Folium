@@ -8,7 +8,9 @@
 }
 
 .page-folhas {
-  background-image: url("../../assets/images/doodles-mobile-fullscreem.png");
+  background-image: var(--img-full-mobile);
+  background-blend-mode: var(--img-blend);
+  background-color: var(--cream);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -58,8 +60,8 @@
   height: 260px;
   background: radial-gradient(
     circle,
-    rgba(196, 168, 130, 0.3) 0%,
-    rgba(196, 168, 130, 0.12) 50%,
+    var(--tan-mid) 0%,
+    var(--tan-soft) 50%,
     transparent 75%
   );
   border-radius: 50%;
@@ -75,8 +77,8 @@
   height: 220px;
   background: radial-gradient(
     circle,
-    rgba(155, 107, 66, 0.14) 0%,
-    rgba(155, 107, 66, 0.05) 55%,
+    var(--caramel-hv) 0%,
+    var(--caramel-xs) 55%,
     transparent 80%
   );
   border-radius: 50%;
@@ -128,11 +130,11 @@
 
 .fh-stats {
   display: flex;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--white-t60);
   border-radius: var(--r-lg);
   overflow: hidden;
-  border: 1px solid rgba(196, 168, 130, 0.32);
-  box-shadow: 0 4px 20px rgba(92, 61, 46, 0.06);
+  border: 1px solid rgba(var(--border-rgb), 0.32);
+  box-shadow: 0 4px 20px var(--brown-lt);
   max-width: 460px;
 }
 
@@ -150,7 +152,7 @@
   top: 22%;
   height: 56%;
   width: 1px;
-  background: rgba(196, 168, 130, 0.35);
+  background: var(--tan-border);
 }
 
 .fh-stat-num {
@@ -272,7 +274,7 @@
 .fh-tab.active {
   background: var(--brown);
   color: var(--white);
-  box-shadow: 0 4px 14px rgba(92, 61, 46, 0.22);
+  box-shadow: 0 4px 14px var(--brown-hv);
 }
 
 .fh-cta {
@@ -501,7 +503,9 @@
 
 @media (min-width: 900px) {
   .page-folhas {
-    background-image: url("../../assets/images/doodles-desktop-fullscreen.png");
+    background-image: var(--img-full-desktop);
+    background-blend-mode: var(--img-blend);
+    background-color: var(--cream);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -668,13 +672,13 @@
 .fh-type-btn[data-type="folhas"].active {
   background: var(--caramel);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(155, 107, 66, 0.28);
+  box-shadow: 0 4px 14px var(--caramel-md);
 }
 
 .fh-type-btn[data-type="mapas"].active {
   background: var(--forest);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(61, 107, 77, 0.28);
+  box-shadow: 0 4px 14px var(--forest-md);
 }
 
 .fh-type-btn:not(.active):hover {
@@ -685,7 +689,7 @@
 
 .fh-shell.type-mapas .fh-tab.active {
   background: var(--forest);
-  box-shadow: 0 4px 14px rgba(61, 107, 77, 0.22);
+  box-shadow: 0 4px 14px var(--forest-focus);
 }
 
 .fh-shell.type-mapas .fh-search-input:focus {
@@ -699,14 +703,14 @@
 }
 
 .fh-shell.type-mapas .fh-cta:hover {
-  background: #2d5a3d;
-  border-color: #2d5a3d;
+  background: var(--forest-dark);
+  border-color: var(--forest-dark);
 }
 
 .fh-shell.type-mapas .fh-count {
   color: var(--forest);
   background: var(--forest-lt);
-  border-color: rgba(61, 107, 77, 0.25);
+  border-color: var(--forest-md);
 }
 
 .fh-shell.type-mapas .fh-grid .subj-card:nth-child(3n + 1) {
@@ -716,7 +720,7 @@
   border-left-color: var(--forest-mid);
 }
 .fh-shell.type-mapas .fh-grid .subj-card:nth-child(3n + 3) {
-  border-left-color: rgba(61, 107, 77, 0.38);
+  border-left-color: var(--forest-focus);
 }
 
 /* Subject card — mapas variant */
@@ -749,7 +753,7 @@
 
 .map-card-item:hover {
   box-shadow: var(--sh);
-  border-color: rgba(61, 107, 77, 0.4);
+  border-color: var(--forest-focus);
   transform: translateY(-2px);
 }
 
@@ -762,7 +766,7 @@
   height: 58px;
   border-radius: var(--r-sm);
   background: var(--forest-lt);
-  border: 1px solid rgba(61, 107, 77, 0.2);
+  border: 1px solid var(--forest-lt);
   overflow: hidden;
   flex-shrink: 0;
   display: flex;
@@ -822,7 +826,7 @@
   text-transform: uppercase;
   color: var(--forest);
   background: var(--forest-lt);
-  border: 1px solid rgba(61, 107, 77, 0.2);
+  border: 1px solid var(--forest-lt);
   padding: 2px 8px;
   border-radius: 20px;
 }
@@ -855,11 +859,11 @@
 }
 
 .mc-fav.on {
-  color: #f5a623;
+  color: var(--star);
 }
 
 .mc-del:hover {
-  color: #e05252;
+  color: var(--danger-hover);
 }
 
 /* ─── 4-stat hero adjustments ────────────────────────────── */
@@ -880,7 +884,7 @@
 }
 
 .fh-empty-cta--forest:hover {
-  background: #2d5a3d;
+  background: var(--forest-dark);
 }
 
 /* ─── Desktop overrides for new toolbar ──────────────────── */

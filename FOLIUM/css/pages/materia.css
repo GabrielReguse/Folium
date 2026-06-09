@@ -1,5 +1,7 @@
 .page-materia {
-  background-image: url("../../assets/images/doodles-mobile-fullscreem.png");
+  background-image: var(--img-full-mobile);
+  background-blend-mode: var(--img-blend);
+  background-color: var(--cream);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -12,7 +14,9 @@
 
 @media (min-width: 900px) {
   .page-materia {
-    background-image: url("../../assets/images/doodles-desktop-fullscreen.png");
+    background-image: var(--img-full-desktop);
+    background-blend-mode: var(--img-blend);
+    background-color: var(--cream);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -113,13 +117,13 @@
 .mc-type-btn[data-type="folhas"].active {
   background: var(--caramel);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(155, 107, 66, 0.28);
+  box-shadow: 0 4px 14px var(--caramel-md);
 }
 
 .mc-type-btn[data-type="mapas"].active {
   background: var(--forest);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(61, 107, 77, 0.28);
+  box-shadow: 0 4px 14px var(--forest-md);
 }
 
 .mc-type-btn:not(.active):hover {
@@ -248,8 +252,8 @@
   transform: scale(1.15);
 }
 .fav-btn.on svg {
-  stroke: #d97706;
-  fill: #d97706;
+  stroke: var(--warning);
+  fill: var(--warning);
 }
 
 .del-btn {
@@ -271,8 +275,8 @@
   stroke: currentColor;
 }
 .del-btn:hover {
-  background: #fff0ec;
-  color: #b91c1c;
+  background: var(--bg-inset);
+  color: var(--danger);
 }
 
 .dl-btn {
@@ -362,10 +366,10 @@
   background: var(--hover-bg);
 }
 .sc-menu-item.danger {
-  color: #b91c1c;
+  color: var(--danger);
 }
 .sc-menu-item.danger:hover {
-  background: #fff0ec;
+  background: var(--bg-inset);
 }
 
 .shv-badges {
@@ -404,8 +408,8 @@
   transform: scale(1.1);
 }
 .fav-btn-header.on svg {
-  stroke: #d97706;
-  fill: #d97706;
+  stroke: var(--warning);
+  fill: var(--warning);
 }
 
 /* ── Map card variant (forest/green accent) ─────────────────── */
@@ -424,7 +428,7 @@
 .mc-materia-card .sc-nivel {
   background: var(--forest-lt);
   color: var(--forest);
-  border-color: rgba(61, 107, 77, 0.2);
+  border-color: var(--forest-lt);
 }
 
 /* ── Map card action buttons (desktop always-on, mobile kebab) ── */
@@ -447,10 +451,10 @@
 .mc-fav-mat svg,
 .mc-dl-mat svg,
 .mc-del-mat svg { width: 16px; height: 16px; }
-.mc-fav-mat:hover { background: var(--hover-bg); color: #f5a623; }
-.mc-fav-mat.on { color: #f5a623; }
+.mc-fav-mat:hover { background: var(--hover-bg); color: var(--star); }
+.mc-fav-mat.on { color: var(--star); }
 .mc-dl-mat:hover { background: var(--hover-bg); color: var(--forest); }
-.mc-del-mat:hover { background: var(--hover-bg); color: #e05252; }
+.mc-del-mat:hover { background: var(--hover-bg); color: var(--danger-hover); }
 
 @media (max-width: 899px) {
   .sc-actions .sc-desktop { display: none !important; }

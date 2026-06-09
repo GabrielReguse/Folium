@@ -1,7 +1,9 @@
 .page-login {
   min-height: 100dvh;
   background-color: var(--cream);
-  background-image: url("../../assets/images/doodles-mobile-fullscreem.png");
+  background-image: var(--img-full-mobile);
+  background-blend-mode: var(--img-blend);
+  background-color: var(--cream);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -37,7 +39,7 @@
 .login-card {
   width: 100%;
   max-width: 440px;
-  background: rgba(253, 250, 243, 0.96);
+  background: var(--bg-nav);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border-radius: var(--r-xl);
@@ -66,7 +68,7 @@
 }
 
 .logo-mark {
-  background-color: rgba(92, 61, 46, 0.12);
+  background-color: var(--brown-md);
   border-radius: 8px;
   width: 60px;
   height: 60px;
@@ -74,7 +76,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 6px 18px rgba(155, 107, 66, 0.18));
+  filter: drop-shadow(0 6px 18px rgba(var(--caramel-rgb), 0.18));
   animation: logo-pop 0.7s var(--ease) both;
 }
 
@@ -142,7 +144,7 @@
   width: calc(50% - 5px);
   background: var(--surface);
   border-radius: 999px;
-  box-shadow: 0 4px 14px rgba(92, 61, 46, 0.12);
+  box-shadow: 0 4px 14px var(--brown-md);
   transition: transform 0.42s var(--ease);
   z-index: 1;
 }
@@ -276,7 +278,7 @@
 }
 
 .inp:hover:not(:focus) {
-  background: #fffdf8;
+  background: var(--surface);
 }
 
 .inp-action {
@@ -326,11 +328,11 @@
 }
 
 .pass-meter[data-strength="1"] .pass-bar:nth-child(-n + 1) {
-  background: #d97a4d;
+  background: var(--caramel);
 }
 
 .pass-meter[data-strength="2"] .pass-bar:nth-child(-n + 2) {
-  background: #d4a04a;
+  background: var(--warning);
 }
 
 .pass-meter[data-strength="3"] .pass-bar:nth-child(-n + 3) {
@@ -338,7 +340,7 @@
 }
 
 .pass-meter[data-strength="4"] .pass-bar {
-  background: #5a8a4a;
+  background: var(--forest-mid);
 }
 
 .btn-shine {
@@ -357,7 +359,7 @@
   background: linear-gradient(
     110deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.32) 50%,
+    var(--white-t20) 50%,
     transparent 100%
   );
   transform: skewX(-18deg);
@@ -428,9 +430,9 @@
 }
 
 .login-error {
-  background: #fff9f5;
-  border: 1.5px solid rgba(155, 107, 66, 0.35);
-  color: #7a4012;
+  background: var(--bg-inset);
+  border: 1.5px solid rgba(var(--caramel-rgb), 0.35);
+  color: var(--brown-mid);
   border-radius: var(--r-sm);
   padding: 10px 14px;
   font-size: 0.84rem;
@@ -441,9 +443,9 @@
 }
 
 .login-success {
-  background: #f5fff9;
-  border: 1.5px solid rgba(52, 168, 83, 0.35);
-  color: #1a7a2e;
+  background: var(--forest-surface);
+  border: 1.5px solid var(--forest-lt);
+  color: var(--forest-dark);
   border-radius: var(--r-sm);
   padding: 10px 14px;
   font-size: 0.84rem;
@@ -572,7 +574,9 @@
 
 @media (min-width: 900px) {
   .page-login {
-    background-image: url("../../assets/images/doodles-desktop-fullscreen.png");
+    background-image: var(--img-full-desktop);
+    background-blend-mode: var(--img-blend);
+    background-color: var(--cream);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -589,8 +593,8 @@
     inset: 0;
     background: linear-gradient(
       135deg,
-      rgba(245, 237, 214, 0.55),
-      rgba(232, 217, 191, 0.35)
+      rgba(var(--cream-rgb), 0.55),
+      rgba(var(--hover-rgb), 0.35)
     );
     z-index: 0;
     pointer-events: none;
@@ -635,12 +639,12 @@
     background:
       radial-gradient(
         ellipse at 18% 12%,
-        rgba(155, 107, 66, 0.16),
+        rgba(var(--caramel-rgb), 0.16),
         transparent 55%
       ),
       radial-gradient(
         ellipse at 85% 88%,
-        rgba(196, 168, 130, 0.3),
+        var(--tan-mid),
         transparent 50%
       );
     pointer-events: none;
@@ -666,7 +670,7 @@
     height: 236px;
     width: auto;
     object-fit: contain;
-    filter: drop-shadow(0 8px 24px rgba(92, 61, 46, 0.18));
+    filter: drop-shadow(0 8px 24px var(--brown-hv));
   }
 
   .brand-tagline {
@@ -718,13 +722,13 @@
     width: 42px;
     height: 42px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(196, 168, 130, 0.45);
+    background: var(--white-t60);
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--caramel);
-    box-shadow: 0 4px 14px rgba(92, 61, 46, 0.08);
+    box-shadow: 0 4px 14px var(--brown-lt);
     transition:
       transform var(--t-mid) var(--ease),
       box-shadow var(--t-mid);
@@ -737,7 +741,7 @@
 
   .brand-feature:hover .brand-feature__icon {
     transform: translateY(-2px) rotate(-3deg);
-    box-shadow: 0 8px 22px rgba(92, 61, 46, 0.14);
+    box-shadow: 0 8px 22px var(--brown-md);
   }
 
   .brand-feature strong {
