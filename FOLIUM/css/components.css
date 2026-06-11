@@ -162,7 +162,7 @@
 }
 
 .inp-select option {
-  background: var(--white);
+  background: var(--bg-card);
   color: var(--text);
 }
 

@@ -388,7 +388,7 @@
   padding: 12px 20px;
   border: 1.5px solid var(--border);
   border-radius: var(--r-sm);
-  background: var(--white);
+  background: var(--bg-card);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 0.94rem;

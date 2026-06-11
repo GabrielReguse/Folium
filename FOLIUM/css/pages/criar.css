@@ -717,7 +717,7 @@
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  background: var(--white);
+  background: var(--bg-card);
   transition: all 0.18s;
 }
 .cr-topics .topic-row .tchk.on {

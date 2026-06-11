@@ -1,9 +1,3 @@
-/*
-  dark-mode.css — DEPRECATED
-  
-  Dark mode is now handled entirely via CSS custom properties in variables.css.
-  Toggle: html[data-theme="dark"] { ... }
-  
-  All colours, images, shadows and backgrounds use tokens.
-  Zero overrides needed. See variables.css for the full token map.
-*/
+/* dark-mode.css — intentionally empty.
+   All theming handled via CSS custom properties in variables.css.
+   Toggle: html[data-theme="dark"] — set by App.toggleDarkMode() in app.js */
