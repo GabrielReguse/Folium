@@ -1,3 +1,53 @@
-/* dark-mode.css — intentionally empty.
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FOLIUM — Dark-Mode Overrides
    All theming handled via CSS custom properties in variables.css.
-   Toggle: html[data-theme="dark"] — set by App.toggleDarkMode() in app.js */
+   Toggle: html[data-theme="dark"] — set by App.toggleDarkMode()
+
+   This file handles ONLY components that inject hardcoded hex
+   values into <style> tags via JS (and therefore can't use
+   CSS variables directly). Specifically: the dock nav.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ── Dock nav (navbar.js injects #dock-nav-style with hardcoded colours) ── */
+
+html[data-theme="dark"] .dock-nav-desktop {
+  filter: drop-shadow(0px -4px 18px rgba(0, 0, 0, 0.45));
+}
+
+/* Background pill: light #F0E8D1 → dark rgba(31,22,17,0.92) + blur */
+html[data-theme="dark"] .dock-bg {
+  background-color: rgba(31, 22, 17, 0.92) !important;
+  border-color: rgba(211, 181, 141, 0.16) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+/* Inactive item icon/text: #AD8B6B → dark --text-light #876A50 */
+html[data-theme="dark"] .dock-item {
+  color: #876A50 !important;
+}
+
+/* Active item label: #6CAB69 → dark --forest #4CAF50 */
+html[data-theme="dark"] .dock-item.active .di-label {
+  color: #4CAF50 !important;
+}
+
+/* Slider SVG — arc underline: stroke #D1C4A8 → muted */
+html[data-theme="dark"] .dock-slider path {
+  stroke: rgba(211, 181, 141, 0.22) !important;
+}
+
+/* Slider SVG — outer ring: stroke #6CAB69 → #4CAF50 */
+html[data-theme="dark"] .dock-slider circle:nth-child(2) {
+  stroke: #4CAF50 !important;
+}
+
+/* Slider SVG — filled centre: fill #6CAB69 → #4CAF50 */
+html[data-theme="dark"] .dock-slider circle:nth-child(3) {
+  fill: #4CAF50 !important;
+}
+
+/* Slider icon stays light (text on green circle) */
+html[data-theme="dark"] .dock-slider-icon {
+  color: #ffffff !important;
+}

@@ -1,11 +1,30 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FOLIUM — Minha Biblioteca  (folhas.css)
+   Alinhado ao brief "Tela de Biblioteca/Mapas":
+     • Stats bar   → pill 999px + bg-inset
+     • Search      → pill 999px
+     • CTA         → pill 999px
+     • Tabs ativas → surface + borda (Folhas/Rec/Fav)
+     • Type toggle → bg-inset container
+     • Card hover  → translateY(-4px) + shadow-soft
+     • Eyebrow     → bg-inset
+   Token mapping (brief → projeto):
+     --bg-main     → var(--cream)
+     --bg-card     → var(--surface)
+     --bg-input    → var(--bg-inset)
+     --text-title  → var(--text)
+     --text-body   → var(--text-light)
+     --accent-green→ var(--forest)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ── Página ─────────────────────────────────────────────── */
+
 .page-folhas {
   background-color: var(--cream);
   min-height: 100dvh;
 }
 
-.page-folhas #bg-canvas {
-  display: none;
-}
+.page-folhas #bg-canvas { display: none; }
 
 .page-folhas {
   background-image: var(--img-full-mobile);
@@ -36,13 +55,15 @@
   position: relative;
 }
 
+/* ━━ HERO CARD ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
 .fh-hero {
   position: relative;
   background: linear-gradient(
     135deg,
-    var(--linen) 0%,
-    var(--bg-deep) 55%,
-    var(--sand-light) 100%
+    var(--linen)    0%,
+    var(--bg-inset) 55%,
+    var(--bg-deep)  100%
   );
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
@@ -51,45 +72,41 @@
   box-shadow: var(--sh-sm);
 }
 
+/* Glow decorativo canto superior-direito */
 .fh-hero::before {
   content: "";
   position: absolute;
-  top: -90px;
-  right: -90px;
-  width: 260px;
-  height: 260px;
+  top: -90px; right: -90px;
+  width: 260px; height: 260px;
   background: radial-gradient(
     circle,
-    var(--tan-mid) 0%,
+    var(--tan-mid)  0%,
     var(--tan-soft) 50%,
-    transparent 75%
+    transparent     75%
   );
   border-radius: 50%;
   pointer-events: none;
 }
 
+/* Glow decorativo canto inferior-esquerdo */
 .fh-hero::after {
   content: "";
   position: absolute;
-  bottom: -110px;
-  left: -70px;
-  width: 220px;
-  height: 220px;
+  bottom: -110px; left: -70px;
+  width: 220px; height: 220px;
   background: radial-gradient(
     circle,
     var(--caramel-hv) 0%,
     var(--caramel-xs) 55%,
-    transparent 80%
+    transparent       80%
   );
   border-radius: 50%;
   pointer-events: none;
 }
 
-.fh-hero > * {
-  position: relative;
-  z-index: 1;
-}
+.fh-hero > * { position: relative; z-index: 1; }
 
+/* ── Eyebrow tag "BIBLIOTECA PESSOAL" ─── */
 .fh-eyebrow {
   display: inline-block;
   font-size: 11px;
@@ -97,13 +114,15 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--caramel);
-  background: var(--caramel-lt);
-  padding: 6px 12px;
+  /* brief: background --bg-input */
+  background: var(--bg-inset);
+  padding: 6px 14px;
   border-radius: 999px;
   border: 1px solid var(--border);
   margin-bottom: 14px;
 }
 
+/* ── Título H1 ─── */
 .fh-title {
   font-family: var(--font-serif);
   font-size: clamp(28px, 5.8vw, 46px);
@@ -120,27 +139,30 @@
   font-weight: 400;
 }
 
+/* ── Subtítulo ─── */
 .fh-lede {
   font-size: 14.5px;
   line-height: 1.6;
   color: var(--text-mid);
-  max-width: 620px;
+  max-width: 60%;
   margin: 0 0 22px;
 }
 
+/* ── Stats Bar — pílula 999px ─────── */
+/* brief: padding 1rem 2rem, border-radius 999px, bg --bg-input */
 .fh-stats {
   display: flex;
-  background: var(--white-t60);
-  border-radius: var(--r-lg);
+  background: var(--bg-inset);
+  border-radius: 999px;
   overflow: hidden;
-  border: 1px solid rgba(var(--border-rgb), 0.32);
-  box-shadow: 0 4px 20px var(--brown-lt);
-  max-width: 460px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  max-width: 520px;
 }
 
 .fh-stat {
   flex: 1;
-  padding: 14px 10px;
+  padding: 16px 12px;
   text-align: center;
   position: relative;
 }
@@ -148,19 +170,18 @@
 .fh-stat + .fh-stat::before {
   content: "";
   position: absolute;
-  left: 0;
-  top: 22%;
-  height: 56%;
-  width: 1px;
+  left: 0; top: 22%;
+  height: 56%; width: 1px;
   background: var(--tan-border);
 }
 
+/* brief: números em --text-title (mais contraste que --caramel) */
 .fh-stat-num {
   font-family: var(--font-serif);
   font-size: 24px;
   font-weight: 700;
   line-height: 1;
-  color: var(--caramel);
+  color: var(--text);
   margin-bottom: 4px;
 }
 
@@ -173,52 +194,117 @@
   opacity: 0.78;
 }
 
+/* Folha decorativa desktop */
 .fh-leaf {
   position: absolute;
-  right: 8px;
-  bottom: 8px;
-  width: 96px;
-  height: 96px;
+  right: 8px; bottom: 8px;
+  width: 96px; height: 96px;
   color: var(--caramel);
   opacity: 0.38;
   pointer-events: none;
   display: none;
 }
 
-.fh-toolbar-legacy-placeholder {
-  /* original grid replaced by flex layout below */
+/* ━━ TOOLBAR ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.fh-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   padding: 0;
 }
 
-.fh-search {
-  position: relative;
-  width: 100%;
+.fh-toolbar-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
+
+.fh-toolbar-main .fh-search { flex: 1; }
+
+/* brief: CTA pill 999px + green */
+.fh-toolbar-main .fh-cta {
+  flex-shrink: 0;
+  width: auto;
+  padding: 12px 20px;
+  border-radius: 999px !important;
+  font-size: 14.5px;
+}
+
+/* ── Type toggle ─── */
+/* brief: container bg --bg-input, pílula 999px */
+.fh-type-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px;
+  align-self: flex-start;
+}
+
+.fh-type-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-mid);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.2s var(--ease),
+    color      0.2s var(--ease),
+    box-shadow 0.2s var(--ease);
+}
+
+.fh-type-btn[data-type="folhas"].active {
+  background: var(--caramel);
+  color: #fff;
+  box-shadow: 0 4px 14px var(--caramel-md);
+}
+
+/* brief: pílula ativa "Mapas" → --accent-green = var(--forest) */
+.fh-type-btn[data-type="mapas"].active {
+  background: var(--forest);
+  color: #fff;
+  box-shadow: 0 4px 14px var(--forest-md);
+}
+
+.fh-type-btn:not(.active):hover { color: var(--brown); }
+
+/* ── Search bar — pílula 999px ─── */
+.fh-search { position: relative; width: 100%; }
 
 .fh-search-icon {
   position: absolute;
-  left: 16px;
-  top: 50%;
+  left: 16px; top: 50%;
   transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
+  width: 18px; height: 18px;
   stroke: var(--text-light);
   pointer-events: none;
 }
 
+/* brief: border-radius 999px, bg --bg-input */
 .fh-search-input {
   width: 100%;
   padding: 12px 16px 12px 44px;
-  border-radius: var(--r-sm);
+  border-radius: 999px;
   border: 1.5px solid var(--border);
-  background: var(--surface);
+  background: var(--bg-inset);
   font-family: var(--font-sans);
   font-size: 14.5px;
   color: var(--text);
   outline: none;
   transition:
     border-color var(--t-fast),
-    box-shadow var(--t-fast);
+    box-shadow   var(--t-fast);
 }
 
 .fh-search-input::placeholder {
@@ -231,15 +317,16 @@
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
-.fh-search-input::-webkit-search-cancel-button {
-  display: none;
-}
+.fh-search-input::-webkit-search-cancel-button { display: none; }
 
+/* ━━ SUB-FILTROS (Matérias / Recentes / Favoritas) ━━━━━━━ */
+
+/* brief: pílula gigante, bg --bg-input, borda --border-subtle */
 .fh-tabs {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: var(--sand-light);
+  gap: 4px;
+  background: var(--bg-inset);
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 4px;
@@ -248,14 +335,12 @@
   scrollbar-width: none;
 }
 
-.fh-tabs::-webkit-scrollbar {
-  display: none;
-}
+.fh-tabs::-webkit-scrollbar { display: none; }
 
 .fh-tab {
   flex: 1 1 auto;
   min-width: max-content;
-  padding: 9px 16px;
+  padding: 9px 18px;
   border-radius: 999px;
   border: none;
   background: transparent;
@@ -265,23 +350,23 @@
   color: var(--text-mid);
   cursor: pointer;
   white-space: nowrap;
+  transition:
+    background 0.18s,
+    color      0.18s,
+    box-shadow 0.18s;
 }
 
-.fh-tab:hover {
-  color: var(--brown);
-}
+.fh-tab:hover:not(.active) { color: var(--brown); }
 
+/* brief: aba ativa "Matérias" → bg --bg-card = var(--surface) */
 .fh-tab.active {
-  background: var(--brown);
-  color: var(--white);
-  box-shadow: 0 4px 14px var(--brown-hv);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 2px 12px var(--brown-lt);
+  border: 1px solid var(--border-soft);
 }
 
-.fh-cta {
-  /* sizing handled by .fh-toolbar-main .fh-cta */
-  border-radius: var(--r-sm);
-  font-size: 14.5px;
-}
+/* ━━ SECTION HEAD ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 .fh-content {
   display: flex;
@@ -297,11 +382,9 @@
   padding: 4px 2px 6px;
 }
 
-.fh-section-head .t-label {
-  display: block;
-  margin-bottom: 4px;
-}
+.fh-section-head .t-label { display: block; margin-bottom: 4px; }
 
+/* brief: "Mapas por tema" em Serif */
 .fh-section-title {
   font-family: var(--font-serif);
   font-size: clamp(18px, 3.5vw, 22px);
@@ -311,20 +394,24 @@
   letter-spacing: -0.01em;
 }
 
+/* brief: badge circular com contagem, bg --bg-card */
 .fh-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 30px;
-  height: 26px;
+  height: 28px;
   padding: 0 10px;
   border-radius: 999px;
-  background: var(--caramel-lt);
+  background: var(--surface);
   border: 1px solid var(--border);
   font-size: 12px;
   font-weight: 600;
-  color: var(--caramel);
+  font-family: var(--font-serif);
+  color: var(--text-mid);
 }
+
+/* ━━ GRID DE MATÉRIAS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 .fh-grid {
   display: grid;
@@ -338,13 +425,14 @@
   gap: 10px;
 }
 
+/* brief: cards com border-radius 16px, hover translateY(-4px) + shadow-soft */
 .fh-grid .subj-card {
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 22px 20px 18px;
   background: var(--surface);
-  border-radius: var(--r);
+  border-radius: 16px;
   box-shadow: var(--sh-sm);
   cursor: pointer;
   border: 1px solid var(--border);
@@ -356,58 +444,51 @@
   position: relative;
   overflow: hidden;
   transition:
-    box-shadow var(--t-mid),
-    transform var(--t-mid),
-    border-color var(--t-mid);
+    box-shadow    var(--t-mid),
+    transform     var(--t-mid),
+    border-color  var(--t-mid);
 }
 
+/* brief: hover translateY(-4px), shadow-soft, border-color +opacidade */
 .fh-grid .subj-card:hover {
-  box-shadow: var(--sh);
-  border-color: var(--border-act);
-  transform: translateY(-3px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  border-color: rgba(var(--border-rgb), 0.3);
+  transform: translateY(-4px);
 }
 
-.fh-grid .subj-card:active {
-  transform: scale(0.98);
-}
+.fh-grid .subj-card:active { transform: scale(0.98); }
 
 .fh-grid .subj-card .subj-arr {
   position: absolute;
-  right: 16px;
-  bottom: 16px;
+  right: 16px; bottom: 16px;
   opacity: 0.45;
 }
 
 .fh-grid .subj-card .subj-arr svg {
-  width: 16px;
-  height: 16px;
+  width: 16px; height: 16px;
   stroke: var(--text-light);
 }
 
-.fh-grid .subj-card:nth-child(3n + 1) {
-  border-left: 3px solid var(--caramel);
-}
-.fh-grid .subj-card:nth-child(3n + 2) {
-  border-left: 3px solid var(--tan);
-}
-.fh-grid .subj-card:nth-child(3n + 3) {
-  border-left: 3px solid var(--sand);
-}
+/* Borda esquerda colorida rotativa (Folhas mode) */
+.fh-grid .subj-card:nth-child(3n + 1) { border-left: 3px solid var(--caramel); }
+.fh-grid .subj-card:nth-child(3n + 2) { border-left: 3px solid var(--tan); }
+.fh-grid .subj-card:nth-child(3n + 3) { border-left: 3px solid var(--sand); }
 
+/* ── Ícone da matéria ─── */
+/* brief: quadrado arredondado 12px, bg --bg-input */
 .subj-emoji {
-  width: 46px;
-  height: 46px;
-  border-radius: 13px;
-  background: var(--caramel-lt);
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  background: var(--bg-inset);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  border: 1px solid var(--border-soft);
 }
 
 .subj-emoji svg {
-  width: 22px;
-  height: 22px;
+  width: 22px; height: 22px;
   stroke: var(--caramel);
 }
 
@@ -439,257 +520,13 @@
   margin-right: 4px;
 }
 
-.fh-empty {
-  background: var(--surface);
-  border: 1px dashed var(--border);
-  border-radius: var(--r-lg);
-  padding: 40px 22px;
-  text-align: center;
-}
-
-.fh-empty-art {
-  width: 72px;
-  height: 72px;
-  margin: 0 auto 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--caramel-lt);
-  border-radius: 50%;
-}
-
-.fh-empty-art svg {
-  width: 40px;
-  height: 40px;
-}
-
-.fh-empty-title {
-  font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 6px;
-}
-
-.fh-empty-sub {
-  font-size: 14px;
-  font-weight: 300;
-  line-height: 1.65;
-  color: var(--text-mid);
-  margin: 0 auto 16px;
-  max-width: 380px;
-}
-
-.fh-empty-cta {
-  margin: 6px auto 0;
-}
-
-.fh-empty-filtered {
-  padding: 28px 18px;
-}
-
-.fh-empty-filtered .fh-empty-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--tan);
-  margin: 0 auto 12px;
-  opacity: 0.8;
-}
-
-.fh-empty-filtered .fh-empty-sub {
-  margin-bottom: 0;
-}
-
-@media (min-width: 900px) {
-  .page-folhas {
-    background-image: var(--img-full-desktop);
-    background-blend-mode: var(--img-blend);
-    background-color: var(--cream);
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-  }
-
-  .folhas-body {
-    padding: 0;
-  }
-
-  .fh-shell {
-    padding: 44px 48px 120px;
-    gap: 36px;
-  }
-
-  .fh-hero {
-    padding: 52px 56px 42px;
-    border-radius: var(--r-xl);
-  }
-
-  .fh-lede {
-    font-size: 16px;
-  }
-
-  .fh-leaf {
-    display: block;
-    right: 32px;
-    bottom: 28px;
-    width: 140px;
-    height: 140px;
-    opacity: 0.45;
-  }
-
-  .fh-stats {
-    max-width: 520px;
-  }
-  .fh-stat {
-    padding: 18px 14px;
-  }
-  .fh-stat-num {
-    font-size: 30px;
-  }
-  .fh-stat-lbl {
-    font-size: 10px;
-  }
-
-  /* toolbar now uses flex column — see bottom of file */
-
-  .fh-cta {
-    width: auto;
-    padding: 12px 22px;
-  }
-
-  .fh-grid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 18px;
-  }
-
-  .fh-list {
-    gap: 12px;
-  }
-
-  .fh-content {
-    gap: 20px;
-  }
-
-  .fh-section-head {
-    padding: 6px 4px 10px;
-  }
-
-  .fh-empty {
-    padding: 56px 28px;
-  }
-}
-
-@media (max-width: 480px) {
-  .fh-shell {
-    padding: 16px 14px 120px;
-    gap: 20px;
-  }
-  .fh-hero {
-    padding: 24px 20px 20px;
-    border-radius: var(--r);
-  }
-  .fh-stats {
-    max-width: none;
-  }
-  .fh-grid {
-    grid-template-columns: 1fr;
-  }
-  .fh-title {
-    font-size: clamp(26px, 7.2vw, 34px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .page-folhas .au,
-  .page-folhas .fade-in,
-  .page-folhas .fade-down {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-  .fh-grid .subj-card:hover {
-    transform: none;
-  }
-}
-
-/* ─── Type toggle pill ─────────────────────────────────── */
-
-.fh-toolbar {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 0;
-}
-
-.fh-toolbar-main {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.fh-toolbar-main .fh-search {
-  flex: 1;
-}
-
-.fh-toolbar-main .fh-cta {
-  flex-shrink: 0;
-  width: auto;
-  padding: 12px 18px;
-  border-radius: var(--r-sm);
-  font-size: 14.5px;
-}
-
-.fh-type-toggle {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--sand-light);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 4px;
-  align-self: flex-start;
-}
-
-.fh-type-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 20px;
-  border-radius: 999px;
-  border: none;
-  background: transparent;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-mid);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.2s var(--ease), color 0.2s var(--ease),
-    box-shadow 0.2s var(--ease);
-}
-
-.fh-type-btn[data-type="folhas"].active {
-  background: var(--caramel);
-  color: #fff;
-  box-shadow: 0 4px 14px var(--caramel-md);
-}
-
-.fh-type-btn[data-type="mapas"].active {
-  background: var(--forest);
-  color: #fff;
-  box-shadow: 0 4px 14px var(--forest-md);
-}
-
-.fh-type-btn:not(.active):hover {
-  color: var(--brown);
-}
-
-/* ─── Mapas mode accent cascade ─────────────────────────── */
+/* ━━ MAPAS MODE — accent cascade verde ━━━━━━━━━━━━━━━━━━━ */
 
 .fh-shell.type-mapas .fh-tab.active {
   background: var(--forest);
+  color: #fff;
   box-shadow: 0 4px 14px var(--forest-focus);
+  border-color: var(--forest-md);
 }
 
 .fh-shell.type-mapas .fh-search-input:focus {
@@ -705,6 +542,7 @@
 .fh-shell.type-mapas .fh-cta:hover {
   background: var(--forest-dark);
   border-color: var(--forest-dark);
+  box-shadow: 0 4px 18px var(--forest-md);
 }
 
 .fh-shell.type-mapas .fh-count {
@@ -713,25 +551,15 @@
   border-color: var(--forest-md);
 }
 
-.fh-shell.type-mapas .fh-grid .subj-card:nth-child(3n + 1) {
-  border-left-color: var(--forest);
-}
-.fh-shell.type-mapas .fh-grid .subj-card:nth-child(3n + 2) {
-  border-left-color: var(--forest-mid);
-}
-.fh-shell.type-mapas .fh-grid .subj-card:nth-child(3n + 3) {
-  border-left-color: var(--forest-focus);
-}
+/* Bordas verdes nos cards de matéria em modo mapas */
+.fh-shell.type-mapas .fh-grid .subj-card:nth-child(3n + 1) { border-left-color: var(--forest); }
+.fh-shell.type-mapas .fh-grid .subj-card:nth-child(3n + 2) { border-left-color: var(--forest-mid); }
+.fh-shell.type-mapas .fh-grid .subj-card:nth-child(3n + 3) { border-left-color: var(--forest-focus); }
 
-/* Subject card — mapas variant */
-.subj-card--maps .subj-emoji--forest {
-  background: var(--forest-lt);
-}
-.subj-card--maps .subj-emoji--forest svg {
-  stroke: var(--forest);
-}
+.subj-card--maps .subj-emoji--forest { background: var(--forest-lt); }
+.subj-card--maps .subj-emoji--forest svg { stroke: var(--forest); }
 
-/* ─── Map card ───────────────────────────────────────────── */
+/* ━━ MAP CARD ITEM (lista de mapas) ━━━━━━━━━━━━━━━━━━━━━━ */
 
 .map-card-item {
   display: flex;
@@ -747,7 +575,9 @@
   font-family: var(--font-sans);
   color: inherit;
   position: relative;
-  transition: box-shadow var(--t-mid), transform var(--t-mid),
+  transition:
+    box-shadow   var(--t-mid),
+    transform    var(--t-mid),
     border-color var(--t-mid);
 }
 
@@ -757,13 +587,10 @@
   transform: translateY(-2px);
 }
 
-.map-card-item:active {
-  transform: scale(0.98);
-}
+.map-card-item:active { transform: scale(0.98); }
 
 .mc-thumb {
-  width: 76px;
-  height: 58px;
+  width: 76px; height: 58px;
   border-radius: var(--r-sm);
   background: var(--forest-lt);
   border: 1px solid var(--forest-lt);
@@ -776,23 +603,15 @@
 
 .mc-thumb-svg,
 .mc-thumb-placeholder {
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.mc-thumb-svg svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
+.mc-thumb-svg svg { width: 100%; height: 100%; display: block; }
 
-.mc-info {
-  flex: 1;
-  min-width: 0;
-}
+.mc-info { flex: 1; min-width: 0; }
 
 .mc-title {
   font-family: var(--font-serif);
@@ -843,8 +662,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 34px; height: 34px;
   border-radius: var(--r-sm);
   border: none;
   background: transparent;
@@ -854,80 +672,25 @@
 }
 
 .mc-fav:hover,
-.mc-del:hover {
-  background: var(--hover-bg);
+.mc-del:hover { background: var(--hover-bg); }
+.mc-fav.on    { color: var(--star); }
+.mc-del:hover { color: var(--danger-hover); }
+
+.mc-dl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: var(--r-sm);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: background 0.15s, color 0.15s;
 }
+.mc-dl:hover { background: var(--hover-bg); color: var(--forest); }
 
-.mc-fav.on {
-  color: var(--star);
-}
-
-.mc-del:hover {
-  color: var(--danger-hover);
-}
-
-/* ─── 4-stat hero adjustments ────────────────────────────── */
-
-.fh-stats {
-  max-width: 600px;
-}
-
-/* Forest empty state CTA */
-.fh-empty-art--forest {
-  background: var(--forest-lt);
-}
-
-.fh-empty-cta--forest {
-  background: var(--forest);
-  color: #fff;
-  border-color: var(--forest);
-}
-
-.fh-empty-cta--forest:hover {
-  background: var(--forest-dark);
-}
-
-/* ─── Desktop overrides for new toolbar ──────────────────── */
-
-@media (min-width: 900px) {
-  .fh-stats {
-    max-width: 640px;
-  }
-
-  .fh-toolbar {
-    gap: 14px;
-  }
-
-  .fh-toolbar-main {
-    gap: 14px;
-  }
-
-  .fh-toolbar-main .fh-cta {
-    padding: 12px 22px;
-  }
-}
-
-@media (max-width: 480px) {
-  .fh-stats {
-    max-width: none;
-  }
-
-  .mc-thumb {
-    width: 60px;
-    height: 48px;
-  }
-
-  .mc-title {
-    font-size: 14px;
-  }
-
-  .fh-type-btn {
-    padding: 8px 14px;
-    font-size: 12.5px;
-  }
-}
-
-/* ── Map card desktop/mobile action visibility ──────────── */
+/* Kebab mobile */
 .mc-kebab {
   display: none;
   background: none;
@@ -939,47 +702,170 @@
   align-items: center;
   justify-content: center;
 }
-.mc-kebab svg {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
-}
-.mc-kebab:hover {
-  background: var(--hover-bg);
-  color: var(--text);
+.mc-kebab svg { width: 18px; height: 18px; fill: currentColor; }
+.mc-kebab:hover { background: var(--hover-bg); color: var(--text); }
+
+/* ━━ EMPTY STATES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.fh-empty {
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--r-lg);
+  padding: 40px 22px;
+  text-align: center;
 }
 
-@media (max-width: 899px) {
-  .mc-actions .mc-desktop {
-    display: none !important;
-  }
-  .mc-kebab {
-    display: flex;
-  }
-}
-
-/* Download icon button in map card */
-.mc-dl {
+.fh-empty-art {
+  width: 72px; height: 72px;
+  margin: 0 auto 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: var(--r-sm);
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: var(--text-light);
-  transition: background 0.15s, color 0.15s;
-}
-.mc-dl:hover {
-  background: var(--hover-bg);
-  color: var(--forest);
+  background: var(--caramel-lt);
+  border-radius: 50%;
 }
 
-/* ── Skeleton wrapper ─────────────────────────────────────── */
+.fh-empty-art svg  { width: 40px; height: 40px; }
+.fh-empty-art--forest { background: var(--forest-lt); }
+
+.fh-empty-title {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.fh-empty-sub {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--text-mid);
+  margin: 0 auto 16px;
+  max-width: 380px;
+}
+
+.fh-empty-cta { margin: 6px auto 0; }
+
+.fh-empty-filtered { padding: 28px 18px; }
+.fh-empty-filtered .fh-empty-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--tan);
+  margin: 0 auto 12px;
+  opacity: 0.8;
+}
+.fh-empty-filtered .fh-empty-sub { margin-bottom: 0; }
+
+.fh-empty-cta--forest {
+  background: var(--forest);
+  color: #fff;
+  border-color: var(--forest);
+}
+.fh-empty-cta--forest:hover { background: var(--forest-dark); }
+
+/* ━━ SKELETON WRAPPER ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
 .fh-skel-wrap {
   padding: 0 0 32px;
   max-width: 780px;
   margin: 0 auto;
+}
+
+/* ━━ DESKTOP ≥ 900px ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (min-width: 900px) {
+  .page-folhas {
+    background-image: var(--img-full-desktop);
+    background-blend-mode: var(--img-blend);
+    background-color: var(--cream);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+
+  .fh-shell {
+    padding: 44px 48px 120px;
+    gap: 36px;
+  }
+
+  .fh-hero {
+    padding: 52px 56px 44px;
+    border-radius: var(--r-xl);
+  }
+
+  .fh-lede {
+    font-size: 16px;
+    max-width: 58%;
+  }
+
+  .fh-leaf {
+    display: block;
+    right: 32px; bottom: 28px;
+    width: 140px; height: 140px;
+    opacity: 0.45;
+  }
+
+  .fh-stats { max-width: 600px; }
+  .fh-stat  { padding: 18px 14px; }
+  .fh-stat-num { font-size: 30px; }
+  .fh-stat-lbl { font-size: 10px; }
+
+  .fh-toolbar      { gap: 14px; }
+  .fh-toolbar-main { gap: 14px; }
+
+  .fh-toolbar-main .fh-cta { padding: 12px 24px; }
+
+  .fh-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+  }
+
+  .fh-list    { gap: 12px; }
+  .fh-content { gap: 20px; }
+  .fh-section-head { padding: 6px 4px 10px; }
+  .fh-empty   { padding: 56px 28px; }
+}
+
+/* ━━ MOBILE ≤ 480px ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (max-width: 480px) {
+  .fh-shell {
+    padding: 16px 14px 120px;
+    gap: 20px;
+  }
+  .fh-hero {
+    padding: 24px 20px 20px;
+    border-radius: var(--r);
+  }
+  .fh-stats   { max-width: none; }
+  .fh-lede    { max-width: 100%; }
+  .fh-title   { font-size: clamp(26px, 7.2vw, 34px); }
+  .fh-grid    { grid-template-columns: 1fr; }
+
+  .fh-type-btn { padding: 8px 14px; font-size: 12.5px; }
+
+  .mc-thumb { width: 60px; height: 48px; }
+  .mc-title { font-size: 14px; }
+}
+
+/* ━━ MOBILE ACTION VISIBILITY ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (max-width: 899px) {
+  .mc-actions .mc-desktop { display: none !important; }
+  .mc-kebab { display: flex; }
+}
+
+/* ━━ ACESSIBILIDADE (motion) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@media (prefers-reduced-motion: reduce) {
+  .page-folhas .au,
+  .page-folhas .fade-in,
+  .page-folhas .fade-down {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .fh-grid .subj-card:hover { transform: none; }
+  .map-card-item:hover       { transform: none; }
 }
