@@ -247,6 +247,6 @@ html[data-theme="dark"] {
   --img-home-desktop: url("../assets/images/doodles-desktop-home-dark.png");
   --img-full-mobile:  url("../assets/images/doodles-mobile-fullscreen-dark.png");
   --img-full-desktop: url("../assets/images/doodles-desktop-fullscreen-dark.png");
-  --img-blend:        luminosity;
+  --img-blend:        normal;
   --img-vinicius:     url("../assets/images/vinicius-fundo-dark.png");
 }

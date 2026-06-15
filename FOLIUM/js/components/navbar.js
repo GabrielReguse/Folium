@@ -297,8 +297,11 @@ const Navbar = {
     if (existing) existing.remove();
     page.appendChild(nav);
 
+    // Double rAF: ensures mobile media-query (width:100%) settles before measuring
     requestAnimationFrame(() => {
-      this._positionBubble(nav, active, true);
+      requestAnimationFrame(() => {
+        this._positionBubble(nav, active, true);
+      });
     });
   },
 
@@ -311,9 +314,14 @@ const Navbar = {
 
     if (!slider || !bg || !activeItem) return;
 
-    const navRect = nav.getBoundingClientRect();
-    const itemRect = activeItem.getBoundingClientRect();
-    const cx = itemRect.left - navRect.left + itemRect.width / 2;
+    // Index-based calculation: immune to rAF timing vs getBoundingClientRect drift.
+    // cx = centre of active item within nav, clamped so the 100px slider never clips.
+    const items = Array.from(nav.querySelectorAll(".dock-item"));
+    const itemIndex = items.indexOf(activeItem);
+    const navWidth = nav.getBoundingClientRect().width || 380;
+    const itemWidth = navWidth / (items.length || 4);
+    const rawCx = (itemIndex + 0.5) * itemWidth;
+    const cx = Math.max(50, Math.min(navWidth - 50, rawCx));
 
     if (instant) {
       const prevSlider = slider.style.transition;
