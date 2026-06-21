@@ -156,7 +156,7 @@
   border-radius: 999px;
   overflow: hidden;
   border: 1px solid var(--border);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--sh);
   max-width: 520px;
 }
 
@@ -182,6 +182,7 @@
   font-weight: 700;
   line-height: 1;
   color: var(--text);
+  font-variant-numeric: tabular-nums;
   margin-bottom: 4px;
 }
 
@@ -227,7 +228,6 @@
   flex-shrink: 0;
   width: auto;
   padding: 12px 20px;
-  border-radius: 999px !important;
   font-size: 14.5px;
 }
 
@@ -314,7 +314,7 @@
 
 .fh-search-input:focus {
   border-color: var(--caramel);
-  box-shadow: 0 0 0 3px var(--focus-ring);
+  box-shadow: 0 0 0 4px var(--focus-ring);
 }
 
 .fh-search-input::-webkit-search-cancel-button { display: none; }
@@ -362,7 +362,7 @@
 .fh-tab.active {
   background: var(--surface);
   color: var(--text);
-  box-shadow: 0 2px 12px var(--brown-lt);
+  box-shadow: var(--sh-sm);
   border: 1px solid var(--border-soft);
 }
 
@@ -432,7 +432,7 @@
   gap: 12px;
   padding: 22px 20px 18px;
   background: var(--surface);
-  border-radius: 16px;
+  border-radius: var(--r);
   box-shadow: var(--sh-sm);
   cursor: pointer;
   border: 1px solid var(--border);
@@ -443,6 +443,7 @@
   color: inherit;
   position: relative;
   overflow: hidden;
+  touch-action: manipulation;
   transition:
     box-shadow    var(--t-mid),
     transform     var(--t-mid),
@@ -451,7 +452,7 @@
 
 /* brief: hover translateY(-4px), shadow-soft, border-color +opacidade */
 .fh-grid .subj-card:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--sh);
   border-color: rgba(var(--border-rgb), 0.3);
   transform: translateY(-4px);
 }
@@ -478,7 +479,7 @@
 /* brief: quadrado arredondado 12px, bg --bg-input */
 .subj-emoji {
   width: 46px; height: 46px;
-  border-radius: 12px;
+  border-radius: var(--r-sm);
   background: var(--bg-inset);
   display: flex;
   align-items: center;
@@ -516,7 +517,7 @@
   background: var(--caramel-lt);
   border: 1px solid var(--border);
   padding: 2px 8px;
-  border-radius: 20px;
+  border-radius: 999px;
   margin-right: 4px;
 }
 
@@ -647,7 +648,7 @@
   background: var(--forest-lt);
   border: 1px solid var(--forest-lt);
   padding: 2px 8px;
-  border-radius: 20px;
+  border-radius: 999px;
 }
 
 .mc-actions {
@@ -697,10 +698,11 @@
   border: none;
   cursor: pointer;
   padding: 5px 6px;
-  border-radius: 8px;
+  border-radius: var(--r-xs);
   color: var(--text-light);
   align-items: center;
   justify-content: center;
+  touch-action: manipulation;
 }
 .mc-kebab svg { width: 18px; height: 18px; fill: currentColor; }
 .mc-kebab:hover { background: var(--hover-bg); color: var(--text); }

@@ -69,7 +69,7 @@
 
 .logo-mark {
   background-color: var(--brown-md);
-  border-radius: 8px;
+  border-radius: var(--r-xs);
   width: 60px;
   height: 60px;
   margin: 0 auto 14px;
@@ -144,7 +144,7 @@
   width: calc(50% - 5px);
   background: var(--surface);
   border-radius: 999px;
-  box-shadow: 0 4px 14px var(--brown-md);
+  box-shadow: var(--shadow-glow-sm) var(--brown-md);
   transition: transform 0.42s var(--ease);
   z-index: 1;
 }
@@ -157,6 +157,7 @@
   position: relative;
   z-index: 2;
   padding: 10px 14px;
+  touch-action: manipulation;
   font-family: var(--font-sans);
   font-size: 13.5px;
   font-weight: 600;
@@ -282,6 +283,7 @@
 }
 
 .inp-action {
+  touch-action: manipulation;
   position: absolute;
   right: 6px;
   width: 34px;
@@ -380,6 +382,7 @@
 }
 
 .btn-google {
+  touch-action: manipulation;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -394,7 +397,10 @@
   font-size: 0.94rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--t-fast) ease;
+  transition:
+    background var(--t-fast) ease,
+    border-color var(--t-fast) ease,
+    transform var(--t-fast) ease;
 }
 
 .btn-google:hover {
@@ -514,7 +520,7 @@
 .code-digit:focus,
 .reset-code-digit:focus {
   border-color: var(--caramel);
-  box-shadow: 0 0 0 3px var(--focus-ring);
+  box-shadow: 0 0 0 4px var(--focus-ring);
   transform: translateY(-1px);
 }
 
@@ -611,10 +617,10 @@
     overflow: hidden;
     color: var(--text);
     background: linear-gradient(
-      155deg,
+      135deg,
       var(--linen) 0%,
-      var(--bg-deep) 55%,
-      var(--sand-light) 100%
+      var(--bg-inset) 55%,
+      var(--bg-deep) 100%
     );
     border-right: 1px solid var(--border);
     z-index: 1;
@@ -721,14 +727,14 @@
     flex-shrink: 0;
     width: 42px;
     height: 42px;
-    border-radius: 12px;
+    border-radius: var(--r-sm);
     background: var(--white-t60);
     border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--caramel);
-    box-shadow: 0 4px 14px var(--brown-lt);
+    box-shadow: var(--shadow-glow-sm) var(--brown-lt);
     transition:
       transform var(--t-mid) var(--ease),
       box-shadow var(--t-mid);
@@ -741,7 +747,7 @@
 
   .brand-feature:hover .brand-feature__icon {
     transform: translateY(-2px) rotate(-3deg);
-    box-shadow: 0 8px 22px var(--brown-md);
+    box-shadow: var(--shadow-glow) var(--brown-md);
   }
 
   .brand-feature strong {

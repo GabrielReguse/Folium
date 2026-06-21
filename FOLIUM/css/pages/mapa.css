@@ -96,7 +96,11 @@
   font-size: 13.5px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.18s;
+  touch-action: manipulation;
+  transition:
+    border-color 0.18s,
+    background 0.18s,
+    color 0.18s;
   flex: 1;
   justify-content: center;
 }
@@ -165,7 +169,12 @@
   border-radius: var(--r);
   background: var(--bg-inset);
   cursor: pointer;
-  transition: all 0.2s;
+  touch-action: manipulation;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
   text-align: center;
 }
 .mp-tpl-card:hover {
@@ -177,7 +186,7 @@
 .mp-tpl-card.selected {
   border-color: var(--caramel);
   background: var(--caramel-lt);
-  box-shadow: 0 0 0 3px var(--caramel-lt);
+  box-shadow: 0 0 0 4px var(--caramel-lt);
 }
 .mp-tpl-preview {
   width: 100%;
@@ -239,7 +248,11 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.18s;
+  touch-action: manipulation;
+  transition:
+    border-color 0.18s,
+    background 0.18s,
+    color 0.18s;
 }
 .mp-mode-btn:hover {
   border-color: var(--tan);
@@ -269,7 +282,7 @@
   width: 900px;
   height: 636px;
   background: white;
-  box-shadow: 0 2px 16px var(--brown-lt);
+  box-shadow: var(--sh-sm);
   transform-origin: top left;
 }
 .mp-canvas-svg {
@@ -284,7 +297,7 @@
 .mp-node {
   position: absolute;
   border: 2px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   background: var(--bg-inset);
   z-index: 2;
   box-sizing: border-box;
@@ -464,7 +477,7 @@
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: var(--r-xs);
   cursor: pointer;
   font-size: 13.5px;
   color: var(--text);
@@ -680,7 +693,8 @@
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 8px 22px var(--brown-md);
+  box-shadow: var(--shadow-glow) var(--brown-md);
+  touch-action: manipulation;
 }
 
 .mp-mobile-fullscreen {
@@ -735,9 +749,10 @@ body.mp-mobile-fullscreen-open {
   font-size: 12.5px;
   font-weight: 700;
   line-height: 1;
-  box-shadow: 0 8px 22px var(--brown-md);
+  box-shadow: var(--shadow-glow) var(--brown-md);
   cursor: pointer;
   pointer-events: auto;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 .mp-mobile-fullscreen__close {
@@ -776,7 +791,7 @@ body.mp-mobile-fullscreen-open {
 }
 .mp-canvas--mobile-fullscreen {
   margin: 0 !important;
-  box-shadow: 0 14px 34px var(--brown-md) !important;
+  box-shadow: var(--shadow-glow-lg) var(--brown-md) !important;
   transform-origin: top left !important;
   touch-action: none;
 }

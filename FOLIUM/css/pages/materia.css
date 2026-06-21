@@ -26,7 +26,7 @@
 .materia-body {
   flex: 1;
   overflow-y: auto;
-  padding: 22px;
+  padding: 22px 22px 120px;
   max-width: 700px;
   margin: 0 auto;
   width: 100%;
@@ -34,7 +34,7 @@
 
 @media (min-width: 900px) {
   .materia-body {
-    padding: 36px 40px;
+    padding: 36px 40px 120px;
     max-width: none;
   }
 }
@@ -152,6 +152,7 @@
     border-color var(--t-mid);
   margin-bottom: 10px;
   position: relative;
+  touch-action: manipulation;
 }
 .sheet-card-item:hover {
   box-shadow: var(--sh);
@@ -162,7 +163,7 @@
 .sc-icon {
   width: 44px;
   height: 44px;
-  border-radius: 13px;
+  border-radius: var(--r-sm);
   background: var(--caramel-lt);
   display: flex;
   align-items: center;
@@ -201,7 +202,7 @@
   background: var(--linen);
   color: var(--brown-mid);
   padding: 2px 8px;
-  border-radius: 20px;
+  border-radius: 999px;
   font-weight: 500;
   border: 1px solid var(--border);
 }
@@ -231,7 +232,7 @@
   border: none;
   cursor: pointer;
   padding: 5px 6px;
-  border-radius: 8px;
+  border-radius: var(--r-xs);
   transition:
     transform var(--t-fast),
     background var(--t-fast);
@@ -261,7 +262,7 @@
   border: none;
   cursor: pointer;
   padding: 5px 6px;
-  border-radius: 8px;
+  border-radius: var(--r-xs);
   transition:
     background var(--t-fast),
     color var(--t-fast);
@@ -284,7 +285,7 @@
   border: none;
   cursor: pointer;
   padding: 5px 6px;
-  border-radius: 8px;
+  border-radius: var(--r-xs);
   transition:
     background var(--t-fast),
     color var(--t-fast);
@@ -308,7 +309,7 @@
   border: none;
   cursor: pointer;
   padding: 5px 6px;
-  border-radius: 8px;
+  border-radius: var(--r-xs);
   color: var(--text-light);
   align-items: center;
   justify-content: center;
@@ -338,8 +339,8 @@
   min-width: 180px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border-radius: var(--r-sm);
+  box-shadow: var(--sh-lg);
   padding: 6px;
   display: flex;
   flex-direction: column;
@@ -356,7 +357,7 @@
   text-align: left;
   font-size: 14px;
   color: var(--text);
-  border-radius: 8px;
+  border-radius: var(--r-xs);
   font-family: inherit;
   transition:
     background var(--t-fast),
@@ -387,7 +388,7 @@
   border: none;
   cursor: pointer;
   padding: 5px 8px;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   transition:
     transform var(--t-fast),
     background var(--t-fast);

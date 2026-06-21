@@ -27,14 +27,14 @@
   width: 100%;
   max-width: 1160px;
   margin: 0 auto;
-  padding: 20px 18px 96px;
+  padding: 20px 18px 120px;
   display: flex;
   flex-direction: column;
   gap: 22px;
 }
 @media (min-width: 900px) {
   .sup-shell {
-    padding: 42px 48px 110px;
+    padding: 42px 48px 120px;
     gap: 28px;
   }
 }
@@ -45,8 +45,13 @@
   align-items: stretch;
   padding: 28px 22px;
   border: 1px solid var(--border);
-  border-radius: 22px;
-  background: linear-gradient(135deg, var(--linen), var(--surface));
+  border-radius: var(--r-lg);
+  background: linear-gradient(
+    135deg,
+    var(--linen) 0%,
+    var(--bg-inset) 55%,
+    var(--bg-deep) 100%
+  );
   box-shadow: var(--sh-sm);
 }
 @media (min-width: 900px) {
@@ -77,11 +82,16 @@
   max-width: 720px;
   margin: 16px 0 12px;
   font-family: var(--font-serif);
-  font-size: clamp(31px, 6vw, 52px);
+  font-size: clamp(30px, 7vw, 40px);
   font-weight: 700;
-  line-height: 1.04;
+  line-height: 1.12;
   letter-spacing: -0.03em;
   color: var(--text);
+}
+@media (min-width: 900px) {
+  .sup-title {
+    font-size: clamp(34px, 3.6vw, 46px);
+  }
 }
 .sup-title em {
   color: var(--caramel);
@@ -92,9 +102,9 @@
 .sup-lede {
   max-width: 640px;
   color: var(--text-mid);
-  font-size: 15.5px;
+  font-size: 14.5px;
   font-weight: 300;
-  line-height: 1.7;
+  line-height: 1.6;
   margin-bottom: 22px;
 }
 
@@ -105,7 +115,7 @@
   max-width: 680px;
   padding: 5px 5px 5px 16px;
   border: 1.5px solid var(--border);
-  border-radius: 16px;
+  border-radius: 999px;
   background: var(--surface);
   box-shadow: var(--sh-sm);
   transition:
@@ -140,7 +150,7 @@
 .sup-search__clear {
   width: 36px;
   height: 36px;
-  border-radius: 12px;
+  border-radius: var(--r-sm);
   color: var(--text-mid);
   background: var(--hover-bg);
 }
@@ -169,6 +179,7 @@
 }
 .sup-qi {
   padding: 7px 11px;
+  touch-action: manipulation;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: rgba(from var(--cream) r g b / 0.76);
@@ -180,7 +191,7 @@
 .sup-hero__panel {
   padding: 22px;
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: var(--r-lg);
   background: rgba(from var(--cream) r g b / 0.78);
 }
 .sup-panel-label {
@@ -200,7 +211,7 @@
 }
 .sup-hero__panel li {
   padding: 11px 12px;
-  border-radius: 13px;
+  border-radius: var(--r-sm);
   border: 1px solid rgba(var(--tan-rgb), 0.7);
   background: var(--surface);
   color: var(--text-mid);
@@ -221,10 +232,11 @@
   min-height: 116px;
   padding: 16px;
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: var(--r);
   background: var(--surface);
   text-align: left;
   box-shadow: var(--sh-sm);
+  touch-action: manipulation;
   transition:
     transform var(--t-fast),
     border-color var(--t-fast),
@@ -241,7 +253,7 @@
   justify-content: center;
   width: 34px;
   height: 34px;
-  border-radius: 12px;
+  border-radius: var(--r-sm);
   background: var(--caramel-lt);
   color: var(--caramel);
   font-weight: 800;
@@ -274,7 +286,7 @@
 .sup-main,
 .sup-card {
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   background: var(--surface);
   box-shadow: var(--sh-sm);
 }
@@ -316,6 +328,7 @@
   padding: 8px 12px;
   border: 1px solid var(--border);
   border-radius: 999px;
+  touch-action: manipulation;
   background: var(--linen);
   color: var(--text-mid);
   font-size: 12.5px;
@@ -334,7 +347,7 @@
 }
 .sup-faq {
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--r);
   background: var(--bg-inset);
   overflow: hidden;
 }
@@ -350,6 +363,7 @@
   padding: 16px;
   text-align: left;
   color: var(--text);
+  touch-action: manipulation;
 }
 .sup-faq__t {
   font-size: 14px;
@@ -358,7 +372,7 @@
 .sup-faq__arr {
   width: 28px;
   height: 28px;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -384,7 +398,7 @@
 .sup-empty {
   margin-top: 14px;
   padding: 18px;
-  border-radius: 16px;
+  border-radius: var(--r);
   border: 1px dashed var(--border-act);
   background: var(--linen);
   text-align: center;
@@ -394,11 +408,12 @@
   margin: 4px 0 12px;
 }
 .sup-empty button {
-  padding: 9px 14px;
-  border-radius: 12px;
+  padding: 9px 18px;
+  border-radius: 999px;
   background: var(--caramel);
   color: #fff;
   font-weight: 700;
+  touch-action: manipulation;
 }
 
 .sup-side {
@@ -427,12 +442,13 @@
 .sup-contact-link {
   display: inline-flex;
   margin-top: 14px;
-  padding: 10px 12px;
-  border-radius: 12px;
+  padding: 10px 16px;
+  border-radius: 999px;
   background: var(--caramel);
   color: #fff;
   font-size: 13px;
   font-weight: 800;
+  touch-action: manipulation;
 }
 
 @media (max-width: 520px) {
@@ -443,10 +459,10 @@
   .sup-hero,
   .sup-main,
   .sup-card {
-    border-radius: 16px;
+    border-radius: var(--r);
   }
   .sup-search {
-    padding-left: 12px;
+    padding-left: 14px;
   }
 }
 
