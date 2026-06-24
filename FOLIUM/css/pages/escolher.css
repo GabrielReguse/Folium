@@ -171,7 +171,7 @@
   height: 15px;
 }
 .esc-card:hover .esc-card__arrow {
-  background: var(--caramel);
+  background: var(--caramel-btn);
   color: #fff;
   transform: translateX(3px);
 }
@@ -183,7 +183,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: var(--caramel);
+  background: var(--caramel-btn);
   color: #fff;
   border-radius: 999px;
   padding: 4px 10px;

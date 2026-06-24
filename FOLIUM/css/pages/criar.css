@@ -217,9 +217,9 @@
   transition: color 0.2s;
 }
 .cs-step.active .cs-num {
-  background: var(--caramel);
+  background: var(--caramel-btn);
   color: #fff;
-  border-color: var(--caramel);
+  border-color: var(--caramel-btn);
   box-shadow: var(--shadow-glow) var(--caramel-nav);
   transform: scale(1.06);
 }
@@ -353,8 +353,8 @@
     transform: scale(1);
   }
   100% {
-    background: var(--caramel);
-    border-color: var(--caramel);
+    background: var(--caramel-btn);
+    border-color: var(--caramel-btn);
     box-shadow: var(--shadow-glow) var(--caramel-nav);
     transform: scale(1.06);
   }
@@ -514,7 +514,7 @@
   font-weight: 600;
   letter-spacing: 0.01em;
   border-radius: 999px;
-  background: var(--caramel);
+  background: var(--caramel-btn);
   color: #fff;
   border: none;
   cursor: pointer;
@@ -527,7 +527,7 @@
   margin-top: 6px;
 }
 .cr-btn-primary:hover:not(:disabled) {
-  background: var(--caramel-dk);
+  background: var(--brown-mid);
   box-shadow: var(--shadow-glow-lg) rgba(var(--caramel-rgb), 0.38);
   transform: translateY(-1px);
 }
@@ -735,8 +735,8 @@
     border-color 0.18s;
 }
 .cr-topics .topic-row .tchk.on {
-  background: var(--caramel);
-  border-color: var(--caramel);
+  background: var(--caramel-btn);
+  border-color: var(--caramel-btn);
 }
 .cr-topics .topic-row .tchk svg {
   width: 13px;

@@ -115,13 +115,13 @@
 }
 
 .mc-type-btn[data-type="folhas"].active {
-  background: var(--caramel);
+  background: var(--caramel-btn);
   color: #fff;
   box-shadow: 0 4px 14px var(--caramel-md);
 }
 
 .mc-type-btn[data-type="mapas"].active {
-  background: var(--forest);
+  background: var(--forest-btn);
   color: #fff;
   box-shadow: 0 4px 14px var(--forest-md);
 }

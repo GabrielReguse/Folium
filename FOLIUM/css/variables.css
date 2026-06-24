@@ -31,12 +31,14 @@
   --brown-mid:    #7a5035;
   --caramel:      #9b6b42;
   --caramel-dk:   #7a5230;
+  --caramel-btn:  #9b6b42;
   --caramel-lt:   rgba(155, 107, 66, 0.12);
   --caramel-md:   rgba(155, 107, 66, 0.28);
   --caramel-nav:  rgba(155, 107, 66, 0.32);
 
   /* ── Forest / Green ──────── */
   --forest:       #3d6b4d;
+  --forest-btn:   #3d6b4d;
   --forest-mid:   #5a8f6c;
   --forest-dark:  #2d5a3d;
   --forest-lt:    rgba(61, 107, 77, 0.12);
@@ -46,7 +48,7 @@
   /* ── Text ────────────────── */
   --text:         #2c1810;
   --text-mid:     #6b4c35;
-  --text-light:   #a07855;
+  --text-light:   #876038;
 
   /* ── White (NEVER changed in dark — used as text on coloured buttons) */
   --white:        #ffffff;
@@ -58,6 +60,7 @@
   --danger:       #b91c1c;
   --danger-lt:    rgba(185, 28, 28, 0.10);
   --danger-hover: #e05252;
+  --danger-btn:   #b91c1c;
   --warning:      #d97706;
   --star:         #f5a623;
   --danger-surface:  #fff0f0;
@@ -163,7 +166,7 @@ html[data-theme="dark"] {
   --cream:        #1F1611;
   --surface:      #31261E;
   --bg-deep:      #17120D;
-  --linen:        #261D15;
+  --linen:        #1B130E;
   --bg-inset:     #261D15;
   --bg-card:      #31261E;
   --bg-nav:       rgba(23, 18, 13, 0.97);
@@ -177,16 +180,18 @@ html[data-theme="dark"] {
   --tan:          #5C4535;
 
   /* ── Brown / Caramel ─────── */
-  --brown:        #D3B58D;
-  --brown-mid:    #C4A07A;
+  --brown:        #946731;
+  --brown-mid:    #7D5527;
   --caramel:      #D3B58D;
   --caramel-dk:   #B89060;
+  --caramel-btn:  #946731;
   --caramel-lt:   rgba(211, 181, 141, 0.12);
   --caramel-md:   rgba(211, 181, 141, 0.25);
   --caramel-nav:  rgba(211, 181, 141, 0.30);
 
   /* ── Forest / Green ──────── */
   --forest:       #4CAF50;
+  --forest-btn:   #2E8B36;
   --forest-mid:   #66BB6A;
   --forest-dark:  #388E3C;
   --forest-lt:    rgba(76, 175, 80, 0.14);
@@ -196,7 +201,7 @@ html[data-theme="dark"] {
   /* ── Text ────────────────── */
   --text:         #EADDC8;
   --text-mid:     #C4A07A;
-  --text-light:   #876A50;
+  --text-light:   #A88E70;
 
   /* ── White (stays #fff — text on coloured buttons) ─────── */
   --white-t60:    rgba(211, 181, 141, 0.12);
@@ -207,6 +212,7 @@ html[data-theme="dark"] {
   --danger:       #F87171;
   --danger-lt:    rgba(248, 113, 113, 0.12);
   --danger-hover: #FC8181;
+  --danger-btn:   #B5413F;
   --warning:      #FBBF24;
   --star:         #F5A623;
   --danger-surface:  rgba(248, 113, 113, 0.10);
@@ -224,9 +230,9 @@ html[data-theme="dark"] {
   --focus-ring:   rgba(211, 181, 141, 0.18);
 
   /* ── Extra alpha helpers ─── */
-  --brown-lt:     rgba(211, 181, 141, 0.04);
-  --brown-md:     rgba(211, 181, 141, 0.08);
-  --brown-hv:     rgba(211, 181, 141, 0.14);
+  --brown-lt:     rgba(148, 103, 49, 0.10);
+  --brown-md:     rgba(148, 103, 49, 0.18);
+  --brown-hv:     rgba(148, 103, 49, 0.26);
   --caramel-xs:   rgba(211, 181, 141, 0.04);
   --caramel-sm:   rgba(211, 181, 141, 0.08);
   --caramel-hv:   rgba(211, 181, 141, 0.14);

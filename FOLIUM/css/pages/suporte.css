@@ -335,8 +335,8 @@
   font-weight: 700;
 }
 .sup-chip.active {
-  background: var(--caramel);
-  border-color: var(--caramel);
+  background: var(--caramel-btn);
+  border-color: var(--caramel-btn);
   color: #fff;
 }
 
@@ -410,7 +410,7 @@
 .sup-empty button {
   padding: 9px 18px;
   border-radius: 999px;
-  background: var(--caramel);
+  background: var(--caramel-btn);
   color: #fff;
   font-weight: 700;
   touch-action: manipulation;
@@ -444,7 +444,7 @@
   margin-top: 14px;
   padding: 10px 16px;
   border-radius: 999px;
-  background: var(--caramel);
+  background: var(--caramel-btn);
   color: #fff;
   font-size: 13px;
   font-weight: 800;

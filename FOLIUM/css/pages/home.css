@@ -440,7 +440,7 @@
   }
 
   .recent-card {
-    background: rgba(var(--hover-rgb), 0.82);
+    background: rgba(var(--surface-rgb), 0.82);
     border: 1.5px solid var(--tan-border2);
     border-radius: var(--r);
     padding: 18px 20px;
@@ -457,7 +457,7 @@
   }
 
   .recent-card:hover {
-    background: rgba(var(--cream-rgb), 0.95);
+    background: rgba(var(--surface-rgb), 0.97);
     box-shadow: var(--sh);
     transform: translateY(-2px);
   }

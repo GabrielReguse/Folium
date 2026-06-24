@@ -211,7 +211,7 @@ const Navbar = {
           background: transparent;
           border: none;
           cursor: pointer;
-          color: #AD8B6B;
+          color: #876038;
           outline: none;
         }
         
@@ -241,7 +241,7 @@ const Navbar = {
           opacity: 0; 
         }
         .dock-item.active .di-label {
-          color: #6CAB69;
+          color: #2d5a3d;
         }
       `;
       document.head.appendChild(style);
@@ -260,8 +260,8 @@ const Navbar = {
     slider.innerHTML = `
       <svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block;">
         <path d="M 24 50 A 26 26 0 0 0 76 50" fill="none" stroke="#D1C4A8" stroke-width="1.5" />
-        <circle cx="50" cy="50" r="22" fill="none" stroke="#6CAB69" stroke-width="2"/>
-        <circle cx="50" cy="50" r="18" fill="#6CAB69" />
+        <circle cx="50" cy="50" r="22" fill="none" stroke="#2d5a3d" stroke-width="2"/>
+        <circle cx="50" cy="50" r="18" fill="#2d5a3d" />
       </svg>
       <div class="dock-slider-icon">
         ${(items.find((it) => it.route === active) || {}).icon || NavIcons[active] || ""}

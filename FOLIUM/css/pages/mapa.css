@@ -259,8 +259,8 @@
   background: var(--linen);
 }
 .mp-mode-btn.active {
-  border-color: var(--caramel);
-  background: var(--caramel);
+  border-color: var(--caramel-btn);
+  background: var(--caramel-btn);
   color: #fff;
 }
 .mp-editor-hint {
@@ -685,9 +685,9 @@
   gap: 8px;
   margin: 0 0 14px;
   padding: 12px 16px;
-  border: 1.5px solid var(--caramel);
+  border: 1.5px solid var(--caramel-btn);
   border-radius: var(--r-sm);
-  background: var(--caramel);
+  background: var(--caramel-btn);
   color: #fff;
   font-family: var(--font-sans);
   font-size: 13.5px;
@@ -770,8 +770,8 @@ body.mp-mobile-fullscreen-open {
 }
 .mp-mobile-fullscreen__btn.active,
 .mp-mobile-fullscreen__btn--primary {
-  border-color: var(--caramel);
-  background: var(--caramel);
+  border-color: var(--caramel-btn);
+  background: var(--caramel-btn);
   color: #fff;
 }
 

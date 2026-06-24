@@ -265,14 +265,14 @@
 }
 
 .fh-type-btn[data-type="folhas"].active {
-  background: var(--caramel);
+  background: var(--caramel-btn);
   color: #fff;
   box-shadow: 0 4px 14px var(--caramel-md);
 }
 
 /* brief: pílula ativa "Mapas" → --accent-green = var(--forest) */
 .fh-type-btn[data-type="mapas"].active {
-  background: var(--forest);
+  background: var(--forest-btn);
   color: #fff;
   box-shadow: 0 4px 14px var(--forest-md);
 }
@@ -524,7 +524,7 @@
 /* ━━ MAPAS MODE — accent cascade verde ━━━━━━━━━━━━━━━━━━━ */
 
 .fh-shell.type-mapas .fh-tab.active {
-  background: var(--forest);
+  background: var(--forest-btn);
   color: #fff;
   box-shadow: 0 4px 14px var(--forest-focus);
   border-color: var(--forest-md);
@@ -760,9 +760,9 @@
 .fh-empty-filtered .fh-empty-sub { margin-bottom: 0; }
 
 .fh-empty-cta--forest {
-  background: var(--forest);
+  background: var(--forest-btn);
   color: #fff;
-  border-color: var(--forest);
+  border-color: var(--forest-btn);
 }
 .fh-empty-cta--forest:hover { background: var(--forest-dark); }
 

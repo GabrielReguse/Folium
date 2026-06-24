@@ -47,12 +47,12 @@
 
 .btn-secondary {
   background: var(--sand-light);
-  color: var(--brown);
+  color: var(--caramel-dk);
 }
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--sand);
-  color: var(--brown);
+  color: var(--caramel-dk);
 }
 
 .btn-ghost {
@@ -85,9 +85,9 @@
 }
 
 .btn-danger:hover {
-  background: var(--danger);
+  background: var(--danger-btn);
   color: #fff;
-  border-color: var(--danger);
+  border-color: var(--danger-btn);
 }
 
 .btn-sm {

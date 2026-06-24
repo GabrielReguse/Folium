@@ -22,14 +22,14 @@ html[data-theme="dark"] .dock-bg {
   backdrop-filter: blur(16px) !important;
 }
 
-/* Inactive item icon/text: #AD8B6B → dark --text-light #876A50 */
+/* Inactive item icon/text: synced with --text-light dark token */
 html[data-theme="dark"] .dock-item {
-  color: #876A50 !important;
+  color: #A88E70 !important;
 }
 
-/* Active item label: #6CAB69 → dark --forest #4CAF50 */
+/* Active item label: forest green, tuned for contrast against the bubble's white icon AND the dark page bg (plain --forest #4CAF50 failed both at 2.4-2.8:1) */
 html[data-theme="dark"] .dock-item.active .di-label {
-  color: #4CAF50 !important;
+  color: #2E8B36 !important;
 }
 
 /* Slider SVG — arc underline: stroke #D1C4A8 → muted */
@@ -37,14 +37,13 @@ html[data-theme="dark"] .dock-slider path {
   stroke: rgba(211, 181, 141, 0.22) !important;
 }
 
-/* Slider SVG — outer ring: stroke #6CAB69 → #4CAF50 */
+/* Slider SVG — outer ring + filled centre: same tuned green as the label */
 html[data-theme="dark"] .dock-slider circle:nth-child(2) {
-  stroke: #4CAF50 !important;
+  stroke: #2E8B36 !important;
 }
 
-/* Slider SVG — filled centre: fill #6CAB69 → #4CAF50 */
 html[data-theme="dark"] .dock-slider circle:nth-child(3) {
-  fill: #4CAF50 !important;
+  fill: #2E8B36 !important;
 }
 
 /* Slider icon stays light (text on green circle) */
