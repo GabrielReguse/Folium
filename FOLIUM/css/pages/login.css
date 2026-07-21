@@ -361,7 +361,7 @@
   background: linear-gradient(
     110deg,
     transparent 0%,
-    var(--white-t20) 50%,
+    rgba(255, 255, 255, 0.2) 50%,
     transparent 100%
   );
   transform: skewX(-18deg);
@@ -728,7 +728,7 @@
     width: 42px;
     height: 42px;
     border-radius: var(--r-sm);
-    background: var(--white-t60);
+    background: var(--glass-60);
     border: 1px solid var(--border);
     display: flex;
     align-items: center;

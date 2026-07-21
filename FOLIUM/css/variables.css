@@ -1,151 +1,164 @@
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   FOLIUM — Design Tokens
-   All colours, images, shadows via CSS custom properties.
-   Toggle: html[data-theme="dark"] via App.toggleDarkMode()
-   Zero hardcoded colours anywhere else in the codebase.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   FOLIUM — Design Tokens  ·  Redesign 60 / 20 / 10
+   ──────────────────────────────────────────────────────────────────
+   60 %  Superfícies dominantes  → fundo de página, cards, sidebar
+   20 %  Suporte                 → bordas, texto secundário, painéis
+   10 %  Ação / acento           → CTA primário, âmbar, verde-CTA
 
-/* ══ LIGHT (default) ═══════════════════════════════════════ */
+   Toggle: html[data-theme="dark"]  via App.toggleDarkMode()
+   Todo token de cor usado como TEXTO sobre um fundo de marca
+   (botão, avatar, badge) tem uma variante "-btn" dedicada, calibrada
+   para manter contraste ≥ 4.5:1 com texto branco em AMBOS os temas.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ══ LIGHT (default) — 60 % pergaminho quente ════════════════════ */
 :root {
   color-scheme: light;
 
-  /* ── Page backgrounds ────── */
-  --cream:        #f5edd6;
-  --surface:      #fdfaf3;
-  --bg-deep:      #ede1c4;
-  --linen:        #f0e8d0;
-  --bg-inset:     #fbf5e3;
-  --bg-card:      #ffffff;
-  --bg-nav:       rgba(245, 237, 214, 0.97);
-  --bg-sidebar:   #ede3cc;
-  --sidebar-bg:   #ede3cc;
-  --bg-overlay:   rgba(44, 24, 16, 0.38);
+  /* ── 60 % — Fundos & superfícies ──────────────────────────────
+     pergaminho #F6EDD8 → crème #FEFBF4 → areia profunda #E8D7BA   */
+  --cream:        #F6EDD8;
+  --surface:      #FEFBF4;
+  --bg-deep:      #E8D7BA;
+  --linen:        #F1E8D0;
+  --bg-inset:     #FAF5E6;
+  --bg-card:      #FFFFFF;
+  --bg-nav:       rgba(246, 237, 216, 0.96);
+  --bg-sidebar:   #EAD8BE;
+  --sidebar-bg:   #EAD8BE;
+  --bg-overlay:   rgba(44, 22, 6, 0.42);
 
-  /* ── Sand scale ──────────── */
-  --sand:         #d4b896;
-  --sand-light:   #e8d9bf;
-  --tan:          #c4a882;
+  /* ── 20 % — Areia, bordas, texto de suporte ────────────────── */
+  --sand:         #C8A876;
+  --sand-light:   #E2D0AA;
+  --tan:          #BFA068;
 
-  /* ── Brown / Caramel ─────── */
-  --brown:        #5c3d2e;
-  --brown-mid:    #7a5035;
-  --caramel:      #9b6b42;
-  --caramel-dk:   #7a5230;
-  --caramel-btn:  #9b6b42;
-  --caramel-lt:   rgba(155, 107, 66, 0.12);
-  --caramel-md:   rgba(155, 107, 66, 0.28);
-  --caramel-nav:  rgba(155, 107, 66, 0.32);
+  --text:         #1C0E06;
+  --text-mid:     #624430;
+  --text-light:   #866040;
 
-  /* ── Forest / Green ──────── */
-  --forest:       #3d6b4d;
-  --forest-btn:   #3d6b4d;
-  --forest-mid:   #5a8f6c;
-  --forest-dark:  #2d5a3d;
-  --forest-lt:    rgba(61, 107, 77, 0.12);
-  --forest-md:    rgba(61, 107, 77, 0.22);
-  --forest-focus: rgba(61, 107, 77, 0.22);
+  --border:       rgba(191, 160, 104, 0.42);
+  --border-act:   rgba(154, 101, 52, 0.55);
+  --border-soft:  rgba(191, 160, 104, 0.28);
+  --border-xsoft: rgba(191, 160, 104, 0.12);
+  --hover-bg:     rgba(200, 168, 118, 0.20);
+  --focus-ring:   rgba(154, 101, 52, 0.20);
+  --tan-soft:     rgba(191, 160, 104, 0.18);
+  --tan-mid:      rgba(191, 160, 104, 0.30);
+  --tan-border:   rgba(191, 160, 104, 0.42);
+  --tan-border2:  rgba(191, 160, 104, 0.60);
+  --text-t42:     rgba(28, 14, 6, 0.42);
+  --text-t38:     rgba(28, 14, 6, 0.38);
 
-  /* ── Text ────────────────── */
-  --text:         #2c1810;
-  --text-mid:     #6b4c35;
-  --text-light:   #876038;
+  /* ── 10 % — Ação & acento ──────────────────────────────────────
+     Cada dupla abaixo = { token de TEXTO/ícone direto no fundo,
+     token "-btn" seguro para texto branco em cima }               */
 
-  /* ── White (NEVER changed in dark — used as text on coloured buttons) */
+  /* Marrom-café — ink primário / bg do botão principal */
+  --brown:        #4A2C14;   /* texto/ícone — headings, outline    */
+  --brown-btn:    #4A2C14;   /* fundo de botão — sempre seguro p/ branco */
+  --brown-mid:    #6A4022;   /* fundo hover do botão primário      */
+  --brown-lt:     rgba(74, 44, 20, 0.06);
+  --brown-md:     rgba(74, 44, 20, 0.11);
+  --brown-hv:     rgba(74, 44, 20, 0.18);
+
+  /* Âmbar caramel — acento secundário */
+  --caramel:      #8F5C2E;   /* texto pequeno/label — AA a 4.82:1  */
+  --caramel-dk:   #7A4E26;   /* texto sobre --sand-light           */
+  --caramel-btn:  #9A6534;   /* fundo de botão/chip/avatar — 4.90:1 c/ branco */
+  --caramel-lt:   rgba(154, 101, 52, 0.12);
+  --caramel-md:   rgba(154, 101, 52, 0.28);
+  --caramel-nav:  rgba(154, 101, 52, 0.32);
+  --caramel-xs:   rgba(154, 101, 52, 0.05);
+  --caramel-sm:   rgba(154, 101, 52, 0.08);
+  --caramel-hv:   rgba(154, 101, 52, 0.18);
+
+  /* Verde-floresta — CTA de criação / sucesso */
+  --forest:       #2A6644;   /* texto/ícone/label ativo            */
+  --forest-btn:   #2A6644;   /* fundo de botão — 6.81:1 c/ branco  */
+  --forest-mid:   #3A8A5C;
+  --forest-dark:  #1C5234;   /* hover do botão verde               */
+  --forest-lt:    rgba(42, 102, 68, 0.12);
+  --forest-md:    rgba(42, 102, 68, 0.22);
+  --forest-focus: rgba(42, 102, 68, 0.22);
+
+  /* ── Branco — constante, NUNCA muda no dark ────────────────────
+     Só é usado como texto/ícone sobre as variantes "-btn" acima,
+     que são desenhadas pra ficar sempre escuras o bastante.       */
   --white:        #ffffff;
-  --white-t60:    rgba(255, 255, 255, 0.60);
-  --white-t52:    rgba(255, 255, 255, 0.52);
-  --white-t20:    rgba(255, 255, 255, 0.20);
 
-  /* ── States ──────────────── */
-  --danger:       #b91c1c;
-  --danger-lt:    rgba(185, 28, 28, 0.10);
-  --danger-hover: #e05252;
-  --danger-btn:   #b91c1c;
-  --warning:      #d97706;
-  --star:         #f5a623;
-  --danger-surface:  #fff0f0;
-  --forest-surface:  #f5fff9;
-  --warning-surface: #fffff0;
+  /* Vidro adaptativo (glassmorphism) — deriva de --surface-rgb,
+     por isso "clareia" corretamente em qualquer tema             */
+  --glass-60:     rgba(var(--surface-rgb), 0.60);
+  --glass-52:     rgba(var(--surface-rgb), 0.52);
+  --glass-20:     rgba(var(--surface-rgb), 0.20);
 
-  /* ── Borders ─────────────── */
-  --border:       rgba(196, 168, 130, 0.45);
-  --border-act:   rgba(155, 107, 66, 0.55);
-  --border-soft:  rgba(196, 168, 130, 0.30);
-  --border-xsoft: rgba(196, 168, 130, 0.12);
+  /* ── Estados ────────────────────────────────────────────────── */
+  --danger:          #C02020;
+  --danger-lt:       rgba(192, 32, 32, 0.10);
+  --danger-hover:    #E05555;
+  --danger-btn:      #C02020;
+  --warning:         #D97706;
+  --star:            #F5A623;
+  --danger-surface:  #FFF0F0;
+  --forest-surface:  #F0FFF5;
+  --warning-surface: #FFFBEC;
 
-  /* ── Interaction ─────────── */
-  --hover-bg:     rgba(212, 184, 150, 0.22);
-  --focus-ring:   rgba(155, 107, 66, 0.22);
+  /* ── RGB base (p/ rgba() inline e composição de tokens) ────── */
+  --caramel-rgb:  154, 101, 52;
+  --forest-rgb:   42, 102, 68;
+  --border-rgb:   191, 160, 104;
+  --tan-rgb:      200, 168, 118;
+  --hover-rgb:    200, 168, 118;
+  --danger-rgb:   192, 32, 32;
+  --cream-rgb:    246, 237, 216;
+  --surface-rgb:  254, 251, 244;
+  --linen-rgb:    250, 245, 230;
 
-  /* ── Extra alpha helpers ─── */
-  --brown-lt:     rgba(92, 61, 46, 0.06);
-  --brown-md:     rgba(92, 61, 46, 0.10);
-  --brown-hv:     rgba(92, 61, 46, 0.16);
-  --caramel-xs:   rgba(155, 107, 66, 0.05);
-  --caramel-sm:   rgba(155, 107, 66, 0.08);
-  --caramel-hv:   rgba(155, 107, 66, 0.18);
-  --tan-soft:     rgba(196, 168, 130, 0.18);
-  --tan-mid:      rgba(196, 168, 130, 0.30);
-  --tan-border:   rgba(196, 168, 130, 0.45);
-  --tan-border2:  rgba(196, 168, 130, 0.60);
-  --text-t42:     rgba(44, 24, 16, 0.42);
-  --text-t38:     rgba(44, 24, 16, 0.38);
+  /* ── Sombras ────────────────────────────────────────────────── */
+  --sh-sm: 0 2px 12px  rgba(74, 44, 20, 0.07);
+  --sh:    0 5px 24px  rgba(74, 44, 20, 0.11);
+  --sh-lg: 0 12px 44px rgba(74, 44, 20, 0.15);
+  --sh-xl: 0 24px 64px rgba(74, 44, 20, 0.19);
 
-  /* ── RGB base for inline rgba(var(--x-rgb), alpha) ─────── */
-  --caramel-rgb:  155, 107, 66;
-  --forest-rgb:   61, 107, 77;
-  --border-rgb:   196, 168, 130;
-  --tan-rgb:      205, 185, 150;
-  --hover-rgb:    212, 184, 150;
-  --danger-rgb:   185, 28, 28;
-  --cream-rgb:    245, 237, 214;
-  --surface-rgb:  253, 250, 243;
-  --linen-rgb:    251, 245, 227;
+  /* ── Dock nav (barra flutuante) ─────────────────────────────── */
+  --dock-bg:          #F0E8D1;
+  --dock-border:      #D1C4A8;
+  --dock-item-color:  #876038;
 
-  /* ── Shadows ─────────────── */
-  --sh-sm: 0 2px 14px rgba(92, 61, 46, 0.06);
-  --sh:    0 5px 28px  rgba(92, 61, 46, 0.10);
-  --sh-lg: 0 14px 52px rgba(92, 61, 46, 0.14);
-  --sh-xl: 0 28px 72px rgba(92, 61, 46, 0.18);
-
-  /* ── Background images ───── */
-  --img-home-mobile:  url("../assets/images/doodles-mobile.png");
-  --img-home-desktop: url("../assets/images/doodles-desktop-home.png");
-  --img-full-mobile:  url("../assets/images/doodles-mobile-fullscreem.png");
-  --img-full-desktop: url("../assets/images/doodles-desktop-fullscreen.png");
+  /* ── Imagens de fundo ───────────────────────────────────────────
+     Light usa as variantes "-dark" dos doodles: traço escuro
+     (~rgb 106,92,75) sobre fundo claro = contraste nítido.        */
+  --img-home-mobile:  url("../assets/images/doodles-mobile-dark.png");
+  --img-home-desktop: url("../assets/images/doodles-desktop-home-dark.png");
+  --img-full-mobile:  url("../assets/images/doodles-mobile-fullscreen-dark.png");
+  --img-full-desktop: url("../assets/images/doodles-desktop-fullscreen-dark.png");
   --img-blend:        normal;
   --img-vinicius:     url("../assets/images/vinicius-fundo.png");
 
-  /* ── Type ────────────────── */
+  /* ── Tipografia ─────────────────────────────────────────────── */
   --font-serif: "Playfair Display", Georgia, serif;
   --font-sans:  "DM Sans", system-ui, sans-serif;
 
-  /* ── Motion ──────────────── */
+  /* ── Motion ─────────────────────────────────────────────────── */
   --ease:   cubic-bezier(0.22, 1, 0.36, 1);
   --t-fast: 0.15s;
   --t-mid:  0.28s;
   --t-slow: 0.45s;
 
-  /* ── Radii — one deliberate scale, used everywhere ───────
-     xs  8px  → chips, tiny icon squares, small tags
-     sm  12px → inputs, icon buttons, compact controls
-     r   16px → dense list-item cards (sheet/map rows)
-     lg  22px → standard content cards (grid tiles, panels)
-     xl  32px → hero / feature panels
-     999px (literal) → pills: CTAs, search, tabs, stat bars ── */
+  /* ── Raios ──────────────────────────────────────────────────── */
   --r-xs: 8px;
   --r-sm: 12px;
   --r:    16px;
   --r-lg: 22px;
   --r-xl: 32px;
 
-  /* ── Glow shadow shapes — pair with a colour token, e.g.
-     box-shadow: var(--shadow-glow) var(--caramel-md);  ───── */
+  /* ── Glow shapes ────────────────────────────────────────────── */
   --shadow-glow-sm: 0 4px 14px;
   --shadow-glow:    0 6px 20px;
   --shadow-glow-lg: 0 10px 28px;
 
-  /* ── Z-index ─────────────── */
+  /* ── Z-index ────────────────────────────────────────────────── */
   --z-canvas:  0;
   --z-base:    1;
   --z-nav:     100;
@@ -154,117 +167,124 @@
   --sidebar-w: 220px;
 }
 
-/* ══ DARK THEME ═════════════════════════════════════════════
-   Palette: bg=#1F1611  card=#31261E
-            gold=#D3B58D  text=#EADDC8  emerald=#4CAF50
-   Matches the suporte page reference design exactly.
-═══════════════════════════════════════════════════════════ */
+/* ══ DARK — 60 % espresso profundo ═══════════════════════════════
+   60 %: #100D0A → #1C1510 → #221A12   (madeira escura / espresso)
+   20 %: #3C2A18 bordas · texto creme/âmbar
+   10 %: ouro #D4AA6C (acento) · esmeralda #42C47A (acento CTA) —
+         ambos com par "-btn" mais escuro p/ manter texto branco
+         legível nos MESMOS botões que usam --brown-btn/--forest-btn
+         no modo claro.
+═══════════════════════════════════════════════════════════════════ */
 html[data-theme="dark"] {
   color-scheme: dark;
 
-  /* ── Page backgrounds ────── */
-  --cream:        #1F1611;
-  --surface:      #31261E;
-  --bg-deep:      #17120D;
-  --linen:        #1B130E;
-  --bg-inset:     #261D15;
-  --bg-card:      #31261E;
-  --bg-nav:       rgba(23, 18, 13, 0.97);
-  --bg-sidebar:   #14100C;
-  --sidebar-bg:   #14100C;
-  --bg-overlay:   rgba(0, 0, 0, 0.65);
+  /* ── 60 % — Fundos espresso ─────────────────────────────────── */
+  --cream:        #100D0A;
+  --surface:      #1C1510;
+  --bg-deep:      #080604;
+  --linen:        #150F0A;
+  --bg-inset:     #181210;
+  --bg-card:      #221A12;
+  --bg-nav:       rgba(8, 6, 4, 0.96);
+  --bg-sidebar:   #0C0906;
+  --sidebar-bg:   #0C0906;
+  --bg-overlay:   rgba(0, 0, 0, 0.70);
 
-  /* ── Sand scale ──────────── */
-  --sand:         #4A3828;
-  --sand-light:   #3D2E20;
-  --tan:          #5C4535;
+  /* ── 20 % — Bordas & texto de suporte ──────────────────────── */
+  --sand:         #3C2A18;
+  --sand-light:   #2C1E12;
+  --tan:          #4E3A24;
 
-  /* ── Brown / Caramel ─────── */
-  --brown:        #946731;
-  --brown-mid:    #7D5527;
-  --caramel:      #D3B58D;
-  --caramel-dk:   #B89060;
-  --caramel-btn:  #946731;
-  --caramel-lt:   rgba(211, 181, 141, 0.12);
-  --caramel-md:   rgba(211, 181, 141, 0.25);
-  --caramel-nav:  rgba(211, 181, 141, 0.30);
+  --text:         #EDE0C4;
+  --text-mid:     #C49A72;
+  --text-light:   #A88050;
 
-  /* ── Forest / Green ──────── */
-  --forest:       #4CAF50;
-  --forest-btn:   #2E8B36;
-  --forest-mid:   #66BB6A;
-  --forest-dark:  #388E3C;
-  --forest-lt:    rgba(76, 175, 80, 0.14);
-  --forest-md:    rgba(76, 175, 80, 0.22);
-  --forest-focus: rgba(76, 175, 80, 0.22);
+  --border:       rgba(212, 170, 108, 0.16);
+  --border-act:   rgba(212, 170, 108, 0.48);
+  --border-soft:  rgba(212, 170, 108, 0.12);
+  --border-xsoft: rgba(212, 170, 108, 0.07);
+  --hover-bg:     rgba(212, 170, 108, 0.08);
+  --focus-ring:   rgba(212, 170, 108, 0.20);
+  --tan-soft:     rgba(212, 170, 108, 0.08);
+  --tan-mid:      rgba(212, 170, 108, 0.14);
+  --tan-border:   rgba(212, 170, 108, 0.18);
+  --tan-border2:  rgba(212, 170, 108, 0.28);
+  --text-t42:     rgba(237, 224, 196, 0.42);
+  --text-t38:     rgba(237, 224, 196, 0.38);
 
-  /* ── Text ────────────────── */
-  --text:         #EADDC8;
-  --text-mid:     #C4A07A;
-  --text-light:   #A88E70;
+  /* ── 10 % — Ação & acento (pares validados a ≥4.5:1) ─────────
+     brown-btn 8.26:1 · caramel-btn 5.73:1 · forest-btn 5.50:1     */
+  --brown:        #C8924A;   /* texto/ícone — brilha no fundo escuro */
+  --brown-btn:    #6E4526;   /* fundo de botão — seguro p/ branco  */
+  --brown-mid:    #8A5A32;   /* fundo hover do botão primário      */
+  --brown-lt:     rgba(200, 146, 74, 0.10);
+  --brown-md:     rgba(200, 146, 74, 0.18);
+  --brown-hv:     rgba(200, 146, 74, 0.28);
 
-  /* ── White (stays #fff — text on coloured buttons) ─────── */
-  --white-t60:    rgba(211, 181, 141, 0.12);
-  --white-t52:    rgba(211, 181, 141, 0.10);
-  --white-t20:    rgba(211, 181, 141, 0.06);
+  --caramel:      #D4AA6C;   /* texto/label — 9.01:1 no fundo      */
+  --caramel-dk:   #B88C4A;
+  --caramel-btn:  #8F5A2A;   /* fundo de botão/chip/avatar         */
+  --caramel-lt:   rgba(212, 170, 108, 0.12);
+  --caramel-md:   rgba(212, 170, 108, 0.25);
+  --caramel-nav:  rgba(212, 170, 108, 0.30);
+  --caramel-xs:   rgba(212, 170, 108, 0.05);
+  --caramel-sm:   rgba(212, 170, 108, 0.08);
+  --caramel-hv:   rgba(212, 170, 108, 0.15);
 
-  /* ── States ──────────────── */
-  --danger:       #F87171;
-  --danger-lt:    rgba(248, 113, 113, 0.12);
-  --danger-hover: #FC8181;
-  --danger-btn:   #B5413F;
-  --warning:      #FBBF24;
-  --star:         #F5A623;
+  --forest:       #42C47A;   /* texto/ícone/label ativo — 8.68:1   */
+  --forest-btn:   #1E7842;   /* fundo de botão — seguro p/ branco  */
+  --forest-mid:   #5AD68C;
+  --forest-dark:  #154F2C;   /* hover do botão verde                */
+  --forest-lt:    rgba(66, 196, 122, 0.14);
+  --forest-md:    rgba(66, 196, 122, 0.22);
+  --forest-focus: rgba(66, 196, 122, 0.22);
+
+  /* ── Branco — mesma constante do :root, não redefinir aqui ──── */
+
+  --glass-60:     rgba(var(--surface-rgb), 0.60);
+  --glass-52:     rgba(var(--surface-rgb), 0.52);
+  --glass-20:     rgba(var(--surface-rgb), 0.20);
+
+  /* ── Estados ────────────────────────────────────────────────── */
+  --danger:          #F87171;
+  --danger-lt:       rgba(248, 113, 113, 0.12);
+  --danger-hover:    #FC8585;
+  --danger-btn:      #B54040;
+  --warning:         #FBBF24;
+  --star:            #F5A623;
   --danger-surface:  rgba(248, 113, 113, 0.10);
-  --forest-surface:  rgba(76, 175, 80, 0.08);
+  --forest-surface:  rgba(66, 196, 122, 0.08);
   --warning-surface: rgba(251, 191, 36, 0.08);
 
-  /* ── Borders ─────────────── */
-  --border:       rgba(211, 181, 141, 0.18);
-  --border-act:   rgba(211, 181, 141, 0.50);
-  --border-soft:  rgba(211, 181, 141, 0.14);
-  --border-xsoft: rgba(211, 181, 141, 0.08);
-
-  /* ── Interaction ─────────── */
-  --hover-bg:     rgba(211, 181, 141, 0.08);
-  --focus-ring:   rgba(211, 181, 141, 0.18);
-
-  /* ── Extra alpha helpers ─── */
-  --brown-lt:     rgba(148, 103, 49, 0.10);
-  --brown-md:     rgba(148, 103, 49, 0.18);
-  --brown-hv:     rgba(148, 103, 49, 0.26);
-  --caramel-xs:   rgba(211, 181, 141, 0.04);
-  --caramel-sm:   rgba(211, 181, 141, 0.08);
-  --caramel-hv:   rgba(211, 181, 141, 0.14);
-  --tan-soft:     rgba(211, 181, 141, 0.08);
-  --tan-mid:      rgba(211, 181, 141, 0.14);
-  --tan-border:   rgba(211, 181, 141, 0.20);
-  --tan-border2:  rgba(211, 181, 141, 0.30);
-  --text-t42:     rgba(234, 221, 200, 0.42);
-  --text-t38:     rgba(234, 221, 200, 0.38);
-
-  /* ── RGB base (alpha variants auto-update) ──────────────── */
-  --caramel-rgb:  211, 181, 141;
-  --forest-rgb:   76, 175, 80;
-  --border-rgb:   211, 181, 141;
-  --tan-rgb:      170, 140, 100;
-  --hover-rgb:    211, 181, 141;
+  /* ── RGB base ───────────────────────────────────────────────── */
+  --caramel-rgb:  212, 170, 108;
+  --forest-rgb:   66, 196, 122;
+  --border-rgb:   212, 170, 108;
+  --tan-rgb:      160, 126, 86;
+  --hover-rgb:    212, 170, 108;
   --danger-rgb:   248, 113, 113;
-  --cream-rgb:    31, 22, 17;
-  --surface-rgb:  49, 38, 30;
-  --linen-rgb:    38, 29, 21;
+  --cream-rgb:    16, 13, 10;
+  --surface-rgb:  28, 21, 16;
+  --linen-rgb:    21, 15, 10;
 
-  /* ── Shadows ─────────────── */
-  --sh-sm: 0 2px 14px rgba(0, 0, 0, 0.30);
-  --sh:    0 5px 28px  rgba(0, 0, 0, 0.40);
-  --sh-lg: 0 14px 52px rgba(0, 0, 0, 0.50);
-  --sh-xl: 0 28px 72px rgba(0, 0, 0, 0.55);
+  /* ── Sombras (mais profundas no escuro) ─────────────────────── */
+  --sh-sm: 0 2px 12px  rgba(0, 0, 0, 0.32);
+  --sh:    0 5px 24px  rgba(0, 0, 0, 0.44);
+  --sh-lg: 0 12px 44px rgba(0, 0, 0, 0.54);
+  --sh-xl: 0 24px 64px rgba(0, 0, 0, 0.62);
 
-  /* ── Background images ───── */
-  --img-home-mobile:  url("../assets/images/doodles-mobile-dark.png");
-  --img-home-desktop: url("../assets/images/doodles-desktop-home-dark.png");
-  --img-full-mobile:  url("../assets/images/doodles-mobile-fullscreen-dark.png");
-  --img-full-desktop: url("../assets/images/doodles-desktop-fullscreen-dark.png");
+  /* ── Dock nav — mesma pílula sólida do light, tom espresso ───── */
+  --dock-bg:          #171008;
+  --dock-border:      rgba(212, 170, 108, 0.16);
+  --dock-item-color:  #A88E70;
+
+  /* ── Imagens de fundo ───────────────────────────────────────────
+     Dark usa as variantes "normais" (claras) dos doodles: traço
+     creme (~rgb 238,226,200) sobre espresso = brilho dourado sutil. */
+  --img-home-mobile:  url("../assets/images/doodles-mobile.png");
+  --img-home-desktop: url("../assets/images/doodles-desktop-home.png");
+  --img-full-mobile:  url("../assets/images/doodles-mobile-fullscreem.png");
+  --img-full-desktop: url("../assets/images/doodles-desktop-fullscreen.png");
   --img-blend:        normal;
   --img-vinicius:     url("../assets/images/vinicius-fundo-dark.png");
 }

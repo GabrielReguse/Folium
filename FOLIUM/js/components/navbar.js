@@ -149,8 +149,8 @@ const Navbar = {
         .dock-bg {
           position: absolute;
           inset: 0;
-          background-color: #F0E8D1;
-          border: 1.5px solid #D1C4A8;
+          background-color: var(--dock-bg);
+          border: 1.5px solid var(--dock-border);
           border-radius: 22px 22px 0 0; 
           box-sizing: border-box;
           
@@ -183,7 +183,7 @@ const Navbar = {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #F5F2E7; 
+          color: var(--white);
         }
 
         .dock-slider-icon svg {
@@ -211,8 +211,13 @@ const Navbar = {
           background: transparent;
           border: none;
           cursor: pointer;
-          color: #876038;
+          color: var(--dock-item-color);
           outline: none;
+        }
+        .dock-item:focus-visible {
+          outline: 2px solid var(--forest);
+          outline-offset: -4px;
+          border-radius: var(--r-xs);
         }
         
         .di-icon-wrapper {
@@ -241,7 +246,7 @@ const Navbar = {
           opacity: 0; 
         }
         .dock-item.active .di-label {
-          color: #2d5a3d;
+          color: var(--forest);
         }
       `;
       document.head.appendChild(style);
@@ -259,9 +264,9 @@ const Navbar = {
     slider.className = "dock-slider";
     slider.innerHTML = `
       <svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block;">
-        <path d="M 24 50 A 26 26 0 0 0 76 50" fill="none" stroke="#D1C4A8" stroke-width="1.5" />
-        <circle cx="50" cy="50" r="22" fill="none" stroke="#2d5a3d" stroke-width="2"/>
-        <circle cx="50" cy="50" r="18" fill="#2d5a3d" />
+        <path d="M 24 50 A 26 26 0 0 0 76 50" fill="none" style="stroke:var(--dock-border)" stroke-width="1.5" />
+        <circle cx="50" cy="50" r="22" fill="none" style="stroke:var(--forest-btn)" stroke-width="2"/>
+        <circle cx="50" cy="50" r="18" style="fill:var(--forest-btn)" />
       </svg>
       <div class="dock-slider-icon">
         ${(items.find((it) => it.route === active) || {}).icon || NavIcons[active] || ""}

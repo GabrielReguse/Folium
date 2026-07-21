@@ -1,52 +1,22 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    FOLIUM — Dark-Mode Overrides
-   All theming handled via CSS custom properties in variables.css.
-   Toggle: html[data-theme="dark"] — set by App.toggleDarkMode()
+   ──────────────────────────────────────────────────────────
+   Todo o tema (cores, fundos, bordas, dock nav) agora é
+   resolvido por CSS custom properties em variables.css —
+   incluindo o dock nav, que antes injetava hex fixo via JS
+   e precisava de !important aqui pra cada cor. Isso foi
+   corrigido na origem (navbar.js agora usa var(--dock-bg),
+   var(--dock-border), var(--dock-item-color), var(--forest),
+   var(--forest-btn)), então este arquivo não precisa mais
+   sobrescrever cor nenhuma.
 
-   This file handles ONLY components that inject hardcoded hex
-   values into <style> tags via JS (and therefore can't use
-   CSS variables directly). Specifically: the dock nav.
+   Mantido apenas para o único ajuste que NÃO é cor — a
+   sombra de contato do dock, mais profunda no escuro pra
+   manter a mesma sensação de elevação sobre um fundo já
+   escuro. O arquivo continua linkado nos HTML; se um dia
+   ficar vazio de vez, pode virar um <link> removido.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-/* ── Dock nav (navbar.js injects #dock-nav-style with hardcoded colours) ── */
 
 html[data-theme="dark"] .dock-nav-desktop {
   filter: drop-shadow(0px -4px 18px rgba(0, 0, 0, 0.45));
-}
-
-/* Background pill: light #F0E8D1 → dark rgba(31,22,17,0.92) + blur */
-html[data-theme="dark"] .dock-bg {
-  background-color: rgba(31, 22, 17, 0.92) !important;
-  border-color: rgba(211, 181, 141, 0.16) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  backdrop-filter: blur(16px) !important;
-}
-
-/* Inactive item icon/text: synced with --text-light dark token */
-html[data-theme="dark"] .dock-item {
-  color: #A88E70 !important;
-}
-
-/* Active item label: forest green, tuned for contrast against the bubble's white icon AND the dark page bg (plain --forest #4CAF50 failed both at 2.4-2.8:1) */
-html[data-theme="dark"] .dock-item.active .di-label {
-  color: #2E8B36 !important;
-}
-
-/* Slider SVG — arc underline: stroke #D1C4A8 → muted */
-html[data-theme="dark"] .dock-slider path {
-  stroke: rgba(211, 181, 141, 0.22) !important;
-}
-
-/* Slider SVG — outer ring + filled centre: same tuned green as the label */
-html[data-theme="dark"] .dock-slider circle:nth-child(2) {
-  stroke: #2E8B36 !important;
-}
-
-html[data-theme="dark"] .dock-slider circle:nth-child(3) {
-  fill: #2E8B36 !important;
-}
-
-/* Slider icon stays light (text on green circle) */
-html[data-theme="dark"] .dock-slider-icon {
-  color: #ffffff !important;
 }

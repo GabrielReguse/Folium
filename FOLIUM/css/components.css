@@ -34,7 +34,7 @@
 }
 
 .btn-primary {
-  background: var(--brown);
+  background: var(--brown-btn);
   color: var(--white);
   box-shadow: var(--shadow-glow-sm) var(--brown-hv);
 }
@@ -52,7 +52,7 @@
 
 .btn-secondary:hover:not(:disabled) {
   background: var(--sand);
-  color: var(--caramel-dk);
+  color: var(--brown);
 }
 
 .btn-ghost {
@@ -73,9 +73,9 @@
 }
 
 .btn-outline:hover {
-  background: var(--brown);
+  background: var(--brown-btn);
   color: var(--white);
-  border-color: var(--brown);
+  border-color: var(--brown-btn);
 }
 
 .btn-danger {
@@ -237,7 +237,7 @@
 }
 
 .loader-w {
-  border-color: var(--white-t20);
+  border-color: rgba(255, 255, 255, 0.2);
   border-top-color: #fff;
 }
 
@@ -310,7 +310,7 @@
   font-weight: 600;
   color: var(--text-mid);
   cursor: pointer;
-  background: var(--white-t52);
+  background: var(--glass-52);
   border: 1.5px solid var(--border);
   border-radius: 999px;
   font-family: var(--font-sans);
@@ -526,7 +526,7 @@
   width: 42px;
   height: 42px;
   border-radius: var(--r-sm);
-  background: var(--caramel);
+  background: var(--caramel-btn);
   border: 1.5px solid var(--border-act);
   display: flex;
   align-items: center;
@@ -895,7 +895,7 @@
 }
 
 .sh-summary {
-  background: linear-gradient(140deg, var(--brown-mid) 0%, var(--brown) 100%);
+  background: linear-gradient(140deg, var(--brown-mid) 0%, var(--brown-btn) 100%);
   border-radius: var(--r);
   padding: 26px;
   color: var(--white);
@@ -930,7 +930,10 @@
   opacity: 0.88;
   font-weight: 300;
   position: relative;
-  color: var(--white-t60);
+  /* branco fixo (nao glass-60): o card .sh-summary é sempre escuro
+     (var(--brown-btn)) nos dois temas, entao o texto precisa
+     continuar claro — nao usar token adaptativo aqui.            */
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .confirm-overlay {

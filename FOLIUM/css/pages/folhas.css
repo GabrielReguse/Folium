@@ -536,8 +536,8 @@
 }
 
 .fh-shell.type-mapas .fh-cta {
-  background: var(--forest);
-  border-color: var(--forest);
+  background: var(--forest-btn);
+  border-color: var(--forest-btn);
 }
 
 .fh-shell.type-mapas .fh-cta:hover {

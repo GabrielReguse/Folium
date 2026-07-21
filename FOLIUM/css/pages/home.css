@@ -106,7 +106,7 @@
 
 .hero-stats {
   display: flex;
-  background: var(--white-t60);
+  background: var(--glass-60);
   border-radius: 999px;
   overflow: hidden;
   border: 1px solid rgba(var(--border-rgb), 0.28);
@@ -360,7 +360,7 @@
   .desk-stats {
     max-width: 360px;
     border-radius: 999px;
-    background: var(--white-t52);
+    background: var(--glass-52);
     border: 1px solid var(--tan-mid);
     box-shadow: var(--sh);
     backdrop-filter: blur(6px);
