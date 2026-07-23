@@ -145,13 +145,11 @@
     transparent 94%
   );
 
-  /* ── Imagens de fundo ───────────────────────────────────────────
-     Light usa as variantes "-dark" dos doodles: traço escuro
-     (~rgb 106,92,75) sobre fundo claro = contraste nítido.        */
-  --img-home-mobile:  url("../../assets/images/doodles-mobile-dark.png");
-  --img-home-desktop: url("../../assets/images/doodles-desktop-home-dark.png");
-  --img-full-mobile:  url("../../assets/images/doodles-mobile-fullscreen-dark.png");
-  --img-full-desktop: url("../../assets/images/doodles-desktop-fullscreen-dark.png");
+  /* ── Imagens de fundo ─────────────────────────────────────────── */
+  --img-home-mobile:  url("../../assets/images/doodles-mobile.png");
+  --img-home-desktop: url("../../assets/images/doodles-desktop-home.png");
+  --img-full-mobile:  url("../../assets/images/doodles-mobile-fullscreen.png");
+  --img-full-desktop: url("../../assets/images/doodles-desktop-fullscreen.png");
   --img-blend:        normal;
   --img-vinicius:     url("../../assets/images/vinicius-fundo.png");
 
@@ -324,13 +322,11 @@ html[data-theme="dark"] {
     transparent 94%
   );
 
-  /* ── Imagens de fundo ───────────────────────────────────────────
-     Dark usa as variantes "normais" (claras) dos doodles: traço
-     creme (~rgb 238,226,200) sobre espresso = brilho dourado sutil. */
-  --img-home-mobile:  url("../../assets/images/doodles-mobile.png");
-  --img-home-desktop: url("../../assets/images/doodles-desktop-home.png");
-  --img-full-mobile:  url("../../assets/images/doodles-mobile-fullscreem.png");
-  --img-full-desktop: url("../../assets/images/doodles-desktop-fullscreen.png");
+  /* ── Imagens de fundo ─────────────────────────────────────────── */
+  --img-home-mobile:  url("../../assets/images/doodles-mobile-dark.png");
+  --img-home-desktop: url("../../assets/images/doodles-desktop-home-dark.png");
+  --img-full-mobile:  url("../../assets/images/doodles-mobile-fullscreen-dark.png");
+  --img-full-desktop: url("../../assets/images/doodles-desktop-fullscreen-dark.png");
   --img-blend:        normal;
   --img-vinicius:     url("../../assets/images/vinicius-fundo-dark.png");
 }
