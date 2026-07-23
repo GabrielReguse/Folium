@@ -126,15 +126,34 @@
   --dock-border:      #D1C4A8;
   --dock-item-color:  #876038;
 
+  /* ── Glow decorativo atrás do hero (mobile) ──────────────────────
+     Alpha calibrado pro modo claro: cores quentes sobre --cream tem
+     contraste baixo, então pode ser mais intenso sem "estourar".   */
+  --hero-glow-1: radial-gradient(
+    circle,
+    var(--bg-nav) 0%,
+    rgba(var(--cream-rgb), 0.72) 30%,
+    rgba(var(--hover-rgb), 0.42) 56%,
+    rgba(var(--hover-rgb), 0.18) 80%,
+    transparent 94%
+  );
+  --hero-glow-2: radial-gradient(
+    circle,
+    rgba(var(--hover-rgb), 0.65) 0%,
+    rgba(var(--hover-rgb), 0.42) 40%,
+    rgba(var(--hover-rgb), 0.16) 70%,
+    transparent 94%
+  );
+
   /* ── Imagens de fundo ───────────────────────────────────────────
      Light usa as variantes "-dark" dos doodles: traço escuro
      (~rgb 106,92,75) sobre fundo claro = contraste nítido.        */
-  --img-home-mobile:  url("../assets/images/doodles-mobile-dark.png");
-  --img-home-desktop: url("../assets/images/doodles-desktop-home-dark.png");
-  --img-full-mobile:  url("../assets/images/doodles-mobile-fullscreen-dark.png");
-  --img-full-desktop: url("../assets/images/doodles-desktop-fullscreen-dark.png");
+  --img-home-mobile:  url("../../assets/images/doodles-mobile-dark.png");
+  --img-home-desktop: url("../../assets/images/doodles-desktop-home-dark.png");
+  --img-full-mobile:  url("../../assets/images/doodles-mobile-fullscreen-dark.png");
+  --img-full-desktop: url("../../assets/images/doodles-desktop-fullscreen-dark.png");
   --img-blend:        normal;
-  --img-vinicius:     url("../assets/images/vinicius-fundo.png");
+  --img-vinicius:     url("../../assets/images/vinicius-fundo.png");
 
   /* ── Tipografia ─────────────────────────────────────────────── */
   --font-serif: "Playfair Display", Georgia, serif;
@@ -217,9 +236,14 @@ html[data-theme="dark"] {
   --brown:        #C8924A;   /* texto/ícone — brilha no fundo escuro */
   --brown-btn:    #6E4526;   /* fundo de botão — seguro p/ branco  */
   --brown-mid:    #8A5A32;   /* fundo hover do botão primário      */
-  --brown-lt:     rgba(200, 146, 74, 0.10);
-  --brown-md:     rgba(200, 146, 74, 0.18);
-  --brown-hv:     rgba(200, 146, 74, 0.28);
+  /* Sombra ambiente (drop-shadow/box-shadow) — fica ESCURA nos dois
+     temas, igual --sh/--sh-lg. Usar cor de marca aqui (como no light,
+     que já era escuro por natureza) faz sentido só pq marrom-café já
+     É escuro; no dark, marrom "clareado" viraria brilho, nao sombra —
+     por isso NAO reaproveita --brown (que clareia p/ texto/ícone).   */
+  --brown-lt:     rgba(0, 0, 0, 0.22);
+  --brown-md:     rgba(0, 0, 0, 0.38);
+  --brown-hv:     rgba(0, 0, 0, 0.52);
 
   --caramel:      #D4AA6C;   /* texto/label — 9.01:1 no fundo      */
   --caramel-dk:   #B88C4A;
@@ -278,13 +302,35 @@ html[data-theme="dark"] {
   --dock-border:      rgba(212, 170, 108, 0.16);
   --dock-item-color:  #A88E70;
 
+  /* ── Glow decorativo atrás do hero (mobile) ──────────────────────
+     Mesma estrutura do light, alpha ~3x menor: a mesma cor quente
+     sobre fundo quase-preto tem contraste muito mais alto, então
+     precisa de bem menos opacidade pra ler como "sutil" nos dois
+     temas — valor idêntico de alpha ficaria um borrão óbvio aqui
+     (era exatamente o bug relatado: mancha marrom cobrindo o texto). */
+  --hero-glow-1: radial-gradient(
+    circle,
+    var(--bg-nav) 0%,
+    rgba(var(--cream-rgb), 0.45) 30%,
+    rgba(var(--hover-rgb), 0.15) 56%,
+    rgba(var(--hover-rgb), 0.06) 80%,
+    transparent 94%
+  );
+  --hero-glow-2: radial-gradient(
+    circle,
+    rgba(var(--hover-rgb), 0.22) 0%,
+    rgba(var(--hover-rgb), 0.13) 40%,
+    rgba(var(--hover-rgb), 0.05) 70%,
+    transparent 94%
+  );
+
   /* ── Imagens de fundo ───────────────────────────────────────────
      Dark usa as variantes "normais" (claras) dos doodles: traço
      creme (~rgb 238,226,200) sobre espresso = brilho dourado sutil. */
-  --img-home-mobile:  url("../assets/images/doodles-mobile.png");
-  --img-home-desktop: url("../assets/images/doodles-desktop-home.png");
-  --img-full-mobile:  url("../assets/images/doodles-mobile-fullscreem.png");
-  --img-full-desktop: url("../assets/images/doodles-desktop-fullscreen.png");
+  --img-home-mobile:  url("../../assets/images/doodles-mobile.png");
+  --img-home-desktop: url("../../assets/images/doodles-desktop-home.png");
+  --img-full-mobile:  url("../../assets/images/doodles-mobile-fullscreem.png");
+  --img-full-desktop: url("../../assets/images/doodles-desktop-fullscreen.png");
   --img-blend:        normal;
-  --img-vinicius:     url("../assets/images/vinicius-fundo-dark.png");
+  --img-vinicius:     url("../../assets/images/vinicius-fundo-dark.png");
 }

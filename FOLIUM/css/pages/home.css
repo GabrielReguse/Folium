@@ -395,7 +395,7 @@
     object-fit: contain;
     user-select: none;
     pointer-events: none;
-    filter: drop-shadow(0 8px 32px var(--brown-md));
+    filter: drop-shadow(0 6px 22px var(--brown-md));
     z-index: 2;
   }
 
@@ -537,14 +537,7 @@
     height: 78vw;
     max-height: 310px;
     border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      var(--bg-nav) 0%,
-      rgba(var(--cream-rgb), 0.72) 30%,
-      rgba(var(--hover-rgb), 0.42) 56%,
-      rgba(var(--hover-rgb), 0.18) 80%,
-      transparent 94%
-    );
+    background: var(--hero-glow-1);
     pointer-events: none;
     z-index: 0;
   }
@@ -559,13 +552,7 @@
     height: 52vw;
     max-height: 200px;
     border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      rgba(var(--hover-rgb), 0.65) 0%,
-      rgba(var(--hover-rgb), 0.42) 40%,
-      rgba(var(--hover-rgb), 0.16) 70%,
-      transparent 94%
-    );
+    background: var(--hero-glow-2);
     pointer-events: none;
     z-index: 0;
   }
